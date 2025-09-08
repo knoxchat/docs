@@ -1,0 +1,95 @@
+---
+sidebar_position: 2
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Model Routing
+
+Knox Chat provides two options for model routing.
+
+## Auto Router
+The Auto Router, a special model ID that you can use to choose between selected high-quality models based on your prompt, powered by [NotDiamond](https://www.notdiamond.ai/).
+
+The resulting generation will have `model` set to the model that was used.
+
+## The `models` parameter
+
+The `models` parameter lets you automatically try other models if the primary model's providers are down, rate-limited, or refuse to reply due to content moderation.
+
+```json showLineNumbers
+{
+  "models": ["anthropic/claude-sonnet-4", "deepseek/deepseek-chat"],
+  ... // Other params
+}
+```
+
+If the model you selected returns an error, Knox Chat will try to use the fallback model instead. If the fallback model is down or returns an error, Knox Chat will return that error.
+
+By default, any error can trigger the use of a fallback model, including context length validation errors, moderation flags for filtered models, rate-limiting, and downtime.
+
+Requests are priced using the model that was ultimately used, which will be returned in the `model` attribute of the response body.
+
+## Using with OpenAI SDK
+
+To use the `models` array with the OpenAI SDK, include it in the `extra_body` parameter. In the example below, gpt-4o will be tried first, and the `models` array will be tried in order as fallbacks.
+
+<Tabs>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const knoxchatClient = new OpenAI({
+  baseURL: 'https://knox.chat/v1',
+  // API 密钥和标头
+});
+
+async function main() {
+  // @ts-expect-error
+  const completion = await knoxchatClient.chat.completions.create({
+    model: 'openai/gpt-4o',
+    models: ['anthropic/claude-sonnet-4', 'qwen/qwen3-coder'],
+    messages: [
+      {
+        role: 'user',
+        content: 'What is the meaning of life?',
+      },
+    ],
+  });
+  console.log(completion.choices[0].message);
+}
+
+main();
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+openai_client = OpenAI(
+  base_url="https://knox.chat/v1",
+  api_key=<KNOXCHAT_API_KEY>,
+)
+
+completion = openai_client.chat.completions.create(
+    model="openai/gpt-4o",
+    extra_body={
+        "models": ["anthropic/claude-sonnet-4", "qwen/qwen3-coder"],
+    },
+    messages=[
+        {
+            "role": "user",
+            "content": "What is the meaning of life?"
+        }
+    ]
+)
+
+print(completion.choices[0].message.content)
+```
+
+</TabItem>
+</Tabs>

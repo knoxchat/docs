@@ -1,0 +1,102 @@
+---
+id: post-embeddings
+title: "Text Embeddings Model"
+description: "Returns a list of embeddings response"
+sidebar_label: "Text Embeddings Model"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Text Embeddings Model"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://knox.chat/v1/embeddings"}
+>
+</MethodEndpoint>
+
+## Returns a list of embeddings response
+
+The text embeddings endpoint takes a string (or list of strings) and other parameters (such as the preferred model name) as input and returns a response containing a list of embeddings.
+
+### Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | string | Yes | Bearer authentication in the form Bearer \<token\>, where token is your authentication token. |
+
+## cURL Example
+
+```shell
+curl --request POST \
+     --url https://knox.chat/v1/embeddings \
+     --header "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     --header "content-type: application/json" \
+     --data '
+{
+  "input": [
+    "Sample text 1",
+    "Sample text 2"
+  ],
+  "model": "voyage-3.5"
+}
+'
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "object": "embedding",
+      "embedding": [
+        -0.016709786,
+        0.026996311,
+        -0.027496673,
+        "...",
+        -0.012125067
+      ],
+      "index": 0
+    },
+    {
+      "object": "embedding",
+      "embedding": [
+        0.003613521,
+        0.026428301,
+        -0.009491397,
+        "...",
+        -0.028471239
+      ],
+      "index": 1
+    }
+  ],
+  "model": "voyage-3.5",
+  "usage": {
+    "total_tokens": 8
+  }
+}
+```
+## Response Errors
+
+- 4xx series are client-side errors
+- 5xx series are server-side errors

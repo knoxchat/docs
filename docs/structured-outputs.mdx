@@ -1,0 +1,218 @@
+---
+sidebar_position: 5
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Structured Outputs
+
+Knox Chat supports structured outputs for compatible models, ensuring that responses adhere to a specific JSON Schema format. This feature is particularly useful when you need consistent, well-formatted responses that can be reliably parsed by your application.
+
+## Overview
+
+Structured outputs allow you to:
+
+* Enforce specific JSON Schema validation on model responses  
+* Obtain consistent, type-safe outputs  
+* Avoid parsing errors and phantom fields  
+* Simplify response handling in applications  
+
+## Using Structured Outputs
+
+To use structured outputs, include the `response_format` parameter in your request, set the `type` to `json_schema`, and include your schema in the `json_schema` object:
+
+```typescript
+{
+  "messages": [
+    { "role": "user", "content": "What's the weather like in London?" }
+  ],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "weather",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City or location name"
+          },
+          "temperature": {
+            "type": "number",
+            "description": "Temperature in Celsius"
+          },
+          "conditions": {
+            "type": "string",
+            "description": "Weather conditions description"
+          }
+        },
+        "required": ["location", "temperature", "conditions"],
+        "additionalProperties": false
+      }
+    }
+  }
+}
+```
+
+The model will respond with a JSON object strictly adhering to your schema:
+
+```json
+{
+  "location": "London",
+  "temperature": 18,
+  "conditions": "Partly cloudy with light drizzle"
+}
+```
+
+## Model Support
+
+Selected Models Supporting Structured Outputs
+
+You can find the list of models supporting structured outputs on the [Models Page](https://knox.chat/modelslist).
+
+* OpenAI models (GPT-4o and above) [Documentation](https://platform.openai.com/docs/guides/structured-outputs)  
+* All models provided by Fireworks [Documentation](https://docs.fireworks.ai/structured-responses/structured-response-formatting#structured-response-modes)  
+
+To ensure your chosen model supports structured outputs:  
+
+1. Check the supported parameters for the model on the [Models Page](https://knox.chat/modelslist)  
+2. Set `require_parameters: true` in your provider preferences (see [Provider Routing](/provider-routing))  
+3. Include `response_format` in the required parameters and set `type: json_schema`  
+
+## Best Practices  
+
+1. **Add Descriptions**: Provide clear descriptions for your schema properties to guide the model.  
+
+2. **Use Strict Mode**: Always set `strict: true` to ensure the model strictly follows your schema.  
+
+## Example Implementation  
+
+Here’s a complete example using the Fetch API:
+
+<Tabs>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const response = await fetch('https://knox.chat/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    Authorization: 'Bearer <KNOXCHAT_API_KEY>',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'openai/gpt-4',
+    messages: [
+      { role: 'user', content: 'What is the weather like in London?' },
+    ],
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'weather',
+        strict: true,
+        schema: {
+          type: 'object',
+          properties: {
+            location: {
+              type: 'string',
+              description: 'City or location name',
+            },
+            temperature: {
+              type: 'number',
+              description: 'Temperature in Celsius',
+            },
+            conditions: {
+              type: 'string',
+              description: 'Weather conditions description',
+            },
+          },
+          required: ['location', 'temperature', 'conditions'],
+          additionalProperties: false,
+        },
+      },
+    },
+  }),
+});
+
+const data = await response.json();
+const weatherInfo = data.choices[0].message.content;
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+response = requests.post(
+  "https://knox.chat/v1/chat/completions",
+  headers={
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json",
+  },
+
+  json={
+    "model": "openai/gpt-4",
+    "messages": [
+      {"role": "user", "content": "What is the weather like in London?"},
+    ],
+    "response_format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "weather",
+        "strict": True,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string",
+              "description": "City or location name",
+            },
+            "temperature": {
+              "type": "number",
+              "description": "Temperature in Celsius",
+            },
+            "conditions": {
+              "type": "string",
+              "description": "Weather conditions description",
+            },
+          },
+          "required": ["location", "temperature", "conditions"],
+          "additionalProperties": False,
+        },
+      },
+    },
+  },
+)
+
+data = response.json()
+weather_info = data["choices"][0]["message"]["content"]
+```
+
+</TabItem>
+</Tabs>
+
+## Structured Streaming Output
+
+Streaming responses also support structured output. The model will transmit valid partial JSON, which when completed will form a valid response matching your schema.
+
+To enable streaming of structured output, simply add `stream: true` to your request:
+
+```typescript
+{
+  "stream": true,
+  "response_format": {
+    "type": "json_schema",
+    // ... rest of your schema
+  }
+}
+```
+
+## Error Handling
+
+When using structured outputs, you may encounter the following scenarios:
+
+1. **Model does not support structured output**: The request will fail with an error indicating that it is not supported.
+2. **Invalid schema**: If your JSON schema is invalid, the model will return an error.

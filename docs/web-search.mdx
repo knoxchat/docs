@@ -1,0 +1,79 @@
+---
+sidebar_position: 8
+---
+
+# Web Search  
+
+You can enable and customize the `web` plugin or append `:online` to the model suffix to allow web search support for any model in Knox Chat:  
+
+```json
+{
+  "model": "openai/gpt-4o:online"
+}
+```
+
+This is a shortcut for using the `web` plugin, which is completely equivalent to:
+
+```json
+{
+  "model": "openrouter/auto",
+  "plugins": [{ "id": "web" }]
+}
+```
+
+This web search plugin is powered by [Exa](https://exa.ai) and utilizes its ["auto"](https://docs.exa.ai/reference/how-exa-search-works#combining-neural-and-keyword-the-best-of-both-worlds-through-exa-auto-search) method (a combination of keyword search and embedding-based web search) to find the most relevant results and enhance/consolidate your prompts.
+
+## Parsing Web Search Results
+
+Web search results from all models (including purely native models like Perplexity and OpenAI Online) are available via the API and are standardized by Knox Chat to follow the same annotation pattern as the [OpenAI Chat Completion Message type](https://platform.openai.com/docs/api-reference/chat/object).
+
+```json
+{
+  "message": {
+    "role": "assistant",
+    "content": "Here's the latest news I found: ...",
+    "annotations": [
+      {
+        "type": "url_citation",
+        "url_citation": {
+          "url": "https://www.example.com/web-search-result",
+          "title": "Title of the web search result",
+          "content": "Content of the web search result", // Added by Knox Chat if available
+          "start_index": 100, // The index of the first character of the URL citation in the message.
+          "end_index": 200 // The index of the last character of the URL citation in the message.
+        }
+      }
+    ]
+  }
+}
+```
+
+## Custom Web Plugin
+
+Customizable web plugins allow setting the maximum number of results and the prompt used to append them to the streaming output:
+
+```json
+{
+  "model": "openai/gpt-4o:online",
+  "plugins": [
+    {
+      "id": "web",
+      "max_results": 1, // Defaults to 5
+      "search_prompt": "Some relevant web results:" // See default below
+    }
+  ]
+}
+```
+
+By default, the Web plugin uses the following search prompt with the current date:
+
+```
+A web search was conducted on `date`. Incorporate the following web search results into your response.
+
+IMPORTANT: Cite them using markdown links named using the domain of the source.
+Example: [nytimes.com](https://nytimes.com/some-page).
+```
+
+## Pricing
+
+This Web plugin uses your Knox Chat balance and charges *\$4 per 1000 results*. By default, `max_results` is set to 5, so each request costs a maximum of \$0.02, in addition to the LLM usage fee for the search query prompt tokens.

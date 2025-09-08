@@ -1,0 +1,57 @@
+---
+id: parameters
+title: "API Parameters"
+description: "Detailed documentation of parameters supported by the Knox Chat API"
+sidebar_label: API Parameters
+sidebar_position: 1
+hide_title: true
+custom_edit_url: null
+---
+
+# API Parameters
+
+This page provides a complete list of all parameters supported by the Knox Chat API.
+
+## Core Parameters
+
+| Parameter Name | Type | Default Value | Description |
+| -------------- | ---- | ------------- | ----------- |
+| `model` | String | None | The model ID to use. If not specified, the user's default setting will be used. |
+| `messages` | Array of Objects | None | An array of messages for chat completion requests. Each message should include "role" and "content" fields. |
+| `prompt` | String | None | The prompt text for text completion requests. |
+
+## Shared Parameters
+
+The following parameters can be used for both completion and chat completion requests:
+
+| Parameter Name | Type | Default Value | Description |
+| -------------- | ---- | ------------- | ----------- |
+| `max_tokens` | Integer | None | Maximum number of tokens to generate (range: [1, context_length)). |
+| `temperature` | Double | 1.0 | Sampling temperature (range: [0, 2]). Higher values produce more diverse results. |
+| `top_p` | Double | 1.0 | Top-p sampling value (range: (0, 1]). Controls the probability space of vocabulary considered by the model. |
+| `top_k` | Integer | None | Top-k sampling value (range: [1, Infinity)). Only considers the k most probable tokens. |
+| `stream` | Boolean | false | Enable streaming of results. |
+| `seed` | Integer | None | Seed value for deterministic output. |
+| `frequency_penalty` | Double | 0.0 | Frequency penalty (range: [-2, 2]). Decreases the probability of tokens that have been used frequently. |
+| `presence_penalty` | Double | 0.0 | Presence penalty (range: [-2, 2]). Decreases the probability of tokens that have already appeared. |
+| `repetition_penalty` | Double | 1.0 | Repetition penalty (range: (0, 2]). Decreases the probability of repeated words. |
+| `logit_bias` | Object | None | A mapping from token IDs to bias values for adjusting the probability of specific tokens. |
+| `min_p` | Double | 0.0 | Minimum probability threshold (range: [0, 1]). Filters out tokens below the threshold. |
+| `top_a` | Double | None | Alternative top sampling parameter (range: [0, 1]). |
+| `top_logprobs` | Integer | None | Number of top log probabilities to return. |
+
+## Knox Chat Specific Parameters
+
+The following parameters are specific to Knox Chat:
+
+| Parameter Name | Type | Default Value | Description |
+| -------------- | ---- | ------------- | ----------- |
+| `models` | Array of Strings | None | List of alternative models for routing override. |
+| `provider` | Object | None | Provider preferences for routing. |
+| `transforms` | Array of Strings | None | List of prompt transformations (Knox Chat only). |
+| `reasoning` | Object | None | Configuration for model reasoning/thinking tokens. |
+| `usage` | Object | None | Whether to include usage information in the response. |
+
+## Context Length Limitations
+
+Each model has different context length limitations, which determine the total number of input and output tokens. You can query the model list via the `/v1/models` endpoint to view the `context_length` value for each model.

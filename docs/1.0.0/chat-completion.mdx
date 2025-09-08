@@ -1,0 +1,114 @@
+---
+id: chat-completion
+title: "Chat Completion"
+description: "Send a chat completion request to the selected model. The request must contain a \"messages\" array. All advanced options from the base request are also supported."
+sidebar_label: "Chat Completion"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Chat Completion"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://knox.chat/v1/chat/completions"}
+>
+</MethodEndpoint>
+
+Send a chat generation/completion request to the selected model. The request must include a "messages" array. All advanced options from the base request are also supported.
+
+## Request
+
+This endpoint requires an object.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | Bearer authentication in the form of Bearer \<token\>, where token is your authentication token. |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| model | String | Yes | The model ID to use. If not specified, the user's default setting will be used. |
+| messages | List of Objects | Yes | A list of message objects containing "role" and "content" properties. |
+| models | List of Strings | No | Alternative model list for routing override. |
+| provider | Object | No | Provider routing preference settings. |
+| reasoning | Object | No | Configuration for model reasoning/thought tokens. |
+| usage | Object | No | Whether to include usage information in the response. |
+| transforms | List of Strings | No | A list of prompt transformations (Knox Chat only). |
+| stream | Boolean | No | Enable result streaming. Defaults to `false`. |
+| max_tokens | Integer | No | Maximum number of tokens (range: [1, context_length)). |
+| temperature | Double | No | Sampling temperature (range: [0, 2]). |
+| seed | Integer | No | Seed for deterministic output. |
+| top_p | Double | No | Top-p sampling value (range: (0, 1]). |
+| top_k | Integer | No | Top-k sampling value (range: [1, Infinity)). |
+| frequency_penalty | Double | No | Frequency penalty (range: [-2, 2]). |
+| presence_penalty | Double | No | Presence penalty (range: [-2, 2]). |
+| repetition_penalty | Double | No | Repetition penalty (range: (0, 2]). |
+| logit_bias | Map of String to Double | No | Mapping from token IDs to bias values. |
+| top_logprobs | Integer | No | Number of top log probabilities to return. |
+| min_p | Double | No | Minimum probability threshold (range: [0, 1]). |
+| top_a | Double | No | Alternative top sampling parameter (range: [0, 1]). |
+
+## cURL Example
+
+```shell
+curl -X POST https://knox.chat/v1/chat/completions \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4",
+  "messages": [
+    {
+      "role": "user",
+      "content": "生命的意义是什么？"
+    }
+  ]
+}'
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "id": "gen-12345",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "生命的意义是一个复杂且主观的问题..."
+      }
+    }
+  ]
+}
+```
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | string | Unique identifier for the completion |
+| choices | array | Array of completion choices |
+| choices[].message | object | The generated message |
+| choices[].message.role | string | Role of the message (typically "assistant") |
+| choices[].message.content | string | Content of the generated message |

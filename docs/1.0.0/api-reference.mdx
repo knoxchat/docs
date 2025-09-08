@@ -1,0 +1,466 @@
+---
+id: api-reference
+title: "API Reference"
+description: "This is a sample server Petstore server - Users API only."
+sidebar_label: API Reference
+sidebar_position: 0
+hide_title: true
+custom_edit_url: null
+---
+import ApiLogo from "@theme/ApiLogo";
+import Heading from "@theme/Heading";
+import SchemaTabs from "@theme/SchemaTabs";
+import TabItem from "@theme/TabItem";
+import Export from "@theme/ApiExplorer/Export";
+
+# API Reference
+
+Knox Chat's request and response pattern is very similar to the OpenAI Chat API, with only minor differences. At a high level, **Knox Chat standardizes the schema across models and providers**, so you only need to learn one.
+
+## Base URL
+
+All API requests should be sent to the following base URL:
+
+```
+https://knox.chat/v1
+```
+
+## Authentication
+
+Each API request requires your API key to be included in the request header:
+
+```
+Authorization: Bearer sk-...
+```
+
+
+You can find or create API tokens/keys on the [**Knox Chat Token**](https://knox.chat/token) page.
+
+## Main Endpoints
+
+The Knox Chat API includes the following main endpoints:
+
+### Text Generation
+
+- [**Text Completion**](/1.0.0/completion) - Send a text completion request to the selected model
+- [**Chat Completion**](/1.0.0/chat-completion) - Send a chat completion request to the selected model
+
+### Model Information
+
+- [**Get List of Available Models**](/1.0.0/list-available-models) - Get information about all available models
+
+## Parameters
+
+Knox Chat supports various parameters to control model behavior and output. See the [**Parameters**](/1.0.0/parameters) section for details.
+
+## Error Handling
+
+The API uses standard HTTP status codes to indicate the result of a request:
+
+- `200` - Request successful
+- `400` - Invalid or missing request parameters
+- `401` - Authentication failed (invalid or expired API key)
+- `402` - Insufficient account balance
+- `404` - Requested resource not found
+- `429` - Rate limit exceeded
+- `500` - Internal server error
+
+## Requests
+
+### Output Generation Request Format
+
+Below is the TypeScript type definition of the request schema. This will serve as the request body when you send a `POST` request to the `/v1/chat/completions` endpoint (see [Quick Start](/intro) above for an example).
+
+For a complete list of parameters, see the [Parameters](/1.0.0/parameters) section.
+
+  ```typescript showNumberLine 请求模式
+  // Definitions of subtypes are below
+  type Request = {
+    // Either "messages" or "prompt" is required
+    messages?: Message[];
+    prompt?: string;
+
+    // If "model" is unspecified, uses the user's default
+    model?: string; // See "Supported Models" section
+
+    // Allows to force the model to produce specific output format.
+    // See models page and note on this docs page for which models support it.
+    response_format?: { type: 'json_object' };
+
+    stop?: string | string[];
+    stream?: boolean; // Enable streaming
+
+    // See LLM Parameters (docs.knox.chat/api-reference/parameters)
+    max_tokens?: number; // Range: [1, context_length)
+    temperature?: number; // Range: [0, 2]
+
+    // Tool calling
+    // Will be passed down as-is for providers implementing OpenAI's interface.
+    // For providers with custom interfaces, we transform and map the properties.
+    // Otherwise, we transform the tools into a YAML template. The model responds with an assistant message.
+    tools?: Tool[];
+    tool_choice?: ToolChoice;
+
+    // Advanced optional parameters
+    seed?: number; // Integer only
+    top_p?: number; // Range: (0, 1]
+    top_k?: number; // Range: [1, Infinity) Not available for OpenAI models
+    frequency_penalty?: number; // Range: [-2, 2]
+    presence_penalty?: number; // Range: [-2, 2]
+    repetition_penalty?: number; // Range: (0, 2]
+    logit_bias?: { [key: number]: number };
+    top_logprobs: number; // Integer only
+    min_p?: number; // Range: [0, 1]
+    top_a?: number; // Range: [0, 1]
+
+    // Reduce latency by providing the model with a predicted output
+    // https://platform.openai.com/docs/guides/latency-optimization#use-predicted-outputs
+    prediction?: { type: 'content'; content: string };
+
+    // Knox Chat-only parameters
+    // See "Prompt Transforms" section: docs.knox.chat/message-transforms
+    transforms?: string[];
+    // See "Model Routing" section: docs.knox.chat/model-routing
+    models?: string[];
+    route?: 'fallback';
+    // See "Provider Routing" section: docs.knox.chat/provider-routing
+    provider?: ProviderPreferences;
+  };
+
+  // Subtypes:
+
+  type TextContent = {
+    type: 'text';
+    text: string;
+  };
+
+  type ImageContentPart = {
+    type: 'image_url';
+    image_url: {
+      url: string; // URL or base64 encoded image data
+      detail?: string; // Optional, defaults to "auto"
+    };
+  };
+
+  type ContentPart = TextContent | ImageContentPart;
+
+  type Message =
+    | {
+        role: 'user' | 'assistant' | 'system';
+        // ContentParts are only for the "user" role:
+        content: string | ContentPart[];
+        // If "name" is included, it will be prepended like this
+        // for non-OpenAI models: `{name}: {content}`
+        name?: string;
+      }
+    | {
+        role: 'tool';
+        content: string;
+        tool_call_id: string;
+        name?: string;
+      };
+
+  type FunctionDescription = {
+    description?: string;
+    name: string;
+    parameters: object; // JSON Schema object
+  };
+
+  type Tool = {
+    type: 'function';
+    function: FunctionDescription;
+  };
+
+  type ToolChoice =
+    | 'none'
+    | 'auto'
+    | {
+        type: 'function';
+        function: {
+          name: string;
+        };
+      };
+  ```
+The `response_format` parameter ensures that you receive structured responses from the large language model (LLM). This parameter is only supported by OpenAI models, Nitro models, and some other partial models.
+
+:::info Non-standard parameter
+  If the selected model does not support a request parameter (for example, `logit_bias` in non-OpenAI models, or `top_k` in OpenAI), the parameter will be ignored.
+  The remaining parameters will be forwarded to the underlying model API.
+:::
+
+### Prefilled Assistant
+
+Knox Chat supports having the model complete partial responses. This can be used to guide the model to answer in a specific way.
+
+To use this feature, simply include a message with `role: "assistant"` at the end of the messages array.
+
+  ```typescript title="TypeScript"
+  fetch('https://knox.chat/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer <KNOXCHAT_API_KEY>',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'openai/gpt-4o',
+      messages: [
+        { role: 'user', content: 'What is the meaning of life?' },
+        { role: 'assistant', content: "I'm not sure, but my best guess is" },
+      ],
+    }),
+  });
+  ```
+
+### Images and Multimodal
+
+Multimodal requests can only be implemented via the `/v1/chat/completions` API, requiring a multi-part `messages` parameter. `image_url` can be either a URL or base64-encoded image data.
+
+```typescript
+"messages": [
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "What's in this image?"
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+        }
+      }
+    ]
+  }
+]
+```
+
+LLM response example:
+
+```json
+{
+  "choices": [
+    {
+      "role": "assistant",
+      "content": "This image depicts a scenic natural landscape featuring a long wooden boardwalk that stretches out through an expansive field of green grass. The boardwalk provides a clear path and invites exploration through the lush environment. The scene is surrounded by a variety of shrubbery and trees in the background, indicating a diverse plant life in the area."
+    }
+  ]
+}
+```
+
+### Image Generation
+
+Some models support native image generation capabilities. To generate images, you can include `modalities: ["image", "text"]` in your request. The model will return images in OpenAI ContentPartImage format, where `image_url` contains a base64 data URL.
+
+```typescript
+{
+  "model": "openai/dall-e-3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Create a beautiful sunset over mountains"
+    }
+  ],
+  "modalities": ["image", "text"]
+}
+```
+
+Image generation response example:
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "Here's your requested sunset over mountains."
+          },
+          {
+            "type": "image_url",
+            "image_url": {
+              "url": "data:image/png;base64,..."
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+#### Upload Base64 Encoded Images
+
+For locally stored images, you can send them to the model through Base64 encoding. Here is an example:
+
+```typescript TypeScript
+import { readFile } from "fs/promises";
+
+const getFlowerImage = async (): Promise<string> => {
+  const imagePath = new URL("flower.jpg", import.meta.url);
+  const imageBuffer = await readFile(imagePath);
+  const base64Image = imageBuffer.toString("base64");
+  return `data:image/jpeg;base64,${base64Image}`;
+};
+
+...
+
+"messages": [
+  {
+    role: "user",
+    content: [
+      {
+        type: "text",
+        text: "What's in this image?",
+      },
+      {
+        type: "image_url",
+        image_url: {
+          url: `${await getFlowerImage()}`,
+        },
+      },
+    ],
+  },
+];
+```
+
+When sending base64 encoded data strings, ensure that the content-type of the image is included. Example:
+
+
+  ```txt
+  data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII
+  ```
+
+Supported image types:
+
+* `image/png`
+* `image/jpeg`
+* `image/webp`
+
+## Response
+
+### CompletionsResponse Format
+
+Knox Chat standardizes the schema across models and providers to conform to the [OpenAI Chat API](https://platform.openai.com/docs/api-reference/chat).
+
+This means `choices` is always an array, even when the model only returns a single completion. If a streaming response was requested, each choice will contain a `delta` property; otherwise, it will contain a `message` property. This makes it easier to use the same code for all models.
+
+The response schema in TypeScript types is as follows:
+
+```typescript TypeScript
+// Definitions of subtypes are below
+type Response = {
+  id: string;
+  // Depending on whether you set "stream" to "true" and
+  // whether you passed in "messages" or a "prompt", you
+  // will get a different output shape
+  choices: (NonStreamingChoice | StreamingChoice | NonChatChoice)[];
+  created: number; // Unix timestamp
+  model: string;
+  object: 'chat.completion' | 'chat.completion.chunk';
+
+  system_fingerprint?: string; // Only present if the provider supports it
+
+  // Usage data is always returned for non-streaming.
+  // When streaming, you will get one usage object at
+  // the end accompanied by an empty choices array.
+  usage?: ResponseUsage;
+};
+```
+
+```typescript
+// If the provider returns usage, we pass it down
+// as-is. Otherwise, we count using the GPT-4 tokenizer.
+
+type ResponseUsage = {
+  /** Including images and tools if any */
+  prompt_tokens: number;
+  /** The tokens generated */
+  completion_tokens: number;
+  /** Sum of the above two fields */
+  total_tokens: number;
+};
+```
+
+```typescript
+// Subtypes:
+type NonChatChoice = {
+  finish_reason: string | null;
+  text: string;
+  error?: ErrorResponse;
+};
+
+type NonStreamingChoice = {
+  finish_reason: string | null;
+  native_finish_reason: string | null;
+  message: {
+    content: string | null;
+    role: string;
+    tool_calls?: ToolCall[];
+  };
+  error?: ErrorResponse;
+};
+
+type StreamingChoice = {
+  finish_reason: string | null;
+  native_finish_reason: string | null;
+  delta: {
+    content: string | null;
+    role?: string;
+    tool_calls?: ToolCall[];
+  };
+  error?: ErrorResponse;
+};
+
+type ErrorResponse = {
+  code: number; // See "Error Handling" section
+  message: string;
+  metadata?: Record<string, unknown>; // Contains additional error information such as provider details, the raw error message, etc.
+};
+
+type ToolCall = {
+  id: string;
+  type: 'function';
+  function: FunctionCall;
+};
+```
+
+Example:
+
+```json
+{
+  "id": "gen-xxxxxxxxxxxxxx",
+  "choices": [
+    {
+      "finish_reason": "stop", // Normalized finish_reason
+      "native_finish_reason": "stop", // The raw finish_reason from the provider
+      "message": {
+        // will be "delta" if streaming
+        "role": "assistant",
+        "content": "Hello there!"
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 4,
+    "total_tokens": 4
+  },
+  "model": "anthropic/claude-sonnet-4" // Could also be "anthropic/claude-2.1", etc, depending on the "model" that ends up being used
+}
+```
+
+### Finish Reasons
+
+Knox Chat normalizes the `finish_reason` for each model to one of the following values: `tool_calls`, `stop`, `length`, `content_filter`, or `error`.
+
+Some models and providers may include additional completion reasons. The original `finish_reason` string returned by the model can be accessed via the `native_finish_reason` attribute.
+
+### Query Costs and Statistics
+
+The token counts returned in the output generation/completion API response are **not** calculated using the model's native tokenizer, but rather a standardized, model-agnostic count (implemented via the GPT-4o tokenizer). This is because some providers cannot reliably return native token counts. However, this behavior is becoming increasingly rare, and we may add native token counts to the response object in the future.
+
+Balance usage and model pricing are based on **native** token counts (not the "standardized" token counts returned in the API response).
+      

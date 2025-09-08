@@ -1,0 +1,434 @@
+---
+sidebar_position: 6
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Tool & Function Calling
+
+Tool calls (also known as function calls) enable LLMs to access external tools. The LLM does not directly call these tools but instead suggests which tool to invoke. The user then independently calls the tool and returns the result to the LLM. Finally, the LLM formats the response as an answer to the user's original question.
+
+Knox Chat standardizes the tool-calling interface across models and providers.
+
+For a primer on how tool calls work in the OpenAI SDK, refer to [this article](https://platform.openai.com/docs/guides/function-calling?api-mode=chat). If you prefer learning from a full end-to-end example, continue reading below.
+
+### Tool Calling Example
+
+Below are Python and TypeScript example codes that enable the LLM to call an external API—in this case, Project Gutenberg—to search for books.
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import json, requests
+from openai import OpenAI
+
+KNOXCHAT_API_KEY = f"<KNOXCHAT_API_KEY>"
+
+# You can use any model that supports tool calling
+MODEL = "google/gemini-2.0-flash-001"
+
+openai_client = OpenAI(
+  base_url="https://knox.chat/v1",
+  api_key=KNOXCHAT_API_KEY,
+)
+
+task = "What are the titles of some James Joyce books?"
+
+messages = [
+  {
+    "role": "system",
+    "content": "You are a helpful assistant."
+  },
+  {
+    "role": "user",
+    "content": task,
+  }
+]
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const response = await fetch('https://knox.chat/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer <KNOXCHAT_API_KEY>`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'google/gemini-2.0-flash-001',
+    messages: [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      {
+        role: 'user',
+        content: 'What are the titles of some James Joyce books?',
+      },
+    ],
+  }),
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Defining the Tool
+
+Next, we define the tool to be called. Keep in mind that this tool will receive the request from the LLM, but the code we write here will ultimately be responsible for executing the call and returning the result to the LLM.
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+def search_gutenberg_books(search_terms):
+    search_query = " ".join(search_terms)
+    url = "https://gutendex.com/books"
+    response = requests.get(url, params={"search": search_query})
+
+    simplified_results = []
+    for book in response.json().get("results", []):
+        simplified_results.append({
+            "id": book.get("id"),
+            "title": book.get("title"),
+            "authors": book.get("authors")
+        })
+
+    return simplified_results
+
+tools = [
+  {
+    "type": "function",
+    "function": {
+      "name": "search_gutenberg_books",
+      "description": "Search for books in the Project Gutenberg library based on specified search terms",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "search_terms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of search terms to find books in the Gutenberg library (e.g. ['dickens', 'great'] to search for books by Dickens with 'great' in the title)"
+          }
+        },
+        "required": ["search_terms"]
+      }
+    }
+  }
+]
+
+TOOL_MAPPING = {
+    "search_gutenberg_books": search_gutenberg_books
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+async function searchGutenbergBooks(searchTerms: string[]): Promise<Book[]> {
+  const searchQuery = searchTerms.join(' ');
+  const url = 'https://gutendex.com/books';
+  const response = await fetch(`${url}?search=${searchQuery}`);
+  const data = await response.json();
+
+  return data.results.map((book: any) => ({
+    id: book.id,
+    title: book.title,
+    authors: book.authors,
+  }));
+}
+
+const tools = [
+  {
+    type: 'function',
+    function: {
+      name: 'search_gutenberg_books',
+      description:
+        'Search for books in the Project Gutenberg library based on specified search terms',
+      parameters: {
+        type: 'object',
+        properties: {
+          search_terms: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            description:
+              "List of search terms to find books in the Gutenberg library (e.g. ['dickens', 'great'] to search for books by Dickens with 'great' in the title)",
+          },
+        },
+        required: ['search_terms'],
+      },
+    },
+  },
+];
+
+const TOOL_MAPPING = {
+  searchGutenbergBooks,
+};
+```
+
+</TabItem>
+</Tabs>
+
+Note that a "tool" is just a regular function. Then, we write a JSON "specification" compatible with OpenAI's function calling parameters. We pass this specification to the LLM so it knows this tool is available and how to use it. The LLM will request the tool when needed, along with any parameters. Then, we will locally marshal the tool call, execute the function, and return the result to the LLM.
+
+### Tool Usage and Tool Call Results
+
+Let's make the first Knox Chat API call to this model:
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+request_1 = {
+    "model": google/gemini-2.0-flash-001,
+    "tools": tools,
+    "messages": messages
+}
+
+response_1 = openai_client.chat.completions.create(**request_1).message
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const response = await fetch('https://knox.chat/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer <KNOXCHAT_API_KEY>`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'google/gemini-2.0-flash-001',
+    tools,
+    messages,
+  }),
+});
+
+```
+
+</TabItem>
+</Tabs>
+
+The LLM responds with a completion reason and an array of `tool_calls`. In a general LLM response handler, you would want to check the completion reason before processing the tool calls, but here we'll assume that's indeed the case. Let's proceed with handling the tool calls:
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+# Append the response to the messages array so the LLM has the full context
+# It's easy to forget this step!
+messages.append(response_1)
+
+# Now we process the requested tool calls, and use our book lookup tool
+for tool_call in response_1.tool_calls:
+    '''
+    In this case we only provided one tool, so we know what function to call.
+    When providing multiple tools, you can inspect `tool_call.function.name`
+    to figure out what function you need to call locally.
+    '''
+    tool_name = tool_call.function.name
+    tool_args = json.loads(tool_call.function.arguments)
+    tool_response = TOOL_MAPPING[tool_name](**tool_args)
+    messages.append({
+      "role": "tool",
+      "tool_call_id": tool_call.id,
+      "name": tool_name,
+      "content": json.dumps(tool_response),
+    })
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+// Append the response to the messages array so the LLM has the full context
+// It's easy to forget this step!
+messages.push(response);
+
+// Now we process the requested tool calls, and use our book lookup tool
+for (const toolCall of response.toolCalls) {
+  const toolName = toolCall.function.name;
+  const toolArgs = JSON.parse(toolCall.function.arguments);
+  const toolResponse = await TOOL_MAPPING[toolName](toolArgs);
+  messages.push({
+    role: 'tool',
+    toolCallId: toolCall.id,
+    name: toolName,
+    content: JSON.stringify(toolResponse),
+  });
+}
+```
+</TabItem>
+</Tabs>
+
+The message array now contains:
+
+1. Our original request
+2. The LLM's response (including the tool call request)
+3. The tool call result (the JSON object returned from the Project Gutenberg API)
+
+Now, we can proceed with the second Knox Chat API call and expect the result!
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+request_2 = {
+  "model": MODEL,
+  "messages": messages,
+  "tools": tools
+}
+
+response_2 = openai_client.chat.completions.create(**request_2)
+
+print(response_2.choices[0].message.content)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const response = await fetch('https://knox.chat/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer <KNOXCHAT_API_KEY>`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'google/gemini-2.0-flash-001',
+    messages,
+    tools,
+  }),
+});
+
+const data = await response.json();
+console.log(data.choices[0].message.content);
+```
+
+</TabItem>
+</Tabs>
+
+The output will be displayed similarly as follows:
+
+```text
+Here are some books by James Joyce:
+
+*   *Ulysses*
+*   *Dubliners*
+*   *A Portrait of the Artist as a Young Man*
+*   *Chamber Music*
+*   *Exiles: A Play in Three Acts*
+```
+
+We did it! We successfully used tools in the prompt.
+
+## A Simple Agent Loop  
+
+In the example above, the calls were explicit and sequential. To handle a variety of user inputs and tool calls, you can use an agent loop.  
+
+Here's an example of a simple agent loop (using the same "tools" and initial "message" as above):
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+
+def call_llm(msgs):
+    resp = openai_client.chat.completions.create(
+        model=google/gemini-2.0-flash-001,
+        tools=tools,
+        messages=msgs
+    )
+    msgs.append(resp.choices[0].message.dict())
+    return resp
+
+def get_tool_response(response):
+    tool_call = response.choices[0].message.tool_calls[0]
+    tool_name = tool_call.function.name
+    tool_args = json.loads(tool_call.function.arguments)
+
+    # Look up the correct tool locally, and call it with the provided arguments
+    # Other tools can be added without changing the agentic loop
+    tool_result = TOOL_MAPPING[tool_name](**tool_args)
+
+    return {
+        "role": "tool",
+        "tool_call_id": tool_call.id,
+        "name": tool_name,
+        "content": tool_result,
+    }
+
+while True:
+    resp = call_llm(_messages)
+
+    if resp.choices[0].message.tool_calls is not None:
+        messages.append(get_tool_response(resp))
+    else:
+        break
+
+print(messages[-1]['content'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+async function callLLM(messages: Message[]): Promise<Message> {
+  const response = await fetch(
+    'https://knox.chat/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer <KNOXCHAT_API_KEY>`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.0-flash-001',
+        tools,
+        messages,
+      }),
+    },
+  );
+
+  const data = await response.json();
+  messages.push(data.choices[0].message);
+  return data;
+}
+
+async function getToolResponse(response: Message): Promise<Message> {
+  const toolCall = response.toolCalls[0];
+  const toolName = toolCall.function.name;
+  const toolArgs = JSON.parse(toolCall.function.arguments);
+
+  // Look up the correct tool locally, and call it with the provided arguments
+  // Other tools can be added without changing the agentic loop
+  const toolResult = await TOOL_MAPPING[toolName](toolArgs);
+
+  return {
+    role: 'tool',
+    toolCallId: toolCall.id,
+    name: toolName,
+    content: toolResult,
+  };
+}
+
+while (true) {
+  const response = await callLLM(messages);
+
+  if (response.toolCalls) {
+    messages.push(await getToolResponse(response));
+  } else {
+    break;
+  }
+}
+
+console.log(messages[messages.length - 1].content);
+```
+</TabItem>
+</Tabs>

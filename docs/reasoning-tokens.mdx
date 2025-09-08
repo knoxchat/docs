@@ -1,0 +1,487 @@
+---
+sidebar_position: 11
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Reasoning Tokens
+
+For models supporting this API, the Knox Chat API can return **Reasoning Tokens**, also known as reasoning tokens. Knox Chat standardizes the different ways custom models use reasoning tokens, providing a unified interface for different providers.
+
+Reasoning tokens transparently display the reasoning steps taken by the model. They are considered part of the output tokens and will be billed accordingly.
+
+If the model decides to output reasoning tokens, they are included in the response by default. Unless you choose to exclude them, reasoning tokens will appear in the `reasoning` field of each message.
+
+:::info Some reasoning models do not return reasoning tokens
+  While most models and providers include reasoning tokens in their responses, some (such as OpenAI's o-series and Gemini Flash Thinking) do not.
+:::
+
+## Controlling Reasoning Tokens
+
+You can manage reasoning tokens in requests using the `reasoning` parameter:
+
+```json
+{
+  "model": "your-model",
+  "messages": [],
+  "reasoning": {
+    // One of the following (not both):
+    "effort": "high", // Can be "high", "medium", or "low" (OpenAI-style)
+    "max_tokens": 2000, // Specific token limit (Anthropic-style)
+
+    // Optional: Default is false. All models support this.
+    "exclude": false, // Set to true to exclude reasoning tokens from response
+
+    // Or enable reasoning with the default parameters:
+    "enabled": true // Default: inferred from `effort` or `max_tokens`
+  }
+}
+```
+
+The `reasoning` configuration object consolidates settings for controlling the reasoning strength of different models. Refer to the comments below for each option to understand which models are supported and how others behave.
+
+### Maximum Reasoning Tokens
+
+:::info Supported Models
+  Currently, reasoning models that support this include: Anthropic and Gemini reasoning models.
+:::
+
+For models supporting reasoning token allocation, you can control it like this:
+
+* `"max_tokens": 2000` - Directly specify the maximum tokens allocated for reasoning.
+
+For models only supporting `reasoning.effort` (see below), the `max_tokens` value will determine the difficulty level of reasoning.
+
+### Reasoning Resource Allocation Levels
+
+:::info
+  Currently supported models: OpenAI O-series.
+:::
+
+* `"effort": "high"` - Allocate a large number of tokens for reasoning (approx. 80% of `max_tokens`).
+* `"effort": "medium"` - Allocate a moderate number of tokens (approx. 50% of `max_tokens`).
+* `"effort": "low"` - Allocate fewer tokens (approx. 20% of `max_tokens`).
+
+For models only supporting `reasoning.max_tokens`, resource allocation levels will be set based on the above proportions.
+
+### Excluding Reasoning Tokens
+
+To have the model perform internal reasoning without including reasoning in the response:
+
+* `"exclude": true` - The model will still execute reasoning, but the reasoning content will not appear in the returned results.
+
+The tokens consumed for reasoning will be displayed in the `reasoning` field of each message.
+
+## Legacy Parameters
+
+For backward compatibility, Knox Chat still supports the following legacy parameters:
+
+* `include_reasoning: true` - Equivalent to `reasoning: {}`
+* `include_reasoning: false` - Equivalent to `reasoning: { exclude: true }`
+
+However, it is recommended to use the new unified `reasoning` parameter for finer control and better future compatibility.
+
+## Examples
+
+### Basic Usage with Reasoning Tokens
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+url = "https://knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+payload = {
+    "model": "openai/o3-mini",
+    "messages": [
+        {"role": "user", "content": "How would you build the world's tallest skyscraper?"}
+    ],
+    "reasoning": {
+        "effort": "high"  # Use high reasoning effort
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+print(response.json()['choices'][0]['message']['reasoning'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+async function getResponseWithReasoning() {
+  const response = await openai.chat.completions.create({
+    model: 'openai/o3-mini',
+    messages: [
+      {
+        role: 'user',
+        content: "How would you build the world's tallest skyscraper?",
+      },
+    ],
+    reasoning: {
+      effort: 'high', // Use high reasoning effort
+    },
+  });
+
+  console.log('REASONING:', response.choices[0].message.reasoning);
+  console.log('CONTENT:', response.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+### Maximum Tokens for Inference
+
+For models that support direct token allocation (such as the Anthropic series models), you can specify the exact number of tokens to be used for reasoning as follows:
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+url = "https://knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+payload = {
+    "model": "anthropic/claude-3.7-sonnet",
+    "messages": [
+        {"role": "user", "content": "What's the most efficient algorithm for sorting a large dataset?"}
+    ],
+    "reasoning": {
+        "max_tokens": 2000  # Allocate 2000 tokens (or approximate effort) for reasoning
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+print(response.json()['choices'][0]['message']['reasoning'])
+print(response.json()['choices'][0]['message']['content'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+async function getResponseWithReasoning() {
+  const response = await openai.chat.completions.create({
+    model: 'anthropic/claude-3.7-sonnet',
+    messages: [
+      {
+        role: 'user',
+        content: "How would you build the world's tallest skyscraper?",
+      },
+    ],
+    reasoning: {
+      max_tokens: 2000, // Allocate 2000 tokens (or approximate effort) for reasoning
+    },
+  });
+
+  console.log('REASONING:', response.choices[0].message.reasoning);
+  console.log('CONTENT:', response.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+### Excluding Reasoning Tokens in Responses
+
+If you want the model to perform internal reasoning without including the reasoning process in the response:
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+url = "https://knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+payload = {
+    "model": "deepseek/deepseek-r1",
+    "messages": [
+        {"role": "user", "content": "Explain quantum computing in simple terms."}
+    ],
+    "reasoning": {
+        "effort": "high",
+        "exclude": true  # Use reasoning but don't include it in the response
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+# No reasoning field in the response
+print(response.json()['choices'][0]['message']['content'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+async function getResponseWithReasoning() {
+  const response = await openai.chat.completions.create({
+    model: 'deepseek/deepseek-r1',
+    messages: [
+      {
+        role: 'user',
+        content: "How would you build the world's tallest skyscraper?",
+      },
+    ],
+    reasoning: {
+      effort: 'high',
+      exclude: true, // Use reasoning but don't include it in the response
+    },
+  });
+
+  console.log('REASONING:', response.choices[0].message.reasoning);
+  console.log('CONTENT:', response.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+### Advanced Usage: Chain-of-Thought Reasoning
+
+This example demonstrates how to use reasoning tokens in complex workflows, enhancing response quality by injecting one model's reasoning results into another:
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+question = "Which is bigger: 9.11 or 9.9?"
+
+url = "https://knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+
+def do_req(model, content, reasoning_config=None):
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "user", "content": content}
+        ],
+        "stop": "</think>"
+    }
+
+    return requests.post(url, headers=headers, data=json.dumps(payload))
+
+# Get reasoning from a capable model
+content = f"{question} Please think this through, but don't output an answer"
+reasoning_response = do_req("deepseek/deepseek-r1", content)
+reasoning = reasoning_response.json()['choices'][0]['message']['reasoning']
+
+# Let's test! Here's the naive response:
+simple_response = do_req("openai/gpt-4o-mini", question)
+print(simple_response.json()['choices'][0]['message']['content'])
+
+# Here's the response with the reasoning token injected:
+content = f"{question}. Here is some context to help you: {reasoning}"
+smart_response = do_req("openai/gpt-4o-mini", content)
+print(smart_response.json()['choices'][0]['message']['content'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://knox.chat/v1',
+  apiKey,
+});
+
+async function doReq(model, content, reasoningConfig) {
+  const payload = {
+    model,
+    messages: [{ role: 'user', content }],
+    stop: '</think>',
+    ...reasoningConfig,
+  };
+
+  return openai.chat.completions.create(payload);
+}
+
+async function getResponseWithReasoning() {
+  const question = 'Which is bigger: 9.11 or 9.9?';
+  const reasoningResponse = await doReq(
+    'deepseek/deepseek-r1',
+    `${question} Please think this through, but don't output an answer`,
+  );
+  const reasoning = reasoningResponse.choices[0].message.reasoning;
+
+  // Let's test! Here's the naive response:
+  const simpleResponse = await doReq('openai/gpt-4o-mini', question);
+  console.log(simpleResponse.choices[0].message.content);
+
+  // Here's the response with the reasoning token injected:
+  const content = `${question}. Here is some context to help you: ${reasoning}`;
+  const smartResponse = await doReq('openai/gpt-4o-mini', content);
+  console.log(smartResponse.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+## Provider-Specific Inference Implementations
+
+### Inference Token Support for Anthropic Models
+
+The latest Claude models, such as `anthropic/claude-3.7-sonnet`, support the use and return of inference tokens.
+
+You can enable the inference feature for Anthropic models in two ways:
+
+1. Use the `:thinking` variant suffix (e.g., `anthropic/claude-3.7-sonnet:thinking`). This variant enables high-intensity inference (`"effort": "high"`) by default.
+2. Use the unified `reasoning` parameter, controlled via `effort` (inference intensity ratio) or `max_tokens` (direct allocation of token count).
+
+#### Maximum Token Limits for Anthropic Model Inference
+
+When using the inference feature for Anthropic models, note the following:
+
+* `reasoning.max_tokens` parameter: Directly specifies the token count, with a minimum value of 1024.
+* `:thinking` variant or `reasoning.effort` parameter: Dynamically calculates `budget_tokens` based on `max_tokens`.
+
+Detailed rules:
+
+- Token allocation range: The inference token count is limited between 1024 (minimum) and 32,000 (maximum).
+  
+Budget tokens calculation formula:
+
+`budget_tokens = max(min(max_tokens * {effort_ratio}, 32000), 1024)`
+
+effort_ratio values:
+- High (high effort): 0.8
+- Medium (medium effort): 0.5
+- Low (low effort): 0.2
+
+**Key constraint**: `max_tokens` must be strictly greater than `budget_tokens` to ensure there are remaining tokens to generate the final response after inference.
+
+:::info Token Usage and Billing
+   Inference tokens are counted toward the output token billing. Using the inference feature increases token consumption but significantly improves the model's response quality.
+:::
+
+### Anthropic Model Examples
+
+#### Example 1: Streaming Output with Inference
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://knox.chat/v1",
+    api_key="<KNOXCHAT_API_KEY>",
+)
+
+def chat_completion_with_reasoning(messages):
+    response = client.chat.completions.create(
+        model="anthropic/claude-3.7-sonnet",
+        messages=messages,
+        max_tokens=10000,
+        reasoning={
+            "max_tokens": 8000  # Directly specify reasoning token budget
+        },
+        stream=True
+    )
+    return response
+
+for chunk in chat_completion_with_reasoning([
+    {"role": "user", "content": "What's bigger, 9.9 or 9.11?"}
+]):
+    if hasattr(chunk.choices[0].delta, 'reasoning') and chunk.choices[0].delta.reasoning:
+        print(f"REASONING: {chunk.choices[0].delta.reasoning}")
+    elif chunk.choices[0].delta.content:
+        print(f"CONTENT: {chunk.choices[0].delta.content}")
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://knox.chat/v1',
+  apiKey,
+});
+
+async function chatCompletionWithReasoning(messages) {
+  const response = await openai.chat.completions.create({
+    model: '{{MODEL}}',
+    messages,
+    maxTokens: 10000,
+    reasoning: {
+      maxTokens: 8000, // Directly specify reasoning token budget
+    },
+    stream: true,
+  });
+
+  return response;
+}
+
+(async () => {
+  for await (const chunk of chatCompletionWithReasoning([
+    { role: 'user', content: "What's bigger, 9.9 or 9.11?" },
+  ])) {
+    if (chunk.choices[0].delta.reasoning) {
+      console.log(`REASONING: ${chunk.choices[0].delta.reasoning}`);
+    } else if (chunk.choices[0].delta.content) {
+      console.log(`CONTENT: ${chunk.choices[0].delta.content}`);
+    }
+  }
+})();
+```
+
+</TabItem>
+</Tabs>

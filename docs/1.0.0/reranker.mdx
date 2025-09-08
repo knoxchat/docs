@@ -1,0 +1,89 @@
+---
+id: reranker
+title: "Rerank Model"
+description: "Returns embedding list response"
+sidebar_label: "Rerank Model"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Rerank Model"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://knox.chat/v1/rerank"}
+>
+</MethodEndpoint>
+
+## Return Rerank Response
+
+The rerank endpoint receives a query, a list of documents, and other parameters (such as model name) as input, and returns a response containing the rerank results.
+
+### Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | Bearer authentication in the form of Bearer \<token\>, where token is your authentication token. |
+
+## cURL Example
+
+```shell
+curl --request POST \
+     --url https://knox.chat/v1/rerank \
+     --header "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     --header "content-type: application/json" \
+     --data '
+{
+  "query": "Sample query",
+  "documents": [
+    "Sample document 1",
+    "Sample document 2"
+  ],
+  "model": "rerank-2.5"
+}
+'
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "relevance_score": 0.4375,
+      "index": 0
+    },
+    {
+      "relevance_score": 0.421875,
+      "index": 1
+    }
+  ],
+  "model": "rerank-2.5",
+  "usage": {
+    "total_tokens": 26
+  }
+}
+```
+## Response Errors
+
+- 4xx series are client-side errors
+- 5xx series are server-side errors

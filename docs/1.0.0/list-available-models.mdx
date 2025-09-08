@@ -1,0 +1,171 @@
+---
+id: list-available-models
+title: "List Available Models"
+description: "Returns a list of models available through the API"
+sidebar_label: "List Available Models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Available Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://knox.chat/v1/models"}
+>
+</MethodEndpoint>
+
+Returns a list of models available through the API
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | Bearer authentication in the format Bearer \<token\>, where token is your authentication token. |
+
+## cURL Example
+
+```shell
+curl -X GET https://knox.chat/v1/models \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json"
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "anthropic/claude-sonnet-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "permission": [
+        {
+          "id": "modelperm-LwHkVFn8AcMItP432fKKDIKJ",
+          "object": "model_permission",
+          "created": 1626777600,
+          "allow_create_engine": true,
+          "allow_sampling": true,
+          "allow_logprobs": true,
+          "allow_search_indices": false,
+          "allow_view": true,
+          "allow_fine_tuning": false,
+          "organization": "*",
+          "group": null,
+          "is_blocking": false
+        }
+      ],
+      "root": "anthropic/claude-sonnet-4",
+      "parent": null,
+      "context_length": 200000,
+      "architecture": {
+        "modality": "text+image->text",
+        "input_modalities": [
+            "image",
+            "text"
+        ],
+        "output_modalities": [
+            "text"
+        ],
+        "tokenizer": "Claude"
+      },
+      "pricing": {
+        "prompt": "0.000003",
+        "completion": "0.000015",
+        "request": "0",
+        "image": "0.0048",
+        "audio": "0",
+        "web_search": "0",
+        "internal_reasoning": "0",
+        "input_cache_read": "0.0000003",
+        "input_cache_write": "0.00000375"
+      },
+      "top_provider": {
+        "context_length": 200000,
+        "max_completion_tokens": 64000
+      },
+      "supported_parameters": [
+        "max_tokens",
+        "temperature",
+        "stop",
+        "reasoning",
+        "include_reasoning",
+        "tools",
+        "tool_choice",
+        "top_p",
+        "top_k"
+      ]
+    },
+    more...
+  ]
+}
+```
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | array | Array of available models |
+| data[].id | string | Unique identifier for the model |
+| data[].object | string | Object type, fixed as "model" |
+| data[].created | integer | Unix timestamp of when the model was created |
+| data[].owned_by | string | Owner of the model |
+| data[].permission | array | Array of model permissions |
+| data[].permission[].id | string | Permission ID |
+| data[].permission[].object | string | Object type |
+| data[].permission[].created | integer | Timestamp when the permission was created |
+| data[].permission[].allow_create_engine | boolean | Whether engine creation is allowed |
+| data[].permission[].allow_sampling | boolean | Whether sampling is allowed |
+| data[].permission[].allow_logprobs | boolean | Whether log probabilities are allowed |
+| data[].permission[].allow_search_indices | boolean | Whether search indices are allowed |
+| data[].permission[].allow_view | boolean | Whether viewing is allowed |
+| data[].permission[].allow_fine_tuning | boolean | Whether fine-tuning is allowed |
+| data[].permission[].organization | string | Organization information |
+| data[].permission[].group | null or string | Group information |
+| data[].permission[].is_blocking | boolean | Whether the permission is blocking |
+| data[].root | string | Root model ID |
+| data[].parent | null or string | Parent model ID |
+| data[].context_length | integer | Maximum context length of the model |
+| data[].architecture | object | Information about the model's architecture |
+| data[].architecture.modality | string | Modality mapping from input to output (e.g., "text+image->text") |
+| data[].architecture.input_modalities | array of strings | Supported input modalities (e.g., "text", "image") |
+| data[].architecture.output_modalities | array of strings | Supported output modalities (e.g., "text") |
+| data[].architecture.tokenizer | string | Type of tokenizer used |
+| data[].pricing | object | Pricing information for model usage |
+| data[].pricing.prompt | string | Price per prompt token |
+| data[].pricing.completion | string | Price per completion token |
+| data[].pricing.request | string | Base cost per request |
+| data[].pricing.image | string | Cost per image processed |
+| data[].pricing.audio | string | Audio processing cost |
+| data[].pricing.web_search | string | Web search cost |
+| data[].pricing.internal_reasoning | string | Internal reasoning cost |
+| data[].pricing.input_cache_read | string | Input cache read cost |
+| data[].pricing.input_cache_write | string | Input cache write cost |
+| data[].top_provider | object | Information about the top provider |
+| data[].top_provider.context_length | integer | Context length provided by the top provider |
+| data[].top_provider.max_completion_tokens | integer | Maximum number of completion tokens |
+| data[].supported_parameters | array of strings | List of supported parameters |

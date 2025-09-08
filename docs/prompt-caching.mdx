@@ -1,0 +1,104 @@
+---
+sidebar_position: 4
+---
+
+# Prompt Caching
+
+To save inference costs, you can enable prompt caching on supported providers and models.
+
+Most providers enable prompt caching automatically, but note that some providers (see Anthropic below) require you to enable this feature on a per-message basis.
+
+When using caching (whether automatically enabled in supported models or via the `cache_control` header), Knox Chat will make every effort to continue routing to the same provider to take advantage of warm caches. If the provider that cached the prompt becomes unavailable, Knox Chat will attempt the next best provider.
+
+## OpenAI
+
+Caching price changes:
+
+- Cache writes: Free
+- Cache reads: Charged at 0.5x the original input price  
+OpenAI instant caching is automated and requires no additional configuration. The minimum instant cache size is 1024 tokens.
+
+[Click here to read more about OpenAI prompt caching and its limitations](https://openai.com/index/api-prompt-caching/)
+
+## Anthropic Claude
+
+Caching price changes:
+
+- Cache writes: Charged at 1.25x the original input price
+- Cache reads: Charged at 0.1x the original input price  
+
+Fast caching with Anthropic requires using `cache_control` breakpoints. The breakpoint count is limited to four, and the cache will expire in five minutes. Therefore, it is recommended to reserve caching breakpoints for large volumes of text (such as character cards, CSV data, RAG data, book chapters, etc.).
+
+[Click here to learn more about Anthropic prompt caching and its limitations](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+
+`cache_control` breakpoints can only be inserted in the text portions of multipart messages.
+
+Example of system message caching:
+
+```json
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "text",
+          "text": "You are a historian studying the fall of the Roman Empire. You know the following book very well:"
+        },
+        {
+          "type": "text",
+          "text": "HUGE TEXT BODY",
+          "cache_control": {
+            "type": "ephemeral"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "What triggered the collapse?"
+        }
+      ]
+    }
+  ]
+}
+```
+Example of User Message Caching:
+
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Given the book below:"
+        },
+        {
+          "type": "text",
+          "text": "HUGE TEXT BODY",
+          "cache_control": {
+            "type": "ephemeral"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Name all the characters in the above book"
+        }
+      ]
+    }
+  ]
+}
+```
+## DeepSeek
+
+Caching Price Changes:
+
+- Cache Write: Charged at the original input price
+- Cache Read: Charged at 0.1x the original input price
+
+DeepSeek Prompt caching is automatic and requires no additional configuration.

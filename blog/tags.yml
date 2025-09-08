@@ -1,0 +1,39 @@
+knoxchat:
+  label: 'KnoxChat'
+  permalink: '/knoxchat'
+  description: 'Articles about KnoxChat'
+
+buddy:
+  label: 'Buddy'
+  permalink: '/buddy'
+  description: 'Articles about Buddy'
+
+chat:
+  label: 'Chat'
+  permalink: '/chat'
+  description: 'Articles about AI chat'
+
+devops:
+  label: 'DevOps'
+  permalink: '/devops'
+  description: 'Articles about DevOps'
+
+ai:
+  label: 'AI'
+  permalink: '/ai'
+  description: 'Articles about AI'
+
+api:
+  label: 'API'
+  permalink: '/api'
+  description: 'Articles about API'
+
+rag:
+  label: 'RAG'
+  permalink: '/rag'
+  description: 'Articles about RAG'
+
+update:
+  label: 'System Updates'
+  permalink: '/update'
+  description: 'Articles about product updates'

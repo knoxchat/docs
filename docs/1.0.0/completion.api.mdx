@@ -1,0 +1,108 @@
+---
+id: completion
+title: "Completion"
+description: "Send a completion request to the selected model (in plain text format)"
+sidebar_label: "Completion"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Completion"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://knox.chat/v1/completions"}
+>
+</MethodEndpoint>
+
+Send a completion request to the selected model (in plain text format)
+
+## Request
+
+This endpoint requires an object containing the following properties:
+
+### Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | Bearer authentication in the form `Bearer token`, where `token` is your authorization token. |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| model | String | Yes | The model ID to use. If not specified, user's default settings will be used. |
+| prompt | String | Yes | The text prompt to complete |
+| models | List of Strings | No | Alternative model list for routing override. |
+| provider | Object | No | Provider routing preferences. |
+| reasoning | Object | No | Configuration for model reasoning/thinking tokens |
+| usage | Object | No | Whether to include usage information in the response |
+| transforms | List of Strings | No | List of prompt transformations (Knox Chat only). |
+| stream | Boolean | No | Enable result streaming. Defaults to `false` |
+| max_tokens | Integer | No | Maximum number of tokens (range: [1, context_length)). |
+| temperature | Double | No | Sampling temperature (range: [0, 2]). |
+| seed | Integer | No | Seed for deterministic output. |
+| top_p | Double | No | Top-p sampling value (range: (0, 1]). |
+| top_k | Integer | No | Top-k sampling value (range: [1, Infinity)). |
+| frequency_penalty | Double | No | Frequency penalty (range: [-2, 2]). |
+| presence_penalty | Double | No | Presence penalty (range: [-2, 2]). |
+| repetition_penalty | Double | No | Repetition penalty (range: (0, 2]). |
+| logit_bias | Map of String to Double | No | Mapping from token IDs to bias values. |
+| top_logprobs | Integer | No | Number of top log probabilities to return. |
+| min_p | Double | No | Minimum probability threshold (range: [0, 1]). |
+| top_a | Double | No | Alternative top sampling parameter (range: [0, 1]). |
+
+## cURL Example
+
+```shell
+curl -X POST https://knox.chat/v1/completions \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "model",
+  "prompt": "您好!"
+}'
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "id": "id",
+  "choices": [
+    {
+      "text": "我是一个AI助手，有什么可以帮您？",
+      "index": 1,
+      "finish_reason": "stop"
+    }
+  ]
+}
+```
+
+Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | string | Unique identifier for the completion |
+| choices | array | Array of completion choices |
+| choices[].text | string | Generated text |
+| choices[].index | integer | Index of the choice in the array (e.g.: 0, 1, 2) |
+| choices[].finish_reason | string | Reason for completion (stop, length, content_filter) |

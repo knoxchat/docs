@@ -1,0 +1,7 @@
+knox:
+  page: true
+  name: Knox Anderson
+  title: Knox Dev Team
+  image_url: /img/boy.svg
+  socials:
+    github: knoxchat
