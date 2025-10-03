@@ -82,7 +82,7 @@ response = requests.post(
     "Authorization": "Bearer <KNOXCHAT_API_KEY>",
   },
   data=json.dumps({
-    "model": "anthropic/claude-sonnet-4", # Optional
+    "model": "anthropic/claude-sonnet-4.5", # Optional
     "messages": [
       {
         "role": "user",
@@ -103,7 +103,7 @@ fetch('https://knox.chat/v1/chat/completions', {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    model: 'anthropic/claude-sonnet-4',
+    model: 'anthropic/claude-sonnet-4.5',
     messages: [
       {
         role: 'user',
@@ -123,7 +123,7 @@ curl https://knox.chat/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -d '{
-  "model": "anthropic/claude-sonnet-4",
+  "model": "anthropic/claude-sonnet-4.5",
   "messages": [
     {
       "role": "user",
@@ -164,7 +164,7 @@ Higher Rate Limits. Knox Chat works directly with providers to provide better ra
 
 One API for hundreds of models
 
-Explore and browse [**300+ models**](https://knox.chat/modelslist) and providers on our website, or with our [API](/1.0.0/list-available-models).
+Explore and browse [**300+ models**](https://knox.chat/models) and providers on our website, or with our [API](/1.0.0/list-available-models).
 
 ### Models API Standard
 
@@ -269,7 +269,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-1">
       <AccordionTrigger>Why should I use Knox Chat?</AccordionTrigger>
       <AccordionContent>
-        Knox Chat provides a unified API that allows you to access hundreds of AI models through a single endpoint. User billing is also centrally managed. Our ["Logs"](https://knox.chat/log) and ["Dashboard"](https://knox.chat/dashboard) pages enable you to statistically analyze and record all usage.
+        Knox Chat provides a unified API that allows you to access hundreds of AI models through a single endpoint. User billing is also centrally managed. Our ["Activity"](https://knox.chat/activity) and ["Stats"](https://knox.chat/stats) pages enable you to statistically analyze and record all usage.
 
         Knox Chat transparently displays provider pricing while aggregating their uptime. Therefore, the pricing you receive here is the same as going directly to the providers, and you benefit from improved uptime and optimized API requests through our unified API and failover mechanisms.
       </AccordionContent>
@@ -277,7 +277,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-2">
       <AccordionTrigger>How do I get started with Knox Chat?</AccordionTrigger>
         <AccordionContent>
-          Getting started with **Knox Chat** is very simple. Just register an account via email [**register**](https://knox.chat/register) or directly use your existing [**GitHub**](https://github.com) account to [**Login**](https://knox.chat/login). After logging into your account, go to the [**Tokens**](https://knox.chat/token) page to create the target model you want to use with Tokens/API Keys for quick access. Alternatively, you can browse through hundreds of different models on the [**Models**](https://knox.chat/modelslist) page to select and integrate the ones you prefer.
+          Getting started with **Knox Chat** is very simple. Just register an account via email [**register**](https://knox.chat/register) or directly use your existing [**GitHub**](https://github.com) account to [**Login**](https://knox.chat/login). After logging into your account, go to the [**Keys**](https://knox.chat/keys) page to create the target model you want to use with Tokens/API Keys for quick access. Alternatively, you can browse through hundreds of different models on the [**Models**](https://knox.chat/models) page to select and integrate the ones you prefer.
         </AccordionContent>
       </AccordionItem>
     <AccordionItem value="item-3">
@@ -289,14 +289,14 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-4">
       <AccordionTrigger>How do I pay for using Knox Chat?</AccordionTrigger>
       <AccordionContent>
-        For each model, we display the pricing per million tokens. Prompt tokens and generated output tokens typically have different prices. Some models charge by request, image, cache read, cache write, and reasoning tokens. All these details are shown on the [**Models**](https://knox.chat/modelslist) page.
-        When you make a request to **Knox Chat**, we receive the total number of tokens processed by the provider. We then calculate the corresponding fee and deduct it from your currently available balance in the [**Top Up**](https://knox.chat/topup) page. You can view complete usage records on the [**Logs**](https://knox.chat/log) page.
+        For each model, we display the pricing per million tokens. Prompt tokens and generated output tokens typically have different prices. Some models charge by request, image, cache read, cache write, and reasoning tokens. All these details are shown on the [**Models**](https://knox.chat/models) page.
+        When you make a request to **Knox Chat**, we receive the total number of tokens processed by the provider. We then calculate the corresponding fee and deduct it from your currently available balance in the [**Credits**](https://knox.chat/credits) page. You can view complete usage records on the [**Activity**](https://knox.chat/activity) page.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-5">
       <AccordionTrigger>How do I recharge?</AccordionTrigger>
       <AccordionContent>
-        Recharge can be done through the [**Top Up**](https://knox.chat/topup) page to make payments and recharge for using **[Knox Chat](https://knox.chat)**.
+        Recharge can be done through the [**Credits**](https://knox.chat/credits) page to make payments and recharge for using **[Knox Chat](https://knox.chat)**.
       </AccordionContent>
     </AccordionItem>
   </Accordion>
@@ -310,7 +310,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
       <AccordionTrigger>What LLM models does Knox Chat support?</AccordionTrigger>
       <AccordionContent>
         Knox Chat provides access to a wide variety of LLM models, including frontier models from major AI providers.
-    For a complete list of models you can visit the [Models List](https://knox.chat/modelslist) or fetch the list through the [models api](https://knox.chat/v1/models).
+    For a complete list of models you can visit the [Models List](https://knox.chat/models) or fetch the list through the [models api](https://knox.chat/v1/models).
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-2">

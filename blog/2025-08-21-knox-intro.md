@@ -46,7 +46,7 @@ client = OpenAI(
 
 # Text + Image processing
 multimodal_response = client.chat.completions.create(
-    model="anthropic/claude-sonnet-4",  # or openai/gpt-5, google/gemini-2.5-pro, etc.
+    model="anthropic/claude-sonnet-4.5",  # or openai/gpt-5, google/gemini-2.5-pro, etc.
     messages=[{
         "role": "user",
         "content": [
@@ -95,7 +95,7 @@ from langchain_openai import ChatOpenAI
 llm = ChatOpenAI(
     base_url="https://knox.chat/v1",
     api_key="<KNOXCHAT_API_KEY>",
-    model="anthropic/claude-sonnet-4"
+    model="anthropic/claude-sonnet-4.5"
 )
 
 # Now your entire LangChain pipeline works with 300+ models
@@ -184,7 +184,7 @@ def multimodal_rag_pipeline(query, image_path, documents):
     
     # 3. Generate final response with structured output
     return client.chat.completions.create(
-        model="anthropic/claude-sonnet-4",
+        model="anthropic/claude-sonnet-4.5",
         messages=[
             {"role": "system", "content": "You are a multimodal AI assistant"},
             {"role": "user", "content": f"Query: {query}\nVisual context: {vision_analysis.choices[0].message.content}\nDocuments: {documents}"}
@@ -211,24 +211,24 @@ def multimodal_rag_pipeline(query, image_path, documents):
 Knox.Chat provides access to **300+ models** from leading AI providers:
 
 - **OpenAI**: openai/gpt-5, openai/gpt-5-chat, openai/gpt-5-mini, and more
-- **Anthropic**: anthropic/claude-opus-4.1, anthropic/claude-sonnet-4, anthropic/claude-3.7-sonnet, and more
+- **Anthropic**: anthropic/claude-opus-4.1, anthropic/claude-sonnet-4.5, anthropic/claude-3.7-sonnet, and more
 - **Google**: google/gemini-2.5-pro, google/gemini-2.5-flash, and more
 - **Qwen**: qwen/qwen3-coder, qwen/qwen3-235b-a22b-2507, and more
 - **Mistral**: mistralai/mistral-medium-3.1,mistralai/codestral-2508, and more
 - **And many more**: DeepSeek, Meta, VoyageAI, Cohere, and emerging models
 
-Browse our complete model catalog at [knox.chat/modelslist](https://knox.chat/modelslist) or query programmatically via our [Models API](https://knox.chat/v1/models).
+Browse our complete model catalog at [knox.chat/models](https://knox.chat/models) or query programmatically via our [Models API](https://knox.chat/v1/models).
 
 ## Developer Experience
 
 ### **Quick Setup**
 1. **Register**: Sign up at [knox.chat/register](https://knox.chat/register) or use GitHub OAuth
-2. **Get API Key**: Create tokens at [knox.chat/token](https://knox.chat/token)
+2. **Get API Key**: Create API keys at [knox.chat/keys](https://knox.chat/keys)
 3. **Start Building**: Use any OpenAI-compatible SDK or framework
 
 ### **Comprehensive Monitoring**
-- **Usage Logs**: Detailed request/response tracking at [knox.chat/log](https://knox.chat/log)
-- **Dashboard**: Real-time analytics and spending insights
+- **Usage Logs**: Detailed request/response tracking at [knox.chat/keys](https://knox.chat/keys)
+- **Stats**: Real-time analytics and spending insights
 - **Model Performance**: Latency and throughput metrics for informed decisions
 
 ### **Privacy & Security**
@@ -282,7 +282,7 @@ npm install openai  # Node.js
 curl https://knox.chat/v1/chat/completions \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model": "anthropic/claude-sonnet-4", "messages": [{"role": "user", "content": "Hello Knox.Chat!"}]}'
+  -d '{"model": "anthropic/claude-sonnet-4.5", "messages": [{"role": "user", "content": "Hello Knox.Chat!"}]}'
 ```
 
 ## Join the Multimodal AI Revolution

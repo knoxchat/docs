@@ -70,14 +70,14 @@ The model will respond with a JSON object strictly adhering to your schema:
 
 Selected Models Supporting Structured Outputs
 
-You can find the list of models supporting structured outputs on the [Models Page](https://knox.chat/modelslist).
+You can find the list of models supporting structured outputs on the [Models Page](https://knox.chat/models).
 
 * OpenAI models (GPT-4o and above) [Documentation](https://platform.openai.com/docs/guides/structured-outputs)  
 * All models provided by Fireworks [Documentation](https://docs.fireworks.ai/structured-responses/structured-response-formatting#structured-response-modes)  
 
 To ensure your chosen model supports structured outputs:  
 
-1. Check the supported parameters for the model on the [Models Page](https://knox.chat/modelslist)  
+1. Check the supported parameters for the model on the [Models Page](https://knox.chat/models)  
 2. Set `require_parameters: true` in your provider preferences (see [Provider Routing](/provider-routing))  
 3. Include `response_format` in the required parameters and set `type: json_schema`  
 

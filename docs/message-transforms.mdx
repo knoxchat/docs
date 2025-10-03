@@ -22,7 +22,7 @@ When `middle-out` compression is enabled, Knox Chat will first attempt to find a
 The compression will then attempt to fit your content into the selected model's context window by removing or truncating content from the middle of the prompt. If `middle-out` compression is disabled and your total token count exceeds the model's context length, the request will fail with an error message suggesting that you either shorten the length or enable `middle-out` compression.
 
 :::info Note
-  [All Knox Chat endpoints](https://knox.chat/modelslist) with a context length no greater than 8k (8,192 tokens) will use `middle-out` by default. To disable this feature, set `transforms: []` in the request body.
+  [All Knox Chat endpoints](https://knox.chat/models) with a context length no greater than 8k (8,192 tokens) will use `middle-out` by default. To disable this feature, set `transforms: []` in the request body.
 :::
 
 The middle part of the prompt is compressed because [LLMs pay less attention](https://arxiv.org/abs/2307.03172) to the middle of sequences.

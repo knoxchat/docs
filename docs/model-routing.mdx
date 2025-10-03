@@ -20,7 +20,7 @@ The `models` parameter lets you automatically try other models if the primary mo
 
 ```json showLineNumbers
 {
-  "models": ["anthropic/claude-sonnet-4", "deepseek/deepseek-chat"],
+  "models": ["anthropic/claude-sonnet-4.5", "deepseek/deepseek-chat"],
   ... // Other params
 }
 ```
@@ -50,7 +50,7 @@ async function main() {
   // @ts-expect-error
   const completion = await knoxchatClient.chat.completions.create({
     model: 'openai/gpt-4o',
-    models: ['anthropic/claude-sonnet-4', 'qwen/qwen3-coder'],
+    models: ['anthropic/claude-sonnet-4.5', 'qwen/qwen3-coder'],
     messages: [
       {
         role: 'user',
@@ -78,7 +78,7 @@ openai_client = OpenAI(
 completion = openai_client.chat.completions.create(
     model="openai/gpt-4o",
     extra_body={
-        "models": ["anthropic/claude-sonnet-4", "qwen/qwen3-coder"],
+        "models": ["anthropic/claude-sonnet-4.5", "qwen/qwen3-coder"],
     },
     messages=[
         {

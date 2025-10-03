@@ -75,11 +75,11 @@ curl -X POST https://knox.chat/v1/chat/completions \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
      -d '{
-  "model": "anthropic/claude-sonnet-4",
+  "model": "anthropic/claude-sonnet-4.5",
   "messages": [
     {
       "role": "user",
-      "content": "生命的意义是什么？"
+      "content": "Howdy Cowboy!"
     }
   ]
 }'
@@ -96,7 +96,7 @@ curl -X POST https://knox.chat/v1/chat/completions \
     {
       "message": {
         "role": "assistant",
-        "content": "生命的意义是一个复杂且主观的问题..."
+        "content": "Well howdy, partner! What can I rustle up for you today? Need help with a problem, a plan, a story, or just some trail talk?"
       }
     }
   ]
