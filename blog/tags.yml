@@ -33,7 +33,17 @@ rag:
   permalink: '/rag'
   description: 'Articles about RAG'
 
+context:
+  label: 'Context'
+  permalink: '/context'
+  description: 'Articles about Context System'
+
 update:
   label: 'System Updates'
   permalink: '/update'
   description: 'Articles about product updates'
+
+vscode:
+  label: 'VS Code'
+  permalink: '/vscode'
+  description: 'Articles about VS Code'
