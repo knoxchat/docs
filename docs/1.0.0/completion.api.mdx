@@ -27,7 +27,7 @@ import Heading from "@theme/Heading";
 
 <MethodEndpoint
   method={"post"}
-  path={"https://knox.chat/v1/completions"}
+  path={"https://api.knox.chat/v1/completions"}
 >
 </MethodEndpoint>
 
@@ -71,7 +71,7 @@ This endpoint requires an object containing the following properties:
 ## cURL Example
 
 ```shell
-curl -X POST https://knox.chat/v1/completions \
+curl -X POST https://api.knox.chat/v1/completions \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
      -d '{

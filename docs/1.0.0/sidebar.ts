@@ -28,6 +28,12 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "doc",
+      id: "1.0.0/messages",
+      label: "Messages",
+      className: "api-method post",
+    },
+    {
+      type: "doc",
       id: "1.0.0/list-available-models",
       label: "List available models",
       className: "api-method get",

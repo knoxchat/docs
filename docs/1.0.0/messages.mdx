@@ -1,0 +1,509 @@
+---
+id: messages
+title: "Messages"
+description: "Create a message using the Anthropic Messages API format (Claude Code compatible)"
+sidebar_label: "Messages"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Messages"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/messages"}
+>
+</MethodEndpoint>
+
+Create a message using the Anthropic Messages API format. This endpoint provides full compatibility with Claude Code and Anthropic SDK clients.
+
+## Request
+
+This endpoint requires an object containing the following properties:
+
+### Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | Bearer authentication in the form `Bearer token`, where `token` is your authorization token. Alternatively, use `x-api-key` header. |
+| x-api-key | String | No | Alternative authentication using Anthropic-style API key header. |
+| anthropic-version | String | No | Anthropic API version (e.g., `2023-06-01`). Optional but recommended. |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| model | String | Yes | The model to use. Examples: `anthropic/claude-sonnet-4.5`, `anthropic/claude-opus-4.5`, `anthropic/claude-haiku-4.5`, or aliases like `sonnet`, `opus`, `haiku`. |
+| messages | Array | Yes | Array of message objects representing the conversation. |
+| max_tokens | Integer | Yes | Maximum number of tokens to generate (required). |
+| system | String or Array | No | System prompt. Can be a string or array of content blocks with cache control. |
+| metadata | Object | No | Request metadata containing optional `user_id`. |
+| stop_sequences | Array of Strings | No | Custom stop sequences that will cause the model to stop generating. |
+| stream | Boolean | No | Enable streaming responses using SSE. Defaults to `false`. |
+| temperature | Double | No | Sampling temperature (range: [0.0, 1.0]). |
+| top_k | Integer | No | Top-k sampling value. |
+| top_p | Double | No | Top-p (nucleus) sampling value (range: (0, 1]). |
+| tools | Array | No | Array of tool definitions for function calling. |
+| tool_choice | Object | No | How the model should use tools: `{"type": "auto"}`, `{"type": "any"}`, or `{"type": "tool", "name": "..."}`. |
+| thinking | Object | No | Extended thinking configuration for Claude 3.5+. Use `{"type": "enabled", "budget_tokens": 1024}`. |
+
+### Message Object
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| role | String | Yes | The role of the message author: `user` or `assistant`. |
+| content | String or Array | Yes | The content of the message. Can be a string or array of content blocks. |
+
+### Content Block Types
+
+#### Text Block
+```json
+{
+  "type": "text",
+  "text": "Your text content here",
+  "cache_control": {"type": "ephemeral"}
+}
+```
+
+#### Image Block
+```json
+{
+  "type": "image",
+  "source": {
+    "type": "base64",
+    "media_type": "image/png",
+    "data": "base64-encoded-image-data"
+  }
+}
+```
+
+#### Tool Use Block (in assistant messages)
+```json
+{
+  "type": "tool_use",
+  "id": "tool_call_id",
+  "name": "function_name",
+  "input": {"param": "value"}
+}
+```
+
+#### Tool Result Block (in user messages)
+```json
+{
+  "type": "tool_result",
+  "tool_use_id": "tool_call_id",
+  "content": "Result of the tool call",
+  "is_error": false
+}
+```
+
+### Tool Definition
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| name | String | Yes | The name of the tool/function. |
+| description | String | No | Description of what the tool does. |
+| input_schema | Object | Yes | JSON Schema object defining the tool's parameters. |
+
+### Cache Control (Prompt Caching)
+
+Knox supports Anthropic's prompt caching feature to reduce costs on repeated prompts. Cache control can be applied to both text and image content blocks.
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| type | String | Yes | Cache type. Use `"ephemeral"`. |
+| ttl | String | No | Time-to-live. Default is 5 minutes. Use `"1h"` for 1-hour TTL. |
+
+#### Supported Cache Locations
+
+Cache control can be added to:
+- **System prompt** (string or content blocks)
+- **User message text blocks**
+- **User message image blocks**
+
+#### Cache Breakpoints
+
+Add `cache_control` to mark cache breakpoints in your prompt. Content before the breakpoint will be cached and reused in subsequent requests.
+
+```json
+{
+  "system": [
+    {
+      "type": "text",
+      "text": "Long reference documentation that should be cached...",
+      "cache_control": {"type": "ephemeral"}
+    }
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Large context to cache...",
+          "cache_control": {"type": "ephemeral"}
+        },
+        {
+          "type": "text",
+          "text": "Your actual question (not cached)"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### Image Caching
+
+Images can also be cached, which is useful when asking multiple questions about the same image:
+
+```json
+{
+  "role": "user",
+  "content": [
+    {
+      "type": "image",
+      "source": {
+        "type": "base64",
+        "media_type": "image/png",
+        "data": "base64-encoded-image-data"
+      },
+      "cache_control": {"type": "ephemeral"}
+    },
+    {
+      "type": "text",
+      "text": "What's in this image?"
+    }
+  ]
+}
+```
+
+#### Cache Pricing
+
+| Token Type | Cost Multiplier |
+| ---------- | --------------- |
+| cache_creation_input_tokens | 1.25x (25% more than regular input) |
+| cache_read_input_tokens | 0.1x (90% discount from regular input) |
+
+#### Cache TTL Options
+
+| TTL | Duration | Use Case |
+| --- | -------- | -------- |
+| `{"type": "ephemeral"}` | 5 minutes | Short conversations, quick follow-ups |
+| `{"type": "ephemeral", "ttl": "1h"}` | 1 hour | Longer sessions, document analysis |
+
+#### Best Practices
+
+1. **Place cache breakpoints strategically**: Cache large, static content like documentation, code files, or reference materials.
+2. **Order content by stability**: Put the most stable content first (system prompt), then cached user content, then dynamic queries.
+3. **Minimum token threshold**: Caching is most effective for prompts with at least 1,024 tokens of cacheable content.
+4. **Reuse within TTL**: Make follow-up requests within the TTL window to benefit from cache reads.
+
+## cURL Example
+
+### Basic Request
+
+```shell
+curl -X POST https://api.knox.chat/v1/messages \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -H "anthropic-version: 2023-06-01" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.5",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "Hello, Claude!"}
+  ]
+}'
+```
+
+### With System Prompt
+
+```shell
+curl -X POST https://api.knox.chat/v1/messages \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.5",
+  "max_tokens": 1024,
+  "system": "You are a helpful coding assistant.",
+  "messages": [
+    {"role": "user", "content": "Write a Python hello world program"}
+  ]
+}'
+```
+
+### With Prompt Caching
+
+```shell
+curl -X POST https://api.knox.chat/v1/messages \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.5",
+  "max_tokens": 1024,
+  "system": [
+    {
+      "type": "text",
+      "text": "Very long system prompt or documentation to cache...",
+      "cache_control": {"type": "ephemeral"}
+    }
+  ],
+  "messages": [
+    {"role": "user", "content": "Question about the cached content"}
+  ]
+}'
+```
+
+### With Tool Use
+
+```shell
+curl -X POST https://api.knox.chat/v1/messages \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.5",
+  "max_tokens": 1024,
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get the current weather for a location",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City and state, e.g. San Francisco, CA"
+          }
+        },
+        "required": ["location"]
+      }
+    }
+  ],
+  "messages": [
+    {"role": "user", "content": "What is the weather in Tokyo?"}
+  ]
+}'
+```
+
+### Streaming Request
+
+```shell
+curl -X POST https://api.knox.chat/v1/messages \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.5",
+  "max_tokens": 1024,
+  "stream": true,
+  "messages": [
+    {"role": "user", "content": "Tell me a short story"}
+  ]
+}'
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "id": "msg_01XFDUDYJgAACzvnptvVoYEL",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "Hello! I'm Claude, an AI assistant. How can I help you today?"
+    }
+  ],
+  "model": "anthropic/claude-sonnet-4.5",
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 12,
+    "output_tokens": 25,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0
+  }
+}
+```
+
+### Response with Tool Use
+
+```json
+{
+  "id": "msg_01XFDUDYJgAACzvnptvVoYEL",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_01A09q90qw90lq917835lhl",
+      "name": "get_weather",
+      "input": {"location": "Tokyo, Japan"}
+    }
+  ],
+  "model": "anthropic/claude-sonnet-4.5",
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 50,
+    "output_tokens": 35
+  }
+}
+```
+
+### Streaming Response
+
+When `stream: true`, the response is sent as Server-Sent Events (SSE):
+
+```
+event: message_start
+data: {"type":"message_start","message":{"id":"msg_01...","type":"message","role":"assistant","content":[],"model":"anthropic/claude-sonnet-4.5","stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":12,"output_tokens":0}}}
+
+event: content_block_start
+data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"!"}}
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0}
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"output_tokens":25}}
+
+event: message_stop
+data: {"type":"message_stop"}
+```
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | String | Unique identifier for the message. |
+| type | String | Always `"message"`. |
+| role | String | Always `"assistant"`. |
+| content | Array | Array of content blocks (text, tool_use, or thinking). |
+| model | String | The model that generated the response. |
+| stop_reason | String | Reason for stopping: `"end_turn"`, `"max_tokens"`, `"stop_sequence"`, or `"tool_use"`. |
+| stop_sequence | String or null | The stop sequence that caused the model to stop, if applicable. |
+| usage | Object | Token usage information. |
+
+### Usage Object
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| input_tokens | Integer | Number of input tokens processed. |
+| output_tokens | Integer | Number of output tokens generated. |
+| cache_creation_input_tokens | Integer | Tokens written to cache (1.25x cost). Only present when using prompt caching. |
+| cache_read_input_tokens | Integer | Tokens read from cache (0.1x cost). Only present when using prompt caching. |
+
+### Error Response
+
+```json
+{
+  "type": "error",
+  "error": {
+    "type": "invalid_request_error",
+    "message": "Invalid request format: missing required field 'messages'"
+  }
+}
+```
+
+### Error Types
+
+| Type | Description |
+| ---- | ----------- |
+| invalid_request_error | The request was malformed or missing required fields. |
+| authentication_error | Invalid or missing API key. |
+| permission_error | The API key doesn't have access to the requested model. |
+| rate_limit_error | Too many requests. Please slow down. |
+| api_error | An internal server error occurred. |
+
+## Model Aliases
+
+Knox automatically resolves model aliases for convenience:
+
+| Alias | Resolved Model |
+| ----- | -------------- |
+| `haiku` | `anthropic/claude-haiku-4.5` |
+| `sonnet` | `anthropic/claude-sonnet-4.5` |
+| `opus` | `anthropic/claude-opus-4.5` |
+| `claude-3-5-sonnet-*` | `anthropic/claude-sonnet-4.5` |
+| `claude-3-5-haiku-*` | `anthropic/claude-haiku-4.5` |
+| `claude-3-5-opus-*` | `anthropic/claude-opus-4.5` |
+
+## SDK Usage
+
+### Python (Anthropic SDK)
+
+```python
+import anthropic
+
+client = anthropic.Anthropic(
+    base_url="https://api.knox.chat",
+    api_key="sk-your-knox-api-key",
+)
+
+message = client.messages.create(
+    model="anthropic/claude-sonnet-4.5",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Hello, Claude!"}
+    ]
+)
+
+print(message.content[0].text)
+```
+
+### JavaScript (Anthropic SDK)
+
+```javascript
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({
+  baseURL: 'https://api.knox.chat',
+  apiKey: 'sk-your-knox-api-key',
+});
+
+const message = await client.messages.create({
+  model: 'anthropic/claude-sonnet-4.5',
+  max_tokens: 1024,
+  messages: [
+    { role: 'user', content: 'Hello, Claude!' }
+  ],
+});
+
+console.log(message.content[0].text);
+```
+
+### Claude Code Configuration
+
+```bash
+export ANTHROPIC_BASE_URL="https://api.knox.chat"
+export ANTHROPIC_AUTH_TOKEN="sk-your-knox-api-key"
+export ANTHROPIC_API_KEY=""  # Must be explicitly empty
+```
+
+Then run `claude` in your terminal to start Claude Code with Knox.

@@ -220,7 +220,7 @@ AI: *calls get_hotels(city: "Tokyo", arrival_date: "2024-03-15")*
 
 ### **Step 1: Basic Setup**
 ```bash
-curl -X POST https://knox.chat/v1/chat/completions \
+curl -X POST https://api.knox.chat/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{

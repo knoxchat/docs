@@ -69,7 +69,7 @@ class MCPClient:
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
         self.openai = OpenAI(
-            base_url="https://knox.chat/v1"
+            base_url="https://api.knox.chat/v1"
         )
 
     async def connect_to_server(self, server_config):

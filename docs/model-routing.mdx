@@ -2,94 +2,607 @@
 sidebar_position: 2
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+# Model Routing System
 
-# Model Routing
+## System Architecture Overview
 
-Knox Chat provides two options for model routing.
+The Provider Model Routing System is an intelligent, multi-layered routing infrastructure that enables multiple providers to offer the same AI models while automatically selecting the optimal provider based on real-time metrics, user preferences, and system health.
 
-## Auto Router
-The Auto Router, a special model ID that you can use to choose between selected high-quality models based on your prompt, powered by [NotDiamond](https://www.notdiamond.ai/).
+## Core Components Structure
 
-The resulting generation will have `model` set to the model that was used.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    USER REQUEST (Model ID)                      │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              RELAY HANDLER                                      │
+│  • Request validation                                           │
+│  • Channel selection with routing                               │
+│  • Circuit breaker checking                                     │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│         CHANNEL SERVICE                                         │
+│  get_routed_channel()                                           │
+│  ├── Try Provider Model Routing (STEP 1)                        │
+│  └── Fallback to Legacy Channel Routing (STEP 2)                │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│      MODEL ROUTING SERVICE                                      │
+│                                                                 │
+│  route_request()                                                │
+│  ├─► 1. get_model_providers()      [Provider Discovery]         │
+│  ├─► 2. load_user_preferences()    [User Prefs Loading]         │
+│  ├─► 3. load_routing_config()      [Model Config Loading]       │
+│  ├─► 4. score_providers()          [Intelligent Scoring]        │
+│  └─► 5. select_provider()          [Final Selection]            │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│           ROUTING DECISION                                      │
+│  • Selected Provider + Channel                                  │
+│  • Fallback Providers (ordered)                                 │
+│  • Routing Reason & Score                                       │
+│  • Strategy Used                                                │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│      CIRCUIT BREAKER CHECK                                      │
+│  should_allow_request()                                         │
+│  • Closed → Allow                                               │
+│  • Open → Try Fallback                                          │
+│  • Half-Open → Limited Allow                                    │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              EXECUTE REQUEST ON SELECTED CHANNEL                │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────┐
+│        METRICS RECORDING                                         │
+│  record_request()                                                │
+│  • Latency tracking                                              │
+│  • Success/failure counting                                      │
+│  • Token usage                                                   │
+│  • Quality score calculation                                     │
+│  • Circuit breaker state update                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
 
-## The `models` parameter
+## Database Schema Architecture
 
-The `models` parameter lets you automatically try other models if the primary model's providers are down, rate-limited, or refuse to reply due to content moderation.
+### 1. **provider_models** (Source of Truth)
+Provider-submitted model definitions
+```
+├── Model Info: model_id, model_name, description
+├── Provider: provider_id, provider_name, channel_id
+├── Pricing: pricing_prompt, pricing_completion, pricing_image
+├── Specs: context_length, modality, supported_parameters
+└── Status: status (0=pending, 1=approved, 2=rejected)
+```
 
-```json showLineNumbers
+### 2. **provider_model_metrics** (Real-time Performance)
+Live performance tracking per provider-model-channel
+```
+├── Cumulative: total_requests, successful_requests, failed_requests
+├── Latency: avg/p50/p95/p99/min/max_latency_ms
+├── Time Windows: last_hour, last_24h metrics
+├── Circuit Breaker: circuit_state, consecutive_failures/successes
+├── Quality: quality_score (0.0-1.0)
+└── Token Throughput: total tokens, avg_tokens_per_second
+```
+
+### 3. **model_routing_config** (Per-Model Configuration)
+Admin-configurable routing rules per model
+```
+├── Weights: latency_weight, success_rate_weight, price_weight
+├── Strategy: default_strategy (performance/cost/balanced/round_robin)
+├── Fallback: enable_auto_fallback, max_fallback_attempts
+└── Circuit: failure_threshold, recovery_timeout_seconds
+```
+
+### 4. **user_routing_preferences** (User Preferences)
+Per-user routing customization
+```
+├── Strategy: default_strategy
+├── Providers: preferred_providers[], blocked_providers[]
+├── Limits: max_price_per_million_tokens, min_success_rate, max_latency_ms
+└── Requirements: require_streaming, require_function_calling
+```
+
+### 5. **routing_decision_logs** (Audit Trail)
+Complete history of routing decisions
+```
+├── Decision: selected_provider_id, routing_strategy, routing_reason
+├── Candidates: candidates_count, candidates_json
+├── Fallback: fallback_providers[], is_fallback_request
+└── Performance: routing_duration_us
+```
+
+## Detailed Process Flow
+
+### Phase 1: Request Initiation
+```
+User/API Request
+     │
+     ├─► Model ID: "deepseek-chat"
+     ├─► User ID: 12345
+     └─► Optional: RoutingPreferences { strategy: "performance" }
+```
+
+### Phase 2: Provider Discovery
+```sql
+SELECT provider_id, channel_id, provider_name, pricing, metrics, quality_score
+FROM provider_models pm
+LEFT JOIN provider_model_metrics pmm ON (...)
+LEFT JOIN channels c ON pm.channel_id = c.id
+WHERE pm.model_id = 'deepseek-chat' AND pm.status = 1
+ORDER BY quality_score DESC
+```
+
+**Output:** List of ProviderCandidate structs
+```rust
+ProviderCandidate {
+    provider_id: 5,
+    channel_id: 23,
+    provider_name: "Provider A",
+    price_per_million_prompt: 2.50,
+    price_per_million_completion: 10.00,
+    success_rate: 0.98,
+    avg_latency_ms: 450,
+    quality_score: 0.92,
+    circuit_state: Closed,
+}
+```
+
+### Phase 3: Configuration Loading
+
+**Model Config:**
+```rust
+RoutingConfig {
+    canonical_model_id: "deepseek-chat",
+    latency_weight: 0.3,
+    success_rate_weight: 0.4,
+    price_weight: 0.2,
+    provider_priority_weight: 0.1,
+    default_strategy: "balanced",
+}
+```
+
+**User Preferences (merged with request prefs):**
+```rust
+RoutingPreferences {
+    strategy: Performance,
+    prefer_providers: [5, 8],
+    avoid_providers: [3],
+    max_price: Some(15.0),
+    min_success_rate: Some(0.95),
+}
+```
+
+### Phase 4: Intelligent Scoring
+
+#### Strategy: **Performance**
+```rust
+score = success_rate * 0.4 + latency_score * 0.3 + quality_score * 0.1 + priority_bonus
+```
+
+#### Strategy: **Cost**
+```rust
+price_score = 1.0 - (avg_price / 100.0)
+score = price_score * 0.6 + success_rate * 0.3 + quality_score * 0.1
+```
+
+#### Strategy: **Balanced**
+```rust
+perf_score = performance_score(candidate)
+cost_score = cost_score(candidate)
+score = perf_score * perf_weight + cost_score * cost_weight
+```
+
+### Phase 5: Provider Selection
+
+1. **Filter by preferences:**
+   - Remove avoided providers
+   - Check max_price threshold
+   - Check min_success_rate
+   - Check max_latency_ms
+
+2. **Boost preferred providers:**
+   - Apply 50% score boost to preferred providers
+
+3. **Weighted random selection:**
+   - Sort by score (descending)
+   - Take top 3 candidates
+   - Weighted random selection (prevents provider starvation)
+
+4. **Prepare fallback chain:**
+   - Remaining candidates become fallback providers (up to 3)
+
+### Phase 6: Circuit Breaker Check
+
+```
+┌──────────────────────────────────────────────┐
+│         Circuit State Machine                │
+├──────────────────────────────────────────────┤
+│                                              │
+│  CLOSED ──────────────► OPEN                 │
+│    ▲        (5 failures)    │                │
+│    │                        │                │
+│    │                    (60s timeout)        │
+│    │                        │                │
+│    │                        ▼                │
+│    └───── HALF-OPEN ◄────────                │
+│        (3 successes)                         │
+│                                              │
+└──────────────────────────────────────────────┘
+
+States:
+• CLOSED: Normal operation (all requests pass)
+• OPEN: Block all requests, try fallbacks
+• HALF-OPEN: Allow limited test requests
+```
+
+**Circuit Breaker Decision:**
+- If primary provider circuit is **OPEN** → Try fallback providers
+- If all circuits **OPEN** → Fallback to legacy routing
+- If circuit is **CLOSED** or **HALF-OPEN** → Proceed
+
+### Phase 7: Request Execution
+
+Request sent to selected channel:
+```
+Channel {
+    id: 23,
+    provider_id: 5,
+    base_url: "https://api.provider-a.com/v1",
+    key: "encrypted_key",
+    status: 1 (active)
+}
+```
+
+### Phase 8: Metrics Recording
+
+After request completion:
+```rust
+ProviderMetricsService::record_request(
+    provider_id: 5,
+    model_id: "deepseek-chat",
+    channel_id: 23,
+    latency_ms: 450,
+    success: true,
+    prompt_tokens: 1500,
+    completion_tokens: 300,
+)
+```
+
+**Metrics Update Process:**
+1. Record in memory buffer (fast)
+2. Periodic aggregation (every 60 seconds)
+3. Database update via `update_provider_metrics()` SQL function
+4. Quality score recalculation
+5. Circuit breaker state evaluation
+
+## Routing Strategies Explained
+
+### 1. **Performance Strategy**
+**Goal:** Maximize speed and reliability
+
+**Scoring Formula:**
+```
+score = success_rate × 0.4 + latency_score × 0.3 + quality_score × 0.1 + priority_bonus
+```
+
+**Best for:**
+- Real-time applications
+- Latency-sensitive workloads
+- Production critical paths
+
+**Example:**
+```
+Provider A: 98% success, 450ms → Score: 0.89
+Provider B: 95% success, 800ms → Score: 0.78
+Winner: Provider A
+```
+
+### 2. **Cost Strategy**
+**Goal:** Minimize costs
+
+**Scoring Formula:**
+```
+price_score = 1.0 - (avg_price / 100.0)
+score = price_score × 0.6 + success_rate × 0.3 + quality_score × 0.1
+```
+
+**Best for:**
+- Batch processing
+- Development/testing
+- Cost-conscious applications
+
+**Example:**
+```
+Provider A: $5/M → Score: 0.92
+Provider B: $12/M → Score: 0.78
+Winner: Provider A (cheaper)
+```
+
+### 3. **Balanced Strategy** (Default)
+**Goal:** Optimize all factors
+
+**Scoring Formula:**
+```
+Combined = performance_score × perf_weight + cost_score × cost_weight
+```
+
+**Best for:**
+- General purpose applications
+- Mixed workloads
+- Most production scenarios
+
+### 4. **Round-Robin Strategy**
+**Goal:** Equal distribution
+
+**Behavior:**
+- All providers get equal score
+- Rotate through providers sequentially
+- No performance consideration
+
+**Best for:**
+- Load distribution testing
+- Provider evaluation
+- Ensuring provider diversity
+
+## Key Advantages
+
+### 1. **Intelligent Provider Selection**
+**Real-time metrics-based routing**
+- Automatically routes to best-performing providers
+- Adapts to changing provider performance
+- No manual intervention required
+
+**Multi-dimensional scoring**
+- Considers latency, success rate, cost, and quality
+- Configurable weights per model
+- Strategy-based optimization
+
+### 2. **High Availability & Fault Tolerance**
+
+**Circuit breaker pattern**
+```
+Failed Provider → Circuit Opens → Automatic Fallback
+↓
+Health Recovery → Circuit Half-Opens → Test Requests
+↓
+Success → Circuit Closes → Full Traffic Restoration
+```
+
+**Automatic fallback chains**
+- Up to 3 fallback providers per request
+- Ordered by score
+- Seamless failover on provider failure
+
+**No single point of failure**
+- Multiple providers for same model
+- Instant failover without retries
+- Graceful degradation
+
+### 3. **Cost Optimization**
+
+**Price-aware routing**
+- Cost strategy prioritizes cheaper providers
+- Price thresholds per user
+- Balance cost vs performance
+
+**Provider competition**
+- Multiple providers compete on price
+- Market-driven pricing
+- Automatic selection of best value
+
+### 4. **Performance Tracking**
+
+**Comprehensive metrics**
+```
+Latency: avg, p50, p95, p99, min, max
+Success Rate: overall, last_hour, last_24h
+Quality Score: calculated from success + latency + experience
+Token Throughput: tokens/second tracking
+```
+
+**Historical data**
+- All-time cumulative metrics
+- Time-windowed metrics (hourly, daily)
+- Trend analysis capability
+
+### 5. **User Empowerment**
+
+**Customizable preferences**
+```rust
+UserPreferences {
+    strategy: "performance",           // Choose optimization goal
+    prefer_providers: [1, 5],          // Favorite providers
+    avoid_providers: [3],              // Blacklist problematic ones
+    max_price: 15.0,                   // Budget control
+    min_success_rate: 0.95,            // Quality threshold
+    max_latency_ms: 5000,              // Latency requirement
+}
+```
+
+**Per-request overrides**
+- Can override preferences per API call
+- Flexible for different use cases
+- Maintains user defaults
+
+### 6. **Provider Ecosystem Benefits**
+
+**Fair provider exposure**
+- Weighted random selection prevents dominance
+- Quality providers get more traffic
+- New providers can compete
+
+**Transparent performance**
+- Real metrics visible to admin
+- Quality score based on actual performance
+- Accountability for providers
+
+### 7. **Operational Excellence**
+
+**Complete audit trail**
+```sql
+routing_decision_logs:
+- Every routing decision logged
+- Full candidate list with scores
+- Debugging and analytics
+- 7-day retention (configurable)
+```
+
+**Admin control**
+```
+• Manual circuit breaker control
+• Per-model routing configuration
+• Provider approval workflow
+• Analytics dashboard
+```
+
+### 8. **Scalability**
+
+**Efficient data structures**
+- In-memory metrics buffering
+- Periodic batch updates to database
+- Minimal per-request overhead
+
+**Distributed-ready**
+- Stateless routing decisions
+- Database-backed state
+- Redis-compatible circuit breakers
+
+### 9. **Developer Experience**
+
+**Simple API integration**
+```rust
+// Automatic routing - just pass model ID
+let channel = ChannelService::get_routed_channel(
+    &pool, "default", "deepseek-chat", user_id, None
+).await?;
+```
+
+**Simulation endpoint**
+```http
+POST /api/routing/simulate
 {
-  "models": ["anthropic/claude-sonnet-4.5", "deepseek/deepseek-chat"],
-  ... // Other params
+  "model_id": "deepseek-chat",
+  "preferences": { "strategy": "cost" }
 }
 ```
 
-If the model you selected returns an error, Knox Chat will try to use the fallback model instead. If the fallback model is down or returns an error, Knox Chat will return that error.
+### 10. **Business Intelligence**
 
-By default, any error can trigger the use of a fallback model, including context length validation errors, moderation flags for filtered models, rate-limiting, and downtime.
+**Rich analytics**
+```
+• Provider selection rates
+• Strategy distribution
+• Model usage patterns
+• Cost analysis
+• Performance trends
+```
 
-Requests are priced using the model that was ultimately used, which will be returned in the `model` attribute of the response body.
+## Performance Characteristics
 
-## Using with OpenAI SDK
+### Routing Decision Speed
+- **Average:** < 10ms
+- **P99:** < 50ms
+- **Includes:** DB queries + scoring + selection
 
-To use the `models` array with the OpenAI SDK, include it in the `extra_body` parameter. In the example below, gpt-4o will be tried first, and the `models` array will be tried in order as fallbacks.
+### Metrics Update
+- **Memory buffer:** ~1μs per record
+- **DB flush:** Every 60s (async, non-blocking)
+- **Impact on request:** Zero (async recording)
 
-<Tabs>
-<TabItem value="ts" label="TypeScript">
+### Database Queries
+- **Provider lookup:** Single JOIN query with indexes
+- **Config loading:** Cached or single query
+- **Metrics aggregation:** Periodic batch operation
 
-```ts showLineNumbers
-import OpenAI from 'openai';
+## Security & Isolation
 
-const knoxchatClient = new OpenAI({
-  baseURL: 'https://knox.chat/v1',
-  // API 密钥和标头
-});
+### Data Isolation
+**Provider models completely separate from legacy channels
+No mixing of provider_models and abilities tables
+Clear separation of routing logic
 
-async function main() {
-  // @ts-expect-error
-  const completion = await knoxchatClient.chat.completions.create({
-    model: 'openai/gpt-4o',
-    models: ['anthropic/claude-sonnet-4.5', 'qwen/qwen3-coder'],
-    messages: [
-      {
-        role: 'user',
-        content: 'What is the meaning of life?',
-      },
-    ],
-  });
-  console.log(completion.choices[0].message);
+### Access Control
+**Provider can only manage their own models
+Admin approval required for model visibility
+User-level routing preferences isolated
+
+### API Key Management
+**Encrypted channel keys
+Provider-owned API keys
+Rotation support via provider_api_keys table
+
+## Future Enhancements
+
+### Planned Improvements
+1. **ML-based routing**
+   - Predict provider performance
+   - Learn from user patterns
+   - Adaptive weight tuning
+
+2. **Geographic routing**
+   - Provider location awareness
+   - Latency-based geo selection
+   - Regional failover
+
+3. **Advanced analytics**
+   - Provider comparison dashboards
+   - Cost forecasting
+   - Performance predictions
+
+4. **Enhanced fallback strategies**
+   - Intelligent retry with backoff
+   - Cross-model fallbacks
+   - Dynamic strategy switching
+
+## Configuration Examples
+
+### Example 1: High-Performance Setup
+```sql
+INSERT INTO model_routing_config VALUES (
+    'deepseek-chat',
+    0.35,  -- latency_weight (high)
+    0.45,  -- success_rate_weight (high)
+    0.10,  -- price_weight (low)
+    0.10,  -- provider_priority_weight
+    'performance'
+);
+```
+
+### Example 2: Cost-Optimized Setup
+```sql
+INSERT INTO model_routing_config VALUES (
+    'deepseek-chat-v3.1',
+    0.15,  -- latency_weight (low)
+    0.35,  -- success_rate_weight (medium)
+    0.40,  -- price_weight (high)
+    0.10,  -- provider_priority_weight
+    'cost'
+);
+```
+
+### Example 3: User Cost Control
+```rust
+UserRoutingPreferences {
+    default_strategy: "cost",
+    max_price_per_million_tokens: 10.0,  // Max $10/M
+    min_success_rate: 0.90,              // Must maintain 90%+
+    preferred_providers: [1, 5, 8],      // Try these first
 }
-
-main();
 ```
-
-</TabItem>
-<TabItem value="py" label="Python">
-
-```py showLineNumbers
-from openai import OpenAI
-
-openai_client = OpenAI(
-  base_url="https://knox.chat/v1",
-  api_key=<KNOXCHAT_API_KEY>,
-)
-
-completion = openai_client.chat.completions.create(
-    model="openai/gpt-4o",
-    extra_body={
-        "models": ["anthropic/claude-sonnet-4.5", "qwen/qwen3-coder"],
-    },
-    messages=[
-        {
-            "role": "user",
-            "content": "What is the meaning of life?"
-        }
-    ]
-)
-
-print(completion.choices[0].message.content)
-```
-
-</TabItem>
-</Tabs>

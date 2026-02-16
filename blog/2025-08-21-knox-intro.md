@@ -40,7 +40,7 @@ Knox.Chat isn't just about accessing different models – it's about enabling **
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://knox.chat/v1",
+    base_url="https://api.knox.chat/v1",
     api_key="<KNOXCHAT_API_KEY>",  # One key for everything
 )
 
@@ -68,12 +68,12 @@ embeddings = client.embeddings.create(
 ### 🎯 **Intelligent Model Routing**
 Our advanced routing system automatically selects the best model and provider based on your priorities:
 
-- **Auto Router**: AI-powered model selection using [NotDiamond](https://www.notdiamond.ai/) and [OpenRouter](https://openrouter.ai/) for optimal results
-- **Fallback Models**: Automatic failover when primary models are unavailable
+- **Intelligent Routing**: Knox Chat's built-in routing engine scores providers based on latency, success rate, price, and priority — with automatic circuit breakers for reliability
+- **Fallback Models**: Automatic failover across multiple providers when the primary is unavailable
 - **Performance Variants**: 
   - `:nitro` - Optimized for speed and throughput
   - `:floor` - Prioritizes cost-effectiveness
-  - `:online` - Includes web search capabilities
+  - `:online` - Enables web search via the upstream provider or native search models like `perplexity/sonar-pro`
 
 ### 💰 **Cost Optimization**
 Knox.Chat scouts for the best prices across dozens of providers, offering:
@@ -93,7 +93,7 @@ from langchain_openai import ChatOpenAI
 
 # Drop-in replacement for any LangChain application
 llm = ChatOpenAI(
-    base_url="https://knox.chat/v1",
+    base_url="https://api.knox.chat/v1",
     api_key="<KNOXCHAT_API_KEY>",
     model="anthropic/claude-sonnet-4.5"
 )
@@ -108,7 +108,7 @@ result = chain.invoke({"input": multimodal_data})
 # Works with AutoGPT, CrewAI, Semantic Kernel, and more
 agent_config = {
     "llm_provider": "knox_chat",
-    "base_url": "https://knox.chat/v1",
+    "base_url": "https://api.knox.chat/v1",
     "api_key": "<KNOXCHAT_API_KEY>",
     "models": {
         "smart_llm": "openai/gpt-5",
@@ -217,7 +217,7 @@ Knox.Chat provides access to **300+ models** from leading AI providers:
 - **Mistral**: mistralai/mistral-medium-3.1,mistralai/codestral-2508, and more
 - **And many more**: DeepSeek, Meta, VoyageAI, Cohere, and emerging models
 
-Browse our complete model catalog at [knox.chat/models](https://knox.chat/models) or query programmatically via our [Models API](https://knox.chat/v1/models).
+Browse our complete model catalog at [knox.chat/models](https://knox.chat/models) or query programmatically via our [Models API](https://api.knox.chat/v1/models).
 
 ## Developer Experience
 
@@ -279,7 +279,7 @@ pip install openai  # Python
 npm install openai  # Node.js
 
 # Or use direct HTTP calls
-curl https://knox.chat/v1/chat/completions \
+curl https://api.knox.chat/v1/chat/completions \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model": "anthropic/claude-sonnet-4.5", "messages": [{"role": "user", "content": "Hello Knox.Chat!"}]}'

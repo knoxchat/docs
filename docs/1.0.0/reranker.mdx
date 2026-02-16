@@ -27,7 +27,7 @@ import Heading from "@theme/Heading";
 
 <MethodEndpoint
   method={"post"}
-  path={"https://knox.chat/v1/rerank"}
+  path={"https://api.knox.chat/v1/rerank"}
 >
 </MethodEndpoint>
 
@@ -45,7 +45,7 @@ The rerank endpoint receives a query, a list of documents, and other parameters 
 
 ```shell
 curl --request POST \
-     --url https://knox.chat/v1/rerank \
+     --url https://api.knox.chat/v1/rerank \
      --header "Authorization: Bearer $KNOXCHAT_API_KEY" \
      --header "content-type: application/json" \
      --data '

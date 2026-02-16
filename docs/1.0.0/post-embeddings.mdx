@@ -27,7 +27,7 @@ import Heading from "@theme/Heading";
 
 <MethodEndpoint
   method={"post"}
-  path={"https://knox.chat/v1/embeddings"}
+  path={"https://api.knox.chat/v1/embeddings"}
 >
 </MethodEndpoint>
 
@@ -45,7 +45,7 @@ The text embeddings endpoint takes a string (or list of strings) and other param
 
 ```shell
 curl --request POST \
-     --url https://knox.chat/v1/embeddings \
+     --url https://api.knox.chat/v1/embeddings \
      --header "Authorization: Bearer $KNOXCHAT_API_KEY" \
      --header "content-type: application/json" \
      --data '

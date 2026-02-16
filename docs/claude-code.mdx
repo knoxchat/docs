@@ -1,0 +1,295 @@
+---
+sidebar_position: 16
+title: Claude Code Integration
+description: Learn how to integrate Claude Code with Knox API for enhanced AI capabilities.
+keywords: [claude code, knox api, ai integration, anthroptic messages, ai model routing]
+---
+
+# Claude Code Integration with Knox
+
+This guide explains how to use Claude Code with Knox API.
+
+## Quick Start
+
+### Step 1: Get Your Knox API Key
+
+1. Log in to your Knox dashboard
+2. Navigate to **Tokens** section
+3. Create a new API token or use an existing one
+4. Copy the API key (format: `sk-xxxx...`)
+
+### Step 2: Configure Claude Code
+
+Add these environment variables to your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish`):
+
+```bash
+# Production (api.knox.chat)
+export ANTHROPIC_BASE_URL="https://api.knox.chat"
+export ANTHROPIC_AUTH_TOKEN="sk-your-knox-api-key"
+export ANTHROPIC_API_KEY=""  # Important: Must be explicitly empty
+```
+
+> **Important**: Do not put these in a project-level `.env` file. The native Claude Code installer does not read standard `.env` files.
+
+### Step 3: Start Claude Code
+
+Navigate to your project directory and start Claude Code:
+
+```bash
+cd /path/to/your/project
+claude
+```
+
+### Step 4: Verify Connection
+
+Run the `/status` command inside Claude Code to verify your connection:
+
+```
+> /status
+Auth token: ANTHROPIC_AUTH_TOKEN
+Anthropic base URL: https://api.knox.chat
+```
+
+## Supported Models
+
+Knox automatically maps Claude Code model names to the correct Knox models:
+
+- `anthropic/claude-haiku-4.5` 
+- `anthropic/claude-sonnet-4.5`
+- `anthropic/claude-opus-4.5`
+
+### Overriding Default Models
+
+You can configure Claude Code to use specific models by setting environment variables:
+
+```bash
+export ANTHROPIC_DEFAULT_SONNET_MODEL="anthropic/claude-sonnet-4.5"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="anthropic/claude-opus-4.5"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="anthropic/claude-haiku-4.5"
+```
+
+## How It Works
+
+Knox provides an Anthropic-compatible API layer:
+
+1. **Direct Connection**: When you set `ANTHROPIC_BASE_URL` to `https://api.knox.chat`, Claude Code sends requests to the `/v1/messages` endpoint using its native Anthropic protocol.
+
+2. **Format Conversion**: Knox automatically converts between Anthropic Messages API format and OpenAI Chat Completions format internally.
+
+3. **Model Routing**: Requests are routed through Knox's intelligent model routing system to the best available provider.
+
+4. **Billing**: Usage is tracked and billed through your Knox account. You can view usage in your Knox dashboard.
+
+## Authentication
+
+Knox supports two authentication methods for Claude Code compatibility:
+
+1. **x-api-key Header** (Anthropic style):
+   ```
+   x-api-key: sk-your-api-key
+   ```
+
+2. **Authorization Header** (OpenAI style):
+   ```
+   Authorization: Bearer sk-your-api-key
+   ```
+
+Claude Code can use either method via the `ANTHROPIC_AUTH_TOKEN` environment variable.
+
+## API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /v1/messages` | Anthropic Messages API (Claude Code uses this) |
+| `POST /v1/completions` | OpenAI Completions API (text completions) |
+| `POST /v1/chat/completions` | OpenAI Chat Completions API |
+| `GET /v1/models` | List available models |
+
+## Completions API
+
+Knox also supports the OpenAI Completions API for text completion tasks. This is useful for legacy integrations or simple text generation.
+
+### Request Format
+
+```json
+{
+  "model": "model-name",
+  "prompt": "Your text prompt here",
+  "max_tokens": 100,
+  "temperature": 0.7,
+  "stream": false
+}
+```
+
+### Request Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| model | String | Yes | The model ID to use |
+| prompt | String | Yes | The text prompt to complete |
+| max_tokens | Integer | No | Maximum tokens to generate |
+| temperature | Double | No | Sampling temperature (0-2) |
+| top_p | Double | No | Nucleus sampling (0-1) |
+| top_k | Integer | No | Top-k sampling |
+| stream | Boolean | No | Enable streaming (default: false) |
+| seed | Integer | No | Seed for deterministic output |
+| frequency_penalty | Double | No | Frequency penalty (-2 to 2) |
+| presence_penalty | Double | No | Presence penalty (-2 to 2) |
+| repetition_penalty | Double | No | Repetition penalty (0-2) |
+| stop | Array | No | Stop sequences |
+
+### Example Request
+
+```bash
+curl -X POST https://api.knox.chat/v1/completions \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "anthropic/claude-sonnet-4.5",
+    "prompt": "Once upon a time",
+    "max_tokens": 100
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "id": "cmpl-abc123",
+  "choices": [
+    {
+      "text": " in a land far away, there lived a curious little fox...",
+      "index": 0,
+      "finish_reason": "stop"
+    }
+  ]
+}
+```
+
+### SDK Usage
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="sk-your-knox-api-key",
+)
+
+response = client.completions.create(
+    model="anthropic/claude-sonnet-4.5",
+    prompt="Write a haiku about programming:",
+    max_tokens=50
+)
+
+print(response.choices[0].text)
+```
+
+## Features Supported
+
+- ✅ Streaming responses
+- ✅ Tool use (function calling)
+- ✅ Multi-turn conversations
+- ✅ System prompts
+- ✅ Image inputs (base64 and URL)
+- ✅ Extended thinking (Claude 3.5+)
+- ✅ Stop sequences
+- ✅ Temperature and top-p controls
+- ✅ **Prompt caching** with `cache_control` (5-minute and 1-hour TTL)
+- ✅ Cache token tracking in usage response
+
+## Prompt Caching
+
+Knox supports Anthropic's prompt caching feature to reduce costs on repeated prompts. Cache control is passed through to Knox for Anthropic models.
+
+### Cache Control Syntax
+
+Add `cache_control` to content blocks you want to cache:
+
+```json
+{
+  "role": "user",
+  "content": [
+    {
+      "type": "text",
+      "text": "Very long document to cache...",
+      "cache_control": {
+        "type": "ephemeral"
+      }
+    },
+    {
+      "type": "text",
+      "text": "Question about the document"
+    }
+  ]
+}
+```
+
+### Cache TTL Options
+
+- **5 minutes (default)**: `{"type": "ephemeral"}`
+- **1 hour**: `{"type": "ephemeral", "ttl": "1h"}`
+
+### Cache Savings
+
+The response `usage` field includes cache token information:
+- `cache_creation_input_tokens`: Tokens written to cache (1.25x cost)
+- `cache_read_input_tokens`: Tokens read from cache (0.1x cost)
+
+## Troubleshooting
+
+### Authentication Errors
+- Ensure `ANTHROPIC_API_KEY` is set to an empty string (`""`), not unset
+- Verify your Knox API key is valid and has sufficient quota
+- Check that your token has access to Claude models
+
+### Connection Errors
+- Verify the `ANTHROPIC_BASE_URL` is correct:
+  - Production: `https://api.knox.chat`
+- Ensure there's no trailing slash in the URL
+
+### Model Not Found
+- Make sure your token has access to the Claude model you're trying to use
+- Check available models in your Knox [Models List](https://knox.chat/models)
+
+## Example: Programmatic Usage
+
+If you're using the Anthropic SDK programmatically:
+
+```python
+import anthropic
+
+client = anthropic.Anthropic(
+    base_url="https://api.knox.chat",
+    api_key="sk-your-knox-api-key",
+)
+
+message = client.messages.create(
+    model="anthropic/claude-sonnet-4.5",
+    max_tokens=4096,
+    messages=[
+        {"role": "user", "content": "Hello, Claude!"}
+    ]
+)
+
+print(message.content)
+```
+
+```javascript
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({
+  baseURL: 'https://api.knox.chat',
+  apiKey: 'sk-your-knox-api-key',
+});
+
+const message = await client.messages.create({
+  model: 'anthropic/claude-sonnet-4.5',
+  max_tokens: 4096,
+  messages: [
+    { role: 'user', content: 'Hello, Claude!' }
+  ],
+});
+
+console.log(message.content);
+```

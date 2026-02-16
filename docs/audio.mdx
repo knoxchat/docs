@@ -21,8 +21,6 @@ Requests with audio files to compatible models are available via the `/v1/chat/c
 - google/gemini-2.5-pro
 - google/gemini-2.5-flash
 - google/gemini-2.5-flash-lite
-- openai/gpt-4o-audio-preview
-
 
 ### Sending Audio Files
 
@@ -43,7 +41,7 @@ async function encodeAudioToBase64(audioPath: string): Promise<string> {
 const audioPath = "path/to/your/audio.wav";
 const base64Audio = await encodeAudioToBase64(audioPath);
 
-const response = await fetch("https://knox.chat/v1/chat/completions", {
+const response = await fetch("https://api.knox.chat/v1/chat/completions", {
   method: "POST",
   headers: {
     Authorization: `Bearer <KNOXCHAT_API_KEY>`,
@@ -89,7 +87,7 @@ def encode_audio_to_base64(audio_path):
     with open(audio_path, "rb") as audio_file:
         return base64.b64encode(audio_file.read()).decode('utf-8')
 
-url = "https://knox.chat/v1/chat/completions"
+url = "https://api.knox.chat/v1/chat/completions"
 headers = {
     "Authorization": f"Bearer {KNOXCHAT_API_KEY}",
     "Content-Type": "application/json"

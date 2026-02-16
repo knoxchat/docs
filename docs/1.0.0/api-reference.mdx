@@ -22,7 +22,7 @@ Knox Chat's request and response pattern is very similar to the OpenAI Chat API,
 All API requests should be sent to the following base URL:
 
 ```
-https://knox.chat/v1
+https://api.knox.chat/v1
 ```
 
 ## Authentication
@@ -195,14 +195,14 @@ Knox Chat supports having the model complete partial responses. This can be used
 To use this feature, simply include a message with `role: "assistant"` at the end of the messages array.
 
   ```typescript title="TypeScript"
-  fetch('https://knox.chat/v1/chat/completions', {
+  fetch('https://api.knox.chat/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: 'Bearer <KNOXCHAT_API_KEY>',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'openai/gpt-4o',
+      model: 'openai/gpt-5.2',
       messages: [
         { role: 'user', content: 'What is the meaning of life?' },
         { role: 'assistant', content: "I'm not sure, but my best guess is" },
@@ -460,7 +460,7 @@ Some models and providers may include additional completion reasons. The origina
 
 ### Query Costs and Statistics
 
-The token counts returned in the output generation/completion API response are **not** calculated using the model's native tokenizer, but rather a standardized, model-agnostic count (implemented via the GPT-4o tokenizer). This is because some providers cannot reliably return native token counts. However, this behavior is becoming increasingly rare, and we may add native token counts to the response object in the future.
+The token counts returned in the output generation/completion API response are **not** calculated using the model's native tokenizer, but rather a standardized, model-agnostic count (implemented via the GPT-5.2 tokenizer). This is because some providers cannot reliably return native token counts. However, this behavior is becoming increasingly rare, and we may add native token counts to the response object in the future.
 
 Balance usage and model pricing are based on **native** token counts (not the "standardized" token counts returned in the API response).
       

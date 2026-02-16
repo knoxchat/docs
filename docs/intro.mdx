@@ -8,7 +8,21 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 
 # Quickstart
 
-**Knox Chat**: provides a unified API that allows you to access hundreds of AI models through a single endpoint, while automatically handling fallbacks and selecting the most cost-effective options. Our goal is not merely to provide a single API for accessing multiple models, but also to focus on multimodality and enable convenient usage of today's popular open-source AI or agent applications and tools with just one key.
+**Knox Chat** is a unified, OpenAI-compatible API, Anthropic Messages API format supporting and platform that gives you access to hundreds of models through one endpoint, with intelligent routing, fallbacks, and transparent pricing. It pairs that with **Knox‑MS**, a memory‑centric system for long‑running agents and apps that need persistent context.
+
+### What you get
+
+- **Smart model routing**: performance/cost/balanced strategies with automatic fallback and provider metrics.
+- **Multimodal I/O**: text, images, PDFs, and audio inputs, plus image generation outputs.
+- **Tools and MCP**: OpenAI‑compatible tool calling and MCP server bridging.
+- **Web search**: `:online` model variant or the `web` plugin for live citations.
+- **Structured & reasoning outputs**: JSON Schema enforcement and standardized reasoning tokens.
+- **Efficiency features**: prompt caching and middle‑out message transforms for long contexts.
+- **Reliability**: zero‑completion insurance so failed/empty responses aren’t billed.
+
+### Knox‑MS Memory System
+
+Knox‑MS adds multi‑level memory, summaries, vector search, and a knowledge graph to power persistent agents and workflows. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the [Knox Memory System — Full Feature Deep Dive](../blog/kms-docs).
 
 ## Using the OpenAI SDK
 
@@ -19,7 +33,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  baseURL: 'https://knox.chat/v1',
+  baseURL: 'https://api.knox.chat/v1',
   apiKey: '<KNOXCHAT_API_KEY>',
 });
 
@@ -47,7 +61,7 @@ main();
 from openai import OpenAI
 
 client = OpenAI(
-  base_url="https://knox.chat/v1",
+  base_url="https://api.knox.chat/v1",
   api_key="<KNOXCHAT_API_KEY>",
 )
 
@@ -77,7 +91,7 @@ import requests
 import json
 
 response = requests.post(
-  url="https://knox.chat/v1/chat/completions",
+  url="https://api.knox.chat/v1/chat/completions",
   headers={
     "Authorization": "Bearer <KNOXCHAT_API_KEY>",
   },
@@ -96,7 +110,7 @@ response = requests.post(
 <TabItem value="ts" label="TypeScript">
 
 ```ts showLineNumbers
-fetch('https://knox.chat/v1/chat/completions', {
+fetch('https://api.knox.chat/v1/chat/completions', {
   method: 'POST',
   headers: {
     Authorization: 'Bearer <KNOXCHAT_API_KEY>',
@@ -119,7 +133,7 @@ fetch('https://knox.chat/v1/chat/completions', {
 <TabItem value="sh" label="Shell">
 
 ```sh showLineNumbers
-curl https://knox.chat/v1/chat/completions \
+curl https://api.knox.chat/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -d '{
@@ -144,21 +158,21 @@ For information about using third-party SDKs and frameworks with Knox Chat, plea
 
 ## Principles
 
-Knox Chat helps developers source and optimize AI usage. We believe the future is multimodality and multi-provider.
+Knox Chat helps teams build reliable, cost‑efficient AI systems across providers. We believe the future is multimodal, multi‑provider, and memory‑centric.
 
 ### Why Knox Chat?
 
-Price and Performance. Knox Chat scouts for the best prices, the lowest latencies, and the highest throughput across dozens of providers, and lets you choose how to prioritize them.
+Price and Performance. Knox Chat scouts for the best prices, lowest latencies, and highest throughput across providers, and lets you choose how to prioritize them.
 
-Standardized API. No need to change code when switching between models or providers. You can even let your users choose and pay for their own.
+Standardized API. No code changes when switching between models or providers. Use OpenAI‑compatible SDKs, tools, and structured outputs out of the box.
 
-Real-World Insights. Be the first to take advantage of new models. See real-world data of how often models are used for different purposes. Keep up to date in our Discord channel.
+Memory‑First Apps. Knox‑MS enables long‑running agents with persistent memory, knowledge extraction, and autonomous planning.
 
-Consolidated Billing. Simple and transparent billing, regardless of how many providers you use.
+Multimodal by Default. Images, PDFs, and audio inputs plus image generation make multimodal workflows straightforward.
 
-Higher Availability. Fallback providers, and automatic, smart routing means your requests still work even when providers go down.
+Consolidated Billing. Simple and transparent billing, regardless of how many providers you use, with zero‑completion insurance for failed/empty generations.
 
-Higher Rate Limits. Knox Chat works directly with providers to provide better rate limits and more throughput.
+Higher Availability. Automatic fallback and smart routing keep requests working even when providers go down.
 
 ## Models
 
@@ -269,31 +283,35 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-1">
       <AccordionTrigger>Why should I use Knox Chat?</AccordionTrigger>
       <AccordionContent>
-        Knox Chat provides a unified API that allows you to access hundreds of AI models through a single endpoint. User billing is also centrally managed. Our ["Activity"](https://knox.chat/activity) and ["Stats"](https://knox.chat/stats) pages enable you to statistically analyze and record all usage.
-
-        Knox Chat transparently displays provider pricing while aggregating their uptime. Therefore, the pricing you receive here is the same as going directly to the providers, and you benefit from improved uptime and optimized API requests through our unified API and failover mechanisms.
+        Knox Chat provides a unified API that gives you access to hundreds of AI models through a single endpoint, with intelligent routing, automatic fallback, and transparent pricing. It also includes **Knox‑MS**, a memory system for persistent agents and workflows. Our ["Activity"](https://knox.chat/activity) and ["Stats"](https://knox.chat/stats) pages let you analyze usage, cost, and performance.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-2">
       <AccordionTrigger>How do I get started with Knox Chat?</AccordionTrigger>
         <AccordionContent>
-          Getting started with **Knox Chat** is very simple. Just register an account via email [**register**](https://knox.chat/register) or directly use your existing [**GitHub**](https://github.com) account to [**Login**](https://knox.chat/login). After logging into your account, go to the [**Keys**](https://knox.chat/keys) page to create the target model you want to use with Tokens/API Keys for quick access. Alternatively, you can browse through hundreds of different models on the [**Models**](https://knox.chat/models) page to select and integrate the ones you prefer.
+          Getting started with **Knox Chat** is simple. Register at [**register**](https://knox.chat/register) (or use [**GitHub**](https://github.com) to [**Login**](https://knox.chat/login)), then create an API key on the [**Keys**](https://knox.chat/keys) page. Pick models from the [**Models**](https://knox.chat/models) page and start calling the OpenAI‑compatible API. If you want persistent memory, enable Knox‑MS in your settings or use the Knox‑MS endpoints.
         </AccordionContent>
       </AccordionItem>
     <AccordionItem value="item-3">
+      <AccordionTrigger>What is Knox‑MS and when should I use it?</AccordionTrigger>
+        <AccordionContent>
+          Knox‑MS is a memory‑centric system that adds multi‑level memory, summaries, vector search, and a knowledge graph. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS documentation](/knox-ms-unlimited-formula).
+        </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-4">
       <AccordionTrigger>Where can I get technical support?</AccordionTrigger>
         <AccordionContent>
           The fastest technical support is to contact us at **support@knox.chat**
         </AccordionContent>
     </AccordionItem>
-    <AccordionItem value="item-4">
+    <AccordionItem value="item-5">
       <AccordionTrigger>How do I pay for using Knox Chat?</AccordionTrigger>
       <AccordionContent>
-        For each model, we display the pricing per million tokens. Prompt tokens and generated output tokens typically have different prices. Some models charge by request, image, cache read, cache write, and reasoning tokens. All these details are shown on the [**Models**](https://knox.chat/models) page.
-        When you make a request to **Knox Chat**, we receive the total number of tokens processed by the provider. We then calculate the corresponding fee and deduct it from your currently available balance in the [**Credits**](https://knox.chat/credits) page. You can view complete usage records on the [**Activity**](https://knox.chat/activity) page.
+        For each model, we display pricing per million tokens plus any request, image, audio, web search, cache read/write, and reasoning charges. All details are shown on the [**Models**](https://knox.chat/models) page.
+        When you make a request to **Knox Chat**, we use provider‑reported usage to calculate fees and deduct them from your balance on the [**Credits**](https://knox.chat/credits) page. Requests covered by zero‑completion insurance (empty/failed generations) are not billed. Full usage records are available on the [**Activity**](https://knox.chat/activity) page.
       </AccordionContent>
     </AccordionItem>
-    <AccordionItem value="item-5">
+    <AccordionItem value="item-6">
       <AccordionTrigger>How do I recharge?</AccordionTrigger>
       <AccordionContent>
         Recharge can be done through the [**Credits**](https://knox.chat/credits) page to make payments and recharge for using **[Knox Chat](https://knox.chat)**.
@@ -309,14 +327,13 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-1">
       <AccordionTrigger>What LLM models does Knox Chat support?</AccordionTrigger>
       <AccordionContent>
-        Knox Chat provides access to a wide variety of LLM models, including frontier models from major AI providers.
-    For a complete list of models you can visit the [Models List](https://knox.chat/models) or fetch the list through the [models api](https://knox.chat/v1/models).
+        Knox Chat provides access to a wide variety of LLMs, including frontier models from major providers, plus multimodal and image‑generation models. For a complete list, visit the [Models List](https://knox.chat/models) or fetch the list through the [models api](https://api.knox.chat/v1/models).
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-2">
-      <AccordionTrigger>How frequently are new models added</AccordionTrigger>
+      <AccordionTrigger>How frequently are new models added?</AccordionTrigger>
       <AccordionContent>
-        We work on adding models as quickly as we can. We often have partnerships with the labs releasing models and can release models as soon as they are available. 
+        We add models as quickly as possible and often partner with labs so models can ship as soon as they are available.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-3">
@@ -324,7 +341,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
       <AccordionContent>
         Variants are suffixes that can be added to the model slug to change its behavior.
 
-        Static variants can only be used with specific models and these are listed in our [models api](https://knox.chat/v1/models).
+        Static variants can only be used with specific models and these are listed in our [models api](https://api.knox.chat/v1/models).
 
         1. `:free` - The model is always provided for free and has low rate limits.
         2. `:beta` - The model is not moderated by Knox Chat.
@@ -341,13 +358,13 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-5">
       <AccordionTrigger>What is the expected latency/response time for different models?</AccordionTrigger>
       <AccordionContent>
-        For each model on Knox Chat we show the latency (time to first token) and the token throughput for all providers. You can use this to estimate how long requests will take. If you would like to optimize for throughput you can use the `:nitro` variant to route to the fastest provider.
+        For each model, Knox Chat shows latency (time to first token) and throughput across providers. You can optimize routing with `:nitro` for throughput, `:floor` for cost, or set routing preferences for performance and reliability.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-6">
       <AccordionTrigger>How does model fallback work if a provider is unavailable?</AccordionTrigger>
       <AccordionContent>
-        If a provider returns an error Knox Chat will automatically fall back to the next provider. This happens transparently to the user and allows production apps to be much more resilient. Knox Chat has a lot of options to configure the provider routing behavior. The full documentation can be found [here](/model-routing).
+        If a provider returns an error, Knox Chat automatically falls back to the next best provider. This is transparent to the user and improves resilience. You can configure routing strategies, weights, and fallback behavior in the [Model Routing](/model-routing) documentation.
       </AccordionContent>
     </AccordionItem>
   </Accordion>
@@ -363,25 +380,25 @@ Different models use different tokenization methods (as indicated by the `tokeni
         Knox Chat uses two authentication methods:
 
         1. Cookie-based authentication for the web interface and Chat
-        2. API keys (passed as Bearer tokens) for accessing the completions API and other core endpointsendpoints
+        2. API keys (passed as Bearer tokens) for accessing the completions API and other core endpoints
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-2">
       <AccordionTrigger>How are rate limits calculated?</AccordionTrigger>
       <AccordionContent>
-        For free models, rate limits are determined by the credits that you have purchased. If you have purchased at least 10 credits, your free model rate limit will be 1000 requests per day. Otherwise, you will be rate limited to 50 free model API requests per day.
+        Rate limits depend on the model, provider, and your account tier. For free models, limits are determined by credits: with at least 10 credits your free model rate limit is 1000 requests per day; otherwise it is 50 free model API requests per day.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-3">
       <AccordionTrigger>What API endpoints are available?</AccordionTrigger>
       <AccordionContent>
-        Knox Chat implements the OpenAI API specification for `/completions` and `/chat/completions` endpoints, allowing you to use any model with the same request/response format. Additional endpoints like `/api/v1/models` are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
+        Knox Chat implements the OpenAI API specification for `/completions` and `/chat/completions`, allowing you to use any model with the same request/response format. Additional endpoints like `/v1/models` and Knox‑MS routes are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-4">
       <AccordionTrigger>What are the supported formats?</AccordionTrigger>
       <AccordionContent>
-        The API supports text/PDF, images and audio. Images can be passed as URLs or base64 encoded images. video and other file types are coming soon.
+        The API supports text, PDFs, images, and audio. Images can be passed as URLs or base64 data URLs. Audio must be base64 encoded. Image generation outputs are supported for models with image output modalities. Video and other file types are coming soon.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-5">
@@ -393,7 +410,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-6">
       <AccordionTrigger>What SDK support is available?</AccordionTrigger>
       <AccordionContent>
-        Knox Chat is a drop-in replacement for OpenAI. Therefore, any SDKs that support OpenAI by default also support Knox Chat.
+        Knox Chat is a drop‑in replacement for OpenAI, so any OpenAI‑compatible SDKs and frameworks work out of the box, including tool calling, structured outputs, and reasoning parameters.
       </AccordionContent>
     </AccordionItem>
   </Accordion>
@@ -408,7 +425,7 @@ Please see our [Terms of Service](/terms-of-service) and [Privacy Policy](/priva
     <AccordionItem value="item-1">
       <AccordionTrigger>What data is logged during API use?</AccordionTrigger>
       <AccordionContent>
-        We will record basic request metadata (timestamps, models used, token counts). We will not record prompts or generated outputs. Even in the event of errors, we will not record your prompts or generated outputs.
+        We will record basic request metadata (timestamps, models used, token counts). We will not record prompts or generated outputs. Even in the event of errors, we will not record your prompts or generated outputs. If you enable Knox‑MS, memory artifacts (summaries, embeddings, knowledge entries) are stored in your account to provide persistence.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-2">
@@ -417,7 +434,7 @@ Please see our [Terms of Service](/terms-of-service) and [Privacy Policy](/priva
         Knox Chat is a proxy system that sends your requests to model providers to fulfill them. We work with all providers to ensure that prompts and generated outputs are not logged or used for training whenever possible.
       </AccordionContent>
     </AccordionItem>
-    <AccordionItem value="item-2">
+    <AccordionItem value="item-3">
       <AccordionTrigger>What data is logged during Chat page use?</AccordionTrigger>
       <AccordionContent>
         The same data privacy applies to the Chat as the API. All conversations in the Chat page are stored locally on your device. Conversations will not sync across devices. It is possible to export conversations with the Chat page.

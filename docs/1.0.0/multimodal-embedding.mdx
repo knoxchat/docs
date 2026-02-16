@@ -28,7 +28,7 @@ import Tabs from '@theme/Tabs';
 
 <MethodEndpoint
   method={"post"}
-  path={"https://knox.chat/v1/multimodalembeddings"}
+  path={"https://api.knox.chat/v1/multimodalembeddings"}
 >
 </MethodEndpoint>
 
@@ -46,7 +46,7 @@ The multimodal embedding endpoint returns vector representations of given multim
 <TabItem value="shell" label="Image URL">
 
 ```shell showLineNumbers
-curl -X POST https://knox.chat/v1/multimodalembeddings \
+curl -X POST https://api.knox.chat/v1/multimodalembeddings \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "content-type: application/json" \
   -d ' 
@@ -73,7 +73,7 @@ curl -X POST https://knox.chat/v1/multimodalembeddings \
 <TabItem value="bash" label="Base64 Image">
 
 ```shell showLineNumbers
-curl -X POST https://knox.chat/v1/multimodalembeddings \
+curl -X POST https://api.knox.chat/v1/multimodalembeddings \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "content-type: application/json" \
   -d ' 
