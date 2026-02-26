@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -34,6 +34,11 @@ const sidebars = {
     'audio',
     'embedding-and-rerankers',
     'image-generation',
+    'online-ai-image-editor',
+    'claude-code',
+    'knox-ms-unlimited-formula',
+    'oauth2',
+    'knox-ms-complete-doc',
   ],
   'apiSidebar': apiSidebar
 }

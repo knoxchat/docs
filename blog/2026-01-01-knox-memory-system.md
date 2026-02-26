@@ -3,7 +3,7 @@ slug: knox-memory-system
 title: "Knox Memory System (knox-ms) Model"
 image: /img/knox-memory-system.png
 authors: [knox]
-tags: [knoxchat, api, ai, context, rage, update]
+tags: [knoxchat, api, ai, context, rag, update]
 ---
 
 # Knox Memory System (knox-ms) Model

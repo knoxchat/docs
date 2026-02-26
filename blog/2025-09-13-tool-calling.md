@@ -35,7 +35,7 @@ Our implementation follows the OpenAI specification exactly:
 
 ```json
 {
-  "model": "anthropic/claude-sonnet-4.5",
+  "model": "anthropic/claude-sonnet-4.6",
   "messages": [...],
   "tools": [
     {
@@ -224,7 +224,7 @@ curl -X POST https://api.knox.chat/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "model": "anthropic/claude-sonnet-4.5",
+    "model": "anthropic/claude-sonnet-4.6",
     "messages": [{"role": "user", "content": "What time is it?"}],
     "tools": [...],
     "tool_choice": "auto"

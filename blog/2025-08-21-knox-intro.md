@@ -46,7 +46,7 @@ client = OpenAI(
 
 # Text + Image processing
 multimodal_response = client.chat.completions.create(
-    model="anthropic/claude-sonnet-4.5",  # or openai/gpt-5, google/gemini-2.5-pro, etc.
+    model="anthropic/claude-sonnet-4.6",  # or openai/gpt-5, google/gemini-2.5-pro, etc.
     messages=[{
         "role": "user",
         "content": [
@@ -95,7 +95,7 @@ from langchain_openai import ChatOpenAI
 llm = ChatOpenAI(
     base_url="https://api.knox.chat/v1",
     api_key="<KNOXCHAT_API_KEY>",
-    model="anthropic/claude-sonnet-4.5"
+    model="anthropic/claude-sonnet-4.6"
 )
 
 # Now your entire LangChain pipeline works with 300+ models
@@ -184,7 +184,7 @@ def multimodal_rag_pipeline(query, image_path, documents):
     
     # 3. Generate final response with structured output
     return client.chat.completions.create(
-        model="anthropic/claude-sonnet-4.5",
+        model="anthropic/claude-sonnet-4.6",
         messages=[
             {"role": "system", "content": "You are a multimodal AI assistant"},
             {"role": "user", "content": f"Query: {query}\nVisual context: {vision_analysis.choices[0].message.content}\nDocuments: {documents}"}
@@ -211,7 +211,7 @@ def multimodal_rag_pipeline(query, image_path, documents):
 Knox.Chat provides access to **300+ models** from leading AI providers:
 
 - **OpenAI**: openai/gpt-5, openai/gpt-5-chat, openai/gpt-5-mini, and more
-- **Anthropic**: anthropic/claude-opus-4.1, anthropic/claude-sonnet-4.5, anthropic/claude-3.7-sonnet, and more
+- **Anthropic**: anthropic/claude-opus-4.6, anthropic/claude-sonnet-4.6, anthropic/claude-sonnet-4.5, and more
 - **Google**: google/gemini-2.5-pro, google/gemini-2.5-flash, and more
 - **Qwen**: qwen/qwen3-coder, qwen/qwen3-235b-a22b-2507, and more
 - **Mistral**: mistralai/mistral-medium-3.1,mistralai/codestral-2508, and more
@@ -282,7 +282,7 @@ npm install openai  # Node.js
 curl https://api.knox.chat/v1/chat/completions \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model": "anthropic/claude-sonnet-4.5", "messages": [{"role": "user", "content": "Hello Knox.Chat!"}]}'
+  -d '{"model": "anthropic/claude-sonnet-4.6", "messages": [{"role": "user", "content": "Hello Knox.Chat!"}]}'
 ```
 
 ## Join the Multimodal AI Revolution

@@ -39,7 +39,7 @@ The models page now features four distinct tabs, each designed for specific use 
 - Dedicated section for models that support function calling
 - Filter between models that support or don't support tool calling
 - Essential for developers building AI agents and automated workflows
-- Includes models like `anthropic/claude-sonnet-4.5` and other tool-enabled models
+- Includes models like `anthropic/claude-sonnet-4.6` and other tool-enabled models
 
 #### 🎁 **Free Models Tab**
 - Exclusive view of all free-tier models

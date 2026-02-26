@@ -55,16 +55,16 @@ Anthropic base URL: https://api.knox.chat
 Knox automatically maps Claude Code model names to the correct Knox models:
 
 - `anthropic/claude-haiku-4.5` 
-- `anthropic/claude-sonnet-4.5`
-- `anthropic/claude-opus-4.5`
+- `anthropic/claude-sonnet-4.6`
+- `anthropic/claude-opus-4.6`
 
 ### Overriding Default Models
 
 You can configure Claude Code to use specific models by setting environment variables:
 
 ```bash
-export ANTHROPIC_DEFAULT_SONNET_MODEL="anthropic/claude-sonnet-4.5"
-export ANTHROPIC_DEFAULT_OPUS_MODEL="anthropic/claude-opus-4.5"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="anthropic/claude-sonnet-4.6"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="anthropic/claude-opus-4.6"
 export ANTHROPIC_DEFAULT_HAIKU_MODEL="anthropic/claude-haiku-4.5"
 ```
 
@@ -145,7 +145,7 @@ curl -X POST https://api.knox.chat/v1/completions \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "anthropic/claude-sonnet-4.5",
+    "model": "anthropic/claude-sonnet-4.6",
     "prompt": "Once upon a time",
     "max_tokens": 100
   }'
@@ -177,7 +177,7 @@ client = openai.OpenAI(
 )
 
 response = client.completions.create(
-    model="anthropic/claude-sonnet-4.5",
+    model="anthropic/claude-sonnet-4.6",
     prompt="Write a haiku about programming:",
     max_tokens=50
 )
@@ -265,7 +265,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="anthropic/claude-sonnet-4.5",
+    model="anthropic/claude-sonnet-4.6",
     max_tokens=4096,
     messages=[
         {"role": "user", "content": "Hello, Claude!"}
@@ -284,7 +284,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: 'anthropic/claude-sonnet-4.5',
+  model: 'anthropic/claude-sonnet-4.6',
   max_tokens: 4096,
   messages: [
     { role: 'user', content: 'Hello, Claude!' }

@@ -96,7 +96,7 @@ response = requests.post(
     "Authorization": "Bearer <KNOXCHAT_API_KEY>",
   },
   data=json.dumps({
-    "model": "anthropic/claude-sonnet-4.5", # Optional
+    "model": "anthropic/claude-sonnet-4.6", # Optional
     "messages": [
       {
         "role": "user",
@@ -117,7 +117,7 @@ fetch('https://api.knox.chat/v1/chat/completions', {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    model: 'anthropic/claude-sonnet-4.5',
+    model: 'anthropic/claude-sonnet-4.6',
     messages: [
       {
         role: 'user',
@@ -137,7 +137,7 @@ curl https://api.knox.chat/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -d '{
-  "model": "anthropic/claude-sonnet-4.5",
+  "model": "anthropic/claude-sonnet-4.6",
   "messages": [
     {
       "role": "user",

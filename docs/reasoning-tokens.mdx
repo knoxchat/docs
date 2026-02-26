@@ -164,7 +164,7 @@ headers = {
     "Content-Type": "application/json"
 }
 payload = {
-    "model": "anthropic/claude-3.7-sonnet",
+    "model": "anthropic/claude-sonnet-4.6",
     "messages": [
         {"role": "user", "content": "What's the most efficient algorithm for sorting a large dataset?"}
     ],
@@ -191,7 +191,7 @@ const openai = new OpenAI({
 
 async function getResponseWithReasoning() {
   const response = await openai.chat.completions.create({
-    model: 'anthropic/claude-3.7-sonnet',
+    model: 'anthropic/claude-sonnet-4.6',
     messages: [
       {
         role: 'user',
@@ -376,11 +376,11 @@ getResponseWithReasoning();
 
 ### Inference Token Support for Anthropic Models
 
-The latest Claude models, such as `anthropic/claude-3.7-sonnet`, support the use and return of inference tokens.
+The latest Claude models, such as `anthropic/claude-sonnet-4.6`, support the use and return of inference tokens.
 
 You can enable the inference feature for Anthropic models in two ways:
 
-1. Use the `:thinking` variant suffix (e.g., `anthropic/claude-3.7-sonnet:thinking`). This variant enables high-intensity inference (`"effort": "high"`) by default.
+1. Use the `:thinking` variant suffix (e.g., `anthropic/claude-sonnet-4.6:thinking`). This variant enables high-intensity inference (`"effort": "high"`) by default.
 2. Use the unified `reasoning` parameter, controlled via `effort` (inference intensity ratio) or `max_tokens` (direct allocation of token count).
 
 #### Maximum Token Limits for Anthropic Model Inference
@@ -426,7 +426,7 @@ client = OpenAI(
 
 def chat_completion_with_reasoning(messages):
     response = client.chat.completions.create(
-        model="anthropic/claude-3.7-sonnet",
+        model="anthropic/claude-sonnet-4.6",
         messages=messages,
         max_tokens=10000,
         reasoning={
