@@ -1,0 +1,137 @@
+---
+id: chat-completion
+title: "聊天补全"
+description: "向选定的模型发送聊天补全请求。请求中必须包含 messages 数组，同时支持基础请求中的所有高级选项。"
+sidebar_label: "聊天补全"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"聊天补全"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/chat/completions"}
+>
+</MethodEndpoint>
+
+向选定的模型发送聊天生成/补全请求。请求中必须包含一个 "messages" 数组。同时支持基础请求中的所有高级选项。
+
+## 请求
+
+此端点需要一个对象。
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | Bearer 认证，格式为 Bearer \<token\>，其中 token 是您的认证令牌。 |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| model | String | 是 | 要使用的模型 ID。如果未指定，将使用用户的默认设置。 |
+| messages | List of Objects | 是 | 包含 "role" 和 "content" 属性的消息对象列表。 |
+| models | List of Strings | 否 | 用于路由覆盖的备选模型列表。 |
+| provider | Object | 否 | 供应商路由偏好设置。 |
+| reasoning | Object | 否 | 模型推理/思考 token 的配置。 |
+| usage | Object | 否 | 是否在响应中包含用量信息。 |
+| transforms | List of Strings | 否 | 提示词转换列表（仅限 Knox Chat）。 |
+| web_search | Boolean | 否 | 启用或禁用 Anthropic 模型的自动网络搜索。Anthropic 模型（如 `anthropic/claude-sonnet-4.6`）默认为 `true`。设置为 `false` 可禁用。对非 Anthropic 模型无效。 |
+| stream | Boolean | 否 | 启用结果流式传输。默认为 `false`。 |
+| max_tokens | Integer | 否 | 最大 token 数量（范围：[1, context_length)）。 |
+| temperature | Double | 否 | 采样温度（范围：[0, 2]）。 |
+| seed | Integer | 否 | 用于确定性输出的种子值。 |
+| top_p | Double | 否 | Top-p 采样值（范围：(0, 1]）。 |
+| top_k | Integer | 否 | Top-k 采样值（范围：[1, Infinity)）。 |
+| frequency_penalty | Double | 否 | 频率惩罚（范围：[-2, 2]）。 |
+| presence_penalty | Double | 否 | 存在惩罚（范围：[-2, 2]）。 |
+| repetition_penalty | Double | 否 | 重复惩罚（范围：(0, 2]）。 |
+| logit_bias | Map of String to Double | 否 | 从 token ID 到偏置值的映射。 |
+| top_logprobs | Integer | 否 | 要返回的最高对数概率数量。 |
+| min_p | Double | 否 | 最小概率阈值（范围：[0, 1]）。 |
+| top_a | Double | 否 | 备选 top 采样参数（范围：[0, 1]）。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knox.chat/v1/chat/completions \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.6",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Howdy Cowboy!"
+    }
+  ]
+}'
+```
+
+### 使用网络搜索（Anthropic 模型）
+
+Anthropic 模型默认自动启用网络搜索。当查询需要最新信息时，模型会自动搜索网络。如需禁用网络搜索：
+
+```shell
+curl -X POST https://api.knox.chat/v1/chat/completions \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.6",
+  "web_search": false,
+  "messages": [
+    {
+      "role": "user",
+      "content": "今天有什么新闻？"
+    }
+  ]
+}'
+```
+
+> **注意：** 网络搜索按每 1,000 次搜索调用 $10 计费，费用在标准 token 费用之外额外收取。模型每次搜索调用计为一次。
+
+## 响应
+
+### 成功响应 (200)
+
+```json
+{
+  "id": "gen-12345",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "Well howdy, partner! What can I rustle up for you today? Need help with a problem, a plan, a story, or just some trail talk?"
+      }
+    }
+  ]
+}
+```
+
+### 响应结构
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| id | string | 补全的唯一标识符 |
+| choices | array | 补全选项数组 |
+| choices[].message | object | 生成的消息 |
+| choices[].message.role | string | 消息的角色（通常为 "assistant"） |
+| choices[].message.content | string | 生成的消息内容 |

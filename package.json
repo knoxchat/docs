@@ -1,13 +1,17 @@
 {
-  "name": "opdocs",
+  "name": "knox-docs",
   "description": "Integrating Tailwind CSS and Shadcn/ui with Docusaurus website template",
   "author": "Knox",
-  "version": "2.0.0",
+  "license": "MIT",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
+    "start": "docusaurus start --no-open",
+    "dev": "node scripts/dev-i18n.js",
+    "preview": "docusaurus build && docusaurus serve",
     "build": "docusaurus build",
+    "postinstall": "node scripts/patch-search-local.js",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -20,13 +24,13 @@
     "clean-api-docs:version": "docusaurus clean-api-docs:version"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.9.2",
-    "@docusaurus/faster": "^3.9.2",
-    "@docusaurus/plugin-ideal-image": "^3.9.2",
-    "@docusaurus/preset-classic": "^3.9.2",
-    "@docusaurus/remark-plugin-npm2yarn": "^3.9.2",
-    "@docusaurus/theme-mermaid": "^3.9.2",
-    "@easyops-cn/docusaurus-search-local": "^0.55.0",
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/faster": "^3.10.2",
+    "@docusaurus/plugin-ideal-image": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
+    "@docusaurus/remark-plugin-npm2yarn": "^3.10.2",
+    "@docusaurus/theme-mermaid": "^3.10.2",
+    "@easyops-cn/docusaurus-search-local": "^0.55.1",
     "@mdx-js/react": "^3.1.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -35,22 +39,23 @@
     "clsx": "^2.1.1",
     "docusaurus-plugin-openapi-docs": "^4.7.1",
     "docusaurus-theme-openapi-docs": "^4.7.1",
-    "lucide-react": "^0.575.0",
+    "lucide-react": "^1.14.0",
     "prism-react-renderer": "^2.4.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "redux-thunk": "3.1.0",
     "rehype-katex": "7.0.1",
     "remark-math": "6"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.9.2",
-    "@docusaurus/types": "^3.9.2",
-    "@tailwindcss/postcss": "^4.2.0",
-    "postcss": "^8.5.6",
-    "prettier-plugin-tailwindcss": "^0.7.2",
+    "@docusaurus/module-type-aliases": "^3.10.2",
+    "@docusaurus/types": "^3.10.2",
+    "@tailwindcss/postcss": "^4.2.4",
+    "baseline-browser-mapping": "^2.10.25",
+    "postcss": "^8.5.13",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.0",
+    "tailwindcss": "^4.2.4",
     "tailwindcss-animate": "^1.0.7"
   },
   "browserslist": {
@@ -66,7 +71,7 @@
     ]
   },
   "optionalDependencies": {
-    "postman-code-generators": "^2.1.0"
+    "postman-code-generators": "^2.1.1"
   },
   "packageManager": "yarn@1.22.22"
 }

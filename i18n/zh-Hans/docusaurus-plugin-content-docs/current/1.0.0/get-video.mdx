@@ -1,0 +1,150 @@
+---
+id: get-video
+title: "轮询视频生成状态"
+description: "轮询异步视频生成任务，直到其到达终态，然后读取下载 URL 和用量信息。"
+sidebar_label: "轮询视频生成状态"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"轮询视频生成状态"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knox.chat/v1/videos/{jobId}"}
+>
+</MethodEndpoint>
+
+轮询由 [`POST /v1/videos`](/1.0.0/create-video) 创建的视频生成任务。使用提交响应中的 `id`（或 `polling_url`）。在 `status` 为 `pending` 或 `in_progress` 时持续轮询。当 `status` 为 `completed` 时，通过 [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content) 下载文件，或使用 `unsigned_urls`。
+
+任务归属于经过身份验证的用户。轮询其他账户的 `jobId` 会返回 `404`。
+
+## 请求
+
+### 路径参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| jobId | String | 是 | 提交接口返回的任务 ID，例如 `job-3c91a0e8b7d24f11`。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | Bearer 认证，格式为 `Bearer <token>`。 |
+
+此端点没有请求体。
+
+## cURL 示例
+
+```shell
+curl -X GET https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11 \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+每隔几秒轮询一次，直到任务离开 `pending` / `in_progress`。视频生成通常需要数十秒到数分钟，具体取决于模型、时长和分辨率。
+
+```shell
+while true; do
+  resp=$(curl -s -X GET "https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11" \
+    -H "Authorization: Bearer $KNOXCHAT_API_KEY")
+  status=$(printf '%s' "$resp" | python -c "import sys,json; print(json.load(sys.stdin).get('status',''))")
+  echo "$status"
+  case "$status" in
+    completed|failed|cancelled|expired) echo "$resp"; break ;;
+  esac
+  sleep 5
+done
+```
+
+## 响应
+
+### 进行中 (200)
+
+```json
+{
+  "generation_id": "gen-8f2c1a9b4d6e7f01",
+  "id": "job-3c91a0e8b7d24f11",
+  "polling_url": "/v1/videos/job-3c91a0e8b7d24f11",
+  "status": "in_progress"
+}
+```
+
+### 已完成 (200)
+
+```json
+{
+  "generation_id": "gen-8f2c1a9b4d6e7f01",
+  "id": "job-3c91a0e8b7d24f11",
+  "polling_url": "/v1/videos/job-3c91a0e8b7d24f11",
+  "status": "completed",
+  "unsigned_urls": [
+    "https://image.knox.chat/videos/job-3c91a0e8b7d24f11/0_e081f0c0ab29f22a.mp4"
+  ],
+  "usage": {
+    "cost": 0.415
+  }
+}
+```
+
+`unsigned_urls` 是 Knox 托管的下载链接（预签名对象存储或自定义域名）。上游供应商 URL 永远不会被返回。
+
+### 失败 (200)
+
+```json
+{
+  "generation_id": "gen-8f2c1a9b4d6e7f01",
+  "id": "job-3c91a0e8b7d24f11",
+  "polling_url": "/v1/videos/job-3c91a0e8b7d24f11",
+  "status": "failed",
+  "error": "The upstream provider rejected this generation request"
+}
+```
+
+失败的轮询仍然返回 HTTP `200`，其中 `status` 为 `"failed"`。请使用 `error` 字段查看原因。
+
+### 响应 Schema
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| generation_id | string | 唯一的生成标识符（`gen-...`）。 |
+| id | string | 任务 ID（`job-...`）。始终是 Knox 任务 ID，而不是上游 ID。 |
+| polling_url | string | 该任务的相对轮询 URL。 |
+| status | string | `pending`、`in_progress`、`completed`、`failed`、`cancelled` 或 `expired`。 |
+| error | string | 当 `status` 为 `failed` 时出现。 |
+| unsigned_urls | 字符串数组 | 当 `status` 为 `completed` 时，Knox 托管的视频 URL。 |
+| usage | object | 计费完成后出现。 |
+| usage.cost | number | 费用（美元）。 |
+
+## 错误响应
+
+```json
+{
+  "error": {
+    "code": 404,
+    "message": "Resource not found"
+  }
+}
+```
+
+| 状态码 | 消息 | 触发条件 |
+| ------ | ---- | -------- |
+| `401` | `Missing Authentication header` | 缺少或无效的 API key。 |
+| `404` | `Resource not found` | 未知的 `jobId`，或该任务属于其他用户。 |
+| `500` | `Internal Server Error` | 未预期的服务器错误。 |

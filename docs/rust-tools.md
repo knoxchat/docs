@@ -1,3 +1,7 @@
+---
+sidebar_label: Rust Tools
+---
+
 # Rust Tools Integration Guide
 
 ## Overview

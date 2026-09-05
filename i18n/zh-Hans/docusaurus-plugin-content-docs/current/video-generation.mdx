@@ -1,0 +1,351 @@
+---
+sidebar_position: 16
+sidebar_label: 视频生成
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 视频生成
+
+Knox Chat 提供独立的**异步**视频生成 API。与对话补全不同，视频任务需要先提交、再轮询直到完成，最后下载媒体文件。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/videos/models`](/1.0.0/list-video-models)
+2. 提交任务 — [`POST /v1/videos`](/1.0.0/create-video)
+3. 轮询状态 — [`GET /v1/videos/{jobId}`](/1.0.0/get-video)
+4. 下载文件 — [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content)
+
+所有需要认证的请求都使用与 Knox Chat 其余接口相同的 Base URL 和 API key：
+
+```
+https://api.knox.chat/v1
+Authorization: Bearer sk-...
+```
+
+## 模型发现
+
+视频模型**不是** `/v1/models` 那份目录。请获取视频专用目录：
+
+```shell
+curl https://api.knox.chat/v1/videos/models
+```
+
+每个模型都会声明提交时可发送的选项：
+
+| 字段 | 用于约束 |
+| ---- | -------- |
+| `id` | `model` |
+| `supported_aspect_ratios` | `aspect_ratio`（`16:9`、`9:16` 等） |
+| `supported_resolutions` | `resolution`（`720p`、`1080p`、`4K` 等） |
+| `supported_sizes` | `size`（`1280x720`） |
+| `supported_durations` | `duration`（秒） |
+| `supported_frame_images` | `frame_images.frame_type`（`first_frame`、`last_frame`） |
+| `generate_audio` | `generate_audio` |
+| `seed` | `seed` |
+| `pricing_skus` | 按模式、分辨率和音频估算的美元费用 |
+
+未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。携带 Bearer token 时，仅返回该 token 被允许使用的模型。
+
+也可以在 [模型列表](https://knox.chat/models) 中浏览视频模型。
+
+## 提交任务
+
+`POST /v1/videos` 返回 **`202 Accepted`** 以及任务 ID。这并不代表视频已经生成完成。
+
+除非附加了图片输入（`frame_images` 或 `type: "image_url"` 的 `input_references`），否则 `prompt` 必填。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "日落时分宁静的山地风景，电影感镜头缓缓推移",
+  "aspect_ratio": "16:9",
+  "duration": 8,
+  "resolution": "720p",
+  "generate_audio": true
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import time
+import requests
+
+API = "https://api.knox.chat/v1"
+HEADERS = {
+    "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+    "Content-Type": "application/json",
+}
+
+submit = requests.post(
+    f"{API}/videos",
+    headers=HEADERS,
+    json={
+        "model": "google/veo-3.1",
+        "prompt": "日落时分宁静的山地风景，电影感镜头缓缓推移",
+        "aspect_ratio": "16:9",
+        "duration": 8,
+        "resolution": "720p",
+        "generate_audio": True,
+    },
+)
+submit.raise_for_status()
+job = submit.json()
+job_id = job["id"]
+print(job_id, job["status"])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const API = 'https://api.knox.chat/v1';
+const headers = {
+  Authorization: `Bearer ${process.env.KNOXCHAT_API_KEY}`,
+  'Content-Type': 'application/json',
+};
+
+const submit = await fetch(`${API}/videos`, {
+  method: 'POST',
+  headers,
+  body: JSON.stringify({
+    model: 'google/veo-3.1',
+    prompt: '日落时分宁静的山地风景，电影感镜头缓缓推移',
+    aspect_ratio: '16:9',
+    duration: 8,
+    resolution: '720p',
+    generate_audio: true,
+  }),
+});
+
+const job = await submit.json();
+const jobId: string = job.id;
+console.log(jobId, job.status);
+```
+
+</TabItem>
+</Tabs>
+
+### 图生视频
+
+如果模型列出了 `supported_frame_images`，可以固定首帧和/或尾帧：
+
+```json
+{
+  "model": "google/veo-3.1",
+  "prompt": "将这张静帧动画化为缓慢的电影感推进镜头",
+  "frame_images": [
+    {
+      "frame_type": "first_frame",
+      "image_url": { "url": "https://example.com/first-frame.png" }
+    }
+  ]
+}
+```
+
+### 参考视频
+
+```json
+{
+  "model": "google/veo-3.1",
+  "prompt": "保持相同的镜头运动，将场景改为夜晚",
+  "input_references": [
+    {
+      "type": "video_url",
+      "video_url": { "url": "https://example.com/reference.mp4" }
+    }
+  ]
+}
+```
+
+## 轮询直到就绪
+
+轮询 `GET /v1/videos/{jobId}`（或提交响应中的相对路径 `polling_url`），直到状态到达终态。
+
+| 状态 | 接下来做什么 |
+| ---- | ------------ |
+| `pending` / `in_progress` | 等待并再次轮询（每隔几秒）。 |
+| `completed` | 下载视频。此时会出现 `unsigned_urls` 和 `usage.cost`。 |
+| `failed` | 读取 `error`。失败任务不会扣费。 |
+| `cancelled` / `expired` | 停止轮询。 |
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+while True:
+    poll = requests.get(f"{API}/videos/{job_id}", headers=HEADERS)
+    poll.raise_for_status()
+    data = poll.json()
+    status = data["status"]
+    if status in {"completed", "failed", "cancelled", "expired"}:
+        break
+    time.sleep(5)
+
+if data["status"] != "completed":
+    raise RuntimeError(data.get("error") or data["status"])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+let data: { status: string; error?: string; unsigned_urls?: string[] };
+
+while (true) {
+  const poll = await fetch(`${API}/videos/${jobId}`, { headers });
+  data = await poll.json();
+  if (['completed', 'failed', 'cancelled', 'expired'].includes(data.status)) {
+    break;
+  }
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+}
+
+if (data.status !== 'completed') {
+  throw new Error(data.error ?? data.status);
+}
+```
+
+</TabItem>
+</Tabs>
+
+任务归属于经过身份验证的用户。轮询其他账户的 ID 会返回 `404`。
+
+## 下载视频
+
+任务变为 `completed` 后，获取原始字节。请跟随重定向 —— API 可能返回 `307 Temporary Redirect` 到短期预签名 URL。也可以使用轮询响应中的 `unsigned_urls`；这些是 Knox 托管的链接，绝不会是上游供应商 URL。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -L "https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11/content" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -o generated.mp4
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+content = requests.get(
+    f"{API}/videos/{job_id}/content",
+    headers=HEADERS,
+    allow_redirects=True,
+)
+content.raise_for_status()
+with open("generated.mp4", "wb") as file:
+    file.write(content.content)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import { writeFile } from 'fs/promises';
+
+const content = await fetch(`${API}/videos/${jobId}/content`, { headers });
+if (!content.ok) throw new Error(`download failed: ${content.status}`);
+const bytes = Buffer.from(await content.arrayBuffer());
+await writeFile('generated.mp4', bytes);
+```
+
+</TabItem>
+</Tabs>
+
+当任务生成了多个文件时，使用 `?index=0`（默认值）。
+
+在 `completed` 之前下载会返回：
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Video content is not available until generation has completed"
+  }
+}
+```
+
+## 请求参数
+
+| 参数 | 必填 | 说明 |
+| ---- | ---- | ---- |
+| `model` | 是 | 来自 `/v1/videos/models` 的视频模型 `id`。 |
+| `prompt` | 条件必填 | 除非提供了图片输入，否则必填。 |
+| `aspect_ratio` | 否 | `16:9`、`9:16`、`1:1`、`4:3`、`3:4`、`3:2`、`2:3`、`21:9`、`9:21`。 |
+| `duration` | 否 | 整数秒，至少为 `1`。 |
+| `resolution` | 否 | `480p`、`720p`、`768p`、`1080p`、`1K`、`2K`、`4K`。 |
+| `size` | 否 | 精确的 `宽x高`，例如 `1280x720`。 |
+| `generate_audio` | 否 | 仅当模型报告 `generate_audio: true` 时可用。 |
+| `seed` | 否 | 当模型报告 `seed: false` 时会被拒绝。 |
+| `callback_url` | 否 | 任务到达终态时的 HTTPS webhook。 |
+| `frame_images` | 否 | `frame_type` 必须是 `first_frame` 或 `last_frame`。 |
+| `input_references` | 否 | `type` 为 `image_url` 或 `video_url`。 |
+
+即使取值在全局允许列表中，如果所选模型未列出该值，仍会被拒绝。
+
+## 计费
+
+费用根据模型的 `pricing_skus`，结合时长、分辨率、音频以及是否附加了图片或视频输入进行估算。如果账户余额不足以覆盖预估费用，提交接口会返回 `402`：
+
+```json
+{
+  "error": {
+    "code": 402,
+    "message": "Insufficient credits. Add more using https://knox.chat/credits"
+  }
+}
+```
+
+任务完成后，`usage.cost` 为实际扣费的美元金额。失败任务不会扣费。
+
+## 错误封装
+
+所有视频端点共用以下错误格式：
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Invalid request parameters"
+  }
+}
+```
+
+| 状态码 | 含义 |
+| ------ | ---- |
+| `202` | 任务已被接受（仅提交接口）。请轮询以等待完成。 |
+| `200` | 轮询或目录成功。`status: "failed"` 的轮询仍然是 HTTP 200。 |
+| `400` | 参数无效，或在任务完成前请求了内容。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | 该 token 无权使用此视频模型。 |
+| `404` | 未知模型或任务（包括其他用户的任务）。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |
+
+## 最佳实践
+
+* 从 `/v1/videos/models` 发现能力，而不是硬编码分辨率或时长。
+* 将提交视为异步：持久化 `id`，带退避地轮询，然后再下载。
+* 在 `/content` 上跟随重定向（`curl -L`、`allow_redirects=True`）。
+* 优先使用 `unsigned_urls` 或 `/content`，不要保存任何第三方 URL —— Knox 永远不会把上游供应商 URL 返回给客户端。
+* 如果希望用 webhook 代替轮询，请将 `callback_url` 保持为 HTTPS。
+* 遇到 `402` 时，引导用户前往 [Credits](https://knox.chat/credits)。
+
+## API 参考
+
+* [提交视频生成请求](/1.0.0/create-video)
+* [轮询视频生成状态](/1.0.0/get-video)
+* [下载生成的视频内容](/1.0.0/get-video-content)
+* [列出所有视频生成模型](/1.0.0/list-video-models)

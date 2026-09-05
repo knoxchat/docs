@@ -1,0 +1,192 @@
+---
+id: create-video
+title: "Submit a Video Generation Request"
+description: "Submit an asynchronous video generation job. Poll the returned job ID until the video is ready, then download the content."
+sidebar_label: "Submit a video generation request"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Submit a Video Generation Request"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/videos"}
+>
+</MethodEndpoint>
+
+Submit an asynchronous video generation job. Video generation is not a streaming chat completion — the API accepts the request immediately (`202 Accepted`) and returns a job ID. Poll [`GET /v1/videos/{jobId}`](/1.0.0/get-video) until `status` is `completed`, then download bytes from [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content).
+
+Use [`GET /v1/videos/models`](/1.0.0/list-video-models) to discover available models and the resolutions, aspect ratios, durations, and frame-image types each one supports.
+
+## Request
+
+This endpoint requires a JSON object.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | Bearer authentication in the form `Bearer <token>`, where `token` is your Knox Chat API key. |
+| Content-Type | String | Yes | Must be `application/json`. |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| model | String | Yes | Video model ID from [`GET /v1/videos/models`](/1.0.0/list-video-models), for example `google/veo-3.1`. |
+| prompt | String | Conditional | Text description of the video. Required unless image input is provided via `frame_images` or `input_references`. |
+| aspect_ratio | String | No | Output aspect ratio. Accepted values: `16:9`, `9:16`, `1:1`, `4:3`, `3:4`, `3:2`, `2:3`, `21:9`, `9:21`. Must also be listed in the model's `supported_aspect_ratios`. |
+| duration | Integer | No | Clip length in seconds. Must be at least `1`, and must be listed in the model's `supported_durations` when that list is present. |
+| resolution | String | No | Output resolution. Accepted values: `480p`, `720p`, `768p`, `1080p`, `1K`, `2K`, `4K`. Must also be listed in the model's `supported_resolutions`. |
+| size | String | No | Exact pixel size in `WIDTHxHEIGHT` form, for example `1280x720`. Use this instead of `resolution` when the model exposes `supported_sizes`. |
+| generate_audio | Boolean | No | When `true`, generate a soundtrack with the video. Only valid when the model reports `generate_audio: true`. |
+| seed | Integer | No | Deterministic seed. Rejected when the model reports `seed: false`. |
+| callback_url | String | No | HTTPS webhook invoked when the job reaches a terminal status. HTTP URLs are rejected. |
+| frame_images | List of Objects | No | Start/end frame images for image-to-video. Each object must include `frame_type` (`first_frame` or `last_frame`) and an image payload. The `frame_type` must be listed in the model's `supported_frame_images`. |
+| input_references | List of Objects | No | Extra media references. Use `{ "type": "image_url", "image_url": { "url": "..." } }` for image-to-video, or `{ "type": "video_url", "video_url": { "url": "..." } }` for reference-to-video. |
+
+`prompt` may be omitted only when at least one image is supplied through `frame_images` or an `input_references` item with `type: "image_url"`.
+
+## cURL Example
+
+### Text to video
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "A serene mountain landscape at sunset, cinematic camera drift",
+  "aspect_ratio": "16:9",
+  "duration": 8,
+  "resolution": "720p",
+  "generate_audio": true
+}'
+```
+
+### Image to video
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "Animate this still into a slow cinematic push-in",
+  "aspect_ratio": "16:9",
+  "duration": 8,
+  "resolution": "720p",
+  "frame_images": [
+    {
+      "frame_type": "first_frame",
+      "image_url": {
+        "url": "https://example.com/first-frame.png"
+      }
+    }
+  ]
+}'
+```
+
+### Reference video
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "Keep the same camera motion and character, but change the scene to night",
+  "input_references": [
+    {
+      "type": "video_url",
+      "video_url": {
+        "url": "https://example.com/reference.mp4"
+      }
+    }
+  ]
+}'
+```
+
+## Response
+
+### Success Response (202 Accepted)
+
+```json
+{
+  "generation_id": "gen-8f2c1a9b4d6e7f01",
+  "id": "job-3c91a0e8b7d24f11",
+  "polling_url": "/v1/videos/job-3c91a0e8b7d24f11",
+  "status": "pending"
+}
+```
+
+Store `id` and poll `polling_url` (relative to `https://api.knox.chat`) until the job finishes. Do not treat `202` as a finished video — `unsigned_urls` and `usage` appear only after the job completes.
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| generation_id | string | Unique generation identifier (`gen-...`). Present once the job is accepted. |
+| id | string | Job ID (`job-...`). Use this path parameter for poll and download requests. |
+| polling_url | string | Relative URL for status polling, for example `/v1/videos/job-3c91a0e8b7d24f11`. |
+| status | string | Current job status. See [Job statuses](#job-statuses). |
+| error | string | Error message when `status` is `failed`. Omitted otherwise. |
+| unsigned_urls | array of strings | Downloadable video URLs once the job is `completed`. Hosted by Knox Chat (never upstream provider URLs). |
+| usage | object | Billing information once the job is `completed`. |
+| usage.cost | number | Cost of the generation in USD. |
+
+### Job statuses
+
+| Status | Meaning |
+| ------ | ------- |
+| `pending` | The job has been accepted and is waiting to start. |
+| `in_progress` | The model is generating the video. |
+| `completed` | The video is ready. Download it or use `unsigned_urls`. |
+| `failed` | Generation failed. Inspect `error`. Credits are not charged for failed jobs. |
+| `cancelled` | The job was cancelled. |
+| `expired` | The job expired before completion. |
+
+## Error Responses
+
+Video endpoints return errors in this shape:
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Invalid request parameters"
+  }
+}
+```
+
+| Status | Message | When |
+| ------ | ------- | ---- |
+| `400` | `Invalid request parameters` | Missing `model`, invalid JSON, or a field the model does not support. |
+| `400` | `Prompt is required unless image input is provided` | No `prompt` and no image input. |
+| `400` | `Unsupported aspect_ratio` / `resolution` / `size` | Value is not in the global allow-list. |
+| `400` | `aspect_ratio … is not supported by {model}` | Value is valid globally but not for this model. |
+| `400` | `callback_url must be HTTPS` | Webhook URL is not HTTPS. |
+| `401` | `Missing Authentication header` | Missing or invalid API key. |
+| `402` | `Insufficient credits. Add more using https://knox.chat/credits` | Account balance is too low for the estimated cost. |
+| `403` | `This token is not authorized to use model: {model}` | The API key's model allow-list does not include this video model. |
+| `404` | `Resource not found` | Unknown or disabled model ID. |
+| `429` | `Rate limit exceeded` | Too many requests. |
+| `500` | `Internal Server Error` | Unexpected server error. |

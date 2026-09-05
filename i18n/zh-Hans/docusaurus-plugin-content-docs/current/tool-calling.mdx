@@ -1,0 +1,1068 @@
+---
+sidebar_position: 6
+sidebar_label: 工具调用与函数调用
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 工具调用与函数调用
+
+工具调用（也称为函数调用）使 LLM 能够访问外部工具和 API。LLM 本身不会直接执行这些工具，而是建议调用哪个工具以及使用什么参数。你的应用程序随后独立调用该工具并将结果返回给 LLM，由 LLM 将结果格式化为对用户原始问题的回答。
+
+Knox Chat 完全兼容 OpenAI 的工具调用接口，同时在不同的模型和供应商之间实现了标准化，无论你使用哪个 LLM 都能获得一致的调用行为。
+
+:::tip
+Knox Chat 同时支持**流式**和**非流式**工具调用，让你可以灵活地处理实时响应。
+:::
+
+## 支持的模型
+
+Knox Chat 支持跨多个供应商的工具调用。以下是一些常用的工具调用兼容模型：
+
+- **Anthropic**: `anthropic/claude-haiku-4.5`,`anthropic/claude-opus-4.6`,`anthropic/claude-sonnet-4.6`,`anthropic/claude-sonnet-4`
+- **OpenAI**: `openai/gpt-5.2`, `openai/gpt-5.3-codex`, `openai/gpt-5`
+- **Google**: `google/gemini-2.5-flash`, `google/gemini-2.5-pro`
+- 更多模型请查看[模型页面](https://knox.chat/models)获取完整列表。
+
+## 快速入门示例
+
+下面是一个简单的示例，展示如何通过工具调用获取当前时间：
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash showLineNumbers
+curl -X POST https://api.knox.chat/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_KNOX_API_KEY" \
+  -d '{
+    "model": "anthropic/claude-haiku-4.5",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What time is it in Tokyo?"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_current_time",
+          "description": "Get the current time in a specific timezone",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "timezone": {
+                "type": "string",
+                "description": "The timezone (e.g., Asia/Tokyo, America/New_York)"
+              }
+            },
+            "required": ["timezone"]
+          }
+        }
+      }
+    ],
+    "tool_choice": "auto"
+  }'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import json
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="YOUR_KNOX_API_KEY"
+)
+
+response = client.chat.completions.create(
+    model="anthropic/claude-haiku-4.5",
+    messages=[
+        {"role": "user", "content": "What time is it in Tokyo?"}
+    ],
+    tools=[
+        {
+            "type": "function",
+            "function": {
+                "name": "get_current_time",
+                "description": "Get the current time in a specific timezone",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "timezone": {
+                            "type": "string",
+                            "description": "The timezone (e.g., Asia/Tokyo, America/New_York)"
+                        }
+                    },
+                    "required": ["timezone"]
+                }
+            }
+        }
+    ],
+    tool_choice="auto"
+)
+
+# Check if the model wants to call a tool
+if response.choices[0].message.tool_calls:
+    print("Tool call requested:", response.choices[0].message.tool_calls[0].function.name)
+    print("Arguments:", response.choices[0].message.tool_calls[0].function.arguments)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+interface ToolCall {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
+const response = await fetch('https://api.knox.chat/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_KNOX_API_KEY',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'anthropic/claude-haiku-4.5',
+    messages: [
+      { role: 'user', content: 'What time is it in Tokyo?' }
+    ],
+    tools: [
+      {
+        type: 'function',
+        function: {
+          name: 'get_current_time',
+          description: 'Get the current time in a specific timezone',
+          parameters: {
+            type: 'object',
+            properties: {
+              timezone: {
+                type: 'string',
+                description: 'The timezone (e.g., Asia/Tokyo, America/New_York)'
+              }
+            },
+            required: ['timezone']
+          }
+        }
+      }
+    ],
+    tool_choice: 'auto'
+  })
+});
+
+const data = await response.json();
+
+// Check if the model wants to call a tool
+if (data.choices[0].message.tool_calls) {
+  console.log('Tool call requested:', data.choices[0].message.tool_calls[0].function.name);
+  console.log('Arguments:', data.choices[0].message.tool_calls[0].function.arguments);
+}
+```
+
+</TabItem>
+</Tabs>
+
+### 预期响应
+
+当 LLM 决定使用工具时，你会收到如下响应：
+
+```json
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "message": {
+        "content": "I'll get the current time in Tokyo for you.",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "toolu_01SR862k3e4m1rZYzrMwEX35",
+            "type": "function",
+            "function": {
+              "name": "get_current_time",
+              "arguments": "{\"timezone\": \"Asia/Tokyo\"}"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 120,
+    "completion_tokens": 45,
+    "total_tokens": 165
+  }
+}
+```
+
+:::info 要点说明
+- 当模型需要使用工具时，`finish_reason` 为 `"tool_calls"`
+- 每个工具调用都有一个唯一的 `id`，你需要在后续响应中引用它
+- `arguments` 字段包含一个带有参数的 JSON 字符串
+:::
+
+## 完整的工具调用工作流
+
+下面是一个全面的示例，展示了从工具定义到最终响应的完整工作流：
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import json
+import requests
+from datetime import datetime
+import pytz
+from openai import OpenAI
+
+# Initialize Knox Chat client
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="YOUR_KNOX_API_KEY"
+)
+
+# Define your tool functions
+def get_current_time(timezone):
+    """Get the current time in a specific timezone"""
+    try:
+        tz = pytz.timezone(timezone)
+        current_time = datetime.now(tz)
+        return {
+            "timezone": timezone,
+            "current_time": current_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
+            "day_of_week": current_time.strftime("%A")
+        }
+    except Exception as e:
+        return {"error": f"Invalid timezone: {timezone}"}
+
+def search_web(query):
+    """Search the web for information"""
+    # This is a mock implementation - replace with your preferred search API
+    return {
+        "query": query,
+        "results": [
+            {"title": "Sample Result", "url": "https://example.com", "snippet": "Sample content"}
+        ]
+    }
+
+# Tool definitions (OpenAI format)
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_time",
+            "description": "Get the current time in a specific timezone",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "timezone": {
+                        "type": "string",
+                        "description": "The timezone (e.g., Asia/Tokyo, America/New_York, Europe/London)"
+                    }
+                },
+                "required": ["timezone"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_web",
+            "description": "Search the web for current information",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    }
+]
+
+# Tool mapping for execution
+TOOL_MAPPING = {
+    "get_current_time": get_current_time,
+    "search_web": search_web
+}
+
+def execute_tool_calls(tool_calls):
+    """Execute the requested tool calls and return results"""
+    tool_messages = []
+    
+    for tool_call in tool_calls:
+        tool_name = tool_call.function.name
+        tool_args = json.loads(tool_call.function.arguments)
+        
+        # Execute the tool function
+        if tool_name in TOOL_MAPPING:
+            try:
+                tool_result = TOOL_MAPPING[tool_name](**tool_args)
+                tool_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": tool_name,
+                    "content": json.dumps(tool_result)
+                })
+            except Exception as e:
+                tool_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": tool_name,
+                    "content": json.dumps({"error": str(e)})
+                })
+        else:
+            tool_messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "name": tool_name,
+                "content": json.dumps({"error": f"Unknown tool: {tool_name}"})
+            })
+    
+    return tool_messages
+
+# Main conversation function
+def chat_with_tools(user_message):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant with access to tools for getting current time and searching the web."},
+        {"role": "user", "content": user_message}
+    ]
+    
+    # First API call
+    response = client.chat.completions.create(
+        model="anthropic/claude-haiku-4.5",
+        messages=messages,
+        tools=tools,
+        tool_choice="auto"
+    )
+    
+    assistant_message = response.choices[0].message
+    messages.append(assistant_message)
+    
+    # Handle tool calls if present
+    if assistant_message.tool_calls:
+        print(f"🔧 Model requested {len(assistant_message.tool_calls)} tool call(s)")
+        
+        # Execute tools and add results to conversation
+        tool_messages = execute_tool_calls(assistant_message.tool_calls)
+        messages.extend(tool_messages)
+        
+        # Second API call with tool results
+        final_response = client.chat.completions.create(
+            model="aanthropic/claude-haiku-4.5",
+            messages=messages,
+            tools=tools
+        )
+        
+        return final_response.choices[0].message.content
+    else:
+        return assistant_message.content
+
+# Example usage
+if __name__ == "__main__":
+    result = chat_with_tools("What time is it in Tokyo and New York right now?")
+    print("🤖 Assistant:", result)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+interface ToolCall {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
+interface Message {
+  role: 'system' | 'user' | 'assistant' | 'tool';
+  content?: string;
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
+  name?: string;
+}
+
+// Define your tool functions
+async function getCurrentTime(timezone: string) {
+  try {
+    const now = new Date();
+    const timeInTimezone = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short'
+    }).format(now);
+    
+    return {
+      timezone,
+      current_time: timeInTimezone,
+      day_of_week: new Intl.DateTimeFormat('en-US', { 
+        timeZone: timezone, 
+        weekday: 'long' 
+      }).format(now)
+    };
+  } catch (error) {
+    return { error: `Invalid timezone: ${timezone}` };
+  }
+}
+
+async function searchWeb(query: string) {
+  // Mock implementation - replace with your preferred search API
+  return {
+    query,
+    results: [
+      { title: "Sample Result", url: "https://example.com", snippet: "Sample content" }
+    ]
+  };
+}
+
+// Tool definitions
+const tools = [
+  {
+    type: 'function',
+    function: {
+      name: 'get_current_time',
+      description: 'Get the current time in a specific timezone',
+      parameters: {
+        type: 'object',
+        properties: {
+          timezone: {
+            type: 'string',
+            description: 'The timezone (e.g., Asia/Tokyo, America/New_York, Europe/London)'
+          }
+        },
+        required: ['timezone']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'search_web',
+      description: 'Search the web for current information',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'The search query'
+          }
+        },
+        required: ['query']
+      }
+    }
+  }
+];
+
+// Tool mapping
+const TOOL_MAPPING = {
+  get_current_time: getCurrentTime,
+  search_web: searchWeb
+};
+
+async function executeToolCalls(toolCalls: ToolCall[]): Promise<Message[]> {
+  const toolMessages: Message[] = [];
+  
+  for (const toolCall of toolCalls) {
+    const toolName = toolCall.function.name;
+    const toolArgs = JSON.parse(toolCall.function.arguments);
+    
+    try {
+      let toolResult;
+      if (toolName === 'get_current_time') {
+        toolResult = await getCurrentTime(toolArgs.timezone);
+      } else if (toolName === 'search_web') {
+        toolResult = await searchWeb(toolArgs.query);
+      } else {
+        toolResult = { error: `Unknown tool: ${toolName}` };
+      }
+      
+      toolMessages.push({
+        role: 'tool',
+        tool_call_id: toolCall.id,
+        name: toolName,
+        content: JSON.stringify(toolResult)
+      });
+    } catch (error) {
+      toolMessages.push({
+        role: 'tool',
+        tool_call_id: toolCall.id,
+        name: toolName,
+        content: JSON.stringify({ error: error.message })
+      });
+    }
+  }
+  
+  return toolMessages;
+}
+
+async function chatWithTools(userMessage: string): Promise<string> {
+  const messages: Message[] = [
+    { role: 'system', content: 'You are a helpful assistant with access to tools for getting current time and searching the web.' },
+    { role: 'user', content: userMessage }
+  ];
+  
+  // First API call
+  const response = await fetch('https://api.knox.chat/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_KNOX_API_KEY',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'anthropic/claude-haiku-4.5',
+      messages,
+      tools,
+      tool_choice: 'auto'
+    })
+  });
+  
+  const data = await response.json();
+  const assistantMessage = data.choices[0].message;
+  messages.push(assistantMessage);
+  
+  // Handle tool calls if present
+  if (assistantMessage.tool_calls) {
+    console.log(`🔧 Model requested ${assistantMessage.tool_calls.length} tool call(s)`);
+    
+    // Execute tools and add results to conversation
+    const toolMessages = await executeToolCalls(assistantMessage.tool_calls);
+    messages.push(...toolMessages);
+    
+    // Second API call with tool results
+    const finalResponse = await fetch('https://api.knox.chat/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_KNOX_API_KEY',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'anthropic/claude-haiku-4.5',
+        messages,
+        tools
+      })
+    });
+    
+    const finalData = await finalResponse.json();
+    return finalData.choices[0].message.content;
+  } else {
+    return assistantMessage.content;
+  }
+}
+
+// Example usage
+chatWithTools("What time is it in Tokyo and New York right now?")
+  .then(result => console.log("🤖 Assistant:", result));
+```
+
+</TabItem>
+</Tabs>
+
+## 流式工具调用
+
+Knox Chat 支持流式工具调用，允许你在工具调用请求到达时即时处理：
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import json
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="YOUR_KNOX_API_KEY"
+)
+
+def handle_streaming_with_tools():
+    messages = [
+        {"role": "user", "content": "What's the weather like in Paris?"}
+    ]
+    
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "Get weather information for a city",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "city": {"type": "string", "description": "The city name"}
+                    },
+                    "required": ["city"]
+                }
+            }
+        }
+    ]
+    
+    # Stream the response
+    stream = client.chat.completions.create(
+        model="anthropic/claude-haiku-4.5",
+        messages=messages,
+        tools=tools,
+        tool_choice="auto",
+        stream=True
+    )
+    
+    tool_calls = []
+    current_tool_call = None
+    
+    for chunk in stream:
+        if chunk.choices[0].delta.tool_calls:
+            for tool_call_delta in chunk.choices[0].delta.tool_calls:
+                if tool_call_delta.id:
+                    # New tool call starting
+                    current_tool_call = {
+                        "id": tool_call_delta.id,
+                        "type": "function",
+                        "function": {
+                            "name": tool_call_delta.function.name or "",
+                            "arguments": tool_call_delta.function.arguments or ""
+                        }
+                    }
+                    tool_calls.append(current_tool_call)
+                elif current_tool_call:
+                    # Continue building the current tool call
+                    if tool_call_delta.function.arguments:
+                        current_tool_call["function"]["arguments"] += tool_call_delta.function.arguments
+        
+        # Handle regular content
+        if chunk.choices[0].delta.content:
+            print(chunk.choices[0].delta.content, end="", flush=True)
+    
+    print("\n")
+    
+    # Process any tool calls that were collected
+    if tool_calls:
+        print(f"🔧 Collected {len(tool_calls)} tool call(s)")
+        for tool_call in tool_calls:
+            print(f"Tool: {tool_call['function']['name']}")
+            print(f"Arguments: {tool_call['function']['arguments']}")
+
+# Run the streaming example
+handle_streaming_with_tools()
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+async function handleStreamingWithTools() {
+  const messages = [
+    { role: 'user' as const, content: "What's the weather like in Paris?" }
+  ];
+  
+  const tools = [
+    {
+      type: 'function' as const,
+      function: {
+        name: 'get_weather',
+        description: 'Get weather information for a city',
+        parameters: {
+          type: 'object',
+          properties: {
+            city: { type: 'string', description: 'The city name' }
+          },
+          required: ['city']
+        }
+      }
+    }
+  ];
+  
+  const response = await fetch('https://api.knox.chat/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_KNOX_API_KEY',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'anthropic/claude-haiku-4.5',
+      messages,
+      tools,
+      tool_choice: 'auto',
+      stream: true
+    })
+  });
+  
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error('No reader available');
+  
+  const toolCalls: any[] = [];
+  let currentToolCall: any = null;
+  
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      const chunk = new TextDecoder().decode(value);
+      const lines = chunk.split('\n').filter(line => line.trim());
+      
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          
+          try {
+            const parsed = JSON.parse(data);
+            const delta = parsed.choices?.[0]?.delta;
+            
+            // Handle tool calls in streaming
+            if (delta?.tool_calls) {
+              for (const toolCallDelta of delta.tool_calls) {
+                if (toolCallDelta.id) {
+                  // New tool call
+                  currentToolCall = {
+                    id: toolCallDelta.id,
+                    type: 'function',
+                    function: {
+                      name: toolCallDelta.function?.name || '',
+                      arguments: toolCallDelta.function?.arguments || ''
+                    }
+                  };
+                  toolCalls.push(currentToolCall);
+                } else if (currentToolCall && toolCallDelta.function?.arguments) {
+                  // Continue building current tool call
+                  currentToolCall.function.arguments += toolCallDelta.function.arguments;
+                }
+              }
+            }
+            
+            // Handle regular content
+            if (delta?.content) {
+              process.stdout.write(delta.content);
+            }
+          } catch (e) {
+            // Skip invalid JSON
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  
+  console.log('\n');
+  
+  // Process collected tool calls
+  if (toolCalls.length > 0) {
+    console.log(`🔧 Collected ${toolCalls.length} tool call(s)`);
+    toolCalls.forEach(toolCall => {
+      console.log(`Tool: ${toolCall.function.name}`);
+      console.log(`Arguments: ${toolCall.function.arguments}`);
+    });
+  }
+}
+
+// Run the streaming example
+handleStreamingWithTools();
+```
+
+</TabItem>
+</Tabs>
+
+## 工具选择选项
+
+Knox Chat 支持不同的工具选择策略：
+
+### `"auto"`（推荐）
+让模型自行决定何时使用工具：
+
+```json
+{
+  "tool_choice": "auto"
+}
+```
+
+### `"none"`
+禁用本次请求的工具调用：
+
+```json
+{
+  "tool_choice": "none"
+}
+```
+
+### `"required"`
+强制模型至少调用一个工具：
+
+```json
+{
+  "tool_choice": "required"
+}
+```
+
+### 指定工具
+强制模型调用特定的工具：
+
+```json
+{
+  "tool_choice": {
+    "type": "function",
+    "function": {
+      "name": "get_current_time"
+    }
+  }
+}
+```
+
+## 高级示例
+
+### 多步骤 Agent 工具调用
+
+以下是一个更复杂的 Agent 示例，能够处理多个工具调用和复杂的工作流：
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import json
+from openai import OpenAI
+from typing import List, Dict, Any
+
+class ToolAgent:
+    def __init__(self, api_key: str):
+        self.client = OpenAI(
+            base_url="https://api.knox.chat/v1",
+            api_key=api_key
+        )
+        self.tools = []
+        self.tool_mapping = {}
+    
+    def add_tool(self, tool_spec: Dict, tool_func: callable):
+        """Add a tool to the agent"""
+        self.tools.append(tool_spec)
+        self.tool_mapping[tool_spec["function"]["name"]] = tool_func
+    
+    def execute_tool_calls(self, tool_calls) -> List[Dict]:
+        """Execute multiple tool calls and return results"""
+        results = []
+        for tool_call in tool_calls:
+            tool_name = tool_call.function.name
+            tool_args = json.loads(tool_call.function.arguments)
+            
+            if tool_name in self.tool_mapping:
+                try:
+                    result = self.tool_mapping[tool_name](**tool_args)
+                    results.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": tool_name,
+                        "content": json.dumps(result)
+                    })
+                except Exception as e:
+                    results.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": tool_name,
+                        "content": json.dumps({"error": str(e)})
+                    })
+        return results
+    
+    def chat(self, user_message: str, max_iterations: int = 5) -> str:
+        """Chat with automatic tool calling"""
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant with access to various tools. Use them when needed to provide accurate and helpful responses."},
+            {"role": "user", "content": user_message}
+        ]
+        
+        for iteration in range(max_iterations):
+            response = self.client.chat.completions.create(
+                model="anthropic/claude-haiku-4.5",
+                messages=messages,
+                tools=self.tools,
+                tool_choice="auto"
+            )
+            
+            assistant_message = response.choices[0].message
+            messages.append(assistant_message)
+            
+            # Check if tools were called
+            if assistant_message.tool_calls:
+                print(f"🔧 Iteration {iteration + 1}: Calling {len(assistant_message.tool_calls)} tool(s)")
+                
+                # Execute tools and add results
+                tool_results = self.execute_tool_calls(assistant_message.tool_calls)
+                messages.extend(tool_results)
+                
+                # Continue the loop for another iteration
+                continue
+            else:
+                # No more tools needed, return final response
+                return assistant_message.content
+        
+        return "Maximum iterations reached. The assistant may need more steps to complete the task."
+
+# Example usage
+def get_weather(city: str, units: str = "celsius"):
+    """Mock weather function"""
+    return {
+        "city": city,
+        "temperature": "22°C" if units == "celsius" else "72°F",
+        "condition": "Sunny",
+        "humidity": "65%"
+    }
+
+def calculate_distance(origin: str, destination: str):
+    """Mock distance calculation"""
+    return {
+        "origin": origin,
+        "destination": destination,
+        "distance": "500 km",
+        "travel_time": "5 hours"
+    }
+
+# Create agent and add tools
+agent = ToolAgent("YOUR_KNOX_API_KEY")
+
+agent.add_tool({
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get weather information for a city",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "city": {"type": "string", "description": "The city name"},
+                "units": {"type": "string", "enum": ["celsius", "fahrenheit"], "default": "celsius"}
+            },
+            "required": ["city"]
+        }
+    }
+}, get_weather)
+
+agent.add_tool({
+    "type": "function",
+    "function": {
+        "name": "calculate_distance",
+        "description": "Calculate distance between two cities",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "origin": {"type": "string", "description": "Origin city"},
+                "destination": {"type": "string", "description": "Destination city"}
+            },
+            "required": ["origin", "destination"]
+        }
+    }
+}, calculate_distance)
+
+# Use the agent
+result = agent.chat("I'm planning a trip from New York to Boston. Can you tell me the distance and what the weather is like in both cities?")
+print("🤖 Final result:", result)
+```
+
+</TabItem>
+</Tabs>
+
+## 最佳实践
+
+### 1. 工具设计
+- **描述清晰**：工具描述要具体且具有可操作性
+- **参数规范**：使用正确的 JSON Schema 类型和约束
+- **错误处理**：始终优雅地处理工具执行错误
+- **参数验证**：在执行前验证工具参数
+
+### 2. 性能优化
+- **并行执行**：在可能的情况下并发执行多个工具
+- **结果缓存**：对重复请求缓存工具结果
+- **超时设置**：为工具执行设置合理的超时时间
+- **频率限制**：遵守外部工具的 API 频率限制
+
+### 3. 安全注意事项
+- **输入验证**：始终验证工具输入
+- **权限控制**：为敏感工具实施适当的授权机制
+- **沙箱隔离**：考虑对工具执行进行沙箱隔离
+- **日志记录**：记录工具使用日志以便监控和调试
+
+### 4. 错误处理
+```python
+def safe_tool_execution(tool_func, **kwargs):
+    try:
+        result = tool_func(**kwargs)
+        return {"success": True, "data": result}
+    except ValueError as e:
+        return {"success": False, "error": f"Invalid input: {str(e)}"}
+    except Exception as e:
+        return {"success": False, "error": f"Tool execution failed: {str(e)}"}
+```
+
+## 故障排除
+
+### 常见问题
+
+1. **工具调用未被触发**
+   - 确保工具描述清晰且具体
+   - 检查 `tool_choice` 是否设置为 `"auto"` 或合适的值
+   - 确认模型是否支持工具调用
+
+2. **参数中的 JSON 无效**
+   - 添加适当的 JSON Schema 验证
+   - 优雅地处理解析错误
+   - 提供清晰的参数描述
+
+3. **流式传输问题**
+   - 确保正确处理部分工具调用数据
+   - 缓冲工具调用参数直到完整接收
+   - 检查流是否正确终止
+
+### 测试你的工具
+
+使用以下简单测试来验证你的工具调用配置：
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST https://api.knox.chat/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_KNOX_API_KEY" \
+  -d '{
+    "model": "anthropic/claude-haiku-4.5",
+    "messages": [{"role": "user", "content": "Test my tools"}],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "test_tool",
+          "description": "A simple test tool",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "message": {"type": "string", "description": "Test message"}
+            },
+            "required": ["message"]
+          }
+        }
+      }
+    ],
+    "tool_choice": {
+      "type": "function",
+      "function": {"name": "test_tool"}
+    }
+  }' | jq '.choices[0].message.tool_calls'
+```
+
+</TabItem>
+</Tabs>

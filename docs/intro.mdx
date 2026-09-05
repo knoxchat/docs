@@ -1,9 +1,11 @@
 ---
 sidebar_position: 1
+sidebar_label: Quickstart
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@site/src/components/ui/accordion';
 
 # Quickstart
@@ -13,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 ### What you get
 
 - **Smart model routing**: performance/cost/balanced strategies with automatic fallback and provider metrics.
-- **Multimodal I/O**: text, images, PDFs, and audio inputs, plus image generation outputs.
+- **Multimodal I/O**: text, images, PDFs, and audio inputs, plus image and video generation outputs, and speech-to-speech [Realtime](/realtime).
 - **Tools and MCP**: OpenAI‑compatible tool calling and MCP server bridging.
 - **Web search**: `:online` model variant or the `web` plugin for live citations.
 - **Structured & reasoning outputs**: JSON Schema enforcement and standardized reasoning tokens.
@@ -22,7 +24,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 
 ### Knox‑MS Memory System
 
-Knox‑MS adds multi‑level memory, summaries, vector search, and a knowledge graph to power persistent agents and workflows. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the [Knox Memory System — Full Feature Deep Dive](../blog/kms-docs).
+Knox‑MS adds multi‑level memory, summaries, vector search, and a knowledge graph to power persistent agents and workflows. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/blog/kms-docs">Knox Memory System — Full Feature Deep Dive</Link>.
 
 ## Using the OpenAI SDK
 
@@ -39,7 +41,7 @@ const openai = new OpenAI({
 
 async function main() {
   const completion = await openai.chat.completions.create({
-    model: 'openai/gpt-5',
+    model: 'knox/knox-ms',
     messages: [
       {
         role: 'user',
@@ -66,7 +68,7 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-  model="openai/gpt-5",
+  model="knox/knox-ms",
   messages=[
     {
       "role": "user",
@@ -168,7 +170,7 @@ Standardized API. No code changes when switching between models or providers. Us
 
 Memory‑First Apps. Knox‑MS enables long‑running agents with persistent memory, knowledge extraction, and autonomous planning.
 
-Multimodal by Default. Images, PDFs, and audio inputs plus image generation make multimodal workflows straightforward.
+Multimodal by Default. Images, PDFs, and audio inputs plus image generation, video generation, and speech-to-speech Realtime make multimodal workflows straightforward.
 
 Consolidated Billing. Simple and transparent billing, regardless of how many providers you use, with zero‑completion insurance for failed/empty generations.
 
@@ -392,13 +394,13 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-3">
       <AccordionTrigger>What API endpoints are available?</AccordionTrigger>
       <AccordionContent>
-        Knox Chat implements the OpenAI API specification for `/completions` and `/chat/completions`, allowing you to use any model with the same request/response format. Additional endpoints like `/v1/models` and Knox‑MS routes are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
+        Knox Chat implements the OpenAI API specification for `/completions` and `/chat/completions`, allowing you to use any model with the same request/response format. Additional endpoints like `/v1/models`, `/v1/realtime`, `/v1/videos`, and Knox‑MS routes are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-4">
       <AccordionTrigger>What are the supported formats?</AccordionTrigger>
       <AccordionContent>
-        The API supports text, PDFs, images, and audio. Images can be passed as URLs or base64 data URLs. Audio must be base64 encoded. Image generation outputs are supported for models with image output modalities. Video and other file types are coming soon.
+        The API supports text, PDFs, images, audio, video generation, and speech-to-speech Realtime. Images can be passed as URLs or base64 data URLs. Chat audio must be base64 encoded. Image generation outputs are supported for models with image output modalities. Video generation uses the asynchronous `/v1/videos` API — see [Video Generation](/video-generation). Live voice agents use `/v1/realtime` — see [Realtime](/realtime).
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-5">

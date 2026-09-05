@@ -1,0 +1,110 @@
+{
+  "version.label": {
+    "message": "最新",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Routing & Optimization": {
+    "message": "路由与优化",
+    "description": "The label for category 'Routing & Optimization' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.API Capabilities": {
+    "message": "API 功能",
+    "description": "The label for category 'API Capabilities' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Multimodal": {
+    "message": "多模态",
+    "description": "The label for category 'Multimodal' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Integrations": {
+    "message": "集成",
+    "description": "The label for category 'Integrations' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Knox Memory System": {
+    "message": "Knox 记忆系统",
+    "description": "The label for category 'Knox Memory System' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Authentication": {
+    "message": "身份认证",
+    "description": "The label for category 'Authentication' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Legal": {
+    "message": "隐私与协议",
+    "description": "The label for category 'Legal' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Rust Tools": {
+    "message": "Rust 工具",
+    "description": "The label for the doc item 'Rust Tools' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Privacy Policy": {
+    "message": "隐私政策",
+    "description": "The label for the doc item 'Privacy Policy' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Terms of Service": {
+    "message": "服务条款",
+    "description": "The label for the doc item 'Terms of Service' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Quickstart": {
+    "message": "快速入门",
+    "description": "The label for the doc item 'Quickstart' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Overview": {
+    "message": "概览",
+    "description": "The label for the doc item 'Overview' in sidebar 'apiSidebar', linking to the doc 1.0.0/api-reference"
+  },
+  "sidebar.apiSidebar.doc.API Reference": {
+    "message": "API 参考",
+    "description": "The label for the doc item 'API Reference' in sidebar 'apiSidebar', linking to the doc 1.0.0/api-reference"
+  },
+  "sidebar.apiSidebar.doc.API Parameters": {
+    "message": "API 参数",
+    "description": "The label for the doc item 'API Parameters' in sidebar 'apiSidebar', linking to the doc 1.0.0/parameters"
+  },
+  "sidebar.apiSidebar.doc.Completion": {
+    "message": "文本补全",
+    "description": "The label for the doc item 'Completion' in sidebar 'apiSidebar', linking to the doc 1.0.0/completion"
+  },
+  "sidebar.apiSidebar.doc.Chat Completion": {
+    "message": "聊天补全",
+    "description": "The label for the doc item 'Chat Completion' in sidebar 'apiSidebar', linking to the doc 1.0.0/chat-completion"
+  },
+  "sidebar.apiSidebar.doc.Messages": {
+    "message": "消息",
+    "description": "The label for the doc item 'Messages' in sidebar 'apiSidebar', linking to the doc 1.0.0/messages"
+  },
+  "sidebar.apiSidebar.doc.List available models": {
+    "message": "列出可用模型",
+    "description": "The label for the doc item 'List available models' in sidebar 'apiSidebar', linking to the doc 1.0.0/list-available-models"
+  },
+  "sidebar.apiSidebar.doc.List Available Models": {
+    "message": "列出可用模型",
+    "description": "The label for the doc item 'List Available Models' in sidebar 'apiSidebar', linking to the doc 1.0.0/list-available-models"
+  },
+  "sidebar.apiSidebar.doc.Submit a video generation request": {
+    "message": "提交视频生成请求",
+    "description": "The label for the doc item 'Submit a video generation request' in sidebar 'apiSidebar', linking to the doc 1.0.0/create-video"
+  },
+  "sidebar.apiSidebar.doc.Poll video generation status": {
+    "message": "轮询视频生成状态",
+    "description": "The label for the doc item 'Poll video generation status' in sidebar 'apiSidebar', linking to the doc 1.0.0/get-video"
+  },
+  "sidebar.apiSidebar.doc.Download generated video content": {
+    "message": "下载生成的视频内容",
+    "description": "The label for the doc item 'Download generated video content' in sidebar 'apiSidebar', linking to the doc 1.0.0/get-video-content"
+  },
+  "sidebar.apiSidebar.doc.List all video generation models": {
+    "message": "列出所有视频生成模型",
+    "description": "The label for the doc item 'List all video generation models' in sidebar 'apiSidebar', linking to the doc 1.0.0/list-video-models"
+  },
+  "sidebar.apiSidebar.doc.Realtime session": {
+    "message": "实时语音会话",
+    "description": "The label for the doc item 'Realtime session' in sidebar 'apiSidebar', linking to the doc 1.0.0/realtime"
+  },
+  "sidebar.apiSidebar.doc.Create realtime client secret": {
+    "message": "创建实时客户端密钥",
+    "description": "The label for the doc item 'Create realtime client secret' in sidebar 'apiSidebar', linking to the doc 1.0.0/realtime-client-secrets"
+  },
+  "sidebar.apiSidebar.doc.Create realtime call": {
+    "message": "创建实时通话",
+    "description": "The label for the doc item 'Create realtime call' in sidebar 'apiSidebar', linking to the doc 1.0.0/realtime-calls"
+  }
+}

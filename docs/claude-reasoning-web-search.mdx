@@ -1,0 +1,220 @@
+---
+sidebar_position: 13
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Claude Models Reasoning and Web Search
+
+Knox has backend adapters for the Claude model IDs `anthropic/claude-sonnet-4.6`, `anthropic/claude-opus-4.6`, and `anthropic/claude-opus-4.8`. These adapters can translate Knox request fields into Anthropic adaptive thinking settings and can also inject the Anthropic web-search tool when the request is routed through an AI gateway-backed channel.
+
+Use `/v1/chat/completions` if you want reasoning content and web citations in the response. `/v1/completions` is available for compatibility, but it returns plain text only.
+
+## Supported adaptive reasoning levels
+
+| Model | Allowed `reasoning_effort` values | Backend default |
+| --- | --- | --- |
+| `anthropic/claude-sonnet-4.6` | `low`, `medium`, `high` | `high` |
+| `anthropic/claude-opus-4.6` | `medium`, `high`, `max` | `high` |
+| `anthropic/claude-opus-4.8` | `high`, `xhigh`, `max` | `xhigh` |
+
+When you send `reasoning_effort`, Knox translates it into an Anthropic `thinking` block like this:
+
+```json
+{
+  "thinking": {
+    "type": "adaptive",
+    "effort": "high"
+  }
+}
+```
+
+## Web search behavior
+
+For Anthropic models routed through Knox channels:
+
+* `web_search` defaults to `true` on both `/v1/chat/completions` and `/v1/completions`.
+* Set `"web_search": false` to disable live search for a request.
+* In chat completions responses, search citations are normalized into `message.annotations` using OpenAI-style `url_citation` entries.
+
+## Chat Completions Example
+
+This is the best choice when you want both reasoning output and search citations back from the API.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/chat/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "anthropic/claude-sonnet-4.6",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Summarize the latest changes in the EU AI Act and cite sources."
+      }
+    ],
+    "reasoning_effort": "high",
+    "web_search": true,
+    "max_tokens": 1200
+  }'
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="<KNOXCHAT_API_KEY>",
+)
+
+response = client.chat.completions.create(
+    model="anthropic/claude-sonnet-4.6",
+    messages=[
+        {
+            "role": "user",
+            "content": "Summarize the latest changes in the EU AI Act and cite sources.",
+        }
+    ],
+    reasoning_effort="high",
+    web_search=True,
+    max_tokens=1200,
+)
+
+message = response.choices[0].message
+print(message.reasoning)
+print(message.annotations)
+print(message.content)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+const response = await client.chat.completions.create({
+  model: 'anthropic/claude-sonnet-4.6',
+  messages: [
+    {
+      role: 'user',
+      content: 'Summarize the latest changes in the EU AI Act and cite sources.',
+    },
+  ],
+  reasoning_effort: 'high',
+  web_search: true,
+  max_tokens: 1200,
+});
+
+const message = response.choices[0].message;
+console.log(message.reasoning);
+console.log(message.annotations);
+console.log(message.content);
+```
+
+</TabItem>
+</Tabs>
+
+### Response shape with citations
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "reasoning": "Search current legislative sources, reconcile drafts versus published text, then summarize by compliance impact.",
+        "content": "The latest updates focus on implementation timing, GPAI obligations, and enforcement milestones.",
+        "annotations": [
+          {
+            "type": "url_citation",
+            "url_citation": {
+              "url": "https://example.com/source",
+              "title": "Source title"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+## Opus example
+
+Use a higher reasoning level for the larger Opus models:
+
+```json
+{
+  "model": "anthropic/claude-opus-4.8",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Research the current state of battery supply chains and produce a risk briefing with sources."
+    }
+  ],
+  "reasoning_effort": "xhigh",
+  "web_search": true,
+  "max_tokens": 2000
+}
+```
+
+## Advanced passthrough: explicit `thinking`
+
+If you want to control the Anthropic-native payload directly, Knox also accepts a `thinking` object and forwards it upstream:
+
+```json
+{
+  "model": "anthropic/claude-opus-4.6",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Evaluate the tradeoffs of building an internal search index versus using managed search."
+    }
+  ],
+  "thinking": {
+    "type": "adaptive",
+    "effort": "max"
+  },
+  "web_search": false
+}
+```
+
+Use this only when you want raw Anthropic-style control. For most Knox clients, `reasoning_effort` is the simpler interface.
+
+## Using `/v1/completions`
+
+Knox also supports legacy prompt-based access for these Claude models:
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "anthropic/claude-opus-4.6",
+    "prompt": "Find the latest SOC 2 guidance updates and summarize the implementation impact.",
+    "reasoning_effort": "max",
+    "web_search": true,
+    "max_tokens": 900
+  }'
+```
+
+On this route, Knox converts the prompt into chat messages internally and may still perform search and adaptive thinking upstream. The returned payload is converted into text completion format, so `choices[].text` is preserved, but `message.reasoning` and `message.annotations` are not.
+
+## Practical guidance
+
+* Use `/v1/chat/completions` when you need reasoning output or citations.
+* Set `web_search: false` if you want Claude reasoning without live search.
+* Prefer `reasoning_effort` for normal Knox usage, and use `thinking` only for direct Anthropic-style control.
+* `anthropic/claude-opus-4.8` supports the highest default reasoning level in the current backend mapping.

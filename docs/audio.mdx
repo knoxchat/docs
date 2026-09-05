@@ -8,9 +8,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 
 # Audio Inputs
 
-**Knox Chat** supports sending audio files to compatible models via the API. This guide will show you how to work with audio using our API.
+**Knox** supports sending audio files to compatible models via the API. This guide will show you how to work with audio using our API.
 
 **Note**: Audio files must be **base64-encoded** - direct URLs are not supported for audio content.
+
+For live speech-to-speech (microphone in, audio out) with `gpt-realtime-2.1` or `gpt-realtime-2.1-mini`, use the [Realtime](/realtime) API instead of `/v1/chat/completions`.
 
 ## Audio Inputs
 

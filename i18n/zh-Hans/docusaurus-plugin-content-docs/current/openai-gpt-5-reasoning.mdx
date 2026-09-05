@@ -1,0 +1,188 @@
+---
+sidebar_position: 12
+sidebar_label: OpenAI 模型推理
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# OpenAI 模型推理
+
+Knox 对模型 ID `openai/gpt-5.4` 和 `openai/gpt-5.5` 提供了模型感知的推理支持。当请求被路由到 `/v1/chat/completions` 端点时，Knox 会将请求规范化为所需的 `reasoning` 对象。
+
+如果您希望在响应中拿到推理内容，请优先使用 `/v1/chat/completions`。`/v1/completions` 也支持，但它只会返回纯文本结果。
+
+## 支持的模型
+
+| 模型 | 允许的 `reasoning_effort` 值 | 默认值 |
+| --- | --- | --- |
+| `openai/gpt-5.4` | `none`、`low`、`medium`、`high`、`xhigh` | `none` |
+| `openai/gpt-5.5` | `none`、`low`、`medium`、`high`、`xhigh` | `high` |
+
+`openai/gpt-5.4` 默认关闭推理，需要显式开启。`openai/gpt-5.5` 默认使用 `high` 推理强度。
+
+## 推荐的请求字段
+
+对于这两个模型，当前使用 `reasoning_effort` 作为选择推理级别的模型专用开关。
+
+| 字段 | 类型 | 作用 |
+| --- | --- | --- |
+| `reasoning_effort` | string | 选择推理强度，Knox 会将它映射到 `reasoning.effort`。 |
+| `reasoning.summary` | string | 可选。建议用 `"auto"`，这样 chat completions 会保留标准化后的推理摘要。 |
+| `reasoning.exclude` | boolean | 可选。设为 `true` 时，模型仍会内部推理，但不会返回推理内容。 |
+
+Knox 会自动补上 `reasoning.enabled`。当强度为 `none` 时，推理会被关闭。
+
+## Chat Completions 示例
+
+如果您希望在 `choices[0].message.reasoning` 中直接获取推理内容，这是推荐方式。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/chat/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-5.5",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Design a rollout plan for migrating a monolith to services."
+      }
+    ],
+    "reasoning_effort": "xhigh",
+    "reasoning": {
+      "summary": "auto",
+      "exclude": false
+    }
+  }'
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="<KNOXCHAT_API_KEY>",
+)
+
+response = client.chat.completions.create(
+    model="openai/gpt-5.5",
+    messages=[
+        {
+            "role": "user",
+            "content": "Design a rollout plan for migrating a monolith to services.",
+        }
+    ],
+    reasoning_effort="xhigh",
+    reasoning={
+        "summary": "auto",
+        "exclude": False,
+    },
+)
+
+print(response.choices[0].message.reasoning)
+print(response.choices[0].message.content)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+const response = await client.chat.completions.create({
+  model: 'openai/gpt-5.5',
+  messages: [
+    {
+      role: 'user',
+      content: 'Design a rollout plan for migrating a monolith to services.',
+    },
+  ],
+  reasoning_effort: 'xhigh',
+  reasoning: {
+    summary: 'auto',
+    exclude: false,
+  },
+});
+
+console.log(response.choices[0].message.reasoning);
+console.log(response.choices[0].message.content);
+```
+
+</TabItem>
+</Tabs>
+
+### 响应结构示例
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "reasoning": "Break the migration into domain boundaries, rollout phases, and fallback controls.",
+        "content": "Start with domain mapping, then extract the least-coupled service first..."
+      }
+    }
+  ]
+}
+```
+
+## 在 GPT-5.4 上显式开启推理
+
+由于 `openai/gpt-5.4` 默认值是 `none`，如果您需要推理，请显式传入 `reasoning_effort`：
+
+```json
+{
+  "model": "openai/gpt-5.4",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Compare blue-green and canary deployments for a payments API."
+    }
+  ],
+  "reasoning_effort": "medium",
+  "reasoning": {
+    "summary": "auto"
+  }
+}
+```
+
+## 使用 `/v1/completions`
+
+Knox 也支持在 `/v1/completions` 上使用这些模型，以兼容传统的 prompt 风格客户端。
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-5.5",
+    "prompt": "Write a phased migration checklist for a Rails monolith.",
+    "max_tokens": 600,
+    "reasoning_effort": "high",
+    "reasoning": {
+      "summary": "auto"
+    }
+  }'
+```
+
+对于 provider-backed 路由，Knox 会先把 prompt 转成 chat messages，再内部走 chat 路径。最终响应会被重新转换成纯文本 completion 格式，因此您会拿到 `choices[].text`，而不是 `choices[].message.reasoning`。
+
+## 实用建议
+
+* 如果您需要在响应里获取推理内容，请使用 `/v1/chat/completions`。
+* 如果您希望 GPT-5.4 和 GPT-5.5 的行为稳定可控，请显式传入 `reasoning_effort`。
+* 如果您只想要最终答案，不想返回推理内容，请使用 `reasoning.exclude: true`。
+* `/v1/completions` 主要用于兼容旧客户端，它不会保留结构化推理字段。

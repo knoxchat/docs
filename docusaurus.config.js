@@ -9,10 +9,14 @@ import rehypeKatex from 'rehype-katex';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const isStartCommand = process.argv.includes('start');
+const useFaster = process.env.DOCUSAURUS_FASTER === '1'
+  || (!isStartCommand && process.env.DOCUSAURUS_FASTER !== '0');
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Knox Docs',
-  tagline: 'Knox Chat provides a unified API that allows you to access hundreds of AI models through a single endpoint, while automatically handling fallbacks and selecting the most cost-effective options.',
+  tagline: 'Knox.Chat provides a unified API that allows you to access hundreds of AI models through a single endpoint, while automatically handling fallbacks and selecting the most cost-effective options.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -26,17 +30,30 @@ const config = {
   organizationName: 'knoxai', // Usually your GitHub org/user name.
   projectName: 'knox', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
-  i18n: { defaultLocale: 'en', locales: ['en'] },
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'zh-Hans'],
+    localeConfigs: {
+      en: {
+        htmlLang: 'en-US',
+        label: 'English',
+      },
+      'zh-Hans': {
+        htmlLang: 'zh-Hans',
+        label: '简体中文',
+      },
+    },
+  },
 
-  // Enable Docusaurus Faster: https://github.com/facebook/docusaurus/issues/10556
+  // Rspack/Faster is unstable for `start` in this repo's localized docs setup.
+  // Keep it enabled for non-dev commands, and allow explicit opt-in via env.
   future: {
-    experimental_faster: true,
+    faster: useFaster,
     v4: true
   },
 
@@ -54,14 +71,37 @@ const config = {
           sidebarCollapsible: true,
           sidebarCollapsed: false
         },
-        blog: false, // This explicitly disables the blog plugin
+        blog: {
+          path: 'blog',
+          editLocalizedFiles: false,
+          blogTitle: 'Blog',
+          blogDescription: 'Stay up to date with our latest developments, releases and service updates.',
+          blogSidebarCount: 'ALL',
+          blogSidebarTitle: 'All blog posts',
+          routeBasePath: 'blog',
+          include: ['**/*.md', '**/*.mdx'],
+          exclude: [
+            '**/_*.{js,jsx,ts,tsx,md,mdx}',
+            '**/_*/**',
+            '**/*.test.{js,jsx,ts,tsx}',
+            '**/__tests__/**'
+          ],
+          postsPerPage: 6,
+          truncateMarker: /<!--\s*(truncate)\s*-->/,
+          showReadingTime: true,
+          onUntruncatedBlogPosts: 'ignore',
+        },
         theme: { customCss: './src/css/custom.css' }
       })
     ]
   ],
 
   markdown: {
+    format: 'detect',
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
   stylesheets: [
     {
@@ -79,22 +119,26 @@ const config = {
       // Replace with your project's social card
       // image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'Knox Chat',
+        title: 'Knox',
         logo: { alt: 'Access hundreds of AI models with just one API call', src: 'img/logo.svg' },
         items: [
           { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
           { type: 'docSidebar', sidebarId: 'apiSidebar', position: 'left', label: 'API Reference' },
           { to: '/blog', label: 'Blog', position: 'left' },
           {
+            type: 'localeDropdown',
+            position: 'right',
+          },
+          {
             href: 'https://knox.chat',
             position: 'right',
-            label: 'Back to Knox Chat'
+            label: 'Back to knox.chat'
           }
         ]
       },
       docs: {
         sidebar: {
-          autoCollapseCategories: false,
+          autoCollapseCategories: true,
           hideable: true
         }
       },
@@ -148,17 +192,19 @@ const config = {
   themes: [
     [
       require.resolve('@easyops-cn/docusaurus-search-local'),
-      {
+      /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions & Record<string, unknown>} */
+      ({
         indexPages: true,
         docsRouteBasePath: '/',
+        blogRouteBasePath: '/blog',
         hashed: true,
-        language: ['en'],
+        language: ['en', 'zh'],
         highlightSearchTermsOnTargetPage: false,
         searchResultContextMaxLength: 50,
         searchResultLimits: 8,
         searchBarShortcut: true,
-        searchBarShortcutHint: true
-      }
+        searchBarShortcutHint: true,
+      })
     ],
     'docusaurus-theme-openapi-docs',
     '@docusaurus/theme-mermaid'
@@ -176,29 +222,6 @@ const config = {
         // Use false to debug, but it incurs huge perf costs
         disableInDev: true
       })
-    ],
-    [
-      './src/plugins/blog-plugin',
-      {
-        path: 'blog',
-        editLocalizedFiles: false,
-        blogTitle: 'Blog',
-        blogDescription: 'Stay up to date with our latest developments, releases and service updates.',
-        blogSidebarCount: 'ALL',
-        blogSidebarTitle: 'All blog posts',
-        routeBasePath: 'blog',
-        include: ['**/*.md', '**/*.mdx'],
-        exclude: [
-          '**/_*.{js,jsx,ts,tsx,md,mdx}',
-          '**/_*/**',
-          '**/*.test.{js,jsx,ts,tsx}',
-          '**/__tests__/**'
-        ],
-        postsPerPage: 6,
-        truncateMarker: /<!--\s*(truncate)\s*-->/,
-        showReadingTime: true,
-        onUntruncatedBlogPosts: 'ignore',
-      }
     ]
   ]
 }

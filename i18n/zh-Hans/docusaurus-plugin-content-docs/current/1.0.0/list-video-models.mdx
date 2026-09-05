@@ -1,0 +1,146 @@
+---
+id: list-video-models
+title: "列出所有视频生成模型"
+description: "返回视频生成模型目录，包括支持的分辨率、宽高比、时长和定价 SKU。"
+sidebar_label: "列出所有视频生成模型"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"列出所有视频生成模型"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knox.chat/v1/videos/models"}
+>
+</MethodEndpoint>
+
+返回 Knox Chat 上可用的公开视频生成模型目录。使用该列表选择 `model` ID，并在调用 [`POST /v1/videos`](/1.0.0/create-video) 之前约束 `aspect_ratio`、`resolution`、`size`、`duration`、`seed`、`generate_audio` 和 `frame_images`。
+
+认证是可选的：
+
+- **不携带 API key** —— 返回公开的活跃目录。未认证请求限制为每分钟 **60** 次，并且可能被缓存最多 **5** 分钟（`Cache-Control: public, max-age=300, stale-while-revalidate=600`）。
+- **Bearer token** —— 返回该 token 被允许使用的视频模型子集。
+
+此端点注册在 `/v1/videos/models`（而不是 `/v1/videos/{jobId}`），因此 `models` 不会被当作任务 ID。
+
+## 请求
+
+此端点不需要任何请求参数。
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 否 | 可选的 Bearer 认证，格式为 `Bearer <token>`。提供后，目录会过滤为该 token 可访问的模型。 |
+
+## cURL 示例
+
+不携带 API Key 的公开请求：
+
+```shell
+curl -X GET https://api.knox.chat/v1/videos/models
+```
+
+携带认证信息以获取 token 对应的可用模型：
+
+```shell
+curl -X GET https://api.knox.chat/v1/videos/models \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## 响应
+
+### 成功响应 (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "google/veo-3.1",
+      "canonical_slug": "google/veo-3.1-20260320",
+      "hugging_face_id": null,
+      "name": "Google: Veo 3.1",
+      "created": 1774277148,
+      "description": "Google Veo text-to-video and image-to-video model.",
+      "supported_resolutions": ["720p", "1080p", "4K"],
+      "supported_aspect_ratios": ["16:9", "9:16"],
+      "supported_sizes": null,
+      "supported_durations": [4, 6, 8],
+      "supported_frame_images": ["first_frame", "last_frame"],
+      "generate_audio": true,
+      "seed": true,
+      "pricing_skus": {
+        "text_to_video_duration_seconds_720p_with_audio": "0.15",
+        "text_to_video_duration_seconds_720p_without_audio": "0.10"
+      },
+      "allowed_passthrough_parameters": []
+    }
+  ]
+}
+```
+
+具体的 `id` 值、支持的选项以及 `pricing_skus` 键会因模型而异。请始终读取目录，而不是硬编码能力。
+
+### 响应 Schema
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| data | array | 视频生成模型数组。 |
+| data[].id | string | 在 [`POST /v1/videos`](/1.0.0/create-video) 中作为 `model` 发送的模型 ID。 |
+| data[].canonical_slug | string | 该模型版本的稳定规范标识符。 |
+| data[].hugging_face_id | string 或 null | 可用时的 Hugging Face 模型 ID。 |
+| data[].name | string | 人类可读的显示名称。 |
+| data[].created | integer | 模型加入目录时的 Unix 时间戳。 |
+| data[].description | string 或 null | 模型的简短描述。 |
+| data[].supported_resolutions | 字符串数组或 null | 允许的 `resolution` 值，例如 `720p`、`1080p`、`4K`。 |
+| data[].supported_aspect_ratios | 字符串数组或 null | 允许的 `aspect_ratio` 值，例如 `16:9`、`9:16`。 |
+| data[].supported_sizes | 字符串数组或 null | 允许的精确 `size` 值，例如 `1280x720`。 |
+| data[].supported_durations | 整数数组或 null | 允许的 `duration` 值（秒）。 |
+| data[].supported_frame_images | 字符串数组或 null | 允许的 `frame_images.frame_type` 值：`first_frame` 和/或 `last_frame`。 |
+| data[].generate_audio | boolean 或 null | 是否支持 `generate_audio: true`。 |
+| data[].seed | boolean 或 null | 是否支持 `seed` 参数。`false` 表示 `seed` 会被拒绝。 |
+| data[].pricing_skus | object | 以美元计的按秒 / 按模式价格表。键因模型而异（文生视频 vs 图生视频、是否带音频、分辨率）。 |
+| data[].allowed_passthrough_parameters | 字符串数组 | 可以随请求转发的额外供应商参数。 |
+
+### 选择请求参数
+
+在调用 [`POST /v1/videos`](/1.0.0/create-video) 之前：
+
+1. 将 `data[].id` 作为 `model`。
+2. 仅将 `aspect_ratio`、`resolution` / `size` 和 `duration` 设置为该模型列出的值。
+3. 仅当 `supported_frame_images` 非空时发送 `frame_images`。
+4. 仅当 `generate_audio` 为 `true` 时发送 `generate_audio`。
+5. 仅当 `seed` 不是 `false` 时发送 `seed`。
+
+## 错误响应
+
+```json
+{
+  "error": {
+    "code": 500,
+    "message": "Internal Server Error"
+  }
+}
+```
+
+| 状态码 | 消息 | 触发条件 |
+| ------ | ---- | -------- |
+| `401` | `Missing Authentication header` | 发送了 `Authorization` 头但 token 无效。若要获取公开目录，请完全省略该请求头。 |
+| `500` | `Internal Server Error` | 未预期的服务器错误。 |

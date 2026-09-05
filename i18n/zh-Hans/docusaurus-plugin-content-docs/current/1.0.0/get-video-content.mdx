@@ -1,0 +1,113 @@
+---
+id: get-video-content
+title: "下载生成的视频内容"
+description: "下载已完成视频生成任务的原始字节。请跟随重定向；响应可能是指向预签名 URL 的 307。"
+sidebar_label: "下载生成的视频内容"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"下载生成的视频内容"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knox.chat/v1/videos/{jobId}/content"}
+>
+</MethodEndpoint>
+
+下载由 [`POST /v1/videos`](/1.0.0/create-video) 创建的任务所生成的视频。任务必须已经是 `completed` —— 请先轮询 [`GET /v1/videos/{jobId}`](/1.0.0/get-video)。
+
+响应是原始媒体数据（通常为 `video/mp4`），而不是 JSON。当文件已存储在对象存储中时，API 可能返回 `307 Temporary Redirect` 到一个短期预签名 URL。请跟随重定向（`curl -L`），也可以把轮询响应中的 `unsigned_urls` 当作等效的下载路径。
+
+## 请求
+
+### 路径参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| jobId | String | 是 | 提交接口返回的任务 ID，例如 `job-3c91a0e8b7d24f11`。 |
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| index | Integer | 否 | 当任务生成了多个文件时的从零开始的视频索引。默认为 `0`。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | Bearer 认证，格式为 `Bearer <token>`。 |
+
+此端点没有请求体。
+
+## cURL 示例
+
+将第一个（或唯一）视频保存到文件。`-L` 会跟随可选的 `307` 重定向：
+
+```shell
+curl -L "https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11/content" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -o generated.mp4
+```
+
+下载指定索引：
+
+```shell
+curl -L "https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11/content?index=0" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -o generated-0.mp4
+```
+
+## 响应
+
+### 成功响应 (200)
+
+原始视频字节。典型响应头：
+
+| 响应头 | 值 |
+| ------ | -- |
+| Content-Type | `video/mp4`（或上游媒体类型，例如 `video/webm`） |
+| Cache-Control | `private, max-age=60` |
+
+成功时没有 JSON 响应体。
+
+### 重定向响应 (307)
+
+当视频已经存储时，API 可能返回 `307 Temporary Redirect`，`Location` 头指向预签名下载 URL。该重定向同样带有 `Cache-Control: private, max-age=60`。HTTP 客户端应自动跟随。
+
+### 错误响应
+
+内容错误使用标准的视频错误封装：
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Video content is not available until generation has completed"
+  }
+}
+```
+
+| 状态码 | 消息 | 触发条件 |
+| ------ | ---- | -------- |
+| `400` | `Video content is not available until generation has completed` | 任务仍处于 `pending` 或 `in_progress`，或以非完成状态结束。 |
+| `401` | `Missing Authentication header` | 缺少或无效的 API key。 |
+| `404` | `Resource not found` | 未知的 `jobId`、其他用户的任务，或请求的 `index` 没有已存储/上游文件。 |
+| `500` | `Internal Server Error` | 未预期的服务器错误。 |

@@ -1,0 +1,201 @@
+---
+sidebar_position: 1
+sidebar_label: 快速入门
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@site/src/components/ui/accordion';
+
+# 快速入门
+
+**Knox Chat** 是一个一站式、兼容 OpenAI API 和 Anthropic Messages API 格式的平台，通过单一端点即可访问数百个模型，并提供智能路由、自动故障转移和透明定价。它还搭配了 **Knox‑MS**——一个面向长时间运行的 Agent 和需要持久上下文的应用的记忆管理系统。
+
+### 核心功能
+
+- **智能模型路由**：提供性能优先/成本优先/均衡等策略，支持自动故障转移和供应商指标监控。
+- **多模态输入输出**：支持文本、图片、PDF、视频和音频输入，以及图像生成、视频生成输出，以及语音到语音的 [实时语音](/realtime)。
+- **工具调用与 MCP**：兼容 OpenAI 工具调用规范，并可桥接 MCP 服务器。
+- **联网搜索**：使用 `:online` 模型变体或 `web` 插件获取实时引用。
+- **结构化输出与推理**：支持 JSON Schema 强制约束和标准化推理 token。
+- **效率功能**：支持提示缓存和中间消息裁剪，优化长上下文处理。
+- **可靠性保障**：零输出补偿保险，确保失败或空响应不会产生费用。
+
+### Knox‑MS 记忆系统
+
+Knox‑MS 提供多层级记忆、摘要生成、向量搜索和知识图谱，用于驱动持久化 Agent 和工作流。它还支持自主规划、任务编排、自我修复和实时进度事件。了解更多请参阅 <Link to="/blog/kms-docs">Knox Memory System — 完整功能深度解析</Link>。
+
+## 使用 OpenAI SDK
+
+<Tabs>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+async function main() {
+  const completion = await openai.chat.completions.create({
+    model: 'knox/knox-ms',
+    messages: [
+      {
+        role: 'user',
+        content: 'What is the meaning of life?',
+      },
+    ],
+  });
+
+  console.log(completion.choices[0].message);
+}
+
+main();
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="https://api.knox.chat/v1",
+  api_key="<KNOXCHAT_API_KEY>",
+)
+
+completion = client.chat.completions.create(
+  model="knox/knox-ms",
+  messages=[
+    {
+      "role": "user",
+      "content": "What is the meaning of life?"
+    }
+  ]
+)
+
+print(completion.choices[0].message.content)
+```
+
+</TabItem>
+</Tabs>
+
+## 直接调用 Knox.Chat API
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+response = requests.post(
+  url="https://api.knox.chat/v1/chat/completions",
+  headers={
+    "Authorization": "Bearer <KNOXCHAT_API_KEY>",
+  },
+  data=json.dumps({
+    "model": "anthropic/claude-sonnet-4.6", # Optional
+    "messages": [
+      {
+        "role": "user",
+        "content": "What is the meaning of life?"
+      }
+    ]
+  })
+)
+```
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+fetch('https://api.knox.chat/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    Authorization: 'Bearer <KNOXCHAT_API_KEY>',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'anthropic/claude-sonnet-4.6',
+    messages: [
+      {
+        role: 'user',
+        content: 'What is the meaning of life?',
+      },
+    ],
+  }),
+});
+
+```
+
+</TabItem>
+<TabItem value="sh" label="Shell">
+
+```sh showLineNumbers
+curl https://api.knox.chat/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -d '{
+  "model": "anthropic/claude-sonnet-4.6",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What is the meaning of life?"
+    }
+  ]
+}'
+```
+
+</TabItem>
+</Tabs>
+
+该 API 同样支持流式响应。
+
+## 使用第三方 SDK
+
+如需了解如何将第三方 SDK 和框架与 Knox Chat 配合使用，请参阅我们的框架文档。
+
+## 设计理念
+
+Knox Chat 帮助团队在多个供应商之间构建可靠、高性价比的 AI 系统。我们相信未来是多模态、多供应商、以记忆为核心的。
+
+### 为什么选择 Knox Chat？
+
+**价格与性能**。Knox Chat 会在各供应商之间寻找最优价格、最低延迟和最高吞吐量，并让您自行决定优先级。
+
+**标准化 API**。在切换模型或供应商时无需修改代码。开箱即用地支持 OpenAI 兼容的 SDK、工具调用和结构化输出。
+
+**记忆优先的应用**。Knox‑MS 为长时间运行的 Agent 提供持久记忆、知识提取和自主规划能力。
+
+**默认多模态**。图片、PDF、音频输入以及图像生成、视频生成和语音到语音 Realtime，让多模态工作流变得简单直接。
+
+**统一计费**。无论您使用多少个供应商，都可享受简洁透明的计费方式，并附带零输出补偿保险。
+
+**更高可用性**。自动故障转移和智能路由确保即使供应商宕机，请求也能正常处理。
+
+## 模型
+
+一个 API，数百种模型
+
+浏览我们网站上 [**300+ 模型**](https://knox.chat/models) 和供应商，或通过 [API](/1.0.0/list-available-models) 进行查询。
+
+### 模型 API 标准
+
+我们的 Models API 在确认信息后，会第一时间免费公开所有 LLM 的关键信息。
+
+### API 响应结构
+
+Models API 返回标准化的 JSON 响应格式，为每个可用模型提供全面的元数据。该结构在边缘节点缓存，专为生产环境应用的可靠集成而设计。
+
+### 根响应对象
+
+```json showLineNumbers
+{
+  "data": [
+    /* Array of Model objects */
+  ]
+}
+```

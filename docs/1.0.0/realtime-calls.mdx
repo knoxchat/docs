@@ -1,0 +1,125 @@
+---
+id: realtime-calls
+title: "Create Realtime Call"
+description: "Exchange WebRTC SDP with upstream OpenAI through Knox. After SDP succeeds, media goes directly to OpenAI."
+sidebar_label: "Create realtime call"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create Realtime Call"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/realtime/calls"}
+>
+</MethodEndpoint>
+
+WebRTC SDP exchange. Knox forwards the offer SDP to OpenAI with the channel key and returns the answer SDP.
+
+**Billing caveat:** after SDP succeeds, WebRTC media and the data channel go **directly to OpenAI**. Knox does not see `response.done` on that path, so per-token metering is incomplete. Prefer the [WebSocket session](/1.0.0/realtime) when you need accurate Knox billing.
+
+Knox still injects the hosted `web_search` tool into the SDP session, but it cannot fulfill function calls after media leaves Knox. Prefer WebSocket when you need hosted search.
+
+See the [Realtime](/realtime) guide and OpenAI's [WebRTC transport](https://developers.openai.com/api/docs/guides/realtime-webrtc).
+
+## Request
+
+Send either raw SDP or JSON. `multipart/form-data` is **not** accepted.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer sk-…` or `Bearer ek_knox_…`. |
+| Content-Type | String | Yes | `application/sdp` (or `text/plain`) for raw SDP, or `application/json` for `{ "sdp", "session" }`. |
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| model | String | No | Realtime model ID. `gpt-realtime-2.1` or `gpt-realtime-2.1-mini`. Defaults to `gpt-realtime-2.1`. Ignored when `session.model` is set in JSON. |
+
+### JSON body (`application/json`)
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| sdp | String | Yes | WebRTC offer SDP. |
+| session | Object | No | Realtime session config. Knox fills `type` and `model` when omitted. |
+
+### Raw SDP body (`application/sdp`)
+
+The request body is the offer SDP text. Session config then uses Knox defaults.
+
+The same routes are also mounted under `/api/v1`.
+
+## cURL Example
+
+### JSON offer
+
+```shell
+curl -s https://api.knox.chat/v1/realtime/calls \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "sdp": "v=0\r\n…",
+  "session": {
+    "type": "realtime",
+    "model": "gpt-realtime-2.1",
+    "audio": { "output": { "voice": "marin" } }
+  }
+}'
+```
+
+### Raw SDP
+
+```shell
+curl -s https://api.knox.chat/v1/realtime/calls \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/sdp" \
+     --data-binary @offer.sdp
+```
+
+## Response
+
+On success, Knox returns the upstream answer SDP. `Content-Type` is typically `application/sdp`. HTTP status matches the upstream response.
+
+Connect the answer SDP to your `RTCPeerConnection`. From that point, audio and the data channel are peer-to-peer with OpenAI, not proxied by Knox.
+
+## Error Responses
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Missing sdp"
+  }
+}
+```
+
+| Status | Message | When |
+| ------ | ------- | ---- |
+| `400` | `Missing sdp` | JSON body has no `sdp` string. |
+| `400` | `Invalid JSON body` | Body is not valid JSON. |
+| `400` | `multipart/form-data for /v1/realtime/calls is not supported; send application/sdp or JSON {"sdp","session"}` | Multipart upload. Convert to JSON or raw SDP. |
+| `400` | `SDP must be UTF-8 text` | Body is not UTF-8. |
+| `401` | Authentication required | Missing or invalid Knox API key / expired ephemeral secret. |
+| `402` | Insufficient balance | Account balance is not greater than $0.01. |
+| `403` | Token is not authorized to use model | Token allow-list does not include the requested realtime model (`gpt-realtime-2.1` or `gpt-realtime-2.1-mini`). |
+| `502` | `Failed to connect to realtime provider` / `Realtime call failed with status …` | Upstream connect or SDP exchange failed. |

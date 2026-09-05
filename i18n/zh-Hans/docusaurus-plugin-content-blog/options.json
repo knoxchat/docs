@@ -1,0 +1,14 @@
+{
+  "title": {
+    "message": "博客",
+    "description": "The title for the blog used in SEO"
+  },
+  "description": {
+    "message": "了解我们最新的开发进展、版本发布和服务更新。",
+    "description": "The description for the blog used in SEO"
+  },
+  "sidebar.title": {
+    "message": "所有博客文章",
+    "description": "The label for the left sidebar"
+  }
+}

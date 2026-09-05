@@ -1,5 +1,6 @@
 import React from 'react'
 import { useHistory } from '@docusaurus/router'
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import {
   Pagination,
   PaginationContent,
@@ -12,6 +13,7 @@ import {
 
 export const BlogPagination = ({ metadata }) => {
   const history = useHistory()
+  const { i18n: { currentLocale, defaultLocale } } = useDocusaurusContext()
 
   const handleParams = () => {
     const path = history.location.pathname
@@ -22,11 +24,13 @@ export const BlogPagination = ({ metadata }) => {
 
   const page = handleParams()
 
+  const localePrefix = currentLocale === defaultLocale ? '' : `/${currentLocale}`
+
   const handlePageChange = (value) => {
     if (value === page) {
       return
     }
-    const newPagePath = value === 1 ? '/blog' : `/blog/page/${value}`
+    const newPagePath = value === 1 ? `${localePrefix}/blog` : `${localePrefix}/blog/page/${value}`
     history.push(newPagePath)
   }
 

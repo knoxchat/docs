@@ -3,6 +3,11 @@ knoxchat:
   permalink: '/knoxchat'
   description: 'Articles about KnoxChat'
 
+knoxcode:
+  label: 'KnoxCode'
+  permalink: '/knoxcode'
+  description: 'Articles about KnoxCode'
+
 buddy:
   label: 'Buddy'
   permalink: '/buddy'
@@ -47,3 +52,8 @@ vscode:
   label: 'VS Code'
   permalink: '/vscode'
   description: 'Articles about VS Code'
+
+knoxstudio:
+  label: 'knoxstudio'
+  permalink: '/knoxstudio'
+  description: 'Articles about KnoxStudio'

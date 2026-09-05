@@ -1,0 +1,488 @@
+---
+sidebar_position: 11
+sidebar_label: 推理 Token
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 推理 Token
+
+对于支持此 API 的模型，Knox Chat API 可以返回**推理 Token**（Reasoning Tokens）。Knox Chat 对不同模型使用推理 Token 的方式进行了标准化，为各类提供商提供统一的接口。
+
+推理 Token 会透明地展示模型的推理步骤。它们被视为输出 Token 的一部分，并将按此计费。
+
+如果模型决定输出推理 Token，默认情况下它们会包含在响应中。除非你选择排除推理 Token，否则它们将出现在每条消息的 `reasoning` 字段中。
+
+:::info 部分推理模型不返回推理 Token
+  虽然大多数模型和提供商会在响应中包含推理 Token，但有些（如 OpenAI 的 o 系列和 Gemini Flash Thinking）不会返回推理 Token。
+:::
+
+## 控制推理 Token
+
+你可以在请求中通过 `reasoning` 参数来管理推理 Token：
+
+```json
+{
+  "model": "your-model",
+  "messages": [],
+  "reasoning": {
+    // One of the following (not both):
+    "effort": "high", // Can be "high", "medium", or "low" (OpenAI-style)
+    "max_tokens": 2000, // Specific token limit (Anthropic-style)
+
+    // Optional: Default is false. All models support this.
+    "exclude": false, // Set to true to exclude reasoning tokens from response
+
+    // Or enable reasoning with the default parameters:
+    "enabled": true // Default: inferred from `effort` or `max_tokens`
+  }
+}
+```
+
+`reasoning` 配置对象整合了控制不同模型推理强度的各项设置。请参考下方每个选项的注释，了解支持的模型及其行为方式。
+
+### 最大推理 Token 数
+
+:::info 支持的模型
+  目前，支持此功能的推理模型包括：Anthropic 和 Gemini 推理模型。
+:::
+
+对于支持推理 Token 分配的模型，你可以按如下方式进行控制：
+
+* `"max_tokens": 2000` - 直接指定分配给推理的最大 Token 数量。
+
+对于仅支持 `reasoning.effort`（见下方）的模型，`max_tokens` 的值将用于确定推理的难度级别。
+
+### 推理资源分配级别
+
+:::info
+  目前支持的模型：OpenAI O 系列。
+:::
+
+* `"effort": "high"` - 分配大量 Token 用于推理（约占 `max_tokens` 的 80%）。
+* `"effort": "medium"` - 分配中等数量的 Token（约占 `max_tokens` 的 50%）。
+* `"effort": "low"` - 分配较少的 Token（约占 `max_tokens` 的 20%）。
+
+对于仅支持 `reasoning.max_tokens` 的模型，资源分配级别将按照上述比例进行设置。
+
+### 排除推理 Token
+
+如果希望模型在内部进行推理但不在响应中包含推理内容：
+
+* `"exclude": true` - 模型仍将执行推理，但推理内容不会出现在返回结果中。
+
+推理消耗的 Token 将显示在每条消息的 `reasoning` 字段中。
+
+## 旧版参数
+
+为了向后兼容，Knox Chat 仍然支持以下旧版参数：
+
+* `include_reasoning: true` - 等同于 `reasoning: {}`
+* `include_reasoning: false` - 等同于 `reasoning: { exclude: true }`
+
+但是，建议使用新的统一 `reasoning` 参数，以获得更精细的控制和更好的未来兼容性。
+
+## 示例
+
+### 基本用法：使用推理 Token
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+url = "https://api.knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+payload = {
+    "model": "openai/o3-mini",
+    "messages": [
+        {"role": "user", "content": "How would you build the world's tallest skyscraper?"}
+    ],
+    "reasoning": {
+        "effort": "high"  # Use high reasoning effort
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+print(response.json()['choices'][0]['message']['reasoning'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+async function getResponseWithReasoning() {
+  const response = await openai.chat.completions.create({
+    model: 'openai/o3-mini',
+    messages: [
+      {
+        role: 'user',
+        content: "How would you build the world's tallest skyscraper?",
+      },
+    ],
+    reasoning: {
+      effort: 'high', // Use high reasoning effort
+    },
+  });
+
+  console.log('REASONING:', response.choices[0].message.reasoning);
+  console.log('CONTENT:', response.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+### 指定最大推理 Token 数
+
+对于支持直接分配 Token 数量的模型（如 Anthropic 系列模型），你可以按如下方式指定用于推理的确切 Token 数量：
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+url = "https://api.knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+payload = {
+    "model": "anthropic/claude-sonnet-4.6",
+    "messages": [
+        {"role": "user", "content": "What's the most efficient algorithm for sorting a large dataset?"}
+    ],
+    "reasoning": {
+        "max_tokens": 2000  # Allocate 2000 tokens (or approximate effort) for reasoning
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+print(response.json()['choices'][0]['message']['reasoning'])
+print(response.json()['choices'][0]['message']['content'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+async function getResponseWithReasoning() {
+  const response = await openai.chat.completions.create({
+    model: 'anthropic/claude-sonnet-4.6',
+    messages: [
+      {
+        role: 'user',
+        content: "How would you build the world's tallest skyscraper?",
+      },
+    ],
+    reasoning: {
+      max_tokens: 2000, // Allocate 2000 tokens (or approximate effort) for reasoning
+    },
+  });
+
+  console.log('REASONING:', response.choices[0].message.reasoning);
+  console.log('CONTENT:', response.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+### 在响应中排除推理 Token
+
+如果你希望模型在内部进行推理但不在响应中包含推理过程：
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+url = "https://api.knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+payload = {
+    "model": "deepseek/deepseek-r1",
+    "messages": [
+        {"role": "user", "content": "Explain quantum computing in simple terms."}
+    ],
+    "reasoning": {
+        "effort": "high",
+        "exclude": true  # Use reasoning but don't include it in the response
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+# No reasoning field in the response
+print(response.json()['choices'][0]['message']['content'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+async function getResponseWithReasoning() {
+  const response = await openai.chat.completions.create({
+    model: 'deepseek/deepseek-r1',
+    messages: [
+      {
+        role: 'user',
+        content: "How would you build the world's tallest skyscraper?",
+      },
+    ],
+    reasoning: {
+      effort: 'high',
+      exclude: true, // Use reasoning but don't include it in the response
+    },
+  });
+
+  console.log('REASONING:', response.choices[0].message.reasoning);
+  console.log('CONTENT:', response.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+### 高级用法：思维链推理
+
+本示例展示如何在复杂工作流中使用推理 Token，通过将一个模型的推理结果注入另一个模型来提升响应质量：
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import requests
+import json
+
+question = "Which is bigger: 9.11 or 9.9?"
+
+url = "https://api.knox.chat/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer <KNOXCHAT_API_KEY>",
+    "Content-Type": "application/json"
+}
+
+def do_req(model, content, reasoning_config=None):
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "user", "content": content}
+        ],
+        "stop": "</think>"
+    }
+
+    return requests.post(url, headers=headers, data=json.dumps(payload))
+
+# Get reasoning from a capable model
+content = f"{question} Please think this through, but don't output an answer"
+reasoning_response = do_req("deepseek/deepseek-r1", content)
+reasoning = reasoning_response.json()['choices'][0]['message']['reasoning']
+
+# Let's test! Here's the naive response:
+simple_response = do_req("openai/gpt-5.2", question)
+print(simple_response.json()['choices'][0]['message']['content'])
+
+# Here's the response with the reasoning token injected:
+content = f"{question}. Here is some context to help you: {reasoning}"
+smart_response = do_req("openai/gpt-5.2", content)
+print(smart_response.json()['choices'][0]['message']['content'])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey,
+});
+
+async function doReq(model, content, reasoningConfig) {
+  const payload = {
+    model,
+    messages: [{ role: 'user', content }],
+    stop: '</think>',
+    ...reasoningConfig,
+  };
+
+  return openai.chat.completions.create(payload);
+}
+
+async function getResponseWithReasoning() {
+  const question = 'Which is bigger: 9.11 or 9.9?';
+  const reasoningResponse = await doReq(
+    'deepseek/deepseek-r1',
+    `${question} Please think this through, but don't output an answer`,
+  );
+  const reasoning = reasoningResponse.choices[0].message.reasoning;
+
+  // Let's test! Here's the naive response:
+  const simpleResponse = await doReq('openai/gpt-5.2', question);
+  console.log(simpleResponse.choices[0].message.content);
+
+  // Here's the response with the reasoning token injected:
+  const content = `${question}. Here is some context to help you: ${reasoning}`;
+  const smartResponse = await doReq('openai/gpt-5.2', content);
+  console.log(smartResponse.choices[0].message.content);
+}
+
+getResponseWithReasoning();
+```
+
+</TabItem>
+</Tabs>
+
+## 各提供商的推理实现
+
+### Anthropic 模型的推理 Token 支持
+
+最新的 Claude 模型，如 `anthropic/claude-sonnet-4.6`，支持使用和返回推理 Token。
+
+你可以通过两种方式为 Anthropic 模型启用推理功能：
+
+1. 使用 `:thinking` 变体后缀（例如 `anthropic/claude-sonnet-4.6:thinking`）。此变体默认启用高强度推理（`"effort": "high"`）。
+2. 使用统一的 `reasoning` 参数，通过 `effort`（推理强度比例）或 `max_tokens`（直接分配 Token 数量）进行控制。
+
+#### Anthropic 模型推理的最大 Token 限制
+
+使用 Anthropic 模型的推理功能时，请注意以下事项：
+
+* `reasoning.max_tokens` 参数：直接指定 Token 数量，最小值为 1024。
+* `:thinking` 变体或 `reasoning.effort` 参数：根据 `max_tokens` 动态计算 `budget_tokens`。
+
+详细规则：
+
+- Token 分配范围：推理 Token 数量限制在 1024（最小值）到 32,000（最大值）之间。
+  
+Budget tokens 计算公式：
+
+`budget_tokens = max(min(max_tokens * {effort_ratio}, 32000), 1024)`
+
+effort_ratio 取值：
+- High（高强度）：0.8
+- Medium（中等强度）：0.5
+- Low（低强度）：0.2
+
+**关键约束**：`max_tokens` 必须严格大于 `budget_tokens`，以确保推理完成后仍有剩余 Token 来生成最终响应。
+
+:::info Token 用量与计费
+   推理 Token 将计入输出 Token 的计费。使用推理功能会增加 Token 消耗，但能显著提升模型的响应质量。
+:::
+
+### Anthropic 模型示例
+
+#### 示例 1：流式输出推理内容
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="<KNOXCHAT_API_KEY>",
+)
+
+def chat_completion_with_reasoning(messages):
+    response = client.chat.completions.create(
+        model="anthropic/claude-sonnet-4.6",
+        messages=messages,
+        max_tokens=10000,
+        reasoning={
+            "max_tokens": 8000  # Directly specify reasoning token budget
+        },
+        stream=True
+    )
+    return response
+
+for chunk in chat_completion_with_reasoning([
+    {"role": "user", "content": "What's bigger, 9.9 or 9.11?"}
+]):
+    if hasattr(chunk.choices[0].delta, 'reasoning') and chunk.choices[0].delta.reasoning:
+        print(f"REASONING: {chunk.choices[0].delta.reasoning}")
+    elif chunk.choices[0].delta.content:
+        print(f"CONTENT: {chunk.choices[0].delta.content}")
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey,
+});
+
+async function chatCompletionWithReasoning(messages) {
+  const response = await openai.chat.completions.create({
+    model: '{{MODEL}}',
+    messages,
+    maxTokens: 10000,
+    reasoning: {
+      maxTokens: 8000, // Directly specify reasoning token budget
+    },
+    stream: true,
+  });
+
+  return response;
+}
+
+(async () => {
+  for await (const chunk of chatCompletionWithReasoning([
+    { role: 'user', content: "What's bigger, 9.9 or 9.11?" },
+  ])) {
+    if (chunk.choices[0].delta.reasoning) {
+      console.log(`REASONING: ${chunk.choices[0].delta.reasoning}`);
+    } else if (chunk.choices[0].delta.content) {
+      console.log(`CONTENT: ${chunk.choices[0].delta.content}`);
+    }
+  }
+})();
+```
+
+</TabItem>
+</Tabs>

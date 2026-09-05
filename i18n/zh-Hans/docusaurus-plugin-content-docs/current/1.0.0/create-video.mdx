@@ -1,0 +1,192 @@
+---
+id: create-video
+title: "提交视频生成请求"
+description: "提交异步视频生成任务。使用返回的任务 ID 轮询状态，完成后再下载视频内容。"
+sidebar_label: "提交视频生成请求"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"提交视频生成请求"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/videos"}
+>
+</MethodEndpoint>
+
+提交一个异步视频生成任务。视频生成不是流式对话补全 —— API 会立即接受请求（`202 Accepted`）并返回任务 ID。请轮询 [`GET /v1/videos/{jobId}`](/1.0.0/get-video) 直到 `status` 为 `completed`，再通过 [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content) 下载视频字节。
+
+使用 [`GET /v1/videos/models`](/1.0.0/list-video-models) 发现可用模型，以及每个模型支持的分辨率、宽高比、时长和帧图像类型。
+
+## 请求
+
+此端点需要一个 JSON 对象。
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | Bearer 认证，格式为 `Bearer <token>`，其中 `token` 是您的 Knox Chat API key。 |
+| Content-Type | String | 是 | 必须为 `application/json`。 |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| model | String | 是 | 视频模型 ID，来自 [`GET /v1/videos/models`](/1.0.0/list-video-models)，例如 `google/veo-3.1`。 |
+| prompt | String | 条件必填 | 视频的文本描述。除非通过 `frame_images` 或 `input_references` 提供了图片输入，否则必填。 |
+| aspect_ratio | String | 否 | 输出宽高比。可选值：`16:9`、`9:16`、`1:1`、`4:3`、`3:4`、`3:2`、`2:3`、`21:9`、`9:21`。同时必须出现在该模型的 `supported_aspect_ratios` 中。 |
+| duration | Integer | 否 | 视频时长（秒）。必须至少为 `1`；当模型提供 `supported_durations` 时，取值必须在该列表中。 |
+| resolution | String | 否 | 输出分辨率。可选值：`480p`、`720p`、`768p`、`1080p`、`1K`、`2K`、`4K`。同时必须出现在该模型的 `supported_resolutions` 中。 |
+| size | String | 否 | 精确像素尺寸，格式为 `宽x高`，例如 `1280x720`。当模型提供 `supported_sizes` 时，用此字段代替 `resolution`。 |
+| generate_audio | Boolean | 否 | 为 `true` 时同时生成音轨。仅当模型报告 `generate_audio: true` 时有效。 |
+| seed | Integer | 否 | 确定性随机种子。当模型报告 `seed: false` 时会被拒绝。 |
+| callback_url | String | 否 | 任务到达终态时回调的 HTTPS webhook。HTTP URL 会被拒绝。 |
+| frame_images | 对象列表 | 否 | 用于图生视频的首/尾帧图片。每个对象必须包含 `frame_type`（`first_frame` 或 `last_frame`）以及图片数据。`frame_type` 必须出现在模型的 `supported_frame_images` 中。 |
+| input_references | 对象列表 | 否 | 额外媒体参考。图生视频使用 `{ "type": "image_url", "image_url": { "url": "..." } }`；参考视频使用 `{ "type": "video_url", "video_url": { "url": "..." } }`。 |
+
+仅当通过 `frame_images` 或 `type: "image_url"` 的 `input_references` 提供了至少一张图片时，才可以省略 `prompt`。
+
+## cURL 示例
+
+### 文生视频
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "日落时分宁静的山地风景，电影感镜头缓缓推移",
+  "aspect_ratio": "16:9",
+  "duration": 8,
+  "resolution": "720p",
+  "generate_audio": true
+}'
+```
+
+### 图生视频
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "将这张静帧动画化为缓慢的电影感推进镜头",
+  "aspect_ratio": "16:9",
+  "duration": 8,
+  "resolution": "720p",
+  "frame_images": [
+    {
+      "frame_type": "first_frame",
+      "image_url": {
+        "url": "https://example.com/first-frame.png"
+      }
+    }
+  ]
+}'
+```
+
+### 参考视频
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "保持相同的镜头运动和角色，但将场景改为夜晚",
+  "input_references": [
+    {
+      "type": "video_url",
+      "video_url": {
+        "url": "https://example.com/reference.mp4"
+      }
+    }
+  ]
+}'
+```
+
+## 响应
+
+### 成功响应 (202 Accepted)
+
+```json
+{
+  "generation_id": "gen-8f2c1a9b4d6e7f01",
+  "id": "job-3c91a0e8b7d24f11",
+  "polling_url": "/v1/videos/job-3c91a0e8b7d24f11",
+  "status": "pending"
+}
+```
+
+请保存 `id`，并对 `polling_url`（相对于 `https://api.knox.chat`）进行轮询，直到任务结束。不要把 `202` 当作视频已经生成完成 —— `unsigned_urls` 和 `usage` 仅在任务完成后才会出现。
+
+### 响应 Schema
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| generation_id | string | 唯一的生成标识符（`gen-...`）。任务被接受后即会返回。 |
+| id | string | 任务 ID（`job-...`）。轮询和下载请求都使用该路径参数。 |
+| polling_url | string | 状态轮询的相对 URL，例如 `/v1/videos/job-3c91a0e8b7d24f11`。 |
+| status | string | 当前任务状态。参见 [任务状态](#任务状态)。 |
+| error | string | 当 `status` 为 `failed` 时的错误信息。其他情况下省略。 |
+| unsigned_urls | 字符串数组 | 任务为 `completed` 时可下载的视频 URL。由 Knox Chat 托管（绝不会返回上游供应商 URL）。 |
+| usage | object | 任务完成后的计费信息。 |
+| usage.cost | number | 本次生成的费用（美元）。 |
+
+### 任务状态
+
+| 状态 | 含义 |
+| ---- | ---- |
+| `pending` | 任务已被接受，正在等待开始。 |
+| `in_progress` | 模型正在生成视频。 |
+| `completed` | 视频已就绪。可下载或使用 `unsigned_urls`。 |
+| `failed` | 生成失败。查看 `error`。失败任务不会扣费。 |
+| `cancelled` | 任务已取消。 |
+| `expired` | 任务在完成前已过期。 |
+
+## 错误响应
+
+视频端点的错误格式如下：
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Invalid request parameters"
+  }
+}
+```
+
+| 状态码 | 消息 | 触发条件 |
+| ------ | ---- | -------- |
+| `400` | `Invalid request parameters` | 缺少 `model`、JSON 无效，或字段不被该模型支持。 |
+| `400` | `Prompt is required unless image input is provided` | 既没有 `prompt` 也没有图片输入。 |
+| `400` | `Unsupported aspect_ratio` / `resolution` / `size` | 取值不在全局允许列表中。 |
+| `400` | `aspect_ratio … is not supported by {model}` | 取值全局合法，但该模型不支持。 |
+| `400` | `callback_url must be HTTPS` | Webhook URL 不是 HTTPS。 |
+| `401` | `Missing Authentication header` | 缺少或无效的 API key。 |
+| `402` | `Insufficient credits. Add more using https://knox.chat/credits` | 账户余额不足以覆盖预估费用。 |
+| `403` | `This token is not authorized to use model: {model}` | 该 API key 的模型白名单不包含此视频模型。 |
+| `404` | `Resource not found` | 未知或已禁用的模型 ID。 |
+| `429` | `Rate limit exceeded` | 请求过于频繁。 |
+| `500` | `Internal Server Error` | 未预期的服务器错误。 |

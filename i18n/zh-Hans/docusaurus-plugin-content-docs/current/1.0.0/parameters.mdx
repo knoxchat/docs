@@ -1,0 +1,57 @@
+---
+id: parameters
+title: "API 参数"
+description: "Knox Chat API 支持的参数完整说明"
+sidebar_label: API 参数
+sidebar_position: 1
+hide_title: true
+custom_edit_url: null
+---
+
+# API 参数
+
+本页提供 Knox Chat API 支持的所有参数的完整列表。
+
+## 核心参数
+
+| 参数名称 | 类型 | 默认值 | 描述 |
+| -------- | ---- | ------ | ---- |
+| `model` | String | None | 要使用的模型 ID。如果未指定，将使用用户的默认设置。 |
+| `messages` | Array of Objects | None | 用于 chat completion 请求的消息数组。每条消息应包含 "role" 和 "content" 字段。 |
+| `prompt` | String | None | 用于 text completion 请求的 prompt 文本。 |
+
+## 共享参数
+
+以下参数可用于 completion 和 chat completion 请求：
+
+| 参数名称 | 类型 | 默认值 | 描述 |
+| -------- | ---- | ------ | ---- |
+| `max_tokens` | Integer | None | 生成的最大 token 数量（范围：[1, context_length)）。 |
+| `temperature` | Double | 1.0 | 采样温度（范围：[0, 2]）。较高的值会产生更多样化的结果。 |
+| `top_p` | Double | 1.0 | Top-p 采样值（范围：(0, 1]）。控制模型考虑的词汇概率空间。 |
+| `top_k` | Integer | None | Top-k 采样值（范围：[1, Infinity)）。仅考虑概率最高的 k 个 token。 |
+| `stream` | Boolean | false | 启用流式返回结果。 |
+| `seed` | Integer | None | 用于确定性输出的种子值。 |
+| `frequency_penalty` | Double | 0.0 | 频率惩罚（范围：[-2, 2]）。降低频繁使用的 token 的出现概率。 |
+| `presence_penalty` | Double | 0.0 | 存在惩罚（范围：[-2, 2]）。降低已出现 token 的出现概率。 |
+| `repetition_penalty` | Double | 1.0 | 重复惩罚（范围：(0, 2]）。降低重复词语的出现概率。 |
+| `logit_bias` | Object | None | 从 token ID 到偏置值的映射，用于调整特定 token 的出现概率。 |
+| `min_p` | Double | 0.0 | 最小概率阈值（范围：[0, 1]）。过滤掉低于阈值的 token。 |
+| `top_a` | Double | None | 替代 top 采样参数（范围：[0, 1]）。 |
+| `top_logprobs` | Integer | None | 要返回的 top log 概率数量。 |
+
+## Knox Chat 特有参数
+
+以下参数为 Knox Chat 特有：
+
+| 参数名称 | 类型 | 默认值 | 描述 |
+| -------- | ---- | ------ | ---- |
+| `models` | Array of Strings | None | 用于路由覆盖的备选模型列表。 |
+| `provider` | Object | None | 用于路由的 provider 偏好设置。 |
+| `transforms` | Array of Strings | None | prompt 转换列表（仅限 Knox Chat）。 |
+| `reasoning` | Object | None | 模型推理/思考 token 的配置。 |
+| `usage` | Object | None | 是否在响应中包含使用量信息。 |
+
+## 上下文长度限制
+
+每个模型具有不同的上下文长度限制，这决定了输入和输出 token 的总数。您可以通过 `/v1/models` 端点查询模型列表，查看每个模型的 `context_length` 值。

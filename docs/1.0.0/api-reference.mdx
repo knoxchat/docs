@@ -48,6 +48,24 @@ The Knox Chat API includes the following main endpoints:
 ### Model Information
 
 - [**Get List of Available Models**](/1.0.0/list-available-models) - Get information about all available models
+- [**List All Video Generation Models**](/1.0.0/list-video-models) - Get the catalog of video generation models and their supported options
+
+### Realtime
+
+Speech-to-speech voice agents over WebSocket (`gpt-realtime-2.1`, `gpt-realtime-2.1-mini`). This is not chat completions. See the [**Realtime**](/realtime) guide for session config, billing, and hosted web search.
+
+- [**Realtime Session**](/1.0.0/realtime) - WebSocket conversation session (`GET` / `POST` `/v1/realtime`)
+- [**Create Realtime Client Secret**](/1.0.0/realtime-client-secrets) - Mint a Knox ephemeral key (`ek_knox_…`, ~60s)
+- [**Create Realtime Call**](/1.0.0/realtime-calls) - WebRTC SDP exchange (`POST /v1/realtime/calls`)
+
+### Video Generation
+
+Video generation is asynchronous: submit a job, poll until it completes, then download the file. See the [**Video Generation**](/video-generation) guide for a full walkthrough.
+
+- [**Submit a Video Generation Request**](/1.0.0/create-video) - Create an async video job (`POST /v1/videos`, returns `202`)
+- [**Poll Video Generation Status**](/1.0.0/get-video) - Poll `GET /v1/videos/{jobId}` until `completed`
+- [**Download Generated Video Content**](/1.0.0/get-video-content) - Download raw video bytes (`GET /v1/videos/{jobId}/content`)
+- [**List All Video Generation Models**](/1.0.0/list-video-models) - List models, resolutions, durations, and pricing SKUs
 
 ## Parameters
 
@@ -58,12 +76,17 @@ Knox Chat supports various parameters to control model behavior and output. See 
 The API uses standard HTTP status codes to indicate the result of a request:
 
 - `200` - Request successful
-- `400` - Invalid or missing request parameters
+- `202` - Request accepted (asynchronous video generation)
+- `400` - Invalid or missing request parameters (including HTTP to `/v1/realtime` without a WebSocket upgrade)
 - `401` - Authentication failed (invalid or expired API key)
 - `402` - Insufficient account balance
+- `403` - Token is not authorized to use the requested model
 - `404` - Requested resource not found
 - `429` - Rate limit exceeded
 - `500` - Internal server error
+- `502` - Upstream Realtime provider unavailable or connect failed
+
+Video generation endpoints return errors as `{ "error": { "code": 400, "message": "..." } }`. A poll response with `status: "failed"` is still HTTP `200`.
 
 ## Requests
 
@@ -213,7 +236,7 @@ To use this feature, simply include a message with `role: "assistant"` at the en
 
 ### Images and Multimodal
 
-Multimodal requests can only be implemented via the `/v1/chat/completions` API, requiring a multi-part `messages` parameter. `image_url` can be either a URL or base64-encoded image data.
+Multimodal image requests are implemented via the `/v1/chat/completions` API, requiring a multi-part `messages` parameter. `image_url` can be either a URL or base64-encoded image data. Live speech-to-speech uses [`/v1/realtime`](/1.0.0/realtime) instead.
 
 ```typescript
 "messages": [

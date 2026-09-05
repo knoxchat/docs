@@ -1,0 +1,146 @@
+---
+id: list-video-models
+title: "List All Video Generation Models"
+description: "Returns the catalog of video generation models, including supported resolutions, aspect ratios, durations, and pricing SKUs."
+sidebar_label: "List all video generation models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List All Video Generation Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knox.chat/v1/videos/models"}
+>
+</MethodEndpoint>
+
+Returns the public catalog of video generation models available through Knox Chat. Use this list to choose a `model` ID and to constrain `aspect_ratio`, `resolution`, `size`, `duration`, `seed`, `generate_audio`, and `frame_images` before calling [`POST /v1/videos`](/1.0.0/create-video).
+
+Authentication is optional:
+
+- **No API key** — returns the public active catalog. Unauthenticated requests are rate limited to **60 requests per minute** and may be cached for up to **5 minutes** (`Cache-Control: public, max-age=300, stale-while-revalidate=600`).
+- **Bearer token** — returns the subset of video models allowed for that token.
+
+This endpoint is registered at `/v1/videos/models` (not `/v1/videos/{jobId}`) so `models` is never treated as a job ID.
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | No | Optional Bearer authentication in the form `Bearer <token>`. When provided, the catalog is filtered to models available to that token. |
+
+## cURL Example
+
+Public request without an API key:
+
+```shell
+curl -X GET https://api.knox.chat/v1/videos/models
+```
+
+Authenticated request for token-specific availability:
+
+```shell
+curl -X GET https://api.knox.chat/v1/videos/models \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "google/veo-3.1",
+      "canonical_slug": "google/veo-3.1-20260320",
+      "hugging_face_id": null,
+      "name": "Google: Veo 3.1",
+      "created": 1774277148,
+      "description": "Google Veo text-to-video and image-to-video model.",
+      "supported_resolutions": ["720p", "1080p", "4K"],
+      "supported_aspect_ratios": ["16:9", "9:16"],
+      "supported_sizes": null,
+      "supported_durations": [4, 6, 8],
+      "supported_frame_images": ["first_frame", "last_frame"],
+      "generate_audio": true,
+      "seed": true,
+      "pricing_skus": {
+        "text_to_video_duration_seconds_720p_with_audio": "0.15",
+        "text_to_video_duration_seconds_720p_without_audio": "0.10"
+      },
+      "allowed_passthrough_parameters": []
+    }
+  ]
+}
+```
+
+Exact `id` values, supported options, and `pricing_skus` keys vary by model. Always read the catalog rather than hard-coding capabilities.
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | array | Array of video generation models. |
+| data[].id | string | Model ID to send as `model` in [`POST /v1/videos`](/1.0.0/create-video). |
+| data[].canonical_slug | string | Stable canonical identifier for the model revision. |
+| data[].hugging_face_id | string or null | Hugging Face model ID when available. |
+| data[].name | string | Human-readable display name. |
+| data[].created | integer | Unix timestamp of when the model was added. |
+| data[].description | string or null | Short description of the model. |
+| data[].supported_resolutions | array of strings or null | Allowed `resolution` values, for example `720p`, `1080p`, `4K`. |
+| data[].supported_aspect_ratios | array of strings or null | Allowed `aspect_ratio` values, for example `16:9`, `9:16`. |
+| data[].supported_sizes | array of strings or null | Allowed exact `size` values, for example `1280x720`. |
+| data[].supported_durations | array of integers or null | Allowed `duration` values in seconds. |
+| data[].supported_frame_images | array of strings or null | Allowed `frame_images.frame_type` values: `first_frame` and/or `last_frame`. |
+| data[].generate_audio | boolean or null | Whether `generate_audio: true` is supported. |
+| data[].seed | boolean or null | Whether the `seed` parameter is supported. `false` means `seed` is rejected. |
+| data[].pricing_skus | object | Per-second / per-mode price map in USD. Keys vary by model (text-to-video vs image-to-video, with/without audio, resolution). |
+| data[].allowed_passthrough_parameters | array of strings | Extra provider parameters that may be forwarded with the request. |
+
+### Choosing request parameters
+
+Before calling [`POST /v1/videos`](/1.0.0/create-video):
+
+1. Pick `data[].id` as `model`.
+2. Set `aspect_ratio`, `resolution` / `size`, and `duration` only to values listed on that model.
+3. Send `frame_images` only when `supported_frame_images` is non-empty.
+4. Send `generate_audio` only when `generate_audio` is `true`.
+5. Send `seed` only when `seed` is not `false`.
+
+## Error Responses
+
+```json
+{
+  "error": {
+    "code": 500,
+    "message": "Internal Server Error"
+  }
+}
+```
+
+| Status | Message | When |
+| ------ | ------- | ---- |
+| `401` | `Missing Authentication header` | An `Authorization` header was sent but the token is invalid. Omit the header entirely for the public catalog. |
+| `500` | `Internal Server Error` | Unexpected server error. |

@@ -1,0 +1,350 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Video Generation
+
+Knox Chat exposes a dedicated **asynchronous** video generation API. Unlike chat completions, video jobs are submitted, polled until they finish, then downloaded as media files.
+
+The typical flow is:
+
+1. List models — [`GET /v1/videos/models`](/1.0.0/list-video-models)
+2. Submit a job — [`POST /v1/videos`](/1.0.0/create-video)
+3. Poll status — [`GET /v1/videos/{jobId}`](/1.0.0/get-video)
+4. Download the file — [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content)
+
+All authenticated requests use the same base URL and API key as the rest of Knox Chat:
+
+```
+https://api.knox.chat/v1
+Authorization: Bearer sk-...
+```
+
+## Model Discovery
+
+Video models are **not** the same catalog as `/v1/models`. Fetch the video catalog:
+
+```shell
+curl https://api.knox.chat/v1/videos/models
+```
+
+Each model advertises the options you may send on submit:
+
+| Field | Use it to constrain |
+| ----- | ------------------- |
+| `id` | `model` |
+| `supported_aspect_ratios` | `aspect_ratio` (`16:9`, `9:16`, …) |
+| `supported_resolutions` | `resolution` (`720p`, `1080p`, `4K`, …) |
+| `supported_sizes` | `size` (`1280x720`) |
+| `supported_durations` | `duration` (seconds) |
+| `supported_frame_images` | `frame_images.frame_type` (`first_frame`, `last_frame`) |
+| `generate_audio` | `generate_audio` |
+| `seed` | `seed` |
+| `pricing_skus` | Estimated USD cost by mode, resolution, and audio |
+
+Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes. A Bearer token returns only the models that token is allowed to use.
+
+You can also browse video models on the [Models List](https://knox.chat/models).
+
+## Submit a Job
+
+`POST /v1/videos` returns **`202 Accepted`** with a job ID. That is not a finished video.
+
+A `prompt` is required unless you attach image input (`frame_images` or an `input_references` item with `type: "image_url"`).
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knox.chat/v1/videos \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "google/veo-3.1",
+  "prompt": "A serene mountain landscape at sunset, cinematic camera drift",
+  "aspect_ratio": "16:9",
+  "duration": 8,
+  "resolution": "720p",
+  "generate_audio": true
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import time
+import requests
+
+API = "https://api.knox.chat/v1"
+HEADERS = {
+    "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+    "Content-Type": "application/json",
+}
+
+submit = requests.post(
+    f"{API}/videos",
+    headers=HEADERS,
+    json={
+        "model": "google/veo-3.1",
+        "prompt": "A serene mountain landscape at sunset, cinematic camera drift",
+        "aspect_ratio": "16:9",
+        "duration": 8,
+        "resolution": "720p",
+        "generate_audio": True,
+    },
+)
+submit.raise_for_status()
+job = submit.json()
+job_id = job["id"]
+print(job_id, job["status"])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const API = 'https://api.knox.chat/v1';
+const headers = {
+  Authorization: `Bearer ${process.env.KNOXCHAT_API_KEY}`,
+  'Content-Type': 'application/json',
+};
+
+const submit = await fetch(`${API}/videos`, {
+  method: 'POST',
+  headers,
+  body: JSON.stringify({
+    model: 'google/veo-3.1',
+    prompt: 'A serene mountain landscape at sunset, cinematic camera drift',
+    aspect_ratio: '16:9',
+    duration: 8,
+    resolution: '720p',
+    generate_audio: true,
+  }),
+});
+
+const job = await submit.json();
+const jobId: string = job.id;
+console.log(jobId, job.status);
+```
+
+</TabItem>
+</Tabs>
+
+### Image to video
+
+If the model lists `supported_frame_images`, you can pin the first and/or last frame:
+
+```json
+{
+  "model": "google/veo-3.1",
+  "prompt": "Animate this still into a slow cinematic push-in",
+  "frame_images": [
+    {
+      "frame_type": "first_frame",
+      "image_url": { "url": "https://example.com/first-frame.png" }
+    }
+  ]
+}
+```
+
+### Reference video
+
+```json
+{
+  "model": "google/veo-3.1",
+  "prompt": "Keep the same camera motion, change the scene to night",
+  "input_references": [
+    {
+      "type": "video_url",
+      "video_url": { "url": "https://example.com/reference.mp4" }
+    }
+  ]
+}
+```
+
+## Poll Until Ready
+
+Poll `GET /v1/videos/{jobId}` (or the relative `polling_url` from submit) until status is terminal.
+
+| Status | What to do |
+| ------ | ---------- |
+| `pending` / `in_progress` | Wait and poll again (every few seconds). |
+| `completed` | Download the video. `unsigned_urls` and `usage.cost` are now present. |
+| `failed` | Read `error`. Failed jobs are not billed. |
+| `cancelled` / `expired` | Stop polling. |
+
+<Tabs>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+while True:
+    poll = requests.get(f"{API}/videos/{job_id}", headers=HEADERS)
+    poll.raise_for_status()
+    data = poll.json()
+    status = data["status"]
+    if status in {"completed", "failed", "cancelled", "expired"}:
+        break
+    time.sleep(5)
+
+if data["status"] != "completed":
+    raise RuntimeError(data.get("error") or data["status"])
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+let data: { status: string; error?: string; unsigned_urls?: string[] };
+
+while (true) {
+  const poll = await fetch(`${API}/videos/${jobId}`, { headers });
+  data = await poll.json();
+  if (['completed', 'failed', 'cancelled', 'expired'].includes(data.status)) {
+    break;
+  }
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+}
+
+if (data.status !== 'completed') {
+  throw new Error(data.error ?? data.status);
+}
+```
+
+</TabItem>
+</Tabs>
+
+Jobs belong to the authenticated user. Polling another account's ID returns `404`.
+
+## Download the Video
+
+Once `completed`, fetch raw bytes. Follow redirects — the API may return `307 Temporary Redirect` to a short-lived presigned URL. You can also use `unsigned_urls` from the poll response; those are Knox-hosted links, never upstream provider URLs.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -L "https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11/content" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -o generated.mp4
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+content = requests.get(
+    f"{API}/videos/{job_id}/content",
+    headers=HEADERS,
+    allow_redirects=True,
+)
+content.raise_for_status()
+with open("generated.mp4", "wb") as file:
+    file.write(content.content)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import { writeFile } from 'fs/promises';
+
+const content = await fetch(`${API}/videos/${jobId}/content`, { headers });
+if (!content.ok) throw new Error(`download failed: ${content.status}`);
+const bytes = Buffer.from(await content.arrayBuffer());
+await writeFile('generated.mp4', bytes);
+```
+
+</TabItem>
+</Tabs>
+
+Use `?index=0` (the default) when a job produced multiple files.
+
+Downloading before `completed` returns:
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Video content is not available until generation has completed"
+  }
+}
+```
+
+## Request Parameters
+
+| Parameter | Required | Notes |
+| --------- | -------- | ----- |
+| `model` | Yes | Video model `id` from `/v1/videos/models`. |
+| `prompt` | Conditional | Required unless image input is provided. |
+| `aspect_ratio` | No | `16:9`, `9:16`, `1:1`, `4:3`, `3:4`, `3:2`, `2:3`, `21:9`, `9:21`. |
+| `duration` | No | Integer seconds, at least `1`. |
+| `resolution` | No | `480p`, `720p`, `768p`, `1080p`, `1K`, `2K`, `4K`. |
+| `size` | No | Exact `WIDTHxHEIGHT`, for example `1280x720`. |
+| `generate_audio` | No | Only if the model reports `generate_audio: true`. |
+| `seed` | No | Rejected when the model reports `seed: false`. |
+| `callback_url` | No | HTTPS webhook when the job reaches a terminal status. |
+| `frame_images` | No | `frame_type` must be `first_frame` or `last_frame`. |
+| `input_references` | No | `type` is `image_url` or `video_url`. |
+
+Values that are globally valid can still be rejected if the selected model does not list them.
+
+## Billing
+
+Cost is estimated from the model's `pricing_skus` using duration, resolution, audio, and whether image or video input was attached. The submit call returns `402` if the account cannot cover the estimate:
+
+```json
+{
+  "error": {
+    "code": 402,
+    "message": "Insufficient credits. Add more using https://knox.chat/credits"
+  }
+}
+```
+
+When the job completes, `usage.cost` is the billed USD amount. Failed jobs are not charged.
+
+## Error Envelope
+
+All video endpoints share this error shape:
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Invalid request parameters"
+  }
+}
+```
+
+| Code | Meaning |
+| ---- | ------- |
+| `202` | Job accepted (submit only). Poll for completion. |
+| `200` | Poll or catalog success. A poll with `status: "failed"` is still HTTP 200. |
+| `400` | Invalid parameters, or content requested before the job completed. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this video model. |
+| `404` | Unknown model or job (including another user's job). |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |
+
+## Best Practices
+
+* Discover capabilities from `/v1/videos/models` instead of hard-coding resolutions or durations.
+* Treat submit as async: persist `id`, poll with backoff, then download.
+* Follow redirects on `/content` (`curl -L`, `allow_redirects=True`).
+* Prefer `unsigned_urls` or `/content` over storing any third-party URL — Knox never returns upstream provider URLs to clients.
+* Keep `callback_url` on HTTPS if you want a webhook instead of polling.
+* Handle `402` by sending the user to [Credits](https://knox.chat/credits).
+
+## API Reference
+
+* [Submit a video generation request](/1.0.0/create-video)
+* [Poll video generation status](/1.0.0/get-video)
+* [Download generated video content](/1.0.0/get-video-content)
+* [List all video generation models](/1.0.0/list-video-models)

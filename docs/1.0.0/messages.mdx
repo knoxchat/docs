@@ -59,6 +59,7 @@ This endpoint requires an object containing the following properties:
 | temperature | Double | No | Sampling temperature (range: [0.0, 1.0]). |
 | top_k | Integer | No | Top-k sampling value. |
 | top_p | Double | No | Top-p (nucleus) sampling value (range: (0, 1]). |
+| web_search | Boolean | No | Enable or disable automatic web search. Defaults to `true`. Set to `false` to disable web search. When enabled, the model can search the web for up-to-date information. Billed at $10 per 1,000 search calls. |
 | tools | Array | No | Array of tool definitions for function calling. |
 | tool_choice | Object | No | How the model should use tools: `{"type": "auto"}`, `{"type": "any"}`, or `{"type": "tool", "name": "..."}`. |
 | thinking | Object | No | Extended thinking configuration for Claude 3.5+. Use `{"type": "enabled", "budget_tokens": 1024}`. |
@@ -301,6 +302,24 @@ curl -X POST https://api.knox.chat/v1/messages \
   ]
 }'
 ```
+
+### With Web Search Disabled
+
+```shell
+curl -X POST https://api.knox.chat/v1/messages \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.6",
+  "max_tokens": 1024,
+  "web_search": false,
+  "messages": [
+    {"role": "user", "content": "What is the latest news?"}
+  ]
+}'
+```
+
+> **Note:** Web search is enabled by default for all Anthropic models. The model will automatically search the web when the query requires real-time information. Web search is billed at $10 per 1,000 search calls in addition to standard token costs.
 
 ### Streaming Request
 

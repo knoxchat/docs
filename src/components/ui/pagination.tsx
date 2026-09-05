@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
+import Translate from '@docusaurus/Translate'
 
 import { cn } from '../../lib/utils'
 import { ButtonProps, buttonVariants } from '../../components/ui/button'
@@ -61,7 +62,7 @@ const PaginationPrevious = ({
     {...props}
   >
     <ChevronLeft className='h-4 w-4' />
-    <span>Previous</span>
+    <span><Translate id='theme.blog.paginator.newerEntries'>Previous</Translate></span>
   </PaginationLink>
 )
 PaginationPrevious.displayName = 'PaginationPrevious'
@@ -73,7 +74,7 @@ const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof Pag
     className={cn('gap-1 pr-2.5', className)}
     {...props}
   >
-    <span>Next</span>
+    <span><Translate id='theme.blog.paginator.olderEntries'>Next</Translate></span>
     <ChevronRight className='h-4 w-4' />
   </PaginationLink>
 )
@@ -86,7 +87,7 @@ const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<'span'
     {...props}
   >
     <MoreHorizontal className='h-4 w-4' />
-    <span className='sr-only'>More pages</span>
+    <span className='sr-only'><Translate id='theme.blog.paginator.morePages'>More pages</Translate></span>
   </span>
 )
 PaginationEllipsis.displayName = 'PaginationEllipsis'

@@ -1,0 +1,109 @@
+---
+id: completion
+title: "文本补全"
+description: "向选定的模型发送补全请求（纯文本格式）"
+sidebar_label: "文本补全"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"文本补全"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/completions"}
+>
+</MethodEndpoint>
+
+向选定的模型发送补全请求（纯文本格式）
+
+## 请求
+
+此端点需要一个包含以下属性的对象：
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | Bearer 认证，格式为 `Bearer token`，其中 `token` 是您的授权令牌。 |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| model | String | 是 | 要使用的模型 ID。如果未指定，将使用用户的默认设置。 |
+| prompt | String | 是 | 要补全的文本提示词 |
+| models | List of Strings | 否 | 用于路由覆盖的备选模型列表。 |
+| provider | Object | 否 | 供应商路由偏好设置。 |
+| reasoning | Object | 否 | 模型推理/思考 token 的配置 |
+| usage | Object | 否 | 是否在响应中包含用量信息 |
+| transforms | List of Strings | 否 | 提示词转换列表（仅限 Knox Chat）。 |
+| web_search | Boolean | 否 | 启用或禁用 Anthropic 模型的自动网络搜索。Anthropic 模型默认为 `true`。设置为 `false` 可禁用。对非 Anthropic 模型无效。 |
+| stream | Boolean | 否 | 启用结果流式传输。默认为 `false` |
+| max_tokens | Integer | 否 | 最大 token 数量（范围：[1, context_length)）。 |
+| temperature | Double | 否 | 采样温度（范围：[0, 2]）。 |
+| seed | Integer | 否 | 用于确定性输出的种子值。 |
+| top_p | Double | 否 | Top-p 采样值（范围：(0, 1]）。 |
+| top_k | Integer | 否 | Top-k 采样值（范围：[1, Infinity)）。 |
+| frequency_penalty | Double | 否 | 频率惩罚（范围：[-2, 2]）。 |
+| presence_penalty | Double | 否 | 存在惩罚（范围：[-2, 2]）。 |
+| repetition_penalty | Double | 否 | 重复惩罚（范围：(0, 2]）。 |
+| logit_bias | Map of String to Double | 否 | 从 token ID 到偏置值的映射。 |
+| top_logprobs | Integer | 否 | 要返回的最高对数概率数量。 |
+| min_p | Double | 否 | 最小概率阈值（范围：[0, 1]）。 |
+| top_a | Double | 否 | 备选 top 采样参数（范围：[0, 1]）。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knox.chat/v1/completions \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "model",
+  "prompt": "Howdy Cowboy!"
+}'
+```
+
+## 响应
+
+### 成功响应 (200)
+
+```json
+{
+  "id": "id",
+  "choices": [
+    {
+      "text": "I'm an AI assistant, how can I help you?",
+      "index": 1,
+      "finish_reason": "stop"
+    }
+  ]
+}
+```
+
+### 响应结构
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| id | string | 补全的唯一标识符 |
+| choices | array | 补全选项数组 |
+| choices[].text | string | 生成的文本 |
+| choices[].index | integer | 选项在数组中的索引（例如：0、1、2） |
+| choices[].finish_reason | string | 补全结束原因（stop、length、content_filter） |

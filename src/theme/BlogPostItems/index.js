@@ -2,6 +2,7 @@ import React from 'react'
 import Link from '@docusaurus/Link'
 import Image from '@theme/IdealImage'
 import useBaseUrl from '@docusaurus/useBaseUrl'
+import Translate from '@docusaurus/Translate'
 
 import BlogPostItem from '@theme/BlogPostItem'
 import TagsListInline from '@theme/TagsListInline'
@@ -59,7 +60,14 @@ export default function BlogPostItems({ items, component: BlogPostItemComponent 
                     <TimeStamp timestamp={blog.content.metadata.date} />
                   </span>
                   <span className='mx-2'>•</span>
-                  <span>{Math.ceil(blog.content.metadata.readingTime)} min read</span>
+                  <span>
+                    <Translate
+                      id='theme.blog.post.readingTime.plurals'
+                      values={{readingTime: Math.ceil(blog.content.metadata.readingTime)}}
+                    >
+                      {'{readingTime} min read'}
+                    </Translate>
+                  </span>
                 </div>
               </div>
             </CardContent>

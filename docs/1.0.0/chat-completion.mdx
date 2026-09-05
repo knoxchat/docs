@@ -54,6 +54,7 @@ This endpoint requires an object.
 | reasoning | Object | No | Configuration for model reasoning/thought tokens. |
 | usage | Object | No | Whether to include usage information in the response. |
 | transforms | List of Strings | No | A list of prompt transformations (Knox Chat only). |
+| web_search | Boolean | No | Enable or disable automatic web search for Anthropic models. Defaults to `true` for Anthropic models (e.g. `anthropic/claude-sonnet-4.6`). Set to `false` to disable. No effect on non-Anthropic models. |
 | stream | Boolean | No | Enable result streaming. Defaults to `false`. |
 | max_tokens | Integer | No | Maximum number of tokens (range: [1, context_length)). |
 | temperature | Double | No | Sampling temperature (range: [0, 2]). |
@@ -84,6 +85,28 @@ curl -X POST https://api.knox.chat/v1/chat/completions \
   ]
 }'
 ```
+
+### With Web Search (Anthropic Models)
+
+Anthropic models automatically have web search enabled. The model will search the web when the query requires up-to-date information. To disable web search:
+
+```shell
+curl -X POST https://api.knox.chat/v1/chat/completions \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "anthropic/claude-sonnet-4.6",
+  "web_search": false,
+  "messages": [
+    {
+      "role": "user",
+      "content": "What happened in the news today?"
+    }
+  ]
+}'
+```
+
+> **Note:** Web search is billed at $10 per 1,000 search calls in addition to standard token costs. Each search invocation by the model counts as one call.
 
 ## Response
 

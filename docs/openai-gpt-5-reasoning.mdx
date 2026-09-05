@@ -1,0 +1,187 @@
+---
+sidebar_position: 12
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# OpenAI Models Reasoning
+
+Knox has model-aware reasoning support for the exact model IDs `openai/gpt-5.4` and `openai/gpt-5.5`. These models are normalized for chat-completions channels, so you can use one Knox request shape and let the relay produce the gateway-specific `reasoning` object upstream.
+
+Use `/v1/chat/completions` when you want reasoning to be returned in the response. `/v1/completions` is also supported for prompt-style compatibility, but it returns plain text only.
+
+## Supported models
+
+| Model | Allowed `reasoning_effort` values | Backend default |
+| --- | --- | --- |
+| `openai/gpt-5.4` | `none`, `low`, `medium`, `high`, `xhigh` | `none` |
+| `openai/gpt-5.5` | `none`, `low`, `medium`, `high`, `xhigh` | `high` |
+
+`openai/gpt-5.4` starts with reasoning disabled unless you opt in. `openai/gpt-5.5` starts at `high` reasoning by default.
+
+## Recommended request fields
+
+For these two models, the backend currently uses `reasoning_effort` as the model-specific switch for selecting the reasoning level.
+
+| Field | Type | What it does |
+| --- | --- | --- |
+| `reasoning_effort` | string | Selects the reasoning level that Knox applies to the upstream `reasoning.effort` field. |
+| `reasoning.summary` | string | Optional. Use `"auto"` if you want Knox to keep normalized reasoning summaries in chat completions. |
+| `reasoning.exclude` | boolean | Optional. Set `true` to let the model reason internally without returning reasoning content. |
+
+Knox fills `reasoning.enabled` for you based on the selected effort. When the effort is `none`, reasoning is disabled upstream.
+
+## Chat Completions Example
+
+This is the recommended path when you want structured reasoning back in `choices[0].message.reasoning`.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/chat/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-5.5",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Design a rollout plan for migrating a monolith to services."
+      }
+    ],
+    "reasoning_effort": "xhigh",
+    "reasoning": {
+      "summary": "auto",
+      "exclude": false
+    }
+  }'
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="<KNOXCHAT_API_KEY>",
+)
+
+response = client.chat.completions.create(
+    model="openai/gpt-5.5",
+    messages=[
+        {
+            "role": "user",
+            "content": "Design a rollout plan for migrating a monolith to services.",
+        }
+    ],
+    reasoning_effort="xhigh",
+    reasoning={
+        "summary": "auto",
+        "exclude": False,
+    },
+)
+
+print(response.choices[0].message.reasoning)
+print(response.choices[0].message.content)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+const response = await client.chat.completions.create({
+  model: 'openai/gpt-5.5',
+  messages: [
+    {
+      role: 'user',
+      content: 'Design a rollout plan for migrating a monolith to services.',
+    },
+  ],
+  reasoning_effort: 'xhigh',
+  reasoning: {
+    summary: 'auto',
+    exclude: false,
+  },
+});
+
+console.log(response.choices[0].message.reasoning);
+console.log(response.choices[0].message.content);
+```
+
+</TabItem>
+</Tabs>
+
+### Example response shape
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "reasoning": "Break the migration into domain boundaries, rollout phases, and fallback controls.",
+        "content": "Start with domain mapping, then extract the least-coupled service first..."
+      }
+    }
+  ]
+}
+```
+
+## Explicitly enabling reasoning on GPT-5.4
+
+Because `openai/gpt-5.4` defaults to `none`, pass `reasoning_effort` explicitly when you want reasoning:
+
+```json
+{
+  "model": "openai/gpt-5.4",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Compare blue-green and canary deployments for a payments API."
+    }
+  ],
+  "reasoning_effort": "medium",
+  "reasoning": {
+    "summary": "auto"
+  }
+}
+```
+
+## Using `/v1/completions`
+
+Knox also accepts these models on `/v1/completions` for legacy prompt-based clients.
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-5.5",
+    "prompt": "Write a phased migration checklist for a Rails monolith.",
+    "max_tokens": 600,
+    "reasoning_effort": "high",
+    "reasoning": {
+      "summary": "auto"
+    }
+  }'
+```
+
+For provider-backed routes, Knox converts the prompt into chat messages internally. The final response is then converted back into plain text completion format, so you should expect `choices[].text` instead of `choices[].message.reasoning`.
+
+## Practical guidance
+
+* Use `/v1/chat/completions` if you need reasoning content in the response.
+* Use `reasoning_effort` explicitly when you want predictable behavior across both GPT-5.4 and GPT-5.5.
+* Use `reasoning.exclude: true` when you want the model to think internally but return only the final answer.
+* Use `/v1/completions` only for compatibility with prompt-based clients; it does not preserve structured reasoning in the response body.

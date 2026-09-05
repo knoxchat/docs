@@ -1,0 +1,203 @@
+---
+sidebar_position: 16
+title: Claude Code 集成
+sidebar_label: Claude Code 集成
+description: 了解如何将 Claude Code 与 Knox API 集成，获得增强的 AI 能力。
+keywords: [claude code, knox api, ai integration, anthroptic messages, ai model routing]
+---
+
+# Claude Code 与 Knox 集成
+
+本指南介绍如何将 Claude Code 与 Knox API 配合使用。
+
+## 快速开始
+
+### 第一步：获取 Knox API 密钥
+
+1. 登录 Knox 仪表板
+2. 导航到 **Tokens** 页面
+3. 创建新的 API 令牌或使用现有令牌
+4. 复制 API 密钥（格式：`sk-xxxx...`）
+
+### 第二步：配置 Claude Code
+
+将以下环境变量添加到你的 shell 配置文件（`~/.bashrc`、`~/.zshrc` 或 `~/.config/fish/config.fish`）：
+
+```bash
+# Production (api.knox.chat)
+export ANTHROPIC_BASE_URL="https://api.knox.chat"
+export ANTHROPIC_AUTH_TOKEN="sk-your-knox-api-key"
+export ANTHROPIC_API_KEY=""  # Important: Must be explicitly empty
+```
+
+> **重要提示**：不要将这些变量放在项目级别的 `.env` 文件中。原生 Claude Code 安装程序不会读取标准的 `.env` 文件。
+
+### 第三步：启动 Claude Code
+
+导航到你的项目目录并启动 Claude Code：
+
+```bash
+cd /path/to/your/project
+claude
+```
+
+### 第四步：验证连接
+
+在 Claude Code 中运行 `/status` 命令以验证连接：
+
+```
+> /status
+Auth token: ANTHROPIC_AUTH_TOKEN
+Anthropic base URL: https://api.knox.chat
+```
+
+## 支持的模型
+
+Knox 会自动将 Claude Code 的模型名称映射到正确的 Knox 模型：
+
+- `anthropic/claude-haiku-4.5` 
+- `anthropic/claude-sonnet-4.6`
+- `anthropic/claude-opus-4.6`
+
+### 覆盖默认模型
+
+你可以通过设置环境变量来配置 Claude Code 使用特定模型：
+
+```bash
+export ANTHROPIC_DEFAULT_SONNET_MODEL="anthropic/claude-sonnet-4.6"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="anthropic/claude-opus-4.6"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="anthropic/claude-haiku-4.5"
+```
+
+## 工作原理
+
+Knox 提供了兼容 Anthropic 的 API 层：
+
+1. **直接连接**：当你将 `ANTHROPIC_BASE_URL` 设置为 `https://api.knox.chat` 时，Claude Code 会使用其原生 Anthropic 协议向 `/v1/messages` 端点发送请求。
+
+2. **格式转换**：Knox 在内部自动完成 Anthropic Messages API 格式与 OpenAI Chat Completions 格式之间的转换。
+
+3. **模型路由**：请求通过 Knox 的智能模型路由系统转发到最佳可用的供应商。
+
+4. **计费**：使用量通过你的 Knox 账户进行跟踪和计费。你可以在 Knox 仪表板中查看使用情况。
+
+## 认证方式
+
+Knox 支持两种与 Claude Code 兼容的认证方式：
+
+1. **x-api-key 请求头**（Anthropic 风格）：
+   ```
+   x-api-key: sk-your-api-key
+   ```
+
+2. **Authorization 请求头**（OpenAI 风格）：
+   ```
+   Authorization: Bearer sk-your-api-key
+   ```
+
+Claude Code 可以通过 `ANTHROPIC_AUTH_TOKEN` 环境变量使用任一方式。
+
+## API 端点
+
+| 端点 | 描述 |
+|----------|-------------|
+| `POST /v1/messages` | Anthropic Messages API（Claude Code 使用此端点） |
+| `POST /v1/completions` | OpenAI Completions API（文本补全） |
+| `POST /v1/chat/completions` | OpenAI Chat Completions API |
+| `GET /v1/models` | 列出可用模型 |
+| `GET/POST /v1/realtime` | 语音到语音 Realtime WebSocket（`gpt-realtime-2.1`、`gpt-realtime-2.1-mini`） |
+| `POST /v1/realtime/client_secrets` | 签发 Knox Realtime 临时密钥 |
+| `POST /v1/realtime/calls` | WebRTC SDP 交换 |
+
+## Completions API
+
+Knox 还支持 OpenAI Completions API，用于文本补全任务。适用于旧版集成或简单的文本生成。
+
+### 请求格式
+
+```json
+{
+  "model": "model-name",
+  "prompt": "Your text prompt here",
+  "max_tokens": 100,
+  "temperature": 0.7,
+  "stream": false
+}
+```
+
+### 请求参数
+
+| 参数 | 类型 | 必填 | 描述 |
+|-----------|------|----------|-------------|
+| model | String | 是 | 要使用的模型 ID |
+| prompt | String | 是 | 要补全的文本提示词 |
+| max_tokens | Integer | 否 | 最大生成 token 数 |
+| temperature | Double | 否 | 采样温度（0-2） |
+| top_p | Double | 否 | 核采样（0-1） |
+| top_k | Integer | 否 | Top-k 采样 |
+| stream | Boolean | 否 | 启用流式传输（默认：false） |
+| seed | Integer | 否 | 用于确定性输出的种子值 |
+| frequency_penalty | Double | 否 | 频率惩罚（-2 到 2） |
+| presence_penalty | Double | 否 | 存在惩罚（-2 到 2） |
+| repetition_penalty | Double | 否 | 重复惩罚（0-2） |
+| stop | Array | 否 | 停止序列 |
+
+### 请求示例
+
+```bash
+curl -X POST https://api.knox.chat/v1/completions \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "anthropic/claude-sonnet-4.6",
+    "prompt": "Once upon a time",
+    "max_tokens": 100
+  }'
+```
+
+### 响应示例
+
+```json
+{
+  "id": "cmpl-abc123",
+  "choices": [
+    {
+      "text": " in a land far away, there lived a curious little fox...",
+      "index": 0,
+      "finish_reason": "stop"
+    }
+  ]
+}
+```
+
+### SDK 用法
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="sk-your-knox-api-key",
+)
+
+response = client.completions.create(
+    model="anthropic/claude-sonnet-4.6",
+    prompt="Write a haiku about programming:",
+    max_tokens=50
+)
+
+print(response.choices[0].text)
+```
+
+## 支持的功能
+
+- ✅ 流式响应
+- ✅ 工具使用（函数调用）
+- ✅ 多轮对话
+- ✅ 系统提示词
+- ✅ 图像输入（base64 和 URL）
+- ✅ 扩展思考（Claude 3.5+）
+- ✅ 停止序列
+- ✅ Temperature 和 top-p 控制
+- ✅ **提示缓存**，支持 `cache_control`（5 分钟和 1 小时 TTL）
+- ✅ 响应中的缓存 token 使用量跟踪

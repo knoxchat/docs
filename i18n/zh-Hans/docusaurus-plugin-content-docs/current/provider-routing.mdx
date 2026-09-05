@@ -1,0 +1,780 @@
+---
+sidebar_position: 3
+sidebar_label: 供应商路由系统
+---
+
+# 供应商路由系统
+
+## 1. 高层系统架构
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                         CLIENT APPLICATION                                 │
+│                    (Web/Mobile/API Consumer)                               │
+└────────────────────────────┬───────────────────────────────────────────────┘
+                             │ HTTP Request
+                             │ POST /v1/chat/completions
+                             │ { "model": "deepseek-chat", "messages": [...] }
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                      ACTIX-WEB HTTP SERVER                                 │
+│                    (backend/src/routes/)                                   │
+└────────────────────────────┬───────────────────────────────────────────────┘
+                             │
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                    RELAY HANDLER LAYER                                     │
+│               (backend/src/relay/handlers.rs)                              │
+│                                                                            │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ 1. Authentication & Authorization                                    │  │
+│  │ 2. Rate Limiting & Quotas                                            │  │
+│  │ 3. Model Validation                                                  │  │
+│  │ 4. select_channel_with_routing() ──────────────────────┐             │  │
+│  └────────────────────────────────────────────────────────│─────────────┘  │
+└───────────────────────────────────────────────────────────│────────────────┘
+                                                            │
+                             ┌──────────────────────────────┘
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                    ROUTING DECISION ENGINE                                 │
+│               (backend/src/services/)                                      │
+│                                                                            │
+│  ┌───────────────────────────┐  ┌──────────────────────────────┐           │
+│  │   ModelRoutingService     │  │    ChannelService            │           │
+│  │   • route_request()       │◄─┤    • get_routed_channel()    │           │
+│  │   • score_providers()     │  │    • Provider model routing  │           │
+│  │   • select_provider()     │  │    • Legacy channel routing  │           │
+│  └───────────┬───────────────┘  └──────────────────────────────┘           │
+│              │                                                             │
+│              ├──► load_user_preferences()                                  │
+│              ├──► load_routing_config()                                    │
+│              └──► get_model_providers() ──┐                                │
+└───────────────────────────────────────────│────────────────────────────────┘
+                                            │
+                             ┌──────────────┘
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                       DATABASE LAYER (PostgreSQL)                          │
+│                                                                            │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌─────────────────────────┐   │
+│  │ provider_models  │  │ provider_model_  │  │ model_routing_config    │   │
+│  │ • Model catalog  │  │   metrics        │  │ • Routing weights       │   │
+│  │ • Pricing info   │  │ • Performance    │  │ • Default strategies    │   │
+│  │ • Provider link  │  │ • Circuit state  │  │ • Fallback config       │   │
+│  └──────────────────┘  └──────────────────┘  └─────────────────────────┘   │
+│                                                                            │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌─────────────────────────┐   │
+│  │ user_routing_    │  │ routing_decision_│  │ channels                │   │
+│  │   preferences    │  │   logs           │  │ • Channel configs       │   │
+│  │ • User settings  │  │ • Audit trail    │  │ • API keys              │   │
+│  └──────────────────┘  └──────────────────┘  └─────────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                    SCORING & SELECTION ENGINE                             │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │              CANDIDATE PROVIDERS (Example)                          │  │
+│  │                                                                     │  │
+│  │  A: deepseek-chat    │ B: deepseek-chat    │ C: deepseek-chat │     │  │
+│  │  • Price: $2.50/M    │ • Price: $3.00/M    │ • Price: $2.00/M       │  │
+│  │  • Latency: 450ms    │ • Latency: 600ms    │ • Latency: 800ms       │  │
+│  │  • Success: 98%      │ • Success: 97%      │ • Success: 95%         │  │
+│  │  • Quality: 0.92     │ • Quality: 0.88     │ • Quality: 0.85        │  │
+│  │  • Circuit: Closed   │ • Circuit: Closed   │ • Circuit: Half-Open   │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                             │                                             │
+│                             ▼                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │                    SCORING PROCESS                                  │  │
+│  │                                                                     │  │
+│  │  Strategy: "Performance"                                            │  │
+│  │                                                                     │  │
+│  │  Provider A Score = 0.98×0.4 + latency_score×0.3 + 0.92×0.1         │  │
+│  │                   = 0.392 + 0.165 + 0.092 = 0.649                   │  │
+│  │                                                                     │  │
+│  │  Provider B Score = 0.97×0.4 + latency_score×0.3 + 0.88×0.1         │  │
+│  │                   = 0.388 + 0.140 + 0.088 = 0.616                   │  │
+│  │                                                                     │  │
+│  │  Provider C Score = 0.95×0.4 + latency_score×0.3 + 0.85×0.1         │  │
+│  │                   = 0.380 + 0.120 + 0.085 = 0.585                   │  │
+│  │                   (Circuit Half-Open: Lower priority)               │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                             │                                             │
+│                             ▼                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │                   SELECTION RESULT                                  │  │
+│  │                                                                     │  │
+│  │              WINNER: Provider A (Score: 0.649)                      │  │          
+│  │              Fallback: Provider B (Score: 0.616)                    │  │
+│  │              Fallback: Provider C (Score: 0.585)                    │  │          
+│  └─────────────────────────────────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                    CIRCUIT BREAKER CHECK                                   │
+│               (backend/src/services/circuit_breaker.rs)                    │
+│                                                                            │
+│     should_allow_request(Provider A, "deepseek-chat", channel_id) ?        │
+│                                                                            │
+│     Circuit: CLOSED → Allow Request                                        │
+│     Circuit: OPEN   → Try Fallback Provider B                              │
+│     Circuit: HALF_OPEN → Allow (limited)                                   │
+└────────────────────────────┬───────────────────────────────────────────────┘
+                             │
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                    EXECUTE REQUEST                                         │
+│                                                                            │
+│  Channel ID: 23                                                            │
+│  Provider: Provider A                                                      │
+│  Base URL: https://api.provider-a.com/v1                                   │
+│  API Key: [encrypted]                                                      │
+│                                                                            │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │  Forward Request to Provider                                         │  │
+│  │  ├─► Add API key authentication                                      │  │
+│  │  ├─► Transform request format                                        │  │
+│  │  ├─► Handle streaming/non-streaming                                  │  │
+│  │  └─► Track latency & tokens                                          │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────┬───────────────────────────────────────────────┘
+                             │
+                   ┌─────────┴─────────┐
+                   │                   │
+                ✅ SUCCES         ❌ FAILURE
+                   │                   │
+                   ▼                   ▼
+┌────────────────────────────┐  ┌────────────────────────────┐
+│  Record Success Metrics    │  │  Record Failure Metrics    │
+│  • Latency: 450ms          │  │  • Increment failure count │
+│  • Tokens: 1500 + 300      │  │  • Update circuit state    │
+│  • Update quality score    │  │  • Try fallback provider   │
+│  • Circuit: record_success │  │  • Circuit: record_failure │
+└────────────────────────────┘  └────────────────────────────┘
+                   │                   │
+                   └─────────┬─────────┘
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                    METRICS UPDATE PIPELINE                                 │
+│               (backend/src/services/provider_metrics.rs)                   │
+│                                                                            │
+│  Step 1: Memory Buffer (Immediate)                                         │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ METRICS_BUFFER (In-Memory HashMap)                                   │  │
+│  │ Key: (provider_id=5, model_id="deepseek-chat", channel_id=23)        │  │
+│  │ Value: [ {latency: 450, success: true, tokens: ...}, ... ]           │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                             │                                              │
+│  Step 2: Periodic Aggregation (Every 60s)                                  │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Aggregate metrics from buffer                                        │  │
+│  │ • Calculate avg, p50, p95, p99 latency                               │  │
+│  │ • Calculate success rate                                             │  │
+│  │ • Sum token counts                                                   │  │
+│  │ • Compute quality score                                              │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                             │                                              │
+│  Step 3: Database Flush (Batch)                                            │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ UPDATE provider_model_metrics SET                                    │  │
+│  │   total_requests = total_requests + 1,                               │  │
+│  │   avg_latency_ms = (avg_latency_ms * 0.9 + 450 * 0.1),               │  │
+│  │   quality_score = calculate_provider_quality_score(...),             │  │
+│  │   circuit_state = ...                                                │  │
+│  │ WHERE provider_id=5 AND model_id='deepseek-chat' AND channel_id=23   │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                    RETURN RESPONSE TO CLIENT                               │
+│                                                                            │
+│  HTTP 200 OK                                                               │
+│  {                                                                         │
+│    "id": "chatcmpl-...",                                                   │
+│    "model": "deepseek-chat",                                               │
+│    "choices": [...],                                                       │
+│    "usage": { "prompt_tokens": 1500, "completion_tokens": 300 }            │
+│  }                                                                         │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 2. 熔断器状态机
+
+```
+                    ╔═══════════════════════════════╗
+                    ║    CIRCUIT STATE MACHINE      ║
+                    ╚═══════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│     ┌──────────────────────────────────────────────────────────┐     │
+│     │                    CLOSED STATE                          │     │
+│     │                 (Normal Operation)                       │     │
+│     │  • All requests allowed                                  │     │
+│     │  • failure_count = 0                                     │     │
+│     │  • Tracking consecutive failures                         │     │
+│     └──────────────┬────────────────────────────────────┬──────┘     │
+│                    │                                    │            │
+│        Success     │                         Failure    │            │
+│        (reset      │                         (increment)│            │
+│        counter)    │                                    │            │
+│                    │                                    │            │
+│                    │         ┌──────────────────────────┘            │
+│                    │         │                                       │
+│                    │         │ 5 consecutive failures                │
+│                    │         │ (threshold reached)                   │
+│                    │         ▼                                       │
+│     ┌──────────────┴────────────────────────────────────────────┐    │
+│     │                     OPEN STATE                            │    │
+│     │                 (Blocking Requests)                       │    │
+│     │  • All requests BLOCKED                                   │    │
+│     │  • opened_at = current_timestamp                          │    │
+│     │  • Return error / try fallback                            │    │
+│     │  • Wait for recovery_timeout (60 seconds)                 │    │
+│     └──────────────┬────────────────────────────────────────────┘    │
+│                    │                                                 │
+│                    │ Wait 60 seconds                                 │
+│                    │ (recovery_timeout expired)                      │
+│                    │                                                 │
+│                    ▼                                                 │
+│     ┌───────────────────────────────────────────────────────────┐    │
+│     │                  HALF-OPEN STATE                          │    │
+│     │                  (Testing Recovery)                       │    │
+│     │  • Limited requests allowed (max 3)                       │    │
+│     │  • half_open_requests = 0                                 │    │
+│     │  • Testing if provider recovered                          │    │
+│     └──────────────┬─────────────────────────────┬──────────────┘    │
+│                    │                             │                   │
+│        Success     │                  Failure    │                   │
+│        (3 times)   │                  (any)      │                   │
+│                    │                             │                   │
+│                    ▼                             ▼                   │
+│     ┌──────────────────────────┐   ┌───────────────────────────┐     │
+│     │   Back to CLOSED         │   │   Back to OPEN            │     │
+│     │   (Provider recovered)    │   │   (Still failing)        │     │
+│     │   • Reset counters        │   │   • Reset timeout        │     │
+│     │   • Full traffic resume   │   │   • Wait another 60s     │     │
+│     └──────────────────────────┘   └───────────────────────────┘     │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+Configuration:
+• failure_threshold = 5          (failures to open circuit)
+• success_threshold = 3          (successes to close circuit)
+• recovery_timeout = 60 seconds  (wait before testing)
+• half_open_max_requests = 3     (test request limit)
+```
+
+## 3. 评分算法对比
+
+```
+╔════════════════════════════════════════════════════════════════════════╗
+║                 ROUTING STRATEGY SCORING ALGORITHMS                    ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        PERFORMANCE STRATEGY                              │
+│  Goal: Maximize speed and reliability                                    │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  Formula:                                                                │
+│  ┌─────────────────────────────────────────────────────────────────┐     │
+│  │ score = success_rate × 0.4                                      │     │
+│  │       + latency_score × 0.3                                     │     │
+│  │       + quality_score × 0.1                                     │     │
+│  │       + priority_bonus                                          │     │
+│  └─────────────────────────────────────────────────────────────────┘     │
+│                                                                          │
+│  Where:                                                                  │
+│  • success_rate: 0.0 - 1.0 (higher is better)                            │
+│  • latency_score = 1.0 - (latency_ms / 30000) (lower latency = higher)   │
+│  • quality_score: historical quality metric (0.0 - 1.0)                  │
+│  • priority_bonus: channel_priority / 100 (max 0.2)                      │
+│                                                                          │
+│  Example:                                                                │
+│  Provider with 98% success, 450ms latency, quality 0.92, priority 10     │
+│  score = 0.98×0.4 + (1-450/30000)×0.3 + 0.92×0.1 + 0.1                   │
+│        = 0.392 + 0.296 + 0.092 + 0.1 = 0.880                             │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           COST STRATEGY                                  │
+│  Goal: Minimize cost while maintaining quality                           │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  Formula:                                                                │
+│  ┌─────────────────────────────────────────────────────────────────┐     │
+│  │ avg_price = (prompt_price + completion_price) / 2               │     │
+│  │ price_score = 1.0 - (avg_price / 100.0)                         │     │
+│  │ score = price_score × 0.6                                       │     │
+│  │       + success_rate × 0.3                                      │     │
+│  │       + quality_score × 0.1                                     │     │
+│  └─────────────────────────────────────────────────────────────────┘     │
+│                                                                          │
+│  Where:                                                                  │
+│  • prompt_price: $ per million prompt tokens                             │
+│  • completion_price: $ per million completion tokens                     │
+│  • price_score: normalized inverse price (cheaper = higher)              │
+│                                                                          │
+│  Example:                                                                │
+│  Provider with $2.50 prompt, $10.00 completion, 97% success, quality 0.9 │
+│  avg_price = (2.50 + 10.00) / 2 = $6.25                                  │
+│  price_score = 1.0 - (6.25 / 100) = 0.9375                               │
+│  score = 0.9375×0.6 + 0.97×0.3 + 0.9×0.1 = 0.944                         │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                         BALANCED STRATEGY                                │
+│  Goal: Optimize all factors with configurable weights                    │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  Formula:                                                                │
+│  ┌─────────────────────────────────────────────────────────────────┐     │
+│  │ perf_score = performance_score(candidate, config)               │     │
+│  │ cost_score = cost_score(candidate, config)                      │     │
+│  │                                                                 │     │
+│  │ total_weight = latency_w + success_w + price_w + priority_w     │     │
+│  │ perf_weight = (latency_w + success_w) / total_weight            │     │
+│  │ cost_weight = price_w / total_weight                            │     │
+│  │                                                                 │     │
+│  │ score = perf_score × perf_weight + cost_score × cost_weight     │     │
+│  └─────────────────────────────────────────────────────────────────┘     │
+│                                                                          │
+│  Default weights (can be configured per model):                          │
+│  • latency_weight: 0.3                                                   │
+│  • success_rate_weight: 0.4                                              │
+│  • price_weight: 0.2                                                     │
+│  • provider_priority_weight: 0.1                                         │
+│                                                                          │
+│  Example:                                                                │
+│  Using default weights:                                                  │
+│  perf_weight = (0.3 + 0.4) / 1.0 = 0.7                                   │
+│  cost_weight = 0.2 / 1.0 = 0.2                                           │
+│  score = 0.880×0.7 + 0.944×0.2 = 0.616 + 0.189 = 0.805                   │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                       ROUND-ROBIN STRATEGY                               │
+│  Goal: Equal distribution across all providers                           │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  Formula:                                                                │
+│  ┌─────────────────────────────────────────────────────────────────┐     │
+│  │ All candidates receive equal score = 1.0                        │     │
+│  │ Selection: index = counter % provider_count                     │     │
+│  │ counter = (counter + 1) % usize::MAX                            │     │
+│  └─────────────────────────────────────────────────────────────────┘     │
+│                                                                          │
+│  Behavior:                                                               │
+│  Request 1 → Provider A                                                  │
+│  Request 2 → Provider B                                                  │
+│  Request 3 → Provider C                                                  │
+│  Request 4 → Provider A (cycle repeats)                                  │
+│                                                                          │
+│  Note: No performance consideration, purely sequential distribution      │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+## 4. 数据流时间线
+
+```
+Time  │ Component                │ Action
+──────┼─────────────────────────┼────────────────────────────────────────────
+0ms   │ Client                  │ POST /v1/chat/completions
+      │                         │ { "model": "deepseek-chat", "messages": [...] }
+──────┼─────────────────────────┼────────────────────────────────────────────
+1ms   │ Relay Handler           │ Validate request, extract model_id
+      │                         │ Check authentication & rate limits
+──────┼─────────────────────────┼────────────────────────────────────────────
+2ms   │ Channel Service         │ Call get_routed_channel("deepseek-chat", user_id)
+      │                         │ Try provider model routing first
+──────┼─────────────────────────┼────────────────────────────────────────────
+3ms   │ Model Routing Service   │ Query provider_models table
+      │                         │ SELECT * FROM provider_models WHERE model_id='deepseek-chat'
+      │                         │ JOIN provider_model_metrics
+      │                         │ Found 3 candidates
+──────┼─────────────────────────┼────────────────────────────────────────────
+4ms   │ Model Routing Service   │ Load user preferences (if exists)
+      │                         │ SELECT * FROM user_routing_preferences WHERE user_id=...
+──────┼─────────────────────────┼────────────────────────────────────────────
+5ms   │ Model Routing Service   │ Load model routing config
+      │                         │ SELECT * FROM model_routing_config WHERE model_id='deepseek-chat'
+──────┼─────────────────────────┼────────────────────────────────────────────
+6ms   │ Model Routing Service   │ Score 3 candidates using "balanced" strategy
+      │                         │ Provider A: 0.880
+      │                         │ Provider B: 0.805
+      │                         │ Provider C: 0.750
+──────┼─────────────────────────┼────────────────────────────────────────────
+7ms   │ Model Routing Service   │ Apply user preferences filters
+      │                         │ Boost preferred providers (+50%)
+      │                         │ Remove blocked providers
+──────┼─────────────────────────┼────────────────────────────────────────────
+8ms   │ Model Routing Service   │ Weighted random selection from top 3
+      │                         │ Selected: Provider A (channel_id=23)
+      │                         │ Fallbacks: [Provider B, Provider C]
+──────┼─────────────────────────┼────────────────────────────────────────────
+9ms   │ Circuit Breaker         │ Check should_allow_request(Provider A, "deepseek-chat", 23)
+      │                         │ Circuit state: CLOSED
+      │                         │ Allow request
+──────┼─────────────────────────┼────────────────────────────────────────────
+10ms  │ Relay Handler           │ Get channel details from channels table
+      │                         │ Channel 23: base_url, api_key
+──────┼─────────────────────────┼────────────────────────────────────────────
+11ms  │ Routing Decision Log    │ Async: INSERT INTO routing_decision_logs
+      │                         │ (non-blocking, happens in background)
+──────┼─────────────────────────┼────────────────────────────────────────────
+12ms  │ Relay Handler           │ Transform request for provider API
+      │                         │ Add Authorization: Bearer [api_key]
+      │                         │ Adjust model name if needed
+──────┼─────────────────────────┼────────────────────────────────────────────
+15ms  │ HTTP Client             │ POST https://api.provider-a.com/v1/chat/completions
+      │                         │ Start latency timer
+──────┼─────────────────────────┼────────────────────────────────────────────
+...   │ Provider A              │ Processing request...
+──────┼─────────────────────────┼────────────────────────────────────────────
+465ms │ HTTP Client             │ Response received from Provider A
+      │                         │ Status: 200 OK
+      │                         │ Latency: 450ms (15ms → 465ms)
+──────┼─────────────────────────┼────────────────────────────────────────────
+466ms │ Relay Handler           │ Parse response
+      │                         │ Extract usage: prompt_tokens=1500, completion_tokens=300
+──────┼─────────────────────────┼────────────────────────────────────────────
+467ms │ Provider Metrics        │ record_request(provider_id=5, model="deepseek-chat", 
+      │                         │   channel_id=23, latency=450, success=true,
+      │                         │   prompt_tokens=1500, completion_tokens=300)
+      │                         │ → Stored in memory buffer (non-blocking)
+──────┼─────────────────────────┼────────────────────────────────────────────
+468ms │ Circuit Breaker         │ record_success(provider_id=5, model="deepseek-chat", 
+      │                         │   channel_id=23)
+      │                         │ → success_count++, failure_count=0
+──────┼─────────────────────────┼────────────────────────────────────────────
+469ms │ Billing Service         │ post_consume_quota() (async, non-blocking)
+      │                         │ Deduct quota from user balance
+──────┼─────────────────────────┼────────────────────────────────────────────
+470ms │ Relay Handler           │ Return response to client
+      │                         │ HTTP 200 OK with completion
+──────┼─────────────────────────┼────────────────────────────────────────────
+
+Background Tasks (runs every 60 seconds):
+──────┼─────────────────────────┼────────────────────────────────────────────
+60s   │ Metrics Aggregator      │ Aggregate metrics from memory buffer
+      │                         │ Calculate avg, p50, p95, p99 latency
+      │                         │ Calculate success rate for last hour
+──────┼─────────────────────────┼────────────────────────────────────────────
+61s   │ Metrics Aggregator      │ Batch update to provider_model_metrics table
+      │                         │ UPDATE provider_model_metrics SET ...
+      │                         │ Recalculate quality scores
+──────┼─────────────────────────┼────────────────────────────────────────────
+62s   │ Circuit Breaker         │ recover_circuit_breakers()
+      │                         │ Check if any OPEN circuits can move to HALF_OPEN
+──────┼─────────────────────────┼────────────────────────────────────────────
+```
+
+## 5. 数据库表关系
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     DATABASE SCHEMA RELATIONSHIPS                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+                              ┌──────────────┐
+                              │    users     │
+                              │ (providers)  │
+                              ├──────────────┤
+                              │ id (PK)      │◄────────┐
+                              │ username     │         │
+                              │ is_provider  │         │ provider_id (FK)
+                              │ provider_    │         │
+                              │   status     │         │
+                              └──────┬───────┘         │
+                                     │                 │
+                  ┌──────────────────┼─────────────────┼──────────────┐
+                  │                  │                 │              │
+                  │ provider_id (FK) │                 │              │
+                  ▼                  ▼                 │              │
+       ┌──────────────────┐  ┌──────────────┐          │              │
+       │  provider_       │  │  channels    │          │              │
+       │    models        │  ├──────────────┤          │              │
+       ├──────────────────┤  │ id (PK)      │◄────┐    │              │
+       │ id (PK)          │  │ provider_id  │     │    │              │
+       │ model_id         │  │   (FK)       │     │    │              │
+       │ provider_id (FK) ├─►│ base_url     │     │    │              │
+       │ channel_id (FK)  ├──┤ key          │     │    │              │
+       │ model_name       │  │ status       │     │    │              │
+       │ pricing_prompt   │  └──────────────┘     │    │              │
+       │ pricing_         │                       │    │              │
+       │   completion     │                       │    │              │
+       │ context_length   │                       │    │              │
+       │ status           │    channel_id (FK)    │    │              │
+       │ quality_score    │         │             │    │              │
+       └──────┬───────────┘         │             │    │              │
+              │                     │             │    │              │
+              │ (provider_id,       │             │    │              │
+              │  model_id,          │             │    │              │
+              │  channel_id)        │             │    │              │
+              │                     │             │    │              │
+              ▼                     │             │    │              │
+       ┌──────────────────┐         │             │    │              │
+       │  provider_model_ │         │             │    │              │
+       │    metrics       │◄────────┘             │    │              │
+       ├──────────────────┤                       │    │              │
+       │ id (PK)          │                       │    │              │
+       │ provider_id (FK) ├───────────────────────┘    │              │
+       │ model_id         │                            │              │
+       │ channel_id (FK)  ├────────────────────────────┘              │
+       │ total_requests   │                                           │
+       │ success_rate_    │                                           │
+       │   last_hour      │                                           │
+       │ avg_latency_ms   │                                           │
+       │ quality_score    │                                           │
+       │ circuit_state    │                                           │
+       └──────────────────┘                                           │
+                                                                      │
+              ┌───────────────────────────────────────────────────────┘
+              │
+              │ user_id (FK)
+              ▼
+       ┌──────────────────┐
+       │  user_routing_   │
+       │    preferences   │
+       ├──────────────────┤
+       │ id (PK)          │
+       │ user_id (FK)     │
+       │ default_strategy │
+       │ preferred_       │
+       │   providers      │
+       │ blocked_         │
+       │   providers      │
+       │ max_price        │
+       │ min_success_rate │
+       └──────────────────┘
+
+       ┌──────────────────┐
+       │  model_routing_  │
+       │     config       │
+       ├──────────────────┤
+       │ id (PK)          │
+       │ canonical_       │
+       │   model_id       │
+       │ latency_weight   │
+       │ success_rate_    │
+       │   weight         │
+       │ price_weight     │
+       │ default_strategy │
+       └──────────────────┘
+
+       ┌──────────────────┐
+       │  routing_        │
+       │    decision_logs │
+       ├──────────────────┤
+       │ id (PK)          │
+       │ request_id       │
+       │ user_id          │
+       │ model_id         │
+       │ selected_        │
+       │   provider_id    │
+       │ selected_        │
+       │   channel_id     │
+       │ routing_strategy │
+       │ routing_reason   │
+       │ candidates_json  │
+       │ created_at       │
+       └──────────────────┘
+
+Legend:
+PK = Primary Key
+FK = Foreign Key
+```
+
+## 6. 优势可视化
+
+```
+╔══════════════════════════════════════════════════════════════════════════╗
+║               KEY ADVANTAGES OF PROVIDER ROUTING SYSTEM                  ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+┌────────────────────────────────────────────────────────────────────────┐
+│ 1. INTELLIGENT SELECTION                                               │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│   Traditional:                    Provider Routing:                    │
+│   ┌──────────┐                   ┌──────────┐                          │
+│   │ Request  │                   │ Request  │                          │
+│   └────┬─────┘                   └────┬─────┘                          │
+│        │                              │                                │
+│        │ Fixed                        │ Intelligent                    │
+│        │ Config                       │ Selection                      │
+│        ▼                              ▼                                │
+│   ┌──────────┐                   ┌──────────┐                          │
+│   │ Channel  │                   │ Best     │ ← Based on:              │
+│   │ (static) │                   │ Provider │   • Performance          │
+│   └──────────┘                   └──────────┘   • Cost                 │
+│                                                  • User prefs          │
+│                                                  • Real-time metrics   │
+│   Result: Fixed,                 Result: Dynamic,                      │
+│           no optimization                always optimized              │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────┐
+│ 2. HIGH AVAILABILITY                                                   │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│   Without Routing:               With Provider Routing:                │
+│   ┌──────────┐                   ┌──────────┐                          │
+│   │ Provider │                   │ Provider │                          │
+│   │    A     │ ← Request         │    A     │ ← Request                │
+│   └────┬─────┘                   └────┬─────┘                          │
+│        │                              │                                │
+│        │ FAILS                        │ FAILS                          │
+│        ▼                              ▼                                │
+│   ┌──────────┐                   ┌──────────┐                          │
+│   │  ERROR   │                   │ Circuit  │                          │
+│   │ RETURNED │                   │ Breaker  │                          │
+│   └──────────┘                   │  Opens   │                          │
+│                                  └────┬─────┘                          │
+│   User sees error                     │ Auto                           │
+│                                       │ Fallback                       │
+│                                       ▼                                │
+│                                  ┌──────────┐                          │
+│                                  │ Provider │                          │
+│                                  │    B     │ ← Retry                  │
+│                                  └────┬─────┘                          │
+│                                       │                                │
+│                                       │ SUCCESS                        │
+│                                       ▼                                │
+│                                  ┌──────────┐                          │
+│                                  │ Response │                          │
+│                                  │ Returned │                          │
+│                                  └──────────┘                          │
+│                                                                        │
+│   Uptime: ~99.5%                 Uptime: ~99.99%                       │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────┐
+│ 3. COST OPTIMIZATION                                                   │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│   Fixed Provider:                Provider Routing (Cost Strategy):     │
+│                                                                        │
+│   Provider A: $10/M              Provider A: $10/M → Score: 0.70       │
+│   (only option)                  Provider B: $5/M  → Score: 0.85       │
+│                                  Provider C: $12/M → Score: 0.65       │
+│   1M tokens = $10                                                      │
+│   10M tokens = $100              Provider B selected (cheapest)        │
+│   100M tokens = $1,000           1M tokens = $5                        │
+│                                  10M tokens = $50                      │
+│                                  100M tokens = $500                    │
+│                                                                        │
+│   Monthly cost: $1,000           Monthly cost: $500                    │
+│                                  SAVINGS: 50%                          │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────┐
+│ 4. PERFORMANCE TRACKING                                                │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│   No Metrics:                    Provider Routing Metrics:             │
+│   • Unknown performance          • Real-time latency (avg, p50-p99)    │
+│   • No visibility                • Success rate (hourly, daily)        │
+│   • Can't optimize               • Quality score (0.0-1.0)             │
+│   • Blind to issues              • Circuit breaker state               │
+│                                  • Token throughput                    │
+│                                  • Historical trends                   │
+│                                                                        │
+│   Dashboard:                     Dashboard:                            │
+│   ┌──────────────┐               ┌──────────────────────────────────┐  │
+│   │              │               │ Provider A: 450ms avg, 98%       │  │
+│   │   No Data    │               │ Provider B: 650ms avg, 97%       │  │
+│   │              │               │ Provider C: 900ms avg, 92%       │  │
+│   │              │               │                                  │  │
+│   └──────────────┘               │ Trending: Provider A improving   │  │
+│                                  │ Alert: Provider C degraded       │  │
+│                                  └──────────────────────────────────┘  │
+│                                                                        │
+│   Result: Reactive               Result: Proactive                     │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────┐
+│ 5. USER EMPOWERMENT                                                    │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│   Fixed Config:                  User Preferences:                     │
+│   • No control                   • Choose strategy (perf/cost/balanced)│
+│   • One size fits all            • Set preferred providers             │
+│   • Can't avoid bad providers    • Block problematic providers         │
+│   • No budget control            • Set price limits ($X per M tokens)  │
+│                                  • Set quality thresholds              │
+│                                  • Per-request overrides               │
+│                                                                        │
+│   User A (needs speed):          User A preferences:                   │
+│   ┌────────────────┐             ┌──────────────────────────────────┐  │
+│   │ Gets random    │             │ strategy: "performance"          │  │
+│   │ slow provider  │             │ min_success_rate: 0.99           │  │
+│   │ Frustrated     │             │ max_latency_ms: 1000             │  │
+│   └────────────────┘             └──────────────────────────────────┘  │
+│                                  → Gets fastest, most reliable         │
+│   User B (budget-conscious):     User B preferences:                   │
+│   ┌────────────────┐             ┌──────────────────────────────────┐  │
+│   │ Pays high      │             │ strategy: "cost"                 │  │
+│   │ prices         │             │ max_price: 7.0                   │  │
+│   │ Expensive      │             │ min_success_rate: 0.95           │  │
+│   └────────────────┘             └──────────────────────────────────┘  │
+│                                  → Gets cheapest within budget         │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+## 7. 前后对比
+
+```
+╔══════════════════════════════════════════════════════════════════════════╗
+║          BEFORE PROVIDER ROUTING   vs   AFTER PROVIDER ROUTING           ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│ METRIC                │ BEFORE              │ AFTER                       │
+├───────────────────────┼─────────────────────┼─────────────────────────────┤
+│ Provider Selection    │ Manual/Random       │ Intelligent (metrics-based) │
+│ Optimization          │ None                │ Real-time, multi-dimensional│
+│ Availability          │ ~99.5%              │ ~99.99%                     │
+│ Cost Optimization     │ No                  │ Yes (up to 50% savings)     │
+│ Failover Time         │ Manual (minutes)    │ Automatic (milliseconds)    │
+│ Performance Tracking  │ None                │ Comprehensive               │
+│ User Control          │ None                │ Full (preferences)          │
+│ Provider Diversity    │ Limited             │ Multiple per model          │
+│ Quality Assurance     │ Manual              │ Automated (circuit breaker) │
+│ Audit Trail           │ None                │ Complete logging            │
+│ Admin Visibility      │ None                │ Full dashboard              │
+│ Scalability           │ Limited             │ Highly scalable             │
+└───────────────────────────────────────────────────────────────────────────┘
+
+BEFORE: Simple but Inflexible
+┌──────────────────────────────────────────────────────────────────────┐
+│  Request → Channel (fixed) → Provider → Response                     │
+│                                                                      │
+│  Problems:                                                           │
+│  • Single point of failure                                           │
+│  • No optimization                                                   │
+│  • No visibility                                                     │
+│  • Manual intervention needed                                        │
+└──────────────────────────────────────────────────────────────────────┘
+
+AFTER: Intelligent & Resilient
+┌──────────────────────────────────────────────────────────────────────┐
+│  Request → Routing Engine → Best Provider (scored) → Response        │
+│             ↓                      ↓                                 │
+│          Metrics              Circuit Breaker                        │
+│          User Prefs           Fallback Chain                         │
+│          Config               Quality Tracking                       │
+│                                                                      │
+│  Benefits:                                                           │
+│   Automatic failover                                                 │
+│   Cost & performance optimization                                    │
+│   Complete visibility                                                │
+│   Self-healing system                                                │
+└──────────────────────────────────────────────────────────────────────┘
+```

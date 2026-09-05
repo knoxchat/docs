@@ -1,0 +1,185 @@
+---
+id: list-available-models
+title: "列出可用模型"
+description: "返回通过 API 可用的模型列表"
+sidebar_label: "列出可用模型"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"列出可用模型"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knox.chat/v1/models"}
+>
+</MethodEndpoint>
+
+返回通过 API 可用的公开模型列表。认证是可选的：不携带 API Key 的请求会返回公开的活跃模型列表；携带 Bearer Token 的请求会返回该 token 可访问的模型列表。
+
+公开的未认证请求限制为每分钟 60 次，并且可能被缓存最多 5 分钟。
+
+## 请求
+
+此端点不需要任何请求参数。
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 否 | 可选的 Bearer 认证，格式为 Bearer \<token\>。提供后，响应会过滤为该 token 可访问的模型。 |
+
+## cURL 示例
+
+不携带 API Key 的公开请求：
+
+```shell
+curl -X GET https://api.knox.chat/v1/models
+```
+
+携带认证信息以获取 token 对应的可用模型：
+
+```shell
+curl -X GET https://api.knox.chat/v1/models \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json"
+```
+
+## 响应
+
+### 成功响应 (200)
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "anthropic/claude-sonnet-4.6",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "permission": [
+        {
+          "id": "modelperm-LwHkVFn8AcMItP432fKKDIKJ",
+          "object": "model_permission",
+          "created": 1626777600,
+          "allow_create_engine": true,
+          "allow_sampling": true,
+          "allow_logprobs": true,
+          "allow_search_indices": false,
+          "allow_view": true,
+          "allow_fine_tuning": false,
+          "organization": "*",
+          "group": null,
+          "is_blocking": false
+        }
+      ],
+      "root": "anthropic/claude-sonnet-4.6",
+      "parent": null,
+      "context_length": 200000,
+      "architecture": {
+        "modality": "text+image->text",
+        "input_modalities": [
+            "image",
+            "text"
+        ],
+        "output_modalities": [
+            "text"
+        ],
+        "tokenizer": "Claude"
+      },
+      "pricing": {
+        "prompt": "0.000003",
+        "completion": "0.000015",
+        "request": "0",
+        "image": "0.0048",
+        "audio": "0",
+        "web_search": "0",
+        "internal_reasoning": "0",
+        "input_cache_read": "0.0000003",
+        "input_cache_write": "0.00000375"
+      },
+      "top_provider": {
+        "context_length": 200000,
+        "max_completion_tokens": 64000
+      },
+      "supported_parameters": [
+        "max_tokens",
+        "temperature",
+        "stop",
+        "reasoning",
+        "include_reasoning",
+        "tools",
+        "tool_choice",
+        "top_p",
+        "top_k"
+      ]
+    },
+    more...
+  ]
+}
+```
+
+### 响应结构
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| object | string | 对象类型，固定为 "list" |
+| data | array | 可用模型的数组 |
+| data[].id | string | 模型的唯一标识符 |
+| data[].object | string | 对象类型，固定为 "model" |
+| data[].created | integer | 模型创建时的 Unix 时间戳 |
+| data[].owned_by | string | 模型的所有者 |
+| data[].permission | array | 模型权限数组 |
+| data[].permission[].id | string | 权限 ID |
+| data[].permission[].object | string | 对象类型 |
+| data[].permission[].created | integer | 权限创建时的时间戳 |
+| data[].permission[].allow_create_engine | boolean | 是否允许创建引擎 |
+| data[].permission[].allow_sampling | boolean | 是否允许采样 |
+| data[].permission[].allow_logprobs | boolean | 是否允许获取对数概率 |
+| data[].permission[].allow_search_indices | boolean | 是否允许搜索索引 |
+| data[].permission[].allow_view | boolean | 是否允许查看 |
+| data[].permission[].allow_fine_tuning | boolean | 是否允许微调 |
+| data[].permission[].organization | string | 组织信息 |
+| data[].permission[].group | null or string | 分组信息 |
+| data[].permission[].is_blocking | boolean | 权限是否为阻塞性的 |
+| data[].root | string | 根模型 ID |
+| data[].parent | null or string | 父模型 ID |
+| data[].context_length | integer | 模型的最大上下文长度 |
+| data[].architecture | object | 模型架构信息 |
+| data[].architecture.modality | string | 从输入到输出的模态映射（例如 "text+image->text"） |
+| data[].architecture.input_modalities | array of strings | 支持的输入模态（例如 "text"、"image"） |
+| data[].architecture.output_modalities | array of strings | 支持的输出模态（例如 "text"） |
+| data[].architecture.tokenizer | string | 使用的分词器类型 |
+| data[].pricing | object | 模型使用的定价信息 |
+| data[].pricing.prompt | string | 每个 prompt token 的价格 |
+| data[].pricing.completion | string | 每个 completion token 的价格 |
+| data[].pricing.request | string | 每次请求的基本费用 |
+| data[].pricing.image | string | 每张图片处理的费用 |
+| data[].pricing.audio | string | 音频处理费用 |
+| data[].pricing.web_search | string | 网络搜索费用 |
+| data[].pricing.internal_reasoning | string | 内部推理费用 |
+| data[].pricing.input_cache_read | string | 输入缓存读取费用 |
+| data[].pricing.input_cache_write | string | 输入缓存写入费用 |
+| data[].top_provider | object | 顶级提供商信息 |
+| data[].top_provider.context_length | integer | 顶级提供商提供的上下文长度 |
+| data[].top_provider.max_completion_tokens | integer | 最大 completion token 数量 |
+| data[].supported_parameters | array of strings | 支持的参数列表 |
+
+---

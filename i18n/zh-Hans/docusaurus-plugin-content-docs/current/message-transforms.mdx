@@ -1,0 +1,29 @@
+---
+sidebar_position: 7
+sidebar_label: 消息转换
+---
+
+# 消息转换
+
+为了应对提示词超出模型最大上下文长度的情况，Knox Chat 支持一个名为 `transforms` 的自定义参数：
+
+```typescript
+{
+  transforms: ["middle-out"],// Compress prompts that are > context size.
+  messages: [...],
+  model // Works with any model
+}
+```
+这在不需要完美回忆的场景中特别有用。该转换通过移除或截断提示词中间部分的消息来实现，直到内容适配模型的上下文窗口。
+
+在某些情况下，问题不在于 token 上下文长度，而在于实际消息数量。该转换同样能处理这种情况：例如，Anthropic 的 Claude 模型强制限制最多 `{anthropicMaxMessagesCount}` 条消息。当启用 `middle-out` 后超过此限制时，转换将保留对话开头的一半消息和结尾的一半消息。
+
+当启用 `middle-out` 压缩时，Knox Chat 会首先尝试找到一个上下文长度至少为所需总 token 数（提示输入 + 生成输出）一半的模型。例如，如果你的提示需要 10,000 个 token，则会考虑上下文长度至少为 5,000 的模型。如果没有模型满足此条件，Knox Chat 将回退到使用可用上下文长度最长的模型。
+
+压缩随后会尝试将你的内容适配到所选模型的上下文窗口中，方法是移除或截断提示词中间部分的内容。如果未启用 `middle-out` 压缩，且你的总 token 数超过模型的上下文长度，请求将失败并返回错误信息，建议你缩短内容长度或启用 `middle-out` 压缩。
+
+:::info 说明
+  [所有 Knox Chat 端点](https://knox.chat/models)中上下文长度不超过 8k（8,192 个 token）的端点将默认使用 `middle-out`。要禁用此功能，请在请求体中设置 `transforms: []`。
+:::
+
+选择压缩提示词中间部分的原因是 [LLM 对序列中间部分的关注度较低](https://arxiv.org/abs/2307.03172)。

@@ -300,7 +300,7 @@ Download
 ## Getting Started (3 Minutes)
 
 ### **Step 1: Select Model (30 seconds)**
-- Go to Knox Chat
+- Go to Knox.Chat
 - Select `google/gemini-2.5-flash-image` in [Chat >>>](https://knox.chat/chat)
 - Select one created API Key which you have already created with [Keys >>>](https://knox.chat/keys)
 - Done

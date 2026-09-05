@@ -31,7 +31,9 @@ import Heading from "@theme/Heading";
 >
 </MethodEndpoint>
 
-Returns a list of models available through the API
+Returns a public list of models available through the API. Authentication is optional: requests without an API key return the public active model list, while requests with a Bearer token return the models available to that token.
+
+Public unauthenticated requests are rate limited to 60 requests per minute and may be cached for up to 5 minutes.
 
 ## Request
 
@@ -41,9 +43,17 @@ This endpoint does not require any request parameters.
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
-| Authorization | String | Yes | Bearer authentication in the format Bearer \<token\>, where token is your authentication token. |
+| Authorization | String | No | Optional Bearer authentication in the format Bearer \<token\>. When provided, the response is filtered to the models available to that token. |
 
 ## cURL Example
+
+Public request without an API key:
+
+```shell
+curl -X GET https://api.knox.chat/v1/models
+```
+
+Authenticated request for token-specific model availability:
 
 ```shell
 curl -X GET https://api.knox.chat/v1/models \
@@ -57,6 +67,7 @@ curl -X GET https://api.knox.chat/v1/models \
 
 ```json
 {
+  "object": "list",
   "data": [
     {
       "id": "anthropic/claude-sonnet-4.6",
@@ -129,6 +140,7 @@ curl -X GET https://api.knox.chat/v1/models \
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| object | string | Object type, fixed as "list" |
 | data | array | Array of available models |
 | data[].id | string | Unique identifier for the model |
 | data[].object | string | Object type, fixed as "model" |

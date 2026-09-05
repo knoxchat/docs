@@ -1,0 +1,609 @@
+---
+sidebar_position: 2
+sidebar_label: 模型路由系统
+---
+
+# 模型路由系统
+
+## 系统架构概览
+
+供应商模型路由系统是一个智能化的多层路由基础设施，支持多个供应商提供相同的 AI 模型，并根据实时指标、用户偏好和系统健康状况自动选择最优供应商。
+
+## 核心组件结构
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    USER REQUEST (Model ID)                      │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              RELAY HANDLER                                      │
+│  • Request validation                                           │
+│  • Channel selection with routing                               │
+│  • Circuit breaker checking                                     │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│         CHANNEL SERVICE                                         │
+│  get_routed_channel()                                           │
+│  ├── Try Provider Model Routing (STEP 1)                        │
+│  └── Fallback to Legacy Channel Routing (STEP 2)                │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│      MODEL ROUTING SERVICE                                      │
+│                                                                 │
+│  route_request()                                                │
+│  ├─► 1. get_model_providers()      [Provider Discovery]         │
+│  ├─► 2. load_user_preferences()    [User Prefs Loading]         │
+│  ├─► 3. load_routing_config()      [Model Config Loading]       │
+│  ├─► 4. score_providers()          [Intelligent Scoring]        │
+│  └─► 5. select_provider()          [Final Selection]            │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│           ROUTING DECISION                                      │
+│  • Selected Provider + Channel                                  │
+│  • Fallback Providers (ordered)                                 │
+│  • Routing Reason & Score                                       │
+│  • Strategy Used                                                │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│      CIRCUIT BREAKER CHECK                                      │
+│  should_allow_request()                                         │
+│  • Closed → Allow                                               │
+│  • Open → Try Fallback                                          │
+│  • Half-Open → Limited Allow                                    │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              EXECUTE REQUEST ON SELECTED CHANNEL                │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────┐
+│        METRICS RECORDING                                         │
+│  record_request()                                                │
+│  • Latency tracking                                              │
+│  • Success/failure counting                                      │
+│  • Token usage                                                   │
+│  • Quality score calculation                                     │
+│  • Circuit breaker state update                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+## 数据库表结构
+
+### 1. **provider_models** (Source of Truth)
+Provider-submitted model definitions
+```
+├── Model Info: model_id, model_name, description
+├── Provider: provider_id, provider_name, channel_id
+├── Pricing: pricing_prompt, pricing_completion, pricing_image
+├── Specs: context_length, modality, supported_parameters
+└── Status: status (0=pending, 1=approved, 2=rejected)
+```
+
+### 2. **provider_model_metrics** (Real-time Performance)
+Live performance tracking per provider-model-channel
+```
+├── Cumulative: total_requests, successful_requests, failed_requests
+├── Latency: avg/p50/p95/p99/min/max_latency_ms
+├── Time Windows: last_hour, last_24h metrics
+├── Circuit Breaker: circuit_state, consecutive_failures/successes
+├── Quality: quality_score (0.0-1.0)
+└── Token Throughput: total tokens, avg_tokens_per_second
+```
+
+### 3. **model_routing_config** (Per-Model Configuration)
+Admin-configurable routing rules per model
+```
+├── Weights: latency_weight, success_rate_weight, price_weight
+├── Strategy: default_strategy (performance/cost/balanced/round_robin)
+├── Fallback: enable_auto_fallback, max_fallback_attempts
+└── Circuit: failure_threshold, recovery_timeout_seconds
+```
+
+### 4. **user_routing_preferences** (User Preferences)
+Per-user routing customization
+```
+├── Strategy: default_strategy
+├── Providers: preferred_providers[], blocked_providers[]
+├── Limits: max_price_per_million_tokens, min_success_rate, max_latency_ms
+└── Requirements: require_streaming, require_function_calling
+```
+
+### 5. **routing_decision_logs** (Audit Trail)
+Complete history of routing decisions
+```
+├── Decision: selected_provider_id, routing_strategy, routing_reason
+├── Candidates: candidates_count, candidates_json
+├── Fallback: fallback_providers[], is_fallback_request
+└── Performance: routing_duration_us
+```
+
+## 详细流程
+
+### 阶段 1：请求发起
+```
+User/API Request
+     │
+     ├─► Model ID: "deepseek-chat"
+     ├─► User ID: 12345
+     └─► Optional: RoutingPreferences { strategy: "performance" }
+```
+
+### 阶段 2：供应商发现
+```sql
+SELECT provider_id, channel_id, provider_name, pricing, metrics, quality_score
+FROM provider_models pm
+LEFT JOIN provider_model_metrics pmm ON (...)
+LEFT JOIN channels c ON pm.channel_id = c.id
+WHERE pm.model_id = 'deepseek-chat' AND pm.status = 1
+ORDER BY quality_score DESC
+```
+
+**Output:** List of ProviderCandidate structs
+```rust
+ProviderCandidate {
+    provider_id: 5,
+    channel_id: 23,
+    provider_name: "Provider A",
+    price_per_million_prompt: 2.50,
+    price_per_million_completion: 10.00,
+    success_rate: 0.98,
+    avg_latency_ms: 450,
+    quality_score: 0.92,
+    circuit_state: Closed,
+}
+```
+
+### 阶段 3：配置加载
+
+**Model Config:**
+```rust
+RoutingConfig {
+    canonical_model_id: "deepseek-chat",
+    latency_weight: 0.3,
+    success_rate_weight: 0.4,
+    price_weight: 0.2,
+    provider_priority_weight: 0.1,
+    default_strategy: "balanced",
+}
+```
+
+**User Preferences (merged with request prefs):**
+```rust
+RoutingPreferences {
+    strategy: Performance,
+    prefer_providers: [5, 8],
+    avoid_providers: [3],
+    max_price: Some(15.0),
+    min_success_rate: Some(0.95),
+}
+```
+
+### 阶段 4：智能评分
+
+#### Strategy: **Performance**
+```rust
+score = success_rate * 0.4 + latency_score * 0.3 + quality_score * 0.1 + priority_bonus
+```
+
+#### Strategy: **Cost**
+```rust
+price_score = 1.0 - (avg_price / 100.0)
+score = price_score * 0.6 + success_rate * 0.3 + quality_score * 0.1
+```
+
+#### Strategy: **Balanced**
+```rust
+perf_score = performance_score(candidate)
+cost_score = cost_score(candidate)
+score = perf_score * perf_weight + cost_score * cost_weight
+```
+
+### Phase 5: Provider Selection
+
+1. **Filter by preferences:**
+   - Remove avoided providers
+   - Check max_price threshold
+   - Check min_success_rate
+   - Check max_latency_ms
+
+2. **Boost preferred providers:**
+   - Apply 50% score boost to preferred providers
+
+3. **Weighted random selection:**
+   - Sort by score (descending)
+   - Take top 3 candidates
+   - Weighted random selection (prevents provider starvation)
+
+4. **Prepare fallback chain:**
+   - Remaining candidates become fallback providers (up to 3)
+
+### Phase 6: Circuit Breaker Check
+
+```
+┌──────────────────────────────────────────────┐
+│         Circuit State Machine                │
+├──────────────────────────────────────────────┤
+│                                              │
+│  CLOSED ──────────────► OPEN                 │
+│    ▲        (5 failures)    │                │
+│    │                        │                │
+│    │                    (60s timeout)        │
+│    │                        │                │
+│    │                        ▼                │
+│    └───── HALF-OPEN ◄────────                │
+│        (3 successes)                         │
+│                                              │
+└──────────────────────────────────────────────┘
+
+States:
+• CLOSED: Normal operation (all requests pass)
+• OPEN: Block all requests, try fallbacks
+• HALF-OPEN: Allow limited test requests
+```
+
+**Circuit Breaker Decision:**
+- If primary provider circuit is **OPEN** → Try fallback providers
+- If all circuits **OPEN** → Fallback to legacy routing
+- If circuit is **CLOSED** or **HALF-OPEN** → Proceed
+
+### Phase 7: Request Execution
+
+Request sent to selected channel:
+```
+Channel {
+    id: 23,
+    provider_id: 5,
+    base_url: "https://api.provider-a.com/v1",
+    key: "encrypted_key",
+    status: 1 (active)
+}
+```
+
+### Phase 8: Metrics Recording
+
+After request completion:
+```rust
+ProviderMetricsService::record_request(
+    provider_id: 5,
+    model_id: "deepseek-chat",
+    channel_id: 23,
+    latency_ms: 450,
+    success: true,
+    prompt_tokens: 1500,
+    completion_tokens: 300,
+)
+```
+
+**Metrics Update Process:**
+1. Record in memory buffer (fast)
+2. Periodic aggregation (every 60 seconds)
+3. Database update via `update_provider_metrics()` SQL function
+4. Quality score recalculation
+5. Circuit breaker state evaluation
+
+## 路由策略详解
+
+### 1. **性能策略**
+**目标：** 最大化速度和可靠性
+
+**评分公式：**
+```
+score = success_rate × 0.4 + latency_score × 0.3 + quality_score × 0.1 + priority_bonus
+```
+
+**适用场景：**
+- 实时应用
+- 延迟敏感型工作负载
+- 生产环境关键路径
+
+**示例：**
+```
+Provider A: 98% success, 450ms → Score: 0.89
+Provider B: 95% success, 800ms → Score: 0.78
+Winner: Provider A
+```
+
+### 2. **成本策略**
+**目标：** 最小化成本
+
+**评分公式：**
+```
+price_score = 1.0 - (avg_price / 100.0)
+score = price_score × 0.6 + success_rate × 0.3 + quality_score × 0.1
+```
+
+**适用场景：**
+- 批量处理
+- 开发/测试环境
+- 注重成本控制的应用
+
+**示例：**
+```
+Provider A: $5/M → Score: 0.92
+Provider B: $12/M → Score: 0.78
+Winner: Provider A (cheaper)
+```
+
+### 3. **均衡策略**（默认）
+**目标：** 综合优化所有因素
+
+**评分公式：**
+```
+Combined = performance_score × perf_weight + cost_score × cost_weight
+```
+
+**适用场景：**
+- 通用型应用
+- 混合工作负载
+- 大多数生产场景
+
+### 4. **轮询策略**
+**目标：** 均匀分配流量
+
+**行为：**
+- 所有供应商获得相同评分
+- 按顺序轮流选择供应商
+- 不考虑性能因素
+
+**适用场景：**
+- 负载分配测试
+- 供应商评估
+- 确保供应商多样性
+
+## 核心优势
+
+### 1. **智能供应商选择**
+**基于实时指标的路由**
+- 自动路由到表现最佳的供应商
+- 随供应商性能变化自动调整
+- 无需人工干预
+
+**多维度评分**
+- 综合考虑延迟、成功率、成本和质量
+- 每个模型可配置不同的权重
+- 基于策略的优化
+
+### 2. **高可用性与容错**
+
+**Circuit breaker pattern**
+```
+Failed Provider → Circuit Opens → Automatic Fallback
+↓
+Health Recovery → Circuit Half-Opens → Test Requests
+↓
+Success → Circuit Closes → Full Traffic Restoration
+```
+
+**自动故障转移链**
+- 每个请求最多 3 个备选供应商
+- 按评分排序
+- 供应商故障时无缝切换
+
+**无单点故障**
+- 同一模型有多个供应商
+- 无需重试即可即时切换
+- 优雅降级
+
+### 3. **成本优化**
+
+**感知价格的路由**
+- 成本策略优先选择更便宜的供应商
+- 用户级别的价格阈值
+- 在成本和性能之间取得平衡
+
+**供应商竞争**
+- 多个供应商在价格上竞争
+- 市场驱动的定价
+- 自动选择最高性价比
+
+### 4. **性能追踪**
+
+**全面的指标**
+```
+Latency: avg, p50, p95, p99, min, max
+Success Rate: overall, last_hour, last_24h
+Quality Score: calculated from success + latency + experience
+Token Throughput: tokens/second tracking
+```
+
+**历史数据**
+- 全时段累计指标
+- 时间窗口指标（按小时、按天）
+- 趋势分析能力
+
+### 5. **用户自主权**
+
+**可自定义的偏好设置**
+```rust
+UserPreferences {
+    strategy: "performance",           // Choose optimization goal
+    prefer_providers: [1, 5],          // Favorite providers
+    avoid_providers: [3],              // Blacklist problematic ones
+    max_price: 15.0,                   // Budget control
+    min_success_rate: 0.95,            // Quality threshold
+    max_latency_ms: 5000,              // Latency requirement
+}
+```
+
+**按请求覆盖**
+- 可以在每个 API 调用中覆盖默认偏好
+- 灵活适配不同使用场景
+- 保留用户默认设置
+
+### 6. **供应商生态系统优势**
+
+**公平的供应商曝光**
+- 加权随机选择防止某家垄断流量
+- 优质供应商获得更多流量
+- 新供应商有机会参与竞争
+
+**透明的性能数据**
+- 管理员可查看真实指标
+- 质量评分基于实际表现
+- 供应商需为表现负责
+
+### 7. **运维卓越性**
+
+**完整的审计追踪**
+```sql
+routing_decision_logs:
+- Every routing decision logged
+- Full candidate list with scores
+- Debugging and analytics
+- 7-day retention (configurable)
+```
+
+**管理员控制**
+```
+• Manual circuit breaker control
+• Per-model routing configuration
+• Provider approval workflow
+• Analytics dashboard
+```
+
+### 8. **可扩展性**
+
+**高效的数据结构**
+- 内存中的指标缓冲
+- 定期批量更新到数据库
+- 每个请求的额外开销极小
+
+**可分布式部署**
+- 无状态路由决策
+- 数据库支持的状态管理
+- 兼容 Redis 的熔断器
+
+### 9. **开发者体验**
+
+**简洁的 API 集成**
+```rust
+// Automatic routing - just pass model ID
+let channel = ChannelService::get_routed_channel(
+    &pool, "default", "deepseek-chat", user_id, None
+).await?;
+```
+
+**模拟端点**
+```http
+POST /api/routing/simulate
+{
+  "model_id": "deepseek-chat",
+  "preferences": { "strategy": "cost" }
+}
+```
+
+### 10. **商业智能**
+
+**丰富的分析数据**
+```
+• Provider selection rates
+• Strategy distribution
+• Model usage patterns
+• Cost analysis
+• Performance trends
+```
+
+## 性能特征
+
+### 路由决策速度
+- **平均：** < 10ms
+- **P99：** < 50ms
+- **包含：** 数据库查询 + 评分 + 选择
+
+### 指标更新
+- **内存缓冲：** 每条记录 ~1μs
+- **数据库刷写：** 每 60 秒（异步，非阻塞）
+- **对请求的影响：** 零（异步记录）
+
+### 数据库查询
+- **供应商查找：** 使用索引的单次 JOIN 查询
+- **配置加载：** 缓存或单次查询
+- **指标聚合：** 定期批量操作
+
+## 安全与隔离
+
+### 数据隔离
+**供应商模型与传统渠道完全分离
+provider_models 和 abilities 表不混用
+路由逻辑清晰隔离
+
+### 访问控制
+**供应商只能管理自己的模型
+模型上线需要管理员审批
+用户级路由偏好相互隔离
+
+### API 密钥管理
+**加密的渠道密钥
+供应商自有 API 密钥
+通过 provider_api_keys 表支持密钥轮换
+
+## 未来规划
+
+### 计划中的改进
+1. **基于机器学习的路由**
+   - 预测供应商性能
+   - 学习用户行为模式
+   - 自适应权重调整
+
+2. **地理位置路由**
+   - 感知供应商位置
+   - 基于延迟的地理选择
+   - 区域故障转移
+
+3. **高级分析**
+   - 供应商对比看板
+   - 成本预测
+   - 性能预估
+
+4. **增强的故障转移策略**
+   - 带退避的智能重试
+   - 跨模型故障转移
+   - 动态策略切换
+
+## 配置示例
+
+### 示例 1：高性能配置
+```sql
+INSERT INTO model_routing_config VALUES (
+    'deepseek-chat',
+    0.35,  -- latency_weight (high)
+    0.45,  -- success_rate_weight (high)
+    0.10,  -- price_weight (low)
+    0.10,  -- provider_priority_weight
+    'performance'
+);
+```
+
+### 示例 2：成本优化配置
+```sql
+INSERT INTO model_routing_config VALUES (
+    'deepseek-chat-v3.1',
+    0.15,  -- latency_weight (low)
+    0.35,  -- success_rate_weight (medium)
+    0.40,  -- price_weight (high)
+    0.10,  -- provider_priority_weight
+    'cost'
+);
+```
+
+### 示例 3：用户成本控制
+```rust
+UserRoutingPreferences {
+    default_strategy: "cost",
+    max_price_per_million_tokens: 10.0,  // Max $10/M
+    min_success_rate: 0.90,              // Must maintain 90%+
+    preferred_providers: [1, 5, 8],      // Try these first
+}
+```

@@ -1,0 +1,26 @@
+{
+  "title": {
+    "message": "Knox Chat",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "一次 API 调用即可访问数百个 AI 模型",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Docs": {
+    "message": "文档",
+    "description": "Navbar item with label Docs"
+  },
+  "item.label.API Reference": {
+    "message": "API 参考",
+    "description": "Navbar item with label API Reference"
+  },
+  "item.label.Blog": {
+    "message": "博客",
+    "description": "Navbar item with label Blog"
+  },
+  "item.label.Back to Knox Chat": {
+    "message": "返回 Knox Chat",
+    "description": "Navbar item with label Back to Knox Chat"
+  }
+}

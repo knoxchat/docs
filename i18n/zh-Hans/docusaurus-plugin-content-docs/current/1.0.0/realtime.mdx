@@ -1,0 +1,205 @@
+---
+id: realtime
+title: "实时语音会话"
+description: "通过 WebSocket 与 gpt-realtime-2.1 或 gpt-realtime-2.1-mini 建立按量计费的语音到语音会话。音频与文本输入，音频与文本输出，支持工具调用和可配置推理。"
+sidebar_label: "实时语音会话"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"实时语音会话"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"wss://api.knox.chat/v1/realtime"}
+>
+</MethodEndpoint>
+
+打开一个按量计费的语音到语音会话。Knox 会验证您的 API key，选择上游 OpenAI 兼容的 Realtime 通道，并转发实时事件流。
+
+这**不是** [`POST /v1/chat/completions`](/1.0.0/chat-completion)。客户端必须升级为 WebSocket。普通 HTTP 请求会返回 `400`。`POST /v1/realtime` 同样用于 WebSocket 升级。相同路由也挂载在 `/api/v1` 下。
+
+接受的模型 ID：`gpt-realtime-2.1` 和 `gpt-realtime-2.1-mini`。查询参数 `?model=` 可选，Knox 默认使用 `gpt-realtime-2.1`。会话配置、计费、托管联网搜索和 WebRTC 的完整说明见 [实时语音](/realtime) 指南。
+
+OpenAI 官方参考：[Realtime 概览](https://developers.openai.com/api/docs/guides/realtime)、[WebSocket 传输](https://developers.openai.com/api/docs/guides/realtime-websocket)、[对话与事件](https://developers.openai.com/api/docs/guides/realtime-conversations)。
+
+## 请求
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| model | String | 否 | Realtime 模型 ID。`gpt-realtime-2.1` 或 `gpt-realtime-2.1-mini`。默认为 `gpt-realtime-2.1`。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 条件 | `Bearer sk-…` 或 `Bearer ek_knox_…`。除非密钥通过 WebSocket 子协议发送，或（仅限 WebSocket 升级）通过 `?api_key=` / `?authorization=` 发送，否则必填。 |
+| x-api-key | String | 否 | Anthropic 风格的 `Authorization` 替代方式。 |
+| Upgrade | String | 是 | 必须为 `websocket`。 |
+| Sec-WebSocket-Protocol | String | 否 | 浏览器客户端应发送 `realtime` 以及 `openai-insecure-api-key.sk-…`。当客户端请求时，Knox 会回显 `Sec-WebSocket-Protocol: realtime`。 |
+
+浏览器原生 `WebSocket` 无法设置 HTTP 头。请使用子协议形式：
+
+```javascript
+const ws = new WebSocket(
+  "wss://api.knox.chat/v1/realtime?model=gpt-realtime-2.1",
+  ["realtime", "openai-insecure-api-key.sk-YOUR_KNOX_KEY"]
+);
+```
+
+Knox 签发的临时密钥（`ek_knox_…`）来自 [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)，有效期约 60 秒。
+
+请**不要**发送 `OpenAI-Beta: realtime=v1`。这是 GA 接口。Knox 会哈希用户 ID 并在上游连接上发送 `OpenAI-Safety-Identifier`，您无需自行设置。
+
+## 默认会话设置
+
+未发送自己的 `session.update` 时，Knox 会应用以下默认值：
+
+- `session.type`：`realtime`
+- `output_modalities`：`["audio"]`（以语音为主；转写是字幕，不是单独的文本生成）
+- 输入音频：PCM 24 kHz
+- 轮次检测：`semantic_vad`，`eagerness: high`，支持打断（`interrupt_response`）
+- 输出音色：`marin`，PCM 24 kHz
+- `reasoning.effort`：`low`
+- 托管 `web_search` 函数工具（通过 `"web_search": false` 退出）
+
+## 连接示例
+
+### Node.js
+
+```javascript
+import WebSocket from "ws";
+
+const ws = new WebSocket(
+  "wss://api.knox.chat/v1/realtime?model=gpt-realtime-2.1",
+  {
+    headers: {
+      Authorization: "Bearer " + process.env.KNOX_API_KEY,
+    },
+  }
+);
+
+ws.on("open", () => {
+  ws.send(
+    JSON.stringify({
+      type: "session.update",
+      session: {
+        type: "realtime",
+        model: "gpt-realtime-2.1",
+        instructions: "You are a concise voice assistant.",
+        output_modalities: ["audio"],
+        audio: {
+          input: {
+            format: { type: "audio/pcm", rate: 24000 },
+            turn_detection: {
+              type: "semantic_vad",
+              eagerness: "high",
+              create_response: true,
+              interrupt_response: true,
+            },
+          },
+          output: {
+            format: { type: "audio/pcm", rate: 24000 },
+            voice: "marin",
+          },
+        },
+        reasoning: { effort: "low" },
+      },
+    })
+  );
+});
+
+ws.on("message", (data) => {
+  const event = JSON.parse(data.toString());
+  console.log(event.type, event);
+});
+```
+
+### Python
+
+```python
+import json
+import os
+import websocket
+
+url = "wss://api.knox.chat/v1/realtime?model=gpt-realtime-2.1"
+headers = [f"Authorization: Bearer {os.environ['KNOX_API_KEY']}"]
+
+def on_open(ws):
+    ws.send(json.dumps({
+        "type": "session.update",
+        "session": {
+            "type": "realtime",
+            "model": "gpt-realtime-2.1",
+            "instructions": "You are a concise voice assistant.",
+            "reasoning": {"effort": "low"},
+        },
+    }))
+
+def on_message(ws, message):
+    print(json.loads(message).get("type"))
+
+websocket.WebSocketApp(url, header=headers, on_open=on_open, on_message=on_message).run_forever()
+```
+
+### 发送音频
+
+Realtime 期望在 `input_audio_buffer.append` 中发送 **base64 PCM16 单声道 24 kHz**。使用 `semantic_vad` 时，正常轮次无需调用 `input_audio_buffer.commit` 或 `response.create`。
+
+```json
+{ "type": "input_audio_buffer.append", "audio": "<base64 pcm16>" }
+```
+
+## 服务端事件
+
+常用 GA 事件名：
+
+| 事件 | 含义 |
+| ---- | ---- |
+| `session.created` | 会话已建立 |
+| `response.output_audio.delta` | 待播放的 base64 PCM 分片 |
+| `response.output_audio_transcript.delta` | 助手转写流 |
+| `conversation.item.input_audio_transcription.completed` | 用户转写 |
+| `response.done` | 本轮结束；包含 `usage`（Knox 据此计费） |
+| `error` | 客户端或服务端错误 |
+
+旧客户端仍可使用 Beta 名称（`response.audio.delta`、`response.audio_transcript.delta`）。
+
+## 非 WebSocket 的 HTTP 请求
+
+```shell
+curl -i https://api.knox.chat/v1/realtime \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+预期返回 `400`，说明 `/v1/realtime` 需要 WebSocket（或 [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)）。
+
+## 错误响应
+
+| 状态码 | 何时出现 |
+| ------ | -------- |
+| `400` | 请求不是 WebSocket 升级，或握手无效。 |
+| `401` | Knox API key 缺失或无效（或 `ek_knox_…` 已过期）。 |
+| `402` | 账户余额不大于 $0.01。 |
+| `403` | Token 的模型白名单不包含所请求的实时模型（`gpt-realtime-2.1` 或 `gpt-realtime-2.1-mini`）。 |
+| `502` | 没有可用的 OpenAI 兼容 Realtime 通道，或上游连接失败。 |
+
+升级成功后，失败也可能以 WebSocket `error` 事件返回，而不是 HTTP 状态码。

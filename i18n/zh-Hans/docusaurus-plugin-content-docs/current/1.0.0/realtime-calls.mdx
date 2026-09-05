@@ -1,0 +1,125 @@
+---
+id: realtime-calls
+title: "创建实时通话"
+description: "通过 Knox 与上游 OpenAI 交换 WebRTC SDP。SDP 成功后，媒体直接通往 OpenAI。"
+sidebar_label: "创建实时通话"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"创建实时通话"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/realtime/calls"}
+>
+</MethodEndpoint>
+
+WebRTC SDP 交换。Knox 使用通道密钥将 offer SDP 转发给 OpenAI，并返回 answer SDP。
+
+**计费注意：** SDP 成功后，WebRTC 媒体和数据通道会**直接通往 OpenAI**。Knox 在该路径上看不到 `response.done`，因此按 token 计量不完整。需要准确 Knox 计费时，请优先使用 [WebSocket 会话](/1.0.0/realtime)。
+
+Knox 仍会把托管 `web_search` 工具注入 SDP 会话，但媒体离开 Knox 后无法完成函数调用。需要托管搜索时请使用 WebSocket。
+
+参见 [实时语音](/realtime) 指南以及 OpenAI 的 [WebRTC 传输](https://developers.openai.com/api/docs/guides/realtime-webrtc)。
+
+## 请求
+
+发送原始 SDP 或 JSON。**不接受** `multipart/form-data`。
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer sk-…` 或 `Bearer ek_knox_…`。 |
+| Content-Type | String | 是 | 原始 SDP 使用 `application/sdp`（或 `text/plain`）；JSON 使用 `application/json`，体为 `{ "sdp", "session" }`。 |
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| model | String | 否 | Realtime 模型 ID。`gpt-realtime-2.1` 或 `gpt-realtime-2.1-mini`。默认为 `gpt-realtime-2.1`。JSON 中已设置 `session.model` 时忽略。 |
+
+### JSON 请求体（`application/json`）
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| sdp | String | 是 | WebRTC offer SDP。 |
+| session | Object | 否 | Realtime 会话配置。省略时 Knox 会补上 `type` 和 `model`。 |
+
+### 原始 SDP 请求体（`application/sdp`）
+
+请求体为 offer SDP 文本。会话配置使用 Knox 默认值。
+
+相同路由也挂载在 `/api/v1` 下。
+
+## cURL 示例
+
+### JSON offer
+
+```shell
+curl -s https://api.knox.chat/v1/realtime/calls \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "sdp": "v=0\r\n…",
+  "session": {
+    "type": "realtime",
+    "model": "gpt-realtime-2.1",
+    "audio": { "output": { "voice": "marin" } }
+  }
+}'
+```
+
+### 原始 SDP
+
+```shell
+curl -s https://api.knox.chat/v1/realtime/calls \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/sdp" \
+     --data-binary @offer.sdp
+```
+
+## 响应
+
+成功时 Knox 返回上游 answer SDP。`Content-Type` 通常为 `application/sdp`。HTTP 状态码与上游响应一致。
+
+将 answer SDP 连接到您的 `RTCPeerConnection`。此后音频和数据通道与 OpenAI 直连，不再由 Knox 代理。
+
+## 错误响应
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Missing sdp"
+  }
+}
+```
+
+| 状态码 | 消息 | 何时出现 |
+| ------ | ---- | -------- |
+| `400` | `Missing sdp` | JSON 体中没有 `sdp` 字符串。 |
+| `400` | `Invalid JSON body` | 请求体不是有效 JSON。 |
+| `400` | `multipart/form-data for /v1/realtime/calls is not supported; send application/sdp or JSON {"sdp","session"}` | 使用了 multipart 上传。请改为 JSON 或原始 SDP。 |
+| `400` | `SDP must be UTF-8 text` | 请求体不是 UTF-8。 |
+| `401` | Authentication required | Knox API key 缺失或无效 / 临时密钥已过期。 |
+| `402` | Insufficient balance | 账户余额不大于 $0.01。 |
+| `403` | Token is not authorized to use model | Token 白名单不包含所请求的实时模型（`gpt-realtime-2.1` 或 `gpt-realtime-2.1-mini`）。 |
+| `502` | `Failed to connect to realtime provider` / `Realtime call failed with status …` | 上游连接或 SDP 交换失败。 |

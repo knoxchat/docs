@@ -1,0 +1,105 @@
+---
+sidebar_position: 4
+sidebar_label: 提示缓存
+---
+
+# 提示缓存
+
+为了节省推理成本，您可以在支持的供应商和模型上启用提示缓存。
+
+大多数供应商会自动启用提示缓存，但请注意，部分供应商（如下文的 Anthropic）需要您在每条消息中单独启用此功能。
+
+开启缓存后（无论是在支持的模型中自动启用，还是通过 `cache_control` 头手动开启），Knox Chat 会尽最大努力将后续请求路由到同一供应商，以充分利用已预热的缓存。如果缓存了提示的供应商变得不可用，Knox Chat 会自动尝试下一个最优供应商。
+
+## OpenAI
+
+缓存价格变化：
+
+- 缓存写入：免费
+- 缓存读取：按原始输入价格的 0.5 倍计费
+OpenAI 即时缓存是自动化的，无需额外配置。即时缓存的最小大小为 1024 个 token。
+
+[点击此处了解 OpenAI 提示缓存的更多信息及其限制](https://openai.com/index/api-prompt-caching/)
+
+## Anthropic Claude
+
+缓存价格变化：
+
+- 缓存写入：按原始输入价格的 1.25 倍计费
+- 缓存读取：按原始输入价格的 0.1 倍计费
+
+Anthropic 的快速缓存需要使用 `cache_control` 断点。断点数量限制为四个，缓存将在五分钟后过期。因此，建议将缓存断点保留给大量文本（如角色设定卡、CSV 数据、RAG 数据、书籍章节等）。
+
+[点击此处了解 Anthropic 提示缓存的更多信息及其限制](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+
+`cache_control` 断点只能插入在多部分消息的文本部分中。
+
+系统消息缓存示例：
+
+```json
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "text",
+          "text": "You are a historian studying the fall of the Roman Empire. You know the following book very well:"
+        },
+        {
+          "type": "text",
+          "text": "HUGE TEXT BODY",
+          "cache_control": {
+            "type": "ephemeral"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "What triggered the collapse?"
+        }
+      ]
+    }
+  ]
+}
+```
+用户消息缓存示例：
+
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Given the book below:"
+        },
+        {
+          "type": "text",
+          "text": "HUGE TEXT BODY",
+          "cache_control": {
+            "type": "ephemeral"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Name all the characters in the above book"
+        }
+      ]
+    }
+  ]
+}
+```
+## DeepSeek
+
+缓存价格变化：
+
+- 缓存写入：按原始输入价格计费
+- 缓存读取：按原始输入价格的 0.1 倍计费
+
+DeepSeek 提示缓存是自动化的，无需额外配置。

@@ -5,7 +5,7 @@ const sidebar: SidebarsConfig = {
     {
       type: "doc",
       id: "1.0.0/api-reference",
-      label: "Overview",
+      label: "API Reference",
       className: "api-method intro",
     },
     {
@@ -40,21 +40,45 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "doc",
-      id: "1.0.0/post-embeddings",
-      label: "Text embedding models",
+      id: "1.0.0/realtime",
+      label: "Realtime session",
+      className: "api-method get",
+    },
+    {
+      type: "doc",
+      id: "1.0.0/realtime-client-secrets",
+      label: "Create realtime client secret",
       className: "api-method post",
     },
     {
       type: "doc",
-      id: "1.0.0/multimodal-embedding",
-      label: "Multimodal embedding models",
+      id: "1.0.0/realtime-calls",
+      label: "Create realtime call",
       className: "api-method post",
     },
     {
       type: "doc",
-      id: "1.0.0/reranker",
-      label: "Rerankers",
+      id: "1.0.0/create-video",
+      label: "Submit a video generation request",
       className: "api-method post",
+    },
+    {
+      type: "doc",
+      id: "1.0.0/get-video",
+      label: "Poll video generation status",
+      className: "api-method get",
+    },
+    {
+      type: "doc",
+      id: "1.0.0/get-video-content",
+      label: "Download generated video content",
+      className: "api-method get",
+    },
+    {
+      type: "doc",
+      id: "1.0.0/list-video-models",
+      label: "List all video generation models",
+      className: "api-method get",
     },
   ],
 };

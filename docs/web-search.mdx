@@ -77,3 +77,7 @@ This annotation format is consistent across all models that support web search, 
 ## Pricing
 
 Web search requests are billed using your Knox Chat balance based on the underlying model's token pricing. The `web_search` cost component (if applicable for the model) is included in the model's pricing information, which is synced from provider data. Check the model details in the Knox Chat dashboard for specific pricing.
+
+## Realtime voice search
+
+Speech-to-speech sessions on [`/v1/realtime`](/1.0.0/realtime) do not use `:online` or Anthropic `web_search`. Knox registers a hosted `web_search` function tool on `gpt-realtime-2.1` and `gpt-realtime-2.1-mini` WebSocket sessions, fulfills it via the Responses API, and bills search calls plus the search model's tokens. Pass `"web_search": false` on `session.update` to opt out. See [Realtime](/realtime#web-search).

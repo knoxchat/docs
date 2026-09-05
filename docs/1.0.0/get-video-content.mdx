@@ -1,0 +1,113 @@
+---
+id: get-video-content
+title: "Download Generated Video Content"
+description: "Download the raw bytes of a completed video generation job. Follow redirects; the response may be a 307 to a presigned URL."
+sidebar_label: "Download generated video content"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Download Generated Video Content"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knox.chat/v1/videos/{jobId}/content"}
+>
+</MethodEndpoint>
+
+Download the generated video for a job created by [`POST /v1/videos`](/1.0.0/create-video). The job must already be `completed` — poll [`GET /v1/videos/{jobId}`](/1.0.0/get-video) first.
+
+The response is raw media (typically `video/mp4`), not JSON. When the file is stored in object storage, the API may respond with `307 Temporary Redirect` to a short-lived presigned URL. Follow redirects (`curl -L`) and treat `unsigned_urls` from the poll response as an equivalent download path.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| jobId | String | Yes | Job ID returned by submit, for example `job-3c91a0e8b7d24f11`. |
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| index | Integer | No | Zero-based video index when a job produced multiple files. Defaults to `0`. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | Bearer authentication in the form `Bearer <token>`. |
+
+This endpoint has no request body.
+
+## cURL Example
+
+Save the first (or only) video to a file. `-L` follows the optional `307` redirect:
+
+```shell
+curl -L "https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11/content" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -o generated.mp4
+```
+
+Download a specific index:
+
+```shell
+curl -L "https://api.knox.chat/v1/videos/job-3c91a0e8b7d24f11/content?index=0" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -o generated-0.mp4
+```
+
+## Response
+
+### Success Response (200)
+
+Raw video bytes. Typical headers:
+
+| Header | Value |
+| ------ | ----- |
+| Content-Type | `video/mp4` (or the upstream media type, such as `video/webm`) |
+| Cache-Control | `private, max-age=60` |
+
+There is no JSON body on success.
+
+### Redirect Response (307)
+
+When the video is already stored, the API may return `307 Temporary Redirect` with a `Location` header pointing at a presigned download URL. The redirect is also marked `Cache-Control: private, max-age=60`. HTTP clients should follow it automatically.
+
+### Error Responses
+
+Content errors use the standard video error envelope:
+
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Video content is not available until generation has completed"
+  }
+}
+```
+
+| Status | Message | When |
+| ------ | ------- | ---- |
+| `400` | `Video content is not available until generation has completed` | The job is still `pending` or `in_progress`, or ended in a non-completed status. |
+| `401` | `Missing Authentication header` | Missing or invalid API key. |
+| `404` | `Resource not found` | Unknown `jobId`, another user's job, or no stored/upstream file for the requested `index`. |
+| `500` | `Internal Server Error` | Unexpected server error. |

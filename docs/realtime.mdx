@@ -1,0 +1,346 @@
+---
+sidebar_position: 15
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Realtime
+
+Knox proxies OpenAI’s [Realtime API](https://developers.openai.com/api/docs/guides/realtime) for [`gpt-realtime-2.1`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1) and [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini). Clients connect to Knox with a Knox API key. Knox authenticates, picks an upstream OpenAI channel, and relays the live session.
+
+This is a speech-to-speech voice-agent endpoint: audio and text in, audio and text out, with tool use and configurable reasoning. It is **not** [`/v1/chat/completions`](/1.0.0/chat-completion). For one-shot audio files in chat, see [Audio Inputs](/audio).
+
+All authenticated requests use the same base URL and API key as the rest of Knox Chat:
+
+```
+https://api.knox.chat/v1
+Authorization: Bearer sk-...
+```
+
+The same routes are also mounted under `/api/v1`. Query `?model=` is optional; Knox defaults to `gpt-realtime-2.1`.
+
+## Endpoints
+
+| Path | Transport | Purpose |
+| ---- | --------- | ------- |
+| `GET` / `POST` `/v1/realtime` | WebSocket | Conversation session (billed) |
+| `POST` `/v1/realtime/client_secrets` | HTTP JSON | Mint a Knox-scoped ephemeral key (`ek_knox_…`) |
+| `POST` `/v1/realtime/calls` | HTTP SDP / JSON | WebRTC SDP exchange with upstream OpenAI |
+
+Typical flow:
+
+1. Connect — [`GET /v1/realtime`](/1.0.0/realtime) over WebSocket (recommended billed path)
+2. Optionally mint a browser key — [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)
+3. Optionally exchange SDP — [`POST /v1/realtime/calls`](/1.0.0/realtime-calls) (WebRTC; billing is incomplete)
+
+You can also use **OpenAI: GPT Realtime 2.1** or **OpenAI: GPT Realtime 2.1 Mini** in the Knox.Chat UI or [KnoxStudio](https://knoxstudio.ai): select the model, pick an API key, and click the microphone.
+
+Confirm the model is listed:
+
+```shell
+curl -s https://api.knox.chat/v1/models \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  | jq '.data[] | select(.id|test("realtime"))'
+```
+
+You should see `gpt-realtime-2.1` and `gpt-realtime-2.1-mini` with input modalities `text`, `audio`, `image` and output `text`, `audio`.
+
+## Authentication
+
+Knox tokens use the same `sk-` prefix as the rest of `/v1`.
+
+| Client | How to send the key |
+| ------ | ------------------- |
+| Server (Node `ws`, Python, etc.) | `Authorization: Bearer sk-…` |
+| Anthropic-style HTTP | `x-api-key: sk-…` |
+| Browser WebSocket | subprotocol `openai-insecure-api-key.sk-…` plus `realtime` |
+| Knox-issued ephemeral | `Authorization: Bearer ek_knox_…` (valid ~60s, then connect) |
+
+On WebSocket upgrades only, `?api_key=` or `?authorization=` is accepted if headers/subprotocol are missing.
+
+Browser native `WebSocket` cannot set HTTP headers:
+
+```javascript
+const ws = new WebSocket(
+  "wss://api.knox.chat/v1/realtime?model=gpt-realtime-2.1",
+  ["realtime", "openai-insecure-api-key.sk-YOUR_KNOX_KEY"]
+);
+```
+
+Knox echoes `Sec-WebSocket-Protocol: realtime` when the client requested it.
+
+Safety identifiers: Knox hashes the Knox user id and sends `OpenAI-Safety-Identifier` on the upstream connection. You do not need to set this yourself. Do **not** send `OpenAI-Beta: realtime=v1`. This is the GA interface.
+
+Minimum balance to start a session: **> $0.01**. The token must allow all models (`*` / `__ALL_MODELS__`) or list the realtime model you call (`gpt-realtime-2.1` and/or `gpt-realtime-2.1-mini`).
+
+## Server-to-server WebSocket
+
+This is the fully billed path. Knox sits between your process and `wss://api.openai.com/v1/realtime`.
+
+<Tabs>
+<TabItem value="node" label="Node.js">
+
+```javascript
+import WebSocket from "ws";
+
+const ws = new WebSocket(
+  "wss://api.knox.chat/v1/realtime?model=gpt-realtime-2.1",
+  {
+    headers: {
+      Authorization: "Bearer " + process.env.KNOX_API_KEY,
+    },
+  }
+);
+
+ws.on("open", () => {
+  ws.send(
+    JSON.stringify({
+      type: "session.update",
+      session: {
+        type: "realtime",
+        model: "gpt-realtime-2.1",
+        instructions: "You are a concise voice assistant.",
+        output_modalities: ["audio"],
+        audio: {
+          input: {
+            format: { type: "audio/pcm", rate: 24000 },
+            turn_detection: {
+              type: "semantic_vad",
+              eagerness: "high",
+              create_response: true,
+              interrupt_response: true,
+            },
+          },
+          output: {
+            format: { type: "audio/pcm", rate: 24000 },
+            voice: "marin",
+          },
+        },
+        reasoning: { effort: "low" },
+      },
+    })
+  );
+});
+
+ws.on("message", (data) => {
+  const event = JSON.parse(data.toString());
+  console.log(event.type, event);
+});
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```python
+import json
+import os
+import websocket
+
+url = "wss://api.knox.chat/v1/realtime?model=gpt-realtime-2.1"
+headers = [f"Authorization: Bearer {os.environ['KNOX_API_KEY']}"]
+
+def on_open(ws):
+    ws.send(json.dumps({
+        "type": "session.update",
+        "session": {
+            "type": "realtime",
+            "model": "gpt-realtime-2.1",
+            "instructions": "You are a concise voice assistant.",
+            "reasoning": {"effort": "low"},
+        },
+    }))
+
+def on_message(ws, message):
+    print(json.loads(message).get("type"))
+
+websocket.WebSocketApp(url, header=headers, on_open=on_open, on_message=on_message).run_forever()
+```
+
+</TabItem>
+</Tabs>
+
+Hitting `/v1/realtime` without `Upgrade: websocket` returns `400`.
+
+### Sending audio
+
+Realtime expects **base64 PCM16 mono 24 kHz** in `input_audio_buffer.append`. With `semantic_vad`, you do not need to call `input_audio_buffer.commit` or `response.create` for normal turn-taking.
+
+```json
+{ "type": "input_audio_buffer.append", "audio": "<base64 pcm16>" }
+```
+
+Useful server events (GA names):
+
+| Event | Meaning |
+| ----- | ------- |
+| `session.created` | Session is live |
+| `response.output_audio.delta` | Base64 PCM chunk to play |
+| `response.output_audio_transcript.delta` | Assistant transcript stream |
+| `conversation.item.input_audio_transcription.completed` | User transcript |
+| `response.done` | Turn finished; includes `usage` (Knox bills this) |
+| `error` | Client or server error |
+
+Beta names (`response.audio.delta`, `response.audio_transcript.delta`) still work if an older client sends them.
+
+## Session config and prompting
+
+Start with `reasoning.effort` `low`. Higher effort increases latency and output tokens.
+
+Knox defaults when you do not send your own session:
+
+- `session.type`: `realtime`
+- `output_modalities`: `["audio"]`
+- input audio: PCM 24 kHz, `semantic_vad` with `eagerness: high` and barge-in
+- output voice: `marin` at PCM 24 kHz
+- `reasoning.effort`: `low`
+
+```json
+{
+  "type": "session.update",
+  "session": {
+    "type": "realtime",
+    "model": "gpt-realtime-2.1",
+    "instructions": "Speak briefly. Confirm before taking actions.",
+    "output_modalities": ["audio"],
+    "reasoning": { "effort": "low" },
+    "truncation": {
+      "type": "retention_ratio",
+      "retention_ratio": 0.8,
+      "token_limits": { "post_instructions": 8000 }
+    }
+  }
+}
+```
+
+OpenAI’s prompting guide covers preambles, unclear audio, exact entity capture, and tool use. Tools are standard Realtime function tools over the same event stream (`response.function_call_arguments.delta`, then your `conversation.item.create` with the tool result).
+
+## Ephemeral keys and WebRTC
+
+### `POST /v1/realtime/client_secrets`
+
+Authenticated with a Knox API key. Returns a Knox secret, not an OpenAI `ek_` key.
+
+```shell
+curl -s https://api.knox.chat/v1/realtime/client_secrets \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session": {
+      "type": "realtime",
+      "model": "gpt-realtime-2.1",
+      "audio": { "output": { "voice": "marin" } }
+    }
+  }'
+```
+
+Response shape:
+
+```json
+{
+  "value": "ek_knox_…",
+  "expires_at": 1750000000,
+  "session": { "type": "realtime", "model": "gpt-realtime-2.1" }
+}
+```
+
+TTL is **60 seconds**. Use `value` immediately on Knox. Raw OpenAI ephemeral keys are never returned, so the browser cannot bypass Knox billing on the WebSocket path. Secrets are in-process; they are not shared across replicas.
+
+### `POST /v1/realtime/calls`
+
+Send either `Content-Type: application/sdp` with the raw offer SDP, or `Content-Type: application/json` with `{ "sdp": "…", "session": { … } }`. Knox forwards the SDP to OpenAI and returns the answer SDP.
+
+`multipart/form-data` is not accepted.
+
+After SDP succeeds, WebRTC media goes directly to OpenAI. Prefer WebSocket when you need accurate Knox billing or hosted web search fulfillment.
+
+## Web search
+
+`gpt-realtime-2.1` and `gpt-realtime-2.1-mini` do not host OpenAI’s built-in Responses `web_search` tool. On the billed WebSocket path, Knox enables live search by:
+
+1. Registering a `web_search` **function** tool on the session (plus instructions to use it for current events).
+2. Calling OpenAI `POST /v1/responses` with `{ "type": "web_search" }` when the model invokes that function.
+3. Returning `function_call_output` and `response.create` so the voice model can speak a sourced answer.
+
+Direct `/v1/realtime` clients get the same injection on `session.update` (and a fallback update after `session.created` if they never send one). Knox Chat microphone sessions do this automatically.
+
+Pass `"web_search": false` on `session.update` to opt out. If you already define your own function named `web_search`, Knox leaves it alone and does not intercept.
+
+Search uses `gpt-4.1-mini` (falling back to `gpt-4o-mini` / `gpt-4.1`) on the same OpenAI channel, with `search_context_size: medium`. Tool calls are billed at OpenAI’s web search rate ($10 / 1k calls) plus the search model’s tokens. `/activity` shows these as a Search line.
+
+WebRTC `/v1/realtime/calls` still injects the tool into the SDP session, but media goes directly to OpenAI, so Knox cannot fulfill the function call.
+
+This is separate from chat `:online` variants and Anthropic `web_search` on [`/v1/chat/completions`](/web-search).
+
+## Billing
+
+Charged on each `response.done` (and input-transcription usage events when present), using the [OpenAI Realtime cost model](https://developers.openai.com/api/docs/guides/realtime-costs). Group ratio applies. Rates match OpenAI’s published cards (USD per 1M tokens).
+
+[`gpt-realtime-2.1`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1):
+
+| | Input | Cached input | Output |
+| --- | ---: | ---: | ---: |
+| Text | $4.00 | $0.40 | $24.00 |
+| Audio | $32.00 | $0.40 | $64.00 |
+| Image | $5.00 | $0.50 | — |
+
+[`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini):
+
+| | Input | Cached input | Output |
+| --- | ---: | ---: | ---: |
+| Text | $0.60 | $0.06 | $2.40 |
+| Audio | $10.00 | $0.30 | $20.00 |
+| Image | $0.80 | $0.08 | — |
+
+Knox reads `response.usage.input_token_details` / `output_token_details` (including `cached_tokens_details`) so text, audio, and image are priced separately. Cached tokens are a subset of input tokens and bill at the cached rate. `/activity` shows those three lines (T / A / I).
+
+Realtime does **not** follow the chat-completions “no output tokens → no charge” rule. Input-only or transcription-only turns still bill. Any billable realtime event with usage is charged at least **$0.0001**.
+
+Input transcription, when enabled, is billed from `conversation.item.input_audio_transcription.completed` on the **transcribe** rate card, not speech-to-speech. Knox defaults to [`gpt-4o-mini-transcribe`](https://developers.openai.com/api/docs/models/gpt-4o-mini-transcribe) at **$1.25 / $5.00** per 1M audio-in / text-out tokens (`gpt-4o-transcribe` is $2.50 / $10.00 if the session selects it).
+
+Audio is ~1 token per 100 ms of user audio and ~1 token per 50 ms of assistant audio. Later turns include prior conversation items, so cost grows unless you truncate or delete old items.
+
+## Limits
+
+- `/v1/realtime` is conversation / voice-agent only. Translation (`/v1/realtime/translations`) and dedicated transcription sessions are not implemented.
+- Chat Completions and Responses are **not** supported for this model on OpenAI’s side either.
+- Max Realtime session length is OpenAI’s **60 minutes**.
+- Multi-instance ephemeral secrets are in-process; they are not shared via Redis.
+- WebRTC is supported for SDP, not for Knox-accurate token billing.
+
+## Troubleshooting
+
+### Handshake never upgrades
+
+- Hitting `/v1/realtime` without `Upgrade: websocket` returns 400.
+- Missing/invalid Knox key → 401.
+- Browser: include both `realtime` and `openai-insecure-api-key.sk-…` subprotocols.
+
+### Session opens but no audio
+
+- Client must send PCM16 24 kHz, not WAV/MP3/WebM.
+- Watch for `error` events (`input_audio_buffer.append` rejected, invalid event shape).
+- `semantic_vad` waits for end of speech; Knox defaults to `eagerness: high` so replies start sooner.
+
+### Ephemeral key rejected immediately
+
+`ek_knox_…` lives in memory on **that** Knox process for 60 seconds. A different replica, a restart, or waiting too long invalidates it.
+
+### Quick connectivity check
+
+```shell
+curl -i https://api.knox.chat/v1/realtime \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+# expect 400: requires WebSocket
+
+curl -i https://api.knox.chat/v1/realtime/client_secrets \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"session":{"type":"realtime","model":"gpt-realtime-2.1"}}'
+```
+
+## API Reference
+
+* [Realtime session](/1.0.0/realtime)
+* [Create realtime client secret](/1.0.0/realtime-client-secrets)
+* [Create realtime call](/1.0.0/realtime-calls)

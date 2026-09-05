@@ -1,0 +1,221 @@
+---
+sidebar_position: 13
+sidebar_label: Claude 模型推理与网络搜索
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Claude 模型推理与网络搜索
+
+Knox 后端为 `anthropic/claude-sonnet-4.6`、`anthropic/claude-opus-4.6` 和 `anthropic/claude-opus-4.8` 这几个 Claude 模型提供了专门适配。它可以把 Knox 请求字段翻译为 Anthropic 的自适应思考配置，并且在请求被路由到通道时自动注入 Anthropic 的网络搜索工具。
+
+如果您希望在响应中直接拿到推理内容和搜索引用，请优先使用 `/v1/chat/completions`。`/v1/completions` 也可用，但只会返回纯文本结果。
+
+## 支持的自适应推理级别
+
+| 模型 | 允许的 `reasoning_effort` 值 | 后端默认值 |
+| --- | --- | --- |
+| `anthropic/claude-sonnet-4.6` | `low`、`medium`、`high` | `high` |
+| `anthropic/claude-opus-4.6` | `medium`、`high`、`max` | `high` |
+| `anthropic/claude-opus-4.8` | `high`、`xhigh`、`max` | `xhigh` |
+
+当您传入 `reasoning_effort` 时，Knox 会把它转换成如下的 Anthropic `thinking` 配置：
+
+```json
+{
+  "thinking": {
+    "type": "adaptive",
+    "effort": "high"
+  }
+}
+```
+
+## 网络搜索行为
+
+对于经由 Knox 通道路由的 Anthropic 模型：
+
+* 在 `/v1/chat/completions` 和 `/v1/completions` 上，`web_search` 默认值都是 `true`。
+* 如果您不想启用实时搜索，显式传入 `"web_search": false`。
+* 在 chat completions 响应里，搜索引用会被标准化为 `message.annotations` 中的 OpenAI 风格 `url_citation` 项。
+
+## Chat Completions 示例
+
+如果您需要同时拿到推理内容和搜索引用，这是最佳选择。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/chat/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "anthropic/claude-sonnet-4.6",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Summarize the latest changes in the EU AI Act and cite sources."
+      }
+    ],
+    "reasoning_effort": "high",
+    "web_search": true,
+    "max_tokens": 1200
+  }'
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```py showLineNumbers
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.knox.chat/v1",
+    api_key="<KNOXCHAT_API_KEY>",
+)
+
+response = client.chat.completions.create(
+    model="anthropic/claude-sonnet-4.6",
+    messages=[
+        {
+            "role": "user",
+            "content": "Summarize the latest changes in the EU AI Act and cite sources.",
+        }
+    ],
+    reasoning_effort="high",
+    web_search=True,
+    max_tokens=1200,
+)
+
+message = response.choices[0].message
+print(message.reasoning)
+print(message.annotations)
+print(message.content)
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://api.knox.chat/v1',
+  apiKey: '<KNOXCHAT_API_KEY>',
+});
+
+const response = await client.chat.completions.create({
+  model: 'anthropic/claude-sonnet-4.6',
+  messages: [
+    {
+      role: 'user',
+      content: 'Summarize the latest changes in the EU AI Act and cite sources.',
+    },
+  ],
+  reasoning_effort: 'high',
+  web_search: true,
+  max_tokens: 1200,
+});
+
+const message = response.choices[0].message;
+console.log(message.reasoning);
+console.log(message.annotations);
+console.log(message.content);
+```
+
+</TabItem>
+</Tabs>
+
+### 带引用的响应结构
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "reasoning": "Search current legislative sources, reconcile drafts versus published text, then summarize by compliance impact.",
+        "content": "The latest updates focus on implementation timing, GPAI obligations, and enforcement milestones.",
+        "annotations": [
+          {
+            "type": "url_citation",
+            "url_citation": {
+              "url": "https://example.com/source",
+              "title": "Source title"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+## Opus 示例
+
+更大的 Opus 模型适合搭配更高的推理级别：
+
+```json
+{
+  "model": "anthropic/claude-opus-4.8",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Research the current state of battery supply chains and produce a risk briefing with sources."
+    }
+  ],
+  "reasoning_effort": "xhigh",
+  "web_search": true,
+  "max_tokens": 2000
+}
+```
+
+## 高级透传：显式使用 `thinking`
+
+如果您想直接控制 Anthropic 原生请求体，Knox 也支持传入 `thinking` 对象，并原样转发到上游：
+
+```json
+{
+  "model": "anthropic/claude-opus-4.6",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Evaluate the tradeoffs of building an internal search index versus using managed search."
+    }
+  ],
+  "thinking": {
+    "type": "adaptive",
+    "effort": "max"
+  },
+  "web_search": false
+}
+```
+
+只有在您确实需要直接控制 Anthropic 原生参数时才建议这样做。对大多数 Knox 客户端来说，`reasoning_effort` 更简单。
+
+## 使用 `/v1/completions`
+
+Knox 同样支持通过旧式 prompt 接口调用这些 Claude 模型：
+
+```bash showLineNumbers
+curl https://api.knox.chat/v1/completions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "anthropic/claude-opus-4.6",
+    "prompt": "Find the latest SOC 2 guidance updates and summarize the implementation impact.",
+    "reasoning_effort": "max",
+    "web_search": true,
+    "max_tokens": 900
+  }'
+```
+
+在这个路由上，Knox 会先把 prompt 转换为 chat messages，再在上游执行搜索和自适应推理。最终返回值会被转换成文本 completion 格式，因此会保留 `choices[].text`，但不会保留 `message.reasoning` 和 `message.annotations`。
+
+## 实用建议
+
+* 如果您需要推理输出或引用，请使用 `/v1/chat/completions`。
+* 如果您只想要 Claude 推理，不想触发实时搜索，请设置 `web_search: false`。
+* 普通 Knox 用法优先选择 `reasoning_effort`，只有在您需要直接控制 Anthropic 原生结构时才使用 `thinking`。
+* 当前后端映射中，`anthropic/claude-opus-4.8` 拥有最高的默认推理级别。
