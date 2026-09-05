@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # Images and PDFs
 
-Knox Chat supports sending images and PDF files via the API. This article will show you how to use our API to handle these two file types.
+Knox supports sending images and PDF files via the API. This article will show you how to use our API to handle these two file types.
 
 Images and PDF files can also be used for interaction in chats.
 
@@ -210,17 +210,17 @@ Supported image content types include:
 
 ## PDF Support
 
-Knox Chat provides PDF processing capabilities through the `/v1/chat/completions` API. PDF files can be sent as base64-encoded data URLs in the message array via the file content type. This feature is available for **any** model on Knox Chat.
+Knox provides PDF processing capabilities through the `/v1/chat/completions` API. PDF files can be sent as base64-encoded data URLs in the message array via the file content type. This feature is available for **any** model on Knox.
 
 :::info
-  If the model natively supports file input, the PDF will be passed directly to the model. If the model does not natively support file input, Knox Chat will parse the file and pass the parsed results to the requested model.
+  If the model natively supports file input, the PDF will be passed directly to the model. If the model does not natively support file input, Knox will parse the file and pass the parsed results to the requested model.
 :::
 
 Note that multiple PDFs can be sent as separate content array entries. The number of PDFs that can be sent in a single request depends on the service provider and model. Due to differences in content parsing methods, we recommend sending text prompts first before sending PDFs. If PDFs must be sent first, it is advisable to include them in the system prompt.
 
 ### Plugin Configuration
 
-To configure PDF processing functionality, use the `plugins` parameter in the request. Knox Chat offers multiple PDF processing engines with varying features and pricing:
+To configure PDF processing functionality, use the `plugins` parameter in the request. Knox offers multiple PDF processing engines with varying features and pricing:
 
 ```typescript
 {
@@ -237,13 +237,13 @@ To configure PDF processing functionality, use the `plugins` parameter in the re
 
 ### Pricing
 
-Knox Chat offers multiple PDF processing engines:
+Knox offers multiple PDF processing engines:
 
 1. `"mistral-ocr"`: Suitable for scanned documents or PDFs containing images (costs $2 per 1000 pages).  
 2. `"pdf-text"`: Suitable for well-structured, clearly text-based PDFs (free).  
 3. `"native"`: Only applicable to models that natively support file inputs (billed per input token).  
 
-If no engine is explicitly specified, Knox Chat will prioritize the model's native file handling capability. If unavailable, it defaults to the `"mistral-ocr"` engine.  
+If no engine is explicitly specified, Knox will prioritize the model's native file handling capability. If unavailable, it defaults to the `"mistral-ocr"` engine.  
 
 ### Processing PDFs  
 
@@ -593,7 +593,7 @@ processDocument();
 </Tabs>
 
 :::info
-  When you include file comments from previous responses in subsequent requests, Knox Chat will directly use this pre-parsed information  
+  When you include file comments from previous responses in subsequent requests, Knox will directly use this pre-parsed information  
   instead of re-parsing the PDF file, which saves processing time and cost. This mechanism is particularly beneficial for large documents  
   or when using the `mistral-ocr` engine, which incurs additional costs.
 :::

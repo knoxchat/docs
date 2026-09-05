@@ -43,7 +43,7 @@ This endpoint requires a JSON object.
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
-| Authorization | String | Yes | Bearer authentication in the form `Bearer <token>`, where `token` is your Knox Chat API key. |
+| Authorization | String | Yes | Bearer authentication in the form `Bearer <token>`, where `token` is your Knox API key. |
 | Content-Type | String | Yes | Must be `application/json`. |
 
 ### Request Body
@@ -149,7 +149,7 @@ Store `id` and poll `polling_url` (relative to `https://api.knox.chat`) until th
 | polling_url | string | Relative URL for status polling, for example `/v1/videos/job-3c91a0e8b7d24f11`. |
 | status | string | Current job status. See [Job statuses](#job-statuses). |
 | error | string | Error message when `status` is `failed`. Omitted otherwise. |
-| unsigned_urls | array of strings | Downloadable video URLs once the job is `completed`. Hosted by Knox Chat (never upstream provider URLs). |
+| unsigned_urls | array of strings | Downloadable video URLs once the job is `completed`. Hosted by Knox (never upstream provider URLs). |
 | usage | object | Billing information once the job is `completed`. |
 | usage.cost | number | Cost of the generation in USD. |
 

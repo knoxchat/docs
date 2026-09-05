@@ -11,7 +11,7 @@ Knox proxies OpenAI’s [Realtime API](https://developers.openai.com/api/docs/gu
 
 This is a speech-to-speech voice-agent endpoint: audio and text in, audio and text out, with tool use and configurable reasoning. It is **not** [`/v1/chat/completions`](/1.0.0/chat-completion). For one-shot audio files in chat, see [Audio Inputs](/audio).
 
-All authenticated requests use the same base URL and API key as the rest of Knox Chat:
+All authenticated requests use the same base URL and API key as the rest of Knox:
 
 ```
 https://api.knox.chat/v1
@@ -262,7 +262,7 @@ After SDP succeeds, WebRTC media goes directly to OpenAI. Prefer WebSocket when 
 2. Calling OpenAI `POST /v1/responses` with `{ "type": "web_search" }` when the model invokes that function.
 3. Returning `function_call_output` and `response.create` so the voice model can speak a sourced answer.
 
-Direct `/v1/realtime` clients get the same injection on `session.update` (and a fallback update after `session.created` if they never send one). Knox Chat microphone sessions do this automatically.
+Direct `/v1/realtime` clients get the same injection on `session.update` (and a fallback update after `session.created` if they never send one). Knox microphone sessions do this automatically.
 
 Pass `"web_search": false` on `session.update` to opt out. If you already define your own function named `web_search`, Knox leaves it alone and does not intercept.
 

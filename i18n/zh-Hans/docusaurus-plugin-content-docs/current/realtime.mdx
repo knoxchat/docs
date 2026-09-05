@@ -12,7 +12,7 @@ Knox 为 [`gpt-realtime-2.1`](https://developers.openai.com/api/docs/models/gpt-
 
 这是语音到语音的 Voice Agent 端点：音频与文本输入，音频与文本输出，支持工具调用和可配置推理。它**不是** [`/v1/chat/completions`](/1.0.0/chat-completion)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
 
-所有需要认证的请求都使用与 Knox Chat 其余接口相同的 Base URL 和 API key：
+所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key：
 
 ```
 https://api.knox.chat/v1
@@ -35,7 +35,7 @@ Authorization: Bearer sk-...
 2. 可选：签发浏览器密钥 — [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)
 3. 可选：交换 SDP — [`POST /v1/realtime/calls`](/1.0.0/realtime-calls)（WebRTC；计费不完整）
 
-您也可以在 Knox Chat 界面中使用 **OpenAI: GPT Realtime 2.1** 或 **OpenAI: GPT Realtime 2.1 Mini**：选择该模型、选择 API key，然后点击麦克风。
+您也可以在 Knox 界面中使用 **OpenAI: GPT Realtime 2.1** 或 **OpenAI: GPT Realtime 2.1 Mini**：选择该模型、选择 API key，然后点击麦克风。
 
 确认模型已列出：
 
@@ -263,7 +263,7 @@ SDP 成功后，WebRTC 媒体直接通往 OpenAI。需要准确 Knox 计费或�
 2. 模型调用该函数时，向 OpenAI `POST /v1/responses` 发送 `{ "type": "web_search" }`。
 3. 返回 `function_call_output` 和 `response.create`，让语音模型读出带来源的答案。
 
-直接连接 `/v1/realtime` 的客户端会在 `session.update` 时获得同样的注入（若从未发送 `session.update`，会在 `session.created` 之后做一次兜底更新）。Knox Chat 麦克风会话会自动执行此流程。
+直接连接 `/v1/realtime` 的客户端会在 `session.update` 时获得同样的注入（若从未发送 `session.update`，会在 `session.created` 之后做一次兜底更新）。Knox 麦克风会话会自动执行此流程。
 
 在 `session.update` 上传入 `"web_search": false` 即可退出。如果您已经定义了名为 `web_search` 的函数，Knox 不会拦截。
 

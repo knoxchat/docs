@@ -10,7 +10,7 @@ tags: [ai, knoxchat, update]
 
 **像与设计师对话一样编辑图像。没有按钮。没有滑块。只有自然语言。**
 
-今天，我们很高兴宣布 Knox Chat 的重大更新：**Knox AI 图像编辑器** —— 一套由 Gemini 2.5 Flash Image（又名"Nano Banana"）驱动的专业级图像编辑工具。这不仅仅是又一个滤镜应用。这是对人类与图像编辑工具交互方式的全面重新构想。
+今天，我们很高兴宣布 Knox 的重大更新：**Knox AI 图像编辑器** —— 一套由 Gemini 2.5 Flash Image（又名"Nano Banana"）驱动的专业级图像编辑工具。这不仅仅是又一个滤镜应用。这是对人类与图像编辑工具交互方式的全面重新构想。
 
 <!--truncate-->
 
@@ -300,7 +300,7 @@ Download
 ## 三分钟快速上手
 
 ### **第 1 步：选择模型（30 秒）**
-- 前往 Knox Chat
+- 前往 Knox
 - 在 [Chat >>>](https://knox.chat/chat) 中选择 `google/gemini-2.5-flash-image`
 - 选择您已创建的 API Key [Keys >>>](https://knox.chat/keys)
 - 完成

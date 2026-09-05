@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # 图片与 PDF
 
-Knox Chat 支持通过 API 发送图片和 PDF 文件。本文将介绍如何使用我们的 API 处理这两种文件类型。
+Knox 支持通过 API 发送图片和 PDF 文件。本文将介绍如何使用我们的 API 处理这两种文件类型。
 
 图片和 PDF 文件也可以在聊天中进行交互使用。
 
@@ -211,17 +211,17 @@ console.log(data);
 
 ## PDF 支持
 
-Knox Chat 通过 `/v1/chat/completions` API 提供 PDF 处理功能。PDF 文件可以通过 file 内容类型，以 base64 编码的数据 URL 形式在消息数组中发送。此功能适用于 Knox Chat 上的**任何**模型。
+Knox 通过 `/v1/chat/completions` API 提供 PDF 处理功能。PDF 文件可以通过 file 内容类型，以 base64 编码的数据 URL 形式在消息数组中发送。此功能适用于 Knox 上的**任何**模型。
 
 :::info
-  如果模型原生支持文件输入，PDF 将直接传递给模型。如果模型不原生支持文件输入，Knox Chat 会解析文件并将解析结果传递给请求的模型。
+  如果模型原生支持文件输入，PDF 将直接传递给模型。如果模型不原生支持文件输入，Knox 会解析文件并将解析结果传递给请求的模型。
 :::
 
 请注意，可以将多个 PDF 作为独立的 content 数组条目发送。单次请求可发送的 PDF 数量取决于服务提供商和模型。由于内容解析方式的差异，我们建议先发送文本提示，再发送 PDF。如需先发送 PDF，建议将其放在系统提示中。
 
 ### 插件配置
 
-要配置 PDF 处理功能，请在请求中使用 `plugins` 参数。Knox Chat 提供多种 PDF 处理引擎，具有不同的功能和定价：
+要配置 PDF 处理功能，请在请求中使用 `plugins` 参数。Knox 提供多种 PDF 处理引擎，具有不同的功能和定价：
 
 ```typescript
 {
@@ -238,13 +238,13 @@ Knox Chat 通过 `/v1/chat/completions` API 提供 PDF 处理功能。PDF 文件
 
 ### 定价
 
-Knox Chat 提供多种 PDF 处理引擎：
+Knox 提供多种 PDF 处理引擎：
 
 1. `"mistral-ocr"`：适用于扫描文档或包含图片的 PDF（每 1000 页 $2）。
 2. `"pdf-text"`：适用于结构良好、文本清晰的 PDF（免费）。
 3. `"native"`：仅适用于原生支持文件输入的模型（按输入 Token 计费）。
 
-如果未明确指定引擎，Knox Chat 将优先使用模型的原生文件处理能力。如不可用，则默认使用 `"mistral-ocr"` 引擎。
+如果未明确指定引擎，Knox 将优先使用模型的原生文件处理能力。如不可用，则默认使用 `"mistral-ocr"` 引擎。
 
 ### 处理 PDF
 
@@ -594,7 +594,7 @@ processDocument();
 </Tabs>
 
 :::info
-  当你在后续请求中包含来自先前响应的文件注解时，Knox Chat 将直接使用这些预解析的信息，
+  当你在后续请求中包含来自先前响应的文件注解时，Knox 将直接使用这些预解析的信息，
   而不会重新解析 PDF 文件，从而节省处理时间和成本。此机制对于大型文档或使用会产生额外费用的
   `mistral-ocr` 引擎时尤为有益。
 :::

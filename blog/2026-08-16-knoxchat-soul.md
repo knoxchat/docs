@@ -252,7 +252,7 @@ Attach context with `@`. Defaults always available: **file**, **diff**, **proble
 
 **Right-click selected code:**
 
-- **Add as Context** — send the selection to Knox chat
+- **Add as Context** — send the selection to Knox
 - **Write Comments** / **Write Docstring**
 - **Fix Code** / **Optimize Code**
 - **Fix Grammar / Spelling** — Markdown files
@@ -374,7 +374,7 @@ Agent loop caps (`experimental.agentMaxSteps` default 40, `experimental.agentDoo
 
 | Action | macOS | Windows / Linux |
 |--------|-------|-----------------|
-| Open Knox Chat | `Cmd + L` | `Ctrl + L` |
+| Open Knox | `Cmd + L` | `Ctrl + L` |
 | Add Selection as Context | `Cmd + Shift + L` | `Ctrl + Shift + L` |
 | Inline Edit | `Cmd + I` | `Ctrl + I` |
 | Toggle Agent Mode | `Cmd + Shift + Alt + A` | `Ctrl + Shift + Alt + A` |

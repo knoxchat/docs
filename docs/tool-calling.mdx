@@ -9,15 +9,15 @@ import TabItem from '@theme/TabItem';
 
 Tool calls (also known as function calls) enable LLMs to access external tools and APIs. The LLM doesn't directly execute these tools but instead suggests which tool to invoke with specific parameters. Your application then calls the tool independently and returns the result to the LLM, which formats the response as an answer to the user's original question.
 
-Knox Chat provides full compatibility with OpenAI's tool calling interface while standardizing it across different models and providers, ensuring consistent behavior regardless of which LLM you're using.
+Knox provides full compatibility with OpenAI's tool calling interface while standardizing it across different models and providers, ensuring consistent behavior regardless of which LLM you're using.
 
 :::tip
-Knox Chat supports both **streaming** and **non-streaming** tool calls, giving you flexibility in how you handle real-time responses.
+Knox supports both **streaming** and **non-streaming** tool calls, giving you flexibility in how you handle real-time responses.
 :::
 
 ## Supported Models
 
-Knox Chat supports tool calling across multiple providers. Here are some popular models that work well with tools:
+Knox supports tool calling across multiple providers. Here are some popular models that work well with tools:
 
 - **Anthropic**: `anthropic/claude-haiku-4.5`,`anthropic/claude-opus-4.6`,`anthropic/claude-sonnet-4.6`,`anthropic/claude-sonnet-4`
 - **OpenAI**: `openai/gpt-5.2`, `openai/gpt-5.3-codex`, `openai/gpt-5`
@@ -224,7 +224,7 @@ from datetime import datetime
 import pytz
 from openai import OpenAI
 
-# Initialize Knox Chat client
+# Initialize Knox client
 client = OpenAI(
     base_url="https://api.knox.chat/v1",
     api_key="YOUR_KNOX_API_KEY"
@@ -579,7 +579,7 @@ chatWithTools("What time is it in Tokyo and New York right now?")
 
 ## Streaming Tool Calls
 
-Knox Chat supports streaming tool calls, allowing you to process tool call requests as they arrive:
+Knox supports streaming tool calls, allowing you to process tool call requests as they arrive:
 
 <Tabs>
 <TabItem value="py" label="Python">
@@ -783,7 +783,7 @@ handleStreamingWithTools();
 
 ## Tool Choice Options
 
-Knox Chat supports different tool choice strategies:
+Knox supports different tool choice strategies:
 
 ### `"auto"` (Recommended)
 Let the model decide when to use tools:

@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # Reasoning Tokens
 
-For models supporting this API, the Knox Chat API can return **Reasoning Tokens**, also known as reasoning tokens. Knox Chat standardizes the different ways custom models use reasoning tokens, providing a unified interface for different providers.
+For models supporting this API, the Knox API can return **Reasoning Tokens**, also known as reasoning tokens. Knox standardizes the different ways custom models use reasoning tokens, providing a unified interface for different providers.
 
 Reasoning tokens transparently display the reasoning steps taken by the model. They are considered part of the output tokens and will be billed accordingly.
 
@@ -75,7 +75,7 @@ The tokens consumed for reasoning will be displayed in the `reasoning` field of 
 
 ## Legacy Parameters
 
-For backward compatibility, Knox Chat still supports the following legacy parameters:
+For backward compatibility, Knox still supports the following legacy parameters:
 
 * `include_reasoning: true` - Equivalent to `reasoning: {}`
 * `include_reasoning: false` - Equivalent to `reasoning: { exclude: true }`

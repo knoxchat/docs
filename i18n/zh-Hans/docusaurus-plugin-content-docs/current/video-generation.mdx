@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # 视频生成
 
-Knox Chat 提供独立的**异步**视频生成 API。与对话补全不同，视频任务需要先提交、再轮询直到完成，最后下载媒体文件。
+Knox 提供独立的**异步**视频生成 API。与对话补全不同，视频任务需要先提交、再轮询直到完成，最后下载媒体文件。
 
 典型流程：
 
@@ -17,7 +17,7 @@ Knox Chat 提供独立的**异步**视频生成 API。与对话补全不同，�
 3. 轮询状态 — [`GET /v1/videos/{jobId}`](/1.0.0/get-video)
 4. 下载文件 — [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content)
 
-所有需要认证的请求都使用与 Knox Chat 其余接口相同的 Base URL 和 API key：
+所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key：
 
 ```
 https://api.knox.chat/v1

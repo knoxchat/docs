@@ -10,15 +10,15 @@ import TabItem from '@theme/TabItem';
 
 工具调用（也称为函数调用）使 LLM 能够访问外部工具和 API。LLM 本身不会直接执行这些工具，而是建议调用哪个工具以及使用什么参数。你的应用程序随后独立调用该工具并将结果返回给 LLM，由 LLM 将结果格式化为对用户原始问题的回答。
 
-Knox Chat 完全兼容 OpenAI 的工具调用接口，同时在不同的模型和供应商之间实现了标准化，无论你使用哪个 LLM 都能获得一致的调用行为。
+Knox 完全兼容 OpenAI 的工具调用接口，同时在不同的模型和供应商之间实现了标准化，无论你使用哪个 LLM 都能获得一致的调用行为。
 
 :::tip
-Knox Chat 同时支持**流式**和**非流式**工具调用，让你可以灵活地处理实时响应。
+Knox 同时支持**流式**和**非流式**工具调用，让你可以灵活地处理实时响应。
 :::
 
 ## 支持的模型
 
-Knox Chat 支持跨多个供应商的工具调用。以下是一些常用的工具调用兼容模型：
+Knox 支持跨多个供应商的工具调用。以下是一些常用的工具调用兼容模型：
 
 - **Anthropic**: `anthropic/claude-haiku-4.5`,`anthropic/claude-opus-4.6`,`anthropic/claude-sonnet-4.6`,`anthropic/claude-sonnet-4`
 - **OpenAI**: `openai/gpt-5.2`, `openai/gpt-5.3-codex`, `openai/gpt-5`
@@ -225,7 +225,7 @@ from datetime import datetime
 import pytz
 from openai import OpenAI
 
-# Initialize Knox Chat client
+# Initialize Knox client
 client = OpenAI(
     base_url="https://api.knox.chat/v1",
     api_key="YOUR_KNOX_API_KEY"
@@ -580,7 +580,7 @@ chatWithTools("What time is it in Tokyo and New York right now?")
 
 ## 流式工具调用
 
-Knox Chat 支持流式工具调用，允许你在工具调用请求到达时即时处理：
+Knox 支持流式工具调用，允许你在工具调用请求到达时即时处理：
 
 <Tabs>
 <TabItem value="py" label="Python">
@@ -784,7 +784,7 @@ handleStreamingWithTools();
 
 ## 工具选择选项
 
-Knox Chat 支持不同的工具选择策略：
+Knox 支持不同的工具选择策略：
 
 ### `"auto"`（推荐）
 让模型自行决定何时使用工具：

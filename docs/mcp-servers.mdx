@@ -6,9 +6,9 @@ sidebar_position: 10
 
 MCP servers are a way to provide tool-calling capabilities for LLMs and serve as an alternative to using OpenAI-compatible tool calls.
 
-By converting MCP (Anthropic) tool definitions into OpenAI-compatible tool definitions, you can use MCP servers with Knox Chat.
+By converting MCP (Anthropic) tool definitions into OpenAI-compatible tool definitions, you can use MCP servers with Knox.
 
-In this example, we will use the [Anthropic MCP Client SDK](https://github.com/modelcontextprotocol/python-sdk?tab=readme-ov-file#writing-mcp-clients) to interact with a filesystem MCP, all in the background via Knox Chat.
+In this example, we will use the [Anthropic MCP Client SDK](https://github.com/modelcontextprotocol/python-sdk?tab=readme-ov-file#writing-mcp-clients) to interact with a filesystem MCP, all in the background via Knox.
 
 :::info Note
 Please note that interacting with MCP servers is more complex than calling REST endpoints. The MCP protocol is stateful and requires session management. The following example uses the MCP Client SDK but remains somewhat complex.

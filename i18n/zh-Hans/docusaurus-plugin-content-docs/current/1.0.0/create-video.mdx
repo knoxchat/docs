@@ -43,7 +43,7 @@ import Heading from "@theme/Heading";
 
 | 名称 | 类型 | 必填 | 描述 |
 | ---- | ---- | ---- | ---- |
-| Authorization | String | 是 | Bearer 认证，格式为 `Bearer <token>`，其中 `token` 是您的 Knox Chat API key。 |
+| Authorization | String | 是 | Bearer 认证，格式为 `Bearer <token>`，其中 `token` 是您的 Knox API key。 |
 | Content-Type | String | 是 | 必须为 `application/json`。 |
 
 ### 请求体
@@ -149,7 +149,7 @@ curl -X POST https://api.knox.chat/v1/videos \
 | polling_url | string | 状态轮询的相对 URL，例如 `/v1/videos/job-3c91a0e8b7d24f11`。 |
 | status | string | 当前任务状态。参见 [任务状态](#任务状态)。 |
 | error | string | 当 `status` 为 `failed` 时的错误信息。其他情况下省略。 |
-| unsigned_urls | 字符串数组 | 任务为 `completed` 时可下载的视频 URL。由 Knox Chat 托管（绝不会返回上游供应商 URL）。 |
+| unsigned_urls | 字符串数组 | 任务为 `completed` 时可下载的视频 URL。由 Knox 托管（绝不会返回上游供应商 URL）。 |
 | usage | object | 任务完成后的计费信息。 |
 | usage.cost | number | 本次生成的费用（美元）。 |
 

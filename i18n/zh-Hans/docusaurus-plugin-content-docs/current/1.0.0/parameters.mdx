@@ -1,7 +1,7 @@
 ---
 id: parameters
 title: "API 参数"
-description: "Knox Chat API 支持的参数完整说明"
+description: "Knox API 支持的参数完整说明"
 sidebar_label: API 参数
 sidebar_position: 1
 hide_title: true
@@ -10,7 +10,7 @@ custom_edit_url: null
 
 # API 参数
 
-本页提供 Knox Chat API 支持的所有参数的完整列表。
+本页提供 Knox API 支持的所有参数的完整列表。
 
 ## 核心参数
 
@@ -40,15 +40,15 @@ custom_edit_url: null
 | `top_a` | Double | None | 替代 top 采样参数（范围：[0, 1]）。 |
 | `top_logprobs` | Integer | None | 要返回的 top log 概率数量。 |
 
-## Knox Chat 特有参数
+## Knox 特有参数
 
-以下参数为 Knox Chat 特有：
+以下参数为 Knox 特有：
 
 | 参数名称 | 类型 | 默认值 | 描述 |
 | -------- | ---- | ------ | ---- |
 | `models` | Array of Strings | None | 用于路由覆盖的备选模型列表。 |
 | `provider` | Object | None | 用于路由的 provider 偏好设置。 |
-| `transforms` | Array of Strings | None | prompt 转换列表（仅限 Knox Chat）。 |
+| `transforms` | Array of Strings | None | prompt 转换列表（仅限 Knox）。 |
 | `reasoning` | Object | None | 模型推理/思考 token 的配置。 |
 | `usage` | Object | None | 是否在响应中包含使用量信息。 |
 

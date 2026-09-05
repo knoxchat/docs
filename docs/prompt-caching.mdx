@@ -8,7 +8,7 @@ To save inference costs, you can enable prompt caching on supported providers an
 
 Most providers enable prompt caching automatically, but note that some providers (see Anthropic below) require you to enable this feature on a per-message basis.
 
-When using caching (whether automatically enabled in supported models or via the `cache_control` header), Knox Chat will make every effort to continue routing to the same provider to take advantage of warm caches. If the provider that cached the prompt becomes unavailable, Knox Chat will attempt the next best provider.
+When using caching (whether automatically enabled in supported models or via the `cache_control` header), Knox will make every effort to continue routing to the same provider to take advantage of warm caches. If the provider that cached the prompt becomes unavailable, Knox will attempt the next best provider.
 
 ## OpenAI
 

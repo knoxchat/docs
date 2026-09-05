@@ -5,13 +5,13 @@ sidebar_label: 网络搜索
 
 # 网络搜索
 
-Knox Chat 通过两种方式提供内置的网络搜索功能：使用原生支持网络搜索的模型，或在任何受支持的模型后面追加 `:online` 变体后缀。
+Knox 通过两种方式提供内置的网络搜索功能：使用原生支持网络搜索的模型，或在任何受支持的模型后面追加 `:online` 变体后缀。
 
 ## 使用网络搜索
 
 ### 网络搜索模式（界面操作）
 
-在 Knox Chat 界面中，点击聊天输入区的**网络搜索**按钮即可切换网络搜索模式。这会自动切换到 [Perplexity Sonar Pro](https://docs.perplexity.ai/guides/getting-started) 模型（`perplexity/sonar-pro`），该模型提供带有来源引用的实时网络搜索结果。
+在 Knox 界面中，点击聊天输入区的**网络搜索**按钮即可切换网络搜索模式。这会自动切换到 [Perplexity Sonar Pro](https://docs.perplexity.ai/guides/getting-started) 模型（`perplexity/sonar-pro`），该模型提供带有来源引用的实时网络搜索结果。
 
 ### `:online` 模型变体（API）
 
@@ -23,7 +23,7 @@ Knox Chat 通过两种方式提供内置的网络搜索功能：使用原生支�
 }
 ```
 
-`:online` 后缀是 Knox Chat 支持的多种模型变体后缀之一（另有 `:free`、`:beta`、`:extended`、`:thinking`、`:nitro` 和 `:floor`）。这些变体由 Knox Chat 的智能模型路由系统解析，系统会为请求的模型选择最佳可用供应商通道。
+`:online` 后缀是 Knox 支持的多种模型变体后缀之一（另有 `:free`、`:beta`、`:extended`、`:thinking`、`:nitro` 和 `:floor`）。这些变体由 Knox 的智能模型路由系统解析，系统会为请求的模型选择最佳可用供应商通道。
 
 ### 直接使用 Perplexity 模型（API）
 
@@ -39,7 +39,7 @@ Knox Chat 通过两种方式提供内置的网络搜索功能：使用原生支�
 
 ## 网络搜索的模型路由
 
-Knox Chat 使用支持熔断器的多供应商路由系统。当你请求启用网络搜索的模型时：
+Knox 使用支持熔断器的多供应商路由系统。当你请求启用网络搜索的模型时：
 
 1. **供应商模型路由** — 系统检查 `provider_models` 中哪些供应商提供所请求的模型
 2. **熔断器检查** — 因近期故障而熔断的供应商将被自动跳过
@@ -50,7 +50,7 @@ Knox Chat 使用支持熔断器的多供应商路由系统。当你请求启用�
 
 ## 解析网络搜索结果
 
-网络搜索结果可通过 API 获取，Knox Chat 将其标准化为遵循 [OpenAI Chat Completion Message 类型](https://platform.openai.com/docs/api-reference/chat/object)的 annotation 模式：
+网络搜索结果可通过 API 获取，Knox 将其标准化为遵循 [OpenAI Chat Completion Message 类型](https://platform.openai.com/docs/api-reference/chat/object)的 annotation 模式：
 
 ```json
 {
@@ -77,7 +77,7 @@ Knox Chat 使用支持熔断器的多供应商路由系统。当你请求启用�
 
 ## 定价
 
-网络搜索请求根据底层模型的 token 定价从你的 Knox Chat 余额中扣费。`web_search` 成本组件（如果适用于该模型）包含在模型的定价信息中，该信息与供应商数据同步。请在 Knox Chat 控制面板的模型详情中查看具体定价。
+网络搜索请求根据底层模型的 token 定价从你的 Knox 余额中扣费。`web_search` 成本组件（如果适用于该模型）包含在模型的定价信息中，该信息与供应商数据同步。请在 Knox 控制面板的模型详情中查看具体定价。
 
 ## 实时语音搜索
 

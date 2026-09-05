@@ -374,7 +374,7 @@ Agent 循环上限（`experimental.agentMaxSteps` 默认 40，`experimental.agen
 
 | 操作 | macOS | Windows / Linux |
 |--------|-------|-----------------|
-| 打开 Knox Chat | `Cmd + L` | `Ctrl + L` |
+| 打开 Knox | `Cmd + L` | `Ctrl + L` |
 | 将选区添加为上下文 | `Cmd + Shift + L` | `Ctrl + Shift + L` |
 | 行内编辑 | `Cmd + I` | `Ctrl + I` |
 | 切换 Agent Mode | `Cmd + Shift + Alt + A` | `Ctrl + Shift + Alt + A` |

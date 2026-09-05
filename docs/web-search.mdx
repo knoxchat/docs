@@ -4,13 +4,13 @@ sidebar_position: 8
 
 # Web Search  
 
-Knox Chat provides built-in web search capabilities through two approaches: using models with native web search support, or appending the `:online` variant suffix to any supported model.
+Knox provides built-in web search capabilities through two approaches: using models with native web search support, or appending the `:online` variant suffix to any supported model.
 
 ## Using Web Search
 
 ### Web Search Mode (UI)
 
-In the Knox Chat UI, click the **Web Search** button in the chat input area to toggle web search mode. This automatically switches to the [Perplexity Sonar Pro](https://docs.perplexity.ai/guides/getting-started) model (`perplexity/sonar-pro`), which provides real-time web search results with source citations.
+In the Knox UI, click the **Web Search** button in the chat input area to toggle web search mode. This automatically switches to the [Perplexity Sonar Pro](https://docs.perplexity.ai/guides/getting-started) model (`perplexity/sonar-pro`), which provides real-time web search results with source citations.
 
 ### `:online` Model Variant (API)
 
@@ -22,7 +22,7 @@ You can append the `:online` suffix to any supported model to use its web-search
 }
 ```
 
-The `:online` suffix is one of several model variant suffixes supported by Knox Chat (alongside `:free`, `:beta`, `:extended`, `:thinking`, `:nitro`, and `:floor`). These variants are resolved by Knox Chat's intelligent model routing system, which selects the best available provider channel for the requested model.
+The `:online` suffix is one of several model variant suffixes supported by Knox (alongside `:free`, `:beta`, `:extended`, `:thinking`, `:nitro`, and `:floor`). These variants are resolved by Knox's intelligent model routing system, which selects the best available provider channel for the requested model.
 
 ### Direct Perplexity Model (API)
 
@@ -38,7 +38,7 @@ This is the same model used by the UI's web search toggle and supports up to 65,
 
 ## Model Routing for Web Search
 
-Knox Chat uses a multi-provider routing system with circuit breaker support. When you request a web-search-enabled model:
+Knox uses a multi-provider routing system with circuit breaker support. When you request a web-search-enabled model:
 
 1. **Provider Model Routing** — The system checks `provider_models` for available providers offering the requested model
 2. **Circuit Breaker Checks** — Providers with open circuits (due to recent failures) are automatically skipped
@@ -49,7 +49,7 @@ Routing strategies include `performance`, `cost`, `balanced`, and `round_robin`,
 
 ## Parsing Web Search Results
 
-Web search results are available via the API and standardized by Knox Chat to follow the [OpenAI Chat Completion Message type](https://platform.openai.com/docs/api-reference/chat/object) annotation pattern:
+Web search results are available via the API and standardized by Knox to follow the [OpenAI Chat Completion Message type](https://platform.openai.com/docs/api-reference/chat/object) annotation pattern:
 
 ```json
 {
@@ -76,7 +76,7 @@ This annotation format is consistent across all models that support web search, 
 
 ## Pricing
 
-Web search requests are billed using your Knox Chat balance based on the underlying model's token pricing. The `web_search` cost component (if applicable for the model) is included in the model's pricing information, which is synced from provider data. Check the model details in the Knox Chat dashboard for specific pricing.
+Web search requests are billed using your Knox balance based on the underlying model's token pricing. The `web_search` cost component (if applicable for the model) is included in the model's pricing information, which is synced from provider data. Check the model details in the Knox dashboard for specific pricing.
 
 ## Realtime voice search
 

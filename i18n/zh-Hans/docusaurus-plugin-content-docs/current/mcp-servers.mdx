@@ -7,9 +7,9 @@ sidebar_label: MCP 服务器
 
 MCP 服务器是一种为 LLM 提供工具调用能力的方式，可作为使用 OpenAI 兼容工具调用的替代方案。
 
-通过将 MCP (Anthropic) 工具定义转换为 OpenAI 兼容的工具定义，你可以在 Knox Chat 中使用 MCP 服务器。
+通过将 MCP (Anthropic) 工具定义转换为 OpenAI 兼容的工具定义，你可以在 Knox 中使用 MCP 服务器。
 
-在本示例中，我们将使用 [Anthropic MCP 客户端 SDK](https://github.com/modelcontextprotocol/python-sdk?tab=readme-ov-file#writing-mcp-clients) 与文件系统 MCP 交互，全部通过 Knox Chat 在后台完成。
+在本示例中，我们将使用 [Anthropic MCP 客户端 SDK](https://github.com/modelcontextprotocol/python-sdk?tab=readme-ov-file#writing-mcp-clients) 与文件系统 MCP 交互，全部通过 Knox 在后台完成。
 
 :::info 说明
 请注意，与 MCP 服务器交互比调用 REST 端点更为复杂。MCP 协议是有状态的，需要会话管理。以下示例使用了 MCP 客户端 SDK，但仍然相对复杂。

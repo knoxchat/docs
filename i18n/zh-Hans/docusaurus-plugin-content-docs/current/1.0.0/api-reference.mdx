@@ -1,7 +1,7 @@
 ---
 id: api-reference
 title: "API 参考"
-description: "Knox Chat API 参考文档。"
+description: "Knox API 参考文档。"
 sidebar_label: API 参考
 sidebar_position: 0
 hide_title: true
@@ -15,7 +15,7 @@ import Export from "@theme/ApiExplorer/Export";
 
 # API 参考
 
-Knox Chat 的请求和响应模式与 OpenAI Chat API 非常相似，仅有少量差异。从整体来看，**Knox Chat 在不同模型和提供商之间标准化了 schema**，因此您只需要学习一套接口。
+Knox 的请求和响应模式与 OpenAI Chat API 非常相似，仅有少量差异。从整体来看，**Knox 在不同模型和提供商之间标准化了 schema**，因此您只需要学习一套接口。
 
 ## 基础 URL
 
@@ -34,11 +34,11 @@ Authorization: Bearer sk-...
 ```
 
 
-您可以在 [**Knox Chat Token**](https://knox.chat/keys) 页面查找或创建 API key。
+您可以在 [**Knox Token**](https://knox.chat/keys) 页面查找或创建 API key。
 
 ## 主要端点
 
-Knox Chat API 包含以下主要端点：
+Knox API 包含以下主要端点：
 
 ### 文本生成
 
@@ -69,7 +69,7 @@ Knox Chat API 包含以下主要端点：
 
 ## 参数
 
-Knox Chat 支持多种参数来控制模型行为和输出。详情请参阅 [**API 参数**](/1.0.0/parameters) 章节。
+Knox 支持多种参数来控制模型行为和输出。详情请参阅 [**API 参数**](/1.0.0/parameters) 章节。
 
 ## 错误处理
 
@@ -140,7 +140,7 @@ API 使用标准 HTTP 状态码来表示请求的结果：
     // https://platform.openai.com/docs/guides/latency-optimization#use-predicted-outputs
     prediction?: { type: 'content'; content: string };
 
-    // Knox Chat-only parameters
+    // Knox-only parameters
     // See "Prompt Transforms" section: docs.knox.chat/message-transforms
     transforms?: string[];
     // See "Model Routing" section: docs.knox.chat/model-routing
@@ -213,7 +213,7 @@ API 使用标准 HTTP 状态码来表示请求的结果：
 
 ### 预填充助手消息
 
-Knox Chat 支持让模型续写部分响应。这可以用来引导模型以特定方式回答。
+Knox 支持让模型续写部分响应。这可以用来引导模型以特定方式回答。
 
 要使用此功能，只需在 messages 数组的末尾添加一条 `role: "assistant"` 的消息。
 
@@ -366,7 +366,7 @@ const getFlowerImage = async (): Promise<string> => {
 
 ### CompletionsResponse 格式
 
-Knox Chat 在不同模型和提供商之间标准化了 schema，以符合 [OpenAI Chat API](https://platform.openai.com/docs/api-reference/chat) 规范。
+Knox 在不同模型和提供商之间标准化了 schema，以符合 [OpenAI Chat API](https://platform.openai.com/docs/api-reference/chat) 规范。
 
 这意味着 `choices` 始终是一个数组，即使模型仅返回单个补全结果。如果请求了流式响应，每个 choice 将包含一个 `delta` 属性；否则将包含一个 `message` 属性。这使得对所有模型使用相同的代码变得更加容易。
 
@@ -477,7 +477,7 @@ type ToolCall = {
 
 ### 完成原因
 
-Knox Chat 将每个模型的 `finish_reason` 标准化为以下值之一：`tool_calls`、`stop`、`length`、`content_filter` 或 `error`。
+Knox 将每个模型的 `finish_reason` 标准化为以下值之一：`tool_calls`、`stop`、`length`、`content_filter` 或 `error`。
 
 部分模型和提供商可能包含额外的补全原因。模型返回的原始 `finish_reason` 字符串可通过 `native_finish_reason` 属性访问。
 

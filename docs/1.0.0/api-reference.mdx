@@ -15,7 +15,7 @@ import Export from "@theme/ApiExplorer/Export";
 
 # API Reference
 
-Knox Chat's request and response pattern is very similar to the OpenAI Chat API, with only minor differences. At a high level, **Knox Chat standardizes the schema across models and providers**, so you only need to learn one.
+Knox's request and response pattern is very similar to the OpenAI Chat API, with only minor differences. At a high level, **Knox standardizes the schema across models and providers**, so you only need to learn one.
 
 ## Base URL
 
@@ -34,11 +34,11 @@ Authorization: Bearer sk-...
 ```
 
 
-You can find or create API keys on the [**Knox Chat Token**](https://knox.chat/keys) page.
+You can find or create API keys on the [**Knox Token**](https://knox.chat/keys) page.
 
 ## Main Endpoints
 
-The Knox Chat API includes the following main endpoints:
+The Knox API includes the following main endpoints:
 
 ### Text Generation
 
@@ -69,7 +69,7 @@ Video generation is asynchronous: submit a job, poll until it completes, then do
 
 ## Parameters
 
-Knox Chat supports various parameters to control model behavior and output. See the [**Parameters**](/1.0.0/parameters) section for details.
+Knox supports various parameters to control model behavior and output. See the [**Parameters**](/1.0.0/parameters) section for details.
 
 ## Error Handling
 
@@ -140,7 +140,7 @@ For a complete list of parameters, see the [Parameters](/1.0.0/parameters) secti
     // https://platform.openai.com/docs/guides/latency-optimization#use-predicted-outputs
     prediction?: { type: 'content'; content: string };
 
-    // Knox Chat-only parameters
+    // Knox-only parameters
     // See "Prompt Transforms" section: docs.knox.chat/message-transforms
     transforms?: string[];
     // See "Model Routing" section: docs.knox.chat/model-routing
@@ -213,7 +213,7 @@ The `response_format` parameter ensures that you receive structured responses fr
 
 ### Prefilled Assistant
 
-Knox Chat supports having the model complete partial responses. This can be used to guide the model to answer in a specific way.
+Knox supports having the model complete partial responses. This can be used to guide the model to answer in a specific way.
 
 To use this feature, simply include a message with `role: "assistant"` at the end of the messages array.
 
@@ -366,7 +366,7 @@ Supported image types:
 
 ### CompletionsResponse Format
 
-Knox Chat standardizes the schema across models and providers to conform to the [OpenAI Chat API](https://platform.openai.com/docs/api-reference/chat).
+Knox standardizes the schema across models and providers to conform to the [OpenAI Chat API](https://platform.openai.com/docs/api-reference/chat).
 
 This means `choices` is always an array, even when the model only returns a single completion. If a streaming response was requested, each choice will contain a `delta` property; otherwise, it will contain a `message` property. This makes it easier to use the same code for all models.
 
@@ -477,7 +477,7 @@ Example:
 
 ### Finish Reasons
 
-Knox Chat normalizes the `finish_reason` for each model to one of the following values: `tool_calls`, `stop`, `length`, `content_filter`, or `error`.
+Knox normalizes the `finish_reason` for each model to one of the following values: `tool_calls`, `stop`, `length`, `content_filter`, or `error`.
 
 Some models and providers may include additional completion reasons. The original `finish_reason` string returned by the model can be accessed via the `native_finish_reason` attribute.
 

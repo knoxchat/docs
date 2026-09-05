@@ -1,7 +1,7 @@
 ---
 id: parameters
 title: "API Parameters"
-description: "Detailed documentation of parameters supported by the Knox Chat API"
+description: "Detailed documentation of parameters supported by the Knox API"
 sidebar_label: API Parameters
 sidebar_position: 1
 hide_title: true
@@ -10,7 +10,7 @@ custom_edit_url: null
 
 # API Parameters
 
-This page provides a complete list of all parameters supported by the Knox Chat API.
+This page provides a complete list of all parameters supported by the Knox API.
 
 ## Core Parameters
 
@@ -40,15 +40,15 @@ The following parameters can be used for both completion and chat completion req
 | `top_a` | Double | None | Alternative top sampling parameter (range: [0, 1]). |
 | `top_logprobs` | Integer | None | Number of top log probabilities to return. |
 
-## Knox Chat Specific Parameters
+## Knox Specific Parameters
 
-The following parameters are specific to Knox Chat:
+The following parameters are specific to Knox:
 
 | Parameter Name | Type | Default Value | Description |
 | -------------- | ---- | ------------- | ----------- |
 | `models` | Array of Strings | None | List of alternative models for routing override. |
 | `provider` | Object | None | Provider preferences for routing. |
-| `transforms` | Array of Strings | None | List of prompt transformations (Knox Chat only). |
+| `transforms` | Array of Strings | None | List of prompt transformations (Knox only). |
 | `reasoning` | Object | None | Configuration for model reasoning/thinking tokens. |
 | `usage` | Object | None | Whether to include usage information in the response. |
 

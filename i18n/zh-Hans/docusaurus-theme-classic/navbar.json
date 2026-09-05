@@ -1,6 +1,6 @@
 {
   "title": {
-    "message": "Knox Chat",
+    "message": "Knox",
     "description": "The title in the navbar"
   },
   "logo.alt": {
@@ -19,8 +19,8 @@
     "message": "博客",
     "description": "Navbar item with label Blog"
   },
-  "item.label.Back to Knox Chat": {
-    "message": "返回 Knox Chat",
-    "description": "Navbar item with label Back to Knox Chat"
+  "item.label.Back to Knox": {
+    "message": "返回 Knox",
+    "description": "Navbar item with label Back to Knox"
   }
 }

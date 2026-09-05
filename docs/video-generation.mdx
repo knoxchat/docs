@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # Video Generation
 
-Knox Chat exposes a dedicated **asynchronous** video generation API. Unlike chat completions, video jobs are submitted, polled until they finish, then downloaded as media files.
+Knox exposes a dedicated **asynchronous** video generation API. Unlike chat completions, video jobs are submitted, polled until they finish, then downloaded as media files.
 
 The typical flow is:
 
@@ -16,7 +16,7 @@ The typical flow is:
 3. Poll status — [`GET /v1/videos/{jobId}`](/1.0.0/get-video)
 4. Download the file — [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content)
 
-All authenticated requests use the same base URL and API key as the rest of Knox Chat:
+All authenticated requests use the same base URL and API key as the rest of Knox:
 
 ```
 https://api.knox.chat/v1

@@ -10,7 +10,7 @@ tags: [ai, knoxchat, update]
 
 **Edit images like you're talking to a designer. No buttons. No sliders. Just natural language.**
 
-Today, we're thrilled to announce big update to Knox Chat yet: **Knox AI Image Editor** - a professional-grade image editing suite powered by Gemini 2.5 Flash Image, a.k.a. "Nano Banana,". This isn't just another filter app. This is a complete reimagining of how humans interact with image editing tools.
+Today, we're thrilled to announce big update to Knox yet: **Knox AI Image Editor** - a professional-grade image editing suite powered by Gemini 2.5 Flash Image, a.k.a. "Nano Banana,". This isn't just another filter app. This is a complete reimagining of how humans interact with image editing tools.
 
 <!--truncate-->
 

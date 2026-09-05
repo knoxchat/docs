@@ -68,7 +68,7 @@ embeddings = client.embeddings.create(
 ### 🎯 **Intelligent Model Routing**
 Our advanced routing system automatically selects the best model and provider based on your priorities:
 
-- **Intelligent Routing**: Knox Chat's built-in routing engine scores providers based on latency, success rate, price, and priority — with automatic circuit breakers for reliability
+- **Intelligent Routing**: Knox's built-in routing engine scores providers based on latency, success rate, price, and priority — with automatic circuit breakers for reliability
 - **Fallback Models**: Automatic failover across multiple providers when the primary is unavailable
 - **Performance Variants**: 
   - `:nitro` - Optimized for speed and throughput

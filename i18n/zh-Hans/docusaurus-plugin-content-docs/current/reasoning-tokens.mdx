@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # 推理 Token
 
-对于支持此 API 的模型，Knox Chat API 可以返回**推理 Token**（Reasoning Tokens）。Knox Chat 对不同模型使用推理 Token 的方式进行了标准化，为各类提供商提供统一的接口。
+对于支持此 API 的模型，Knox API 可以返回**推理 Token**（Reasoning Tokens）。Knox 对不同模型使用推理 Token 的方式进行了标准化，为各类提供商提供统一的接口。
 
 推理 Token 会透明地展示模型的推理步骤。它们被视为输出 Token 的一部分，并将按此计费。
 
@@ -76,7 +76,7 @@ import TabItem from '@theme/TabItem';
 
 ## 旧版参数
 
-为了向后兼容，Knox Chat 仍然支持以下旧版参数：
+为了向后兼容，Knox 仍然支持以下旧版参数：
 
 * `include_reasoning: true` - 等同于 `reasoning: {}`
 * `include_reasoning: false` - 等同于 `reasoning: { exclude: true }`
