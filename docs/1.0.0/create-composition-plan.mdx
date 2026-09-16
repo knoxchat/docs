@@ -1,0 +1,102 @@
+---
+id: create-composition-plan
+title: "Create Composition Plan"
+description: "Create a composition plan from a prompt without generating audio. Not billed."
+sidebar_label: "Create composition plan"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create Composition Plan"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/music/plan"}
+>
+</MethodEndpoint>
+
+Turn a text prompt into a structured composition plan (styles, sections, lyrics, durations). **Not billed**, but rate limited. Pass the result as `composition_plan` to [compose](/1.0.0/compose-music).
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `application/json`. |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| prompt | String | Yes | Prompt to plan from. |
+| music_length_ms | Integer | No | Plan length in ms, **3000–300000**. |
+| model_id | String | No | `music_v1` (default), `music_v2`, or `music_v2_5`. Controls plan format. |
+| source_composition_plan | Object | No | Existing plan to iterate on. |
+
+Section constraints when you later compose from the plan: name 1–100 characters, duration 3000–120000ms, max 30 lines per section, 200 characters per line. Prefer English style tags.
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/music/plan \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "prompt": "A two-minute folk song about autumn leaves",
+  "music_length_ms": 120000,
+  "model_id": "music_v2_5"
+}'
+```
+
+## Response
+
+### Success Response (200)
+
+A `MusicPrompt` or `CompositionPlan` object. `MusicPrompt` includes `positive_global_styles`, `negative_global_styles`, and `sections[]` (`section_name`, local styles, `duration_ms`, `lines`). `CompositionPlan` uses `chunks[]` with `text`, `duration_ms`, `positive_styles`, optional `negative_styles`, `context_adherence` (`low` / `medium` / `high`), and optional `conditioning_ref`.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

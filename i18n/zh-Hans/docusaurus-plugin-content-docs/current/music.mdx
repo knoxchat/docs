@@ -1,0 +1,127 @@
+---
+sidebar_position: 15
+sidebar_label: 音乐生成
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 音乐生成
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**音乐**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/music/models`](/1.0.0/list-music-models)
+2. 可选：规划歌曲 — [`POST /v1/music/plan`](/1.0.0/create-composition-plan)
+3. 作曲 — [`POST /v1/music`](/1.0.0/compose-music)
+4. 或流式生成 — [`POST /v1/music/stream`](/1.0.0/stream-music)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+把官方 ElevenLabs SDK 的 Base URL 指向 Knox，并用 Knox key 作为 `xi-api-key` 即可调用。
+
+## 模型与计费
+
+音乐模型**不是** `/v1/models` 那份目录。请获取：
+
+```shell
+curl https://api.knoxstudio.ai/v1/music/models
+```
+
+| `model_id` | 说明 |
+| ---------- | ---- |
+| `music_v1` | 默认。单次最长 5 分钟。 |
+| `music_v2` | 更高保真度的结构与混音。 |
+| `music_v2_5` | 最新一代音质与可控性。 |
+
+Knox 产品上限为 **5 分钟**（`music_length_ms` 介于 `3000` 与 `300000`），即使上游文档写了更长范围。
+
+| 操作 | 计费 |
+| ---- | ---- |
+| 作曲 / 流式 / 详情 | **每生成分钟 `$0.20`** |
+| 上传 / 分轨 / 视频配乐 | 按估算时长同样 `$0.20`/分钟 |
+| 创建微调 | 每次创建 **`$2.00`** |
+| 创建作曲计划 | 不计费 |
+
+未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。携带 Bearer token 时，仅返回该 token 被允许使用的模型。
+
+## 作曲
+
+发送 `prompt` **或** `composition_plan`，不能同时使用。`force_instrumental` 和 `music_length_ms` 仅在使用 `prompt` 时有效。`seed` 不能与 `prompt` 同时使用。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/music?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -o song.mp3 \
+     -d '{
+  "model_id": "music_v2_5",
+  "prompt": "一首关于夜间开车的轻快独立流行歌曲，温暖人声和朗朗上口的副歌",
+  "music_length_ms": 60000,
+  "force_instrumental": false
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.post(
+    "https://api.knoxstudio.ai/v1/music",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    params={"output_format": "mp3_44100_128"},
+    json={
+        "model_id": "music_v2_5",
+        "prompt": "一首关于夜间开车的轻快独立流行歌曲",
+        "music_length_ms": 60000,
+    },
+)
+response.raise_for_status()
+open("song.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+作曲成功时返回**音频字节**。用于局部重绘的歌曲 ID 会出现在响应头中。
+
+`output_format` 格式为 `codec_sample_rate_bitrate`，例如 `mp3_44100_128`。默认 `auto` 会为 v1 选择 `mp3_44100_128`，为 v2 / v2.5 选择 `mp3_48000_192`。
+
+## 作曲计划
+
+[`POST /v1/music/plan`](/1.0.0/create-composition-plan) 将提示词转为结构化计划（风格、段落、歌词、时长）。它不生成音频，也不计费。将返回对象作为 `composition_plan` 传给作曲接口。
+
+段落时长必须介于 **3000ms 与 120000ms**。每段最多 **30 行**，每行最多 **200 字符**。段落名称长度为 1–100 字符。
+
+## 相关端点
+
+| 目标 | 端点 |
+| ---- | ---- |
+| 流式音频 | [`POST /v1/music/stream`](/1.0.0/stream-music) |
+| 音频 + 元数据 | [`POST /v1/music/detailed`](/1.0.0/compose-detailed-music) |
+| SSE 音频 + 元数据 | [`POST /v1/music/detailed/stream`](/1.0.0/compose-detailed-stream-music) |
+| 上传供局部重绘 | [`POST /v1/music/upload`](/1.0.0/upload-music) |
+| 将混音拆成音轨 | [`POST /v1/music/stem-separation`](/1.0.0/separate-stems) |
+| 根据视频生成配乐 | [`POST /v1/music/video-to-music`](/1.0.0/video-to-music)（最多 10 个视频，合计 200MB） |
+| 风格微调 | [`/v1/music/finetunes`](/1.0.0/list-music-finetunes) |
+
+上传会进行版权检查。若检测到受版权保护的内容，仍会收取**一半**费用。
+
+## 错误
+
+这些端点返回 `{ "detail": "..." }`；校验失败时为 HTTP `422`，正文为 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。
+
+常见状态：`401` 缺少或无效的 key、`402` 余额不足、`403` token 无权使用该模型、`422` 请求体或 `output_format` 无效。

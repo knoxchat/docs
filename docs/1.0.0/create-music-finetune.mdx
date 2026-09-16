@@ -1,0 +1,112 @@
+---
+id: create-music-finetune
+title: "Create Music Finetune"
+description: "Create a new music finetune. Billed `$2.00` per create."
+sidebar_label: "Create music finetune"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create Music Finetune"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/music/finetunes"}
+>
+</MethodEndpoint>
+
+Start training a music finetune from uploaded audio. Billed **`$2.00`** per create. Multipart max **210MB**. You can only set visibility to `private` or `workspace`.
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `multipart/form-data`. |
+
+### Request Body (`multipart/form-data`)
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| name | String | Yes | 5–200 characters. |
+| primary_genre | String | Yes | Primary musical genre. |
+| files | Files | No | Training audio files. |
+| tags | List of Strings | No | Tags to attach. |
+| visibility | String | No | `private` or `workspace`. |
+| model_id | String | No | Base model: `music_v1`, `music_v2`, or `music_v2_5`. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/music/finetunes \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "name=Studio folk set" \
+     -F "primary_genre=folk" \
+     -F "visibility=private" \
+     -F "model_id=music_v2_5" \
+     -F "files=@ref1.mp3" \
+     -F "files=@ref2.mp3"
+```
+
+## Response
+
+### Success Response (201)
+
+| id | string | Finetune ID. |
+| name | string | Display name (5–200 characters). |
+| tags | array of strings | Associated tags. |
+| model_id | string | Base music model. |
+| created_at | string | UTC timestamp. |
+| visibility | string | `private`, `workspace`, or `public`. |
+| created_by | string | `self`, `workspace`, or `elevenlabs`. |
+| status | string | `pending`, `in_progress`, `completed`, `failed`, `blocked`. |
+| training_progress | number | 0.0–1.0. |
+| primary_genre | string | Primary genre. |
+| failure_reason | string | `audio_processing_failed`, `copyright_violation`, or `training_failed`. |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

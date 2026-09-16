@@ -1,0 +1,109 @@
+---
+id: list-music-finetunes
+title: "List Music Finetunes"
+description: "List music finetunes with optional filters, sorting, and cursor pagination."
+sidebar_label: "List music finetunes"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Music Finetunes"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/music/finetunes"}
+>
+</MethodEndpoint>
+
+List finetunes you can access (yours, workspace-shared, and curated). This read is **not billed**.
+
+## Request
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| cursor | String | No | Next-page cursor from the previous response. |
+| page_size | Integer | No | Default `50`, max `150`. |
+| visibility | String | No | `private`, `workspace`, or `public`. |
+| created_by | String | No | `self`, `workspace`, or `elevenlabs`. |
+| sort | String | No | `created_at` (default) or `name`. |
+| sort_direction | String | No | `asc` or `desc` (default `desc`). |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET "https://api.knoxstudio.ai/v1/music/finetunes?page_size=50&sort=created_at&sort_direction=desc" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+`finetunes` array plus a `cursor` for the next page when more results exist.
+
+### Finetune object
+
+| id | string | Finetune ID. |
+| name | string | Display name (5–200 characters). |
+| tags | array of strings | Associated tags. |
+| model_id | string | Base music model. |
+| created_at | string | UTC timestamp. |
+| visibility | string | `private`, `workspace`, or `public`. |
+| created_by | string | `self`, `workspace`, or `elevenlabs`. |
+| status | string | `pending`, `in_progress`, `completed`, `failed`, `blocked`. |
+| training_progress | number | 0.0–1.0. |
+| primary_genre | string | Primary genre. |
+| failure_reason | string | `audio_processing_failed`, `copyright_violation`, or `training_failed`. |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

@@ -1,0 +1,116 @@
+---
+sidebar_position: 14
+sidebar_label: 文本转语音
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 文本转语音
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**文本转语音**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。`https://api.knox.chat/v1` 提供相同路由。
+
+这不是 [实时语音](/realtime) 的语音到语音，也不是把音频送进 [`/v1/chat/completions`](/audio)。TTS 是把**文本变成音频**。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/text-to-speech/models`](/1.0.0/list-tts-models)
+2. 选择 `voice_id`（ElevenLabs 音色 ID；Knox 不提供 `/v1/voices`）
+3. 合成 — [`POST /v1/text-to-speech/{voice_id}`](/1.0.0/convert-speech)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+常用公开音色示例：`21m00Tcm4TlvDq8ikWAM`（Rachel）。
+
+## 模型与计费
+
+```shell
+curl https://api.knoxstudio.ai/v1/text-to-speech/models
+```
+
+| `model_id` | 延迟 / 用途 | 最大字符数 | 价格 |
+| ---------- | ----------- | ---------- | ---- |
+| `eleven_multilingual_v2` | 默认，29 种语言 | 10,000 | **每千字符 `$0.15`** |
+| `eleven_v3` | 表现力最强，70 余种语言 | 5,000 | **每千字符 `$0.15`** |
+| `eleven_v3_conversational` | 语音代理，约 280ms | 5,000 | **每千字符 `$0.10`** |
+| `eleven_flash_v2_5` | 超低延迟多语言，约 75ms | 40,000 | **每千字符 `$0.10`** |
+| `eleven_flash_v2` | 超低延迟英语，约 75ms | 30,000 | **每千字符 `$0.10`** |
+| `eleven_turbo_v2_5` | 已弃用，建议改用 Flash v2.5 | 40,000 | **每千字符 `$0.10`** |
+| `eleven_turbo_v2` | 已弃用，建议改用 Flash v2 | 30,000 | **每千字符 `$0.10`** |
+
+默认 `model_id` 为 `eleven_multilingual_v2`。未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。
+
+## 生成语音
+
+`text` 必填。流式变体**不支持** WAV 的 `output_format`。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -o speech.mp3 \
+     -d '{
+  "text": "你好，这里是 Knox 文本转语音。",
+  "model_id": "eleven_multilingual_v2"
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+voice_id = "21m00Tcm4TlvDq8ikWAM"
+response = requests.post(
+    f"https://api.knoxstudio.ai/v1/text-to-speech/{voice_id}",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    params={"output_format": "mp3_44100_128"},
+    json={
+        "text": "你好，这里是 Knox 文本转语音。",
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75,
+            "speed": 1.0,
+        },
+    },
+)
+response.raise_for_status()
+open("speech.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+## 相关端点
+
+| 目标 | 端点 |
+| ---- | ---- |
+| 流式音频 | [`POST /v1/text-to-speech/{voice_id}/stream`](/1.0.0/stream-speech) |
+| 字符级时间戳 | [`POST /v1/text-to-speech/{voice_id}/with-timestamps`](/1.0.0/convert-speech-with-timestamps) |
+| 流式 + 时间戳 | [`POST /v1/text-to-speech/{voice_id}/stream/with-timestamps`](/1.0.0/stream-speech-with-timestamps) |
+| WebSocket 分块文本 | [`/v1/text-to-speech/{voice_id}/stream-input`](/1.0.0/tts-stream-input) |
+| 多个并发上下文 | [`/v1/text-to-speech/{voice_id}/multi-stream-input`](/1.0.0/tts-multi-stream-input) |
+
+全文已知时使用 HTTP 合成。文本分块到达时（例如 LLM 流式输出）使用 WebSocket。对 WebSocket 路径发送普通 HTTP 会返回 `400`。
+
+可选 `voice_settings`：`stability`（默认 0.5）、`similarity_boost`（0.75）、`style`（0）、`speed`（1.0）、`use_speaker_boost`（true）。最多 3 个 `pronunciation_dictionary_locators`，以及最多 3 个 `previous_request_ids` / `next_request_ids`。`seed` 范围为 0–4294967295。
+
+`apply_text_normalization` 为 `auto`、`on` 或 `off`。`language_code` 为 ISO 639-1，对 `eleven_multilingual_v2` 会被忽略。
+
+## 错误
+
+`422` 使用 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。其他错误使用 `{ "detail": "..." }`。
+
+常见状态：`401` 缺少或无效的 key、`402` 余额不足、`403` 无权使用该模型、`422` 缺少 `text`、超出字符上限或 `output_format` 无效。

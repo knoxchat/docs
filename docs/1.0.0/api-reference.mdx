@@ -49,6 +49,9 @@ The Knox API includes the following main endpoints:
 
 - [**Get List of Available Models**](/1.0.0/list-available-models) - Get information about all available models
 - [**List All Video Generation Models**](/1.0.0/list-video-models) - Get the catalog of video generation models and their supported options
+- [**List Music Models**](/1.0.0/list-music-models) - Get music model IDs, duration limits, and per-minute pricing
+- [**List Text-to-Speech Models**](/1.0.0/list-tts-models) - Get TTS model IDs, character limits, and per-1K pricing
+- [**List Speech-to-Text Models**](/1.0.0/list-stt-models) - Get STT model IDs and per-hour pricing
 
 ### Realtime
 
@@ -67,6 +70,43 @@ Video generation is asynchronous: submit a job, poll until it completes, then do
 - [**Download Generated Video Content**](/1.0.0/get-video-content) - Download raw video bytes (`GET /v1/videos/{jobId}/content`)
 - [**List All Video Generation Models**](/1.0.0/list-video-models) - List models, resolutions, durations, and pricing SKUs
 
+### Music
+
+Compose original songs from a prompt or composition plan. These routes are documented for [KnoxStudio](https://knoxstudio.ai) at `https://api.knoxstudio.ai/v1` (same backend as `https://api.knox.chat/v1`). See the [**Music**](/music) guide.
+
+- [**List Music Models**](/1.0.0/list-music-models) - Catalog (`GET /v1/music/models`)
+- [**Compose Music**](/1.0.0/compose-music) - Generate a song (`POST /v1/music`)
+- [**Stream Music**](/1.0.0/stream-music) - Stream audio (`POST /v1/music/stream`)
+- [**Compose Music with Details**](/1.0.0/compose-detailed-music) - Audio plus metadata (`POST /v1/music/detailed`)
+- [**Stream Music with Details**](/1.0.0/compose-detailed-stream-music) - SSE audio and metadata (`POST /v1/music/detailed/stream`)
+- [**Create Composition Plan**](/1.0.0/create-composition-plan) - Plan a song without generating audio (`POST /v1/music/plan`)
+- [**Upload Music**](/1.0.0/upload-music) - Upload a track for inpainting (`POST /v1/music/upload`)
+- [**Separate Stems**](/1.0.0/separate-stems) - Split a mix into stems (`POST /v1/music/stem-separation`)
+- [**Video to Music**](/1.0.0/video-to-music) - Generate a soundtrack from video (`POST /v1/music/video-to-music`)
+- [**List / Create / Get / Update / Delete Finetunes**](/1.0.0/list-music-finetunes) - Manage music finetunes (`/v1/music/finetunes`)
+
+### Text to Speech
+
+Convert text to audio with ElevenLabs voices. Base URL: `https://api.knoxstudio.ai/v1`. Authenticate with `Authorization: Bearer sk-...` or `xi-api-key`. See the [**Text to Speech**](/text-to-speech) guide.
+
+- [**List Text-to-Speech Models**](/1.0.0/list-tts-models) - Catalog (`GET /v1/text-to-speech/models`)
+- [**Create Speech**](/1.0.0/convert-speech) - Full audio file (`POST /v1/text-to-speech/{voice_id}`)
+- [**Stream Speech**](/1.0.0/stream-speech) - Audio stream (`POST /v1/text-to-speech/{voice_id}/stream`)
+- [**Create Speech with Timing**](/1.0.0/convert-speech-with-timestamps) - Audio plus character timestamps
+- [**Stream Speech with Timing**](/1.0.0/stream-speech-with-timestamps) - Streaming audio plus timestamps
+- [**Text-to-Speech WebSocket**](/1.0.0/tts-stream-input) - Chunked text in, audio out (`/v1/text-to-speech/{voice_id}/stream-input`)
+- [**Multi-context TTS WebSocket**](/1.0.0/tts-multi-stream-input) - Multiple concurrent contexts
+
+### Speech to Text
+
+Transcribe audio or video with Scribe. Base URL: `https://api.knoxstudio.ai/v1`. See the [**Speech to Text**](/speech-to-text) guide.
+
+- [**List Speech-to-Text Models**](/1.0.0/list-stt-models) - Catalog (`GET /v1/speech-to-text/models`)
+- [**Create Transcript**](/1.0.0/convert-speech-to-text) - File or URL transcription (`POST /v1/speech-to-text`)
+- [**Get Transcript**](/1.0.0/get-transcript) - Retrieve a stored transcript
+- [**Delete Transcript**](/1.0.0/delete-transcript) - Delete a stored transcript
+- [**Realtime Speech-to-Text**](/1.0.0/stt-realtime) - WebSocket streaming transcription (`/v1/speech-to-text/realtime`)
+
 ## Parameters
 
 Knox supports various parameters to control model behavior and output. See the [**Parameters**](/1.0.0/parameters) section for details.
@@ -77,16 +117,19 @@ The API uses standard HTTP status codes to indicate the result of a request:
 
 - `200` - Request successful
 - `202` - Request accepted (asynchronous video generation)
-- `400` - Invalid or missing request parameters (including HTTP to `/v1/realtime` without a WebSocket upgrade)
+- `400` - Invalid or missing request parameters (including HTTP to a WebSocket endpoint without an upgrade)
 - `401` - Authentication failed (invalid or expired API key)
 - `402` - Insufficient account balance
 - `403` - Token is not authorized to use the requested model
 - `404` - Requested resource not found
+- `422` - Validation error (music, text-to-speech, and speech-to-text)
 - `429` - Rate limit exceeded
 - `500` - Internal server error
 - `502` - Upstream Realtime provider unavailable or connect failed
 
 Video generation endpoints return errors as `{ "error": { "code": 400, "message": "..." } }`. A poll response with `status: "failed"` is still HTTP `200`.
+
+Music, text-to-speech, and speech-to-text endpoints return ElevenLabs-style errors: `{ "detail": "..." }` or `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }` for `422`. These routes also accept `xi-api-key` in addition to `Authorization: Bearer`.
 
 ## Requests
 

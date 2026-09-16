@@ -1,0 +1,116 @@
+---
+sidebar_position: 15
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Speech to Text
+
+Knox exposes ElevenLabs-compatible **speech-to-text** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). The same routes are also served by `https://api.knox.chat/v1`.
+
+This is not sending `input_audio` to [chat completions](/audio), and it is not [Realtime](/realtime) speech-to-speech. STT turns **audio or video into text**.
+
+Typical flow:
+
+1. List models — [`GET /v1/speech-to-text/models`](/1.0.0/list-stt-models)
+2. Transcribe — [`POST /v1/speech-to-text`](/1.0.0/convert-speech-to-text)
+3. Optionally fetch or delete — [`GET`](/1.0.0/get-transcript) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](/1.0.0/delete-transcript)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+## Models and billing
+
+```shell
+curl https://api.knoxstudio.ai/v1/speech-to-text/models
+```
+
+| `model_id` | Use | Price |
+| ---------- | --- | ----- |
+| `scribe_v2` | Default batch transcription, 90+ languages | **`$0.27` / audio hour** |
+| `scribe_v2_realtime` | WebSocket streaming, ~150ms | **`$0.44` / audio hour** |
+
+Add-ons (hourly, on top of the model rate):
+
+| Add-on | Price |
+| ------ | ----- |
+| Entity detection / redaction | **`$0.12` / hour** |
+| Keyterm prompting | **`$0.10` / hour** |
+| Speaker role detection | **+10%** of the base transcription cost |
+
+When `use_multi_channel` is true, each channel is billed independently at the full audio duration. More than 100 keyterms also applies a **20 second** minimum billable duration.
+
+Multipart uploads may be up to **5GB**. Audio must be at least **100ms**.
+
+## Create a transcript
+
+Provide exactly one of `file` or `source_url` (`cloud_storage_url` is deprecated). `model_id` is required.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/speech-to-text \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "model_id=scribe_v2" \
+     -F "file=@interview.mp3" \
+     -F "diarize=true" \
+     -F "timestamps_granularity=word"
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("interview.mp3", "rb") as audio:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/speech-to-text",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"file": audio},
+        data={
+            "model_id": "scribe_v2",
+            "diarize": "true",
+            "timestamps_granularity": "word",
+        },
+    )
+response.raise_for_status()
+print(response.json()["text"])
+```
+
+</TabItem>
+</Tabs>
+
+A synchronous `200` includes `text`, `language_code`, `language_probability`, `words`, and optional `transcription_id`. Set `webhook=true` to return early and receive the result later.
+
+Useful fields: `language_code`, `tag_audio_events`, `num_speakers` (max 32), `diarize`, `timestamps_granularity` (`none` / `word` / `character`), `no_verbatim` (Scribe v2), `keyterms` (max 1000).
+
+## Realtime WebSocket
+
+[`GET` / `POST /v1/speech-to-text/realtime`](/1.0.0/stt-realtime) requires a WebSocket upgrade. Default model is `scribe_v2_realtime`.
+
+Send:
+
+```json
+{
+  "message_type": "input_audio_chunk",
+  "audio_base_64": "<base64 pcm>",
+  "commit": false,
+  "sample_rate": 16000
+}
+```
+
+Receive `partial_transcript` (interim) and `committed_transcript` (stable). `commit_strategy` is `manual` or `vad`. Audio formats: `pcm_8000`, `pcm_16000`, `pcm_22050`, `pcm_24000`, `pcm_44100`, `pcm_48000`, `ulaw_8000`.
+
+Do not put credentials in WebSocket JSON bodies. Knox strips `xi-api-key` from client messages.
+
+## Errors
+
+`422` uses `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`. Other errors use `{ "detail": "..." }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed, `400` HTTP to the realtime path without Upgrade, `422` missing `model_id` / file / URL.

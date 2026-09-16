@@ -1,0 +1,126 @@
+---
+sidebar_position: 15
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Music
+
+Knox exposes ElevenLabs-compatible **music** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+
+Typical flow:
+
+1. List models — [`GET /v1/music/models`](/1.0.0/list-music-models)
+2. Optionally plan the song — [`POST /v1/music/plan`](/1.0.0/create-composition-plan)
+3. Compose — [`POST /v1/music`](/1.0.0/compose-music)
+4. Or stream — [`POST /v1/music/stream`](/1.0.0/stream-music)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
+
+## Models and billing
+
+Music models are **not** the same catalog as `/v1/models`. Fetch:
+
+```shell
+curl https://api.knoxstudio.ai/v1/music/models
+```
+
+| `model_id` | Notes |
+| ---------- | ----- |
+| `music_v1` | Default. Up to 5 minutes per generation. |
+| `music_v2` | Higher-fidelity structure and mix. |
+| `music_v2_5` | Latest quality and control. |
+
+Knox product limit is **5 minutes** (`music_length_ms` between `3000` and `300000`), even when upstream documents a longer range.
+
+| Operation | Billing |
+| --------- | ------- |
+| Compose / stream / detailed | **`$0.20` per generated minute** |
+| Upload / stem separation / video-to-music | Same `$0.20`/min on estimated duration |
+| Create finetune | **`$2.00`** per create |
+| Create composition plan | Not billed |
+
+Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes. A Bearer token returns only the models that token is allowed to use.
+
+## Compose a song
+
+Send either `prompt` **or** `composition_plan`, not both. `force_instrumental` and `music_length_ms` are only valid with `prompt`. `seed` cannot be combined with `prompt`.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/music?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -o song.mp3 \
+     -d '{
+  "model_id": "music_v2_5",
+  "prompt": "An upbeat indie-pop song about a night drive, with warm vocals and a catchy chorus",
+  "music_length_ms": 60000,
+  "force_instrumental": false
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.post(
+    "https://api.knoxstudio.ai/v1/music",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    params={"output_format": "mp3_44100_128"},
+    json={
+        "model_id": "music_v2_5",
+        "prompt": "An upbeat indie-pop song about a night drive",
+        "music_length_ms": 60000,
+    },
+)
+response.raise_for_status()
+open("song.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+A successful compose returns the **audio bytes**. Song identifiers used for inpainting appear in response headers.
+
+`output_format` is `codec_sample_rate_bitrate`, for example `mp3_44100_128`. Default `auto` picks `mp3_44100_128` for v1 and `mp3_48000_192` for v2 / v2.5.
+
+## Composition plans
+
+[`POST /v1/music/plan`](/1.0.0/create-composition-plan) turns a prompt into a structured plan (styles, sections, lyrics, durations). It does not generate audio and is not billed. Pass the returned object as `composition_plan` to compose.
+
+Section duration must be between **3000ms and 120000ms**. At most **30 lines** per section and **200 characters** per line. Section names are 1–100 characters.
+
+## Related endpoints
+
+| Goal | Endpoint |
+| ---- | -------- |
+| Stream audio | [`POST /v1/music/stream`](/1.0.0/stream-music) |
+| Audio + metadata | [`POST /v1/music/detailed`](/1.0.0/compose-detailed-music) |
+| SSE audio + metadata | [`POST /v1/music/detailed/stream`](/1.0.0/compose-detailed-stream-music) |
+| Upload for inpainting | [`POST /v1/music/upload`](/1.0.0/upload-music) |
+| Split a mix into stems | [`POST /v1/music/stem-separation`](/1.0.0/separate-stems) |
+| Soundtrack from video | [`POST /v1/music/video-to-music`](/1.0.0/video-to-music) (up to 10 videos, 200MB combined) |
+| Style finetunes | [`/v1/music/finetunes`](/1.0.0/list-music-finetunes) |
+
+Copyright inspection applies to uploads. If copyrighted content is detected, **half** of the request cost is still charged.
+
+## Errors
+
+These endpoints return `{ "detail": "..." }` or, for validation, HTTP `422` with `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed for the token, `422` invalid body or `output_format`.

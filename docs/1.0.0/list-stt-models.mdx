@@ -1,0 +1,120 @@
+---
+id: list-stt-models
+title: "List Speech-to-Text Models"
+description: "Returns the catalog of STT models and per-hour pricing."
+sidebar_label: "List speech-to-text models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Speech-to-Text Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/speech-to-text/models"}
+>
+</MethodEndpoint>
+
+Returns STT models. Use `id` as `model_id`. Batch default is `scribe_v2`; WebSocket default is `scribe_v2_realtime`. See [Speech to Text](/speech-to-text).
+
+Authentication is optional (public catalog **60/min**, cached **5 minutes**; a token filters the list).
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | No | Optional `Bearer <token>`. Omit for the public catalog. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/speech-to-text/models
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "scribe_v2",
+      "canonical_slug": "scribe_v2",
+      "name": "ElevenLabs Scribe v2",
+      "created": 1751328000,
+      "description": "Speech-to-text transcription with 90+ languages, word-level timestamps, and optional entity detection. Billed per audio hour.",
+      "chinese_description": "语音转文本，支持 90 余种语言、词级时间戳与实体检测，按音频小时计费。",
+      "pricing": {
+        "per_hour": "0.27",
+        "entity_detection": "0.12",
+        "keyterm_prompting": "0.10"
+      },
+      "architecture": {
+        "modality": "audio",
+        "input_modalities": ["audio"],
+        "output_modalities": ["text"],
+        "tokenizer": "elevenlabs"
+      }
+    }
+  ]
+}
+```
+
+Also listed: `scribe_v2_realtime` (`per_hour`: `0.44`).
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data[].id | string | Send as `model_id`. |
+| data[].pricing.per_hour | string | USD per audio hour. |
+| data[].pricing.entity_detection | string | Add-on USD per hour (`0.12`). |
+| data[].pricing.keyterm_prompting | string | Add-on USD per hour (`0.10`). |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

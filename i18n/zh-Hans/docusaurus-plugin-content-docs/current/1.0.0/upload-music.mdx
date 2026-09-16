@@ -1,0 +1,101 @@
+---
+id: upload-music
+title: "上传音乐"
+description: "上传音乐文件供后续局部重绘。计费与歌曲生成相同。"
+sidebar_label: "上传音乐"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"上传音乐"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/music/upload"}
+>
+</MethodEndpoint>
+
+上传音频以获得用于局部重绘的 `song_id`。价格与歌曲生成相同（**`$0.20`/分钟**）。上传会进行版权检查；若检测到受版权保护的内容，仍收取**一半**费用。Multipart 请求体，最大 **210MB**。
+
+## 请求
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `multipart/form-data`。 |
+
+### 请求体（`multipart/form-data`）
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| file | File | 是 | 要上传的音频文件。 |
+| extract_composition_plan | Boolean or String | 否 | 提取计划。传入 `music_v1` / `music_v2` / `music_v2_5` 控制格式。`true`/`false` 已弃用（`true` → v1）。会增加延迟。 |
+| with_timestamps | Boolean | 否 | 转写词级时间戳。会增加延迟。 |
+| with_waveform_visual | Boolean | 否 | 包含波形可视化。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/music/upload \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "file=@track.mp3" \
+     -F "extract_composition_plan=music_v2_5" \
+     -F "with_timestamps=true"
+```
+
+## 响应
+
+### 成功响应 (200)
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| song_id | string | 用于 `composition_plan` 局部重绘引用的 ID。 |
+| composition_plan | object | 设置 `extract_composition_plan` 时出现。 |
+| words_timestamps | array | `with_timestamps` 为 true 时出现：`word`、`start_ms`、`end_ms`。 |
+
+## 错误响应
+
+校验失败返回 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未携带 `Upgrade: websocket` 访问 WebSocket 路径。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源不存在。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

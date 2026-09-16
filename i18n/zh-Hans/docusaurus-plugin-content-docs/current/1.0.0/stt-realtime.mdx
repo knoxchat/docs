@@ -1,0 +1,122 @@
+---
+id: stt-realtime
+title: "实时语音转文本"
+description: "通过 WebSocket 流式输入音频，接收中间结果和已提交转写。"
+sidebar_label: "实时语音转文本"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"实时语音转文本"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"wss://api.knoxstudio.ai/v1/speech-to-text/realtime"}
+>
+</MethodEndpoint>
+
+低延迟流式转写（约 150ms）。默认模型 `scribe_v2_realtime`，**`$0.44`/小时**。`GET` 和 `POST` 都接受 WebSocket 升级。普通 HTTP 返回 `400`。不要把凭证放进 JSON 消息体；Knox 会剥离 `xi-api-key`。
+
+## 请求
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| model_id | String | 否 | 默认 `scribe_v2_realtime`。必须是实时 STT 模型。 |
+| language_code | String | 否 | 识别语言提示。 |
+| audio_format | String | 否 | `pcm_8000`、`pcm_16000`、`pcm_22050`、`pcm_24000`、`pcm_44100`、`pcm_48000`、`ulaw_8000`。 |
+| commit_strategy | String | 否 | `manual` 或 `vad`。 |
+| enable_logging | Boolean | 否 | 默认 `true`。 |
+| include_timestamps | Boolean | 否 | 在转写中包含词级时间。 |
+| include_language_detection | Boolean | 否 | 包含语言检测事件。 |
+
+认证：`Authorization: Bearer`、`xi-api-key`，或（浏览器）`?authorization=` / `?api_key=`。必须 `Upgrade: websocket`。
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Upgrade | String | 是 | 必须为 `websocket`。 |
+
+## 客户端消息
+
+```json
+{
+  "message_type": "input_audio_chunk",
+  "audio_base_64": "<base64 pcm>",
+  "commit": false,
+  "sample_rate": 16000
+}
+```
+
+`commit_strategy=manual` 时设置 `commit: true`（或发送 commit 消息）。VAD 会自动提交。
+
+## 服务端消息
+
+- `partial_transcript` — 当前片段的中间文本
+- `committed_transcript` — 该片段的稳定文本
+
+在观察到已提交音频后开始计费。
+
+## 示例
+
+```javascript
+const ws = new WebSocket(
+  "wss://api.knoxstudio.ai/v1/speech-to-text/realtime?model_id=scribe_v2_realtime&audio_format=pcm_16000&commit_strategy=vad"
+);
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    message_type: "input_audio_chunk",
+    audio_base_64: pcmChunk,
+    commit: false,
+    sample_rate: 16000
+  }));
+};
+```
+
+## 错误响应
+
+校验失败返回 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未携带 `Upgrade: websocket` 访问 WebSocket 路径。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源不存在。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

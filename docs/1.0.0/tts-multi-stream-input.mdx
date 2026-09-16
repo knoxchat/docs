@@ -1,0 +1,95 @@
+---
+id: tts-multi-stream-input
+title: "Multi-context TTS WebSocket"
+description: "Generate multiple independent TTS contexts over one WebSocket connection."
+sidebar_label: "Multi-context TTS WebSocket"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Multi-context TTS WebSocket"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"wss://api.knoxstudio.ai/v1/text-to-speech/{voice_id}/multi-stream-input"}
+>
+</MethodEndpoint>
+
+Same transport as [TTS WebSocket](/1.0.0/tts-stream-input), but each `context_id` keeps its own generation state. Useful for interleaved voice-agent replies. `GET` and `POST` accept the upgrade. Stream formats only. Billed per character.
+
+## Request
+
+Path, query, and auth match [Text-to-speech WebSocket](/1.0.0/tts-stream-input): `voice_id`, `model_id`, stream `output_format`, `enable_logging`, `apply_text_normalization`. Plain HTTP returns `400`.
+
+## Client messages
+
+```json
+{
+  "text": "First context ",
+  "context_id": "agent-a",
+  "try_trigger_generation": true
+}
+```
+
+Flush or close a single context independently:
+
+```json
+{ "context_id": "agent-a", "text": "", "flush": true }
+```
+
+```json
+{ "context_id": "agent-a", "close_context": true }
+```
+
+Terminate the whole socket with `close_socket: true`.
+
+## Server messages
+
+Audio frames include `contextId` so you can demux concurrent generations. `isFinal` applies to that context.
+
+Use this API when you need concurrent or interleaved streams. For a single sequential stream, prefer [`/stream-input`](/1.0.0/tts-stream-input).
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

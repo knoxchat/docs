@@ -1,0 +1,112 @@
+---
+id: create-music-finetune
+title: "创建音乐微调"
+description: "创建新的音乐微调。每次创建计费 `$2.00`。"
+sidebar_label: "创建音乐微调"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"创建音乐微调"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/music/finetunes"}
+>
+</MethodEndpoint>
+
+从上传音频开始训练音乐微调。每次创建计费 **`$2.00`**。Multipart 最大 **210MB**。可见性只能设为 `private` 或 `workspace`。
+
+## 请求
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `multipart/form-data`。 |
+
+### 请求体（`multipart/form-data`）
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| name | String | 是 | 5–200 字符。 |
+| primary_genre | String | 是 | 主要音乐风格。 |
+| files | Files | 否 | 训练音频文件。 |
+| tags | List of Strings | 否 | 附加标签。 |
+| visibility | String | 否 | `private` 或 `workspace`。 |
+| model_id | String | 否 | 基础模型：`music_v1`、`music_v2` 或 `music_v2_5`。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/music/finetunes \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "name=工作室民谣集" \
+     -F "primary_genre=folk" \
+     -F "visibility=private" \
+     -F "model_id=music_v2_5" \
+     -F "files=@ref1.mp3" \
+     -F "files=@ref2.mp3"
+```
+
+## 响应
+
+### 成功响应 (201)
+
+| id | string | 微调 ID。 |
+| name | string | 显示名称（5–200 字符）。 |
+| tags | array of strings | 关联标签。 |
+| model_id | string | 基础音乐模型。 |
+| created_at | string | UTC 时间戳。 |
+| visibility | string | `private`、`workspace` 或 `public`。 |
+| created_by | string | `self`、`workspace` 或 `elevenlabs`。 |
+| status | string | `pending`、`in_progress`、`completed`、`failed`、`blocked`。 |
+| training_progress | number | 0.0–1.0。 |
+| primary_genre | string | 主风格。 |
+| failure_reason | string | `audio_processing_failed`、`copyright_violation` 或 `training_failed`。 |
+
+## 错误响应
+
+校验失败返回 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未携带 `Upgrade: websocket` 访问 WebSocket 路径。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源不存在。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

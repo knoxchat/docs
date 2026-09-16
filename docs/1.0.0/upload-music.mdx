@@ -1,0 +1,101 @@
+---
+id: upload-music
+title: "Upload Music"
+description: "Upload a music file for later inpainting. Billed like song generation."
+sidebar_label: "Upload music"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Upload Music"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/music/upload"}
+>
+</MethodEndpoint>
+
+Upload audio to obtain a `song_id` for inpainting. Price matches song generation (**`$0.20`/min**). Uploads are inspected for copyright; if copyrighted content is detected, **half** the cost is still charged. Multipart body, max **210MB**.
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `multipart/form-data`. |
+
+### Request Body (`multipart/form-data`)
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| file | File | Yes | Audio file to upload. |
+| extract_composition_plan | Boolean or String | No | Extract a plan. Pass `music_v1` / `music_v2` / `music_v2_5` for format. `true`/`false` is deprecated (`true` → v1). Increases latency. |
+| with_timestamps | Boolean | No | Transcribe word-level timestamps. Increases latency. |
+| with_waveform_visual | Boolean | No | Include a visual waveform. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/music/upload \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "file=@track.mp3" \
+     -F "extract_composition_plan=music_v2_5" \
+     -F "with_timestamps=true"
+```
+
+## Response
+
+### Success Response (200)
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| song_id | string | ID to use in `composition_plan` inpainting refs. |
+| composition_plan | object | Present when `extract_composition_plan` is set. |
+| words_timestamps | array | Present when `with_timestamps` is true: `word`, `start_ms`, `end_ms`. |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

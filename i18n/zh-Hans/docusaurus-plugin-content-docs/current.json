@@ -47,6 +47,18 @@
     "message": "快速入门",
     "description": "The label for the doc item 'Quickstart' in sidebar 'tutorialSidebar'"
   },
+  "sidebar.tutorialSidebar.doc.Music": {
+    "message": "音乐生成",
+    "description": "The label for the doc item 'Music' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Text to Speech": {
+    "message": "文本转语音",
+    "description": "The label for the doc item 'Text to Speech' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Speech to Text": {
+    "message": "语音转文本",
+    "description": "The label for the doc item 'Speech to Text' in sidebar 'tutorialSidebar'"
+  },
   "sidebar.apiSidebar.doc.Overview": {
     "message": "概览",
     "description": "The label for the doc item 'Overview' in sidebar 'apiSidebar', linking to the doc 1.0.0/api-reference"
@@ -106,5 +118,129 @@
   "sidebar.apiSidebar.doc.Create realtime call": {
     "message": "创建实时通话",
     "description": "The label for the doc item 'Create realtime call' in sidebar 'apiSidebar', linking to the doc 1.0.0/realtime-calls"
+  },
+  "sidebar.apiSidebar.category.Realtime": {
+    "message": "实时语音",
+    "description": "The label for category 'Realtime' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Video Generation": {
+    "message": "视频生成",
+    "description": "The label for category 'Video Generation' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Music": {
+    "message": "音乐生成",
+    "description": "The label for category 'Music' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Text to Speech": {
+    "message": "文本转语音",
+    "description": "The label for category 'Text to Speech' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Speech to Text": {
+    "message": "语音转文本",
+    "description": "The label for category 'Speech to Text' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List music models": {
+    "message": "列出音乐模型",
+    "description": "The label for the doc item 'List music models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Compose music": {
+    "message": "作曲",
+    "description": "The label for the doc item 'Compose music' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Stream music": {
+    "message": "流式作曲",
+    "description": "The label for the doc item 'Stream music' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Compose music with details": {
+    "message": "作曲并返回详情",
+    "description": "The label for the doc item 'Compose music with details' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Stream music with details": {
+    "message": "流式作曲并返回详情",
+    "description": "The label for the doc item 'Stream music with details' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create composition plan": {
+    "message": "创建作曲计划",
+    "description": "The label for the doc item 'Create composition plan' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Upload music": {
+    "message": "上传音乐",
+    "description": "The label for the doc item 'Upload music' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Separate stems": {
+    "message": "分轨",
+    "description": "The label for the doc item 'Separate stems' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Video to music": {
+    "message": "视频配乐",
+    "description": "The label for the doc item 'Video to music' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List music finetunes": {
+    "message": "列出音乐微调",
+    "description": "The label for the doc item 'List music finetunes' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create music finetune": {
+    "message": "创建音乐微调",
+    "description": "The label for the doc item 'Create music finetune' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get music finetune": {
+    "message": "获取音乐微调",
+    "description": "The label for the doc item 'Get music finetune' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Update music finetune": {
+    "message": "更新音乐微调",
+    "description": "The label for the doc item 'Update music finetune' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete music finetune": {
+    "message": "删除音乐微调",
+    "description": "The label for the doc item 'Delete music finetune' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List text-to-speech models": {
+    "message": "列出文本转语音模型",
+    "description": "The label for the doc item 'List text-to-speech models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create speech": {
+    "message": "生成语音",
+    "description": "The label for the doc item 'Create speech' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Stream speech": {
+    "message": "流式生成语音",
+    "description": "The label for the doc item 'Stream speech' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create speech with timing": {
+    "message": "生成语音（含时间戳）",
+    "description": "The label for the doc item 'Create speech with timing' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Stream speech with timing": {
+    "message": "流式生成语音（含时间戳）",
+    "description": "The label for the doc item 'Stream speech with timing' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Text-to-speech WebSocket": {
+    "message": "文本转语音 WebSocket",
+    "description": "The label for the doc item 'Text-to-speech WebSocket' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Multi-context TTS WebSocket": {
+    "message": "多上下文 TTS WebSocket",
+    "description": "The label for the doc item 'Multi-context TTS WebSocket' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List speech-to-text models": {
+    "message": "列出语音转文本模型",
+    "description": "The label for the doc item 'List speech-to-text models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create transcript": {
+    "message": "创建转写",
+    "description": "The label for the doc item 'Create transcript' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get transcript": {
+    "message": "获取转写",
+    "description": "The label for the doc item 'Get transcript' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete transcript": {
+    "message": "删除转写",
+    "description": "The label for the doc item 'Delete transcript' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Realtime speech-to-text": {
+    "message": "实时语音转文本",
+    "description": "The label for the doc item 'Realtime speech-to-text' in sidebar 'apiSidebar'"
   }
 }

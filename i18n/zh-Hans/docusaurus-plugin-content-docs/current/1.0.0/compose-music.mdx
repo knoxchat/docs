@@ -1,0 +1,115 @@
+---
+id: compose-music
+title: "作曲"
+description: "根据提示词或作曲计划生成歌曲，并返回音频字节。"
+sidebar_label: "作曲"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"作曲"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/music"}
+>
+</MethodEndpoint>
+
+生成歌曲并返回音频文件。发送 `prompt` **或** `composition_plan`，不能同时使用。按 **每生成分钟 `$0.20`** 计费。流程见 [音乐生成](/music)。
+
+## 请求
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| output_format | String | 否 | 默认 `auto`。允许值：`auto`, `mp3_48000_128`, `mp3_48000_192`, `mp3_48000_240`, `mp3_48000_320`, `mp3_22050_32`, `mp3_24000_48`, `mp3_44100_32`, `mp3_44100_64`, `mp3_44100_96`, `mp3_44100_128`, `mp3_44100_192`, `pcm_8000`, `pcm_16000`, `pcm_22050`, `pcm_24000`, `pcm_32000`, `pcm_44100`, `pcm_48000`, `ulaw_8000`, `alaw_8000`, `opus_48000_32`, `opus_48000_64`, `opus_48000_96`, `opus_48000_128`, `opus_48000_192`。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `application/json`。 |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| prompt | String | 条件 | 文本提示。不能与 `composition_plan` 同时使用。 |
+| composition_plan | Object | 条件 | 来自 [`POST /v1/music/plan`](/1.0.0/create-composition-plan) 的结构化计划。不能与 `prompt` 同时使用。 |
+| music_length_ms | Integer | 否 | 时长（毫秒），**3000–300000**。仅与 `prompt` 一起使用。Knox 上限 5 分钟。 |
+| model_id | String | 否 | `music_v1`（默认）、`music_v2` 或 `music_v2_5`。 |
+| seed | Integer | 否 | 确定性提示。不能与 `prompt` 同时使用。 |
+| force_instrumental | Boolean | 否 | 为 `true` 时无人声。仅与 `prompt` 一起使用。默认 `false`。 |
+| finetune_id | String | 否 | 可选微调，见 [`/v1/music/finetunes`](/1.0.0/list-music-finetunes)。 |
+| respect_sections_durations | Boolean | 否 | 强制计划段落时长。仅 `music_v1`；v2 / v2.5 忽略。默认 `true`。 |
+| store_for_inpainting | Boolean | 否 | 存储歌曲供后续局部重绘。默认 `false`。 |
+| sign_with_c2pa | Boolean | 否 | 为 MP3 输出签名 C2PA。默认 `false`。 |
+
+## cURL 示例
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/music?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -o song.mp3 \
+     -d '{
+  "model_id": "music_v2_5",
+  "prompt": "An upbeat indie-pop song about a night drive",
+  "music_length_ms": 60000
+}'
+```
+
+## 响应
+
+### 成功响应 (200)
+
+生成的音频文件。`Content-Type` 随 `output_format`（默认 MP3）。用于局部重绘的歌曲 ID 会出现在响应头中。
+
+按每生成分钟 `$0.20` 计费（仅提示且未设 `music_length_ms` 时，在得知实际时长前按 30 秒估算）。
+
+## 错误响应
+
+校验失败返回 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未携带 `Upgrade: websocket` 访问 WebSocket 路径。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源不存在。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

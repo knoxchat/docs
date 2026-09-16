@@ -1,0 +1,139 @@
+---
+id: convert-speech-to-text
+title: "创建转写"
+description: "转写音频/视频文件或来源 URL。"
+sidebar_label: "创建转写"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"创建转写"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/speech-to-text"}
+>
+</MethodEndpoint>
+
+批量转写。`model_id` 必填。必须且只能提供 `file` 或 `source_url`（`cloud_storage_url` 已弃用）。文件最大 **5GB**，音频至少 **100ms**。默认模型 `scribe_v2`，**`$0.27`/小时**。指南：[语音转文本](/speech-to-text)。
+
+## 请求
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| enable_logging | Boolean | 否 | 默认 `true`。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `multipart/form-data`（上传文件）或 `application/json`（仅 URL）。 |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| model_id | String | 是 | `scribe_v2` 或 `scribe_v2_realtime`。 |
+| file | File | 条件 | 音频/视频文件。必须且只能与 `source_url` 二选一。 |
+| source_url | String | 条件 | HTTPS 音频/视频 URL（YouTube/TikTok 及托管文件）。 |
+| cloud_storage_url | String | 否 | 已弃用；请使用 `source_url`。 |
+| language_code | String | 否 | ISO-639-1 或 ISO-639-3。省略则自动检测。 |
+| tag_audio_events | Boolean | 否 | 标记笑声等事件。 |
+| num_speakers | Integer | 否 | 最多预测 32 位说话人。 |
+| timestamps_granularity | String | 否 | `none`、`word` 或 `character`。 |
+| diarize | Boolean | 否 | 标注谁在说话。 |
+| diarization_threshold | Number | 否 | 仅在 `diarize=true` 且未设 `num_speakers` 时。 |
+| file_format | String | 否 | `pcm_s16le_16` 或 `other`。 |
+| webhook | Boolean | 否 | 提前返回，稍后通过 webhook 投递。 |
+| webhook_id | String | 否 | `webhook=true` 时指定 webhook。 |
+| webhook_metadata | Object or String | 否 | 包含在 webhook 负载中（最大 16KB，深度 2）。 |
+| temperature | Number | 否 | 0.0–2.0。 |
+| seed | Integer | 否 | 0–2147483647。 |
+| use_multi_channel | Boolean | 否 | 按声道转写（最多 5）。每个声道按完整时长计费。 |
+| multichannel_output_style | String | 否 | `separate`（默认）或 `combined`。 |
+| entity_detection | String or List | 否 | `all`、类别（`pii`、`phi`、`pci`、`other`、`offensive_language`）或类型。`+$0.12`/小时。 |
+| entity_redaction | String or List | 否 | `entity_detection` 的子集。 |
+| entity_redaction_mode | String | 否 | `redacted`、`entity_type`、`enumerated_entity_type`。 |
+| no_verbatim | Boolean | 否 | 去掉语气词/口误。仅 `scribe_v2`。 |
+| use_speaker_library | Boolean | 否 | `diarize=true` 时匹配已知说话人。 |
+| detect_speaker_roles | Boolean | 否 | 需要 `diarize=true`。**+10%** 附加费。不能与多声道同时使用。 |
+| keyterms | List of Strings | 否 | 最多 1000 个，每个 50 字符、5 个词。`+$0.10`/小时。超过 100 个时最低 20 秒计费。 |
+| additional_formats | List of Objects | 否 | 额外导出格式。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/speech-to-text \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "model_id=scribe_v2" \
+     -F "file=@interview.mp3" \
+     -F "diarize=true" \
+     -F "timestamps_granularity=word"
+```
+
+## 响应
+
+### 成功响应 (200)
+
+同步结果：
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| text | string | 转写文本。 |
+| language_code | string | 检测到的语言（例如 `eng`）。 |
+| language_probability | number | 0–1。 |
+| words | array | `text`、`type`（`word` / `spacing` / `audio_event`）、`logprob`、`start`、`end`，以及可选 `speaker_id`、`characters`、`channel_index`。 |
+| transcription_id | string | 用于获取/删除转写。 |
+| audio_duration_secs | number | 计费时长。 |
+| entities | array | 开启实体检测时：`text`、`entity_type`、`start_char`、`end_char`。 |
+| transcripts | array | 多声道 `separate` 样式。 |
+
+`webhook=true` 时请求会提前返回，不含 `text`。
+
+## 错误响应
+
+校验失败返回 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未携带 `Upgrade: websocket` 访问 WebSocket 路径。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源不存在。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

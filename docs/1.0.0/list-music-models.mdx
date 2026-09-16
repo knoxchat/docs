@@ -1,0 +1,131 @@
+---
+id: list-music-models
+title: "List Music Models"
+description: "Returns the catalog of music models, duration limits, and per-minute pricing."
+sidebar_label: "List music models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Music Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/music/models"}
+>
+</MethodEndpoint>
+
+Returns the public catalog of music models. Use `id` as `model_id` on compose and related endpoints. See the [Music](/music) guide.
+
+Authentication is optional:
+
+- **No API key** — public catalog, **60 requests per minute**, cached up to **5 minutes**.
+- **Bearer / `xi-api-key`** — models allowed for that token.
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | No | Optional `Bearer <token>`. Omit for the public catalog. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/music/models
+```
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/music/models \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "music_v2_5",
+      "canonical_slug": "music_v2_5",
+      "name": "ElevenLabs Music v2.5",
+      "created": 1756684800,
+      "description": "Latest ElevenLabs music model with the best quality and control. Up to 5 minutes per generation.",
+      "chinese_description": "最新一代 ElevenLabs 音乐模型，音质与可控性最佳，单次最长 5 分钟。",
+      "max_duration_seconds": 300,
+      "pricing": {
+        "per_minute": "0.20",
+        "finetune": "2.00"
+      },
+      "architecture": {
+        "modality": "audio",
+        "input_modalities": ["text", "audio", "video"],
+        "output_modalities": ["audio"],
+        "tokenizer": "elevenlabs"
+      }
+    }
+  ]
+}
+```
+
+Also listed: `music_v1` and `music_v2`.
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | array | Music models. |
+| data[].id | string | Send as `model_id`. |
+| data[].max_duration_seconds | integer | Always `300` (5 minutes). |
+| data[].pricing.per_minute | string | USD per generated minute (`0.20`). |
+| data[].pricing.finetune | string | USD to create a finetune (`2.00`). |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

@@ -1,0 +1,139 @@
+---
+id: convert-speech-to-text
+title: "Create Transcript"
+description: "Transcribe an audio or video file or a source URL."
+sidebar_label: "Create transcript"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create Transcript"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/speech-to-text"}
+>
+</MethodEndpoint>
+
+Batch transcription. `model_id` is required. Provide exactly one of `file` or `source_url` (`cloud_storage_url` is deprecated). Files up to **5GB**, audio at least **100ms**. Default model `scribe_v2` at **`$0.27`/hour**. Guide: [Speech to Text](/speech-to-text).
+
+## Request
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| enable_logging | Boolean | No | Default `true`. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `multipart/form-data` (file upload) or `application/json` (URL-only). |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| model_id | String | Yes | `scribe_v2` or `scribe_v2_realtime`. |
+| file | File | Conditional | Audio/video file. Exactly one of `file` or `source_url`. |
+| source_url | String | Conditional | HTTPS audio/video URL (YouTube/TikTok and hosted files). |
+| cloud_storage_url | String | No | Deprecated; use `source_url`. |
+| language_code | String | No | ISO-639-1 or ISO-639-3. Auto-detected if omitted. |
+| tag_audio_events | Boolean | No | Tag events such as laughter. |
+| num_speakers | Integer | No | Max speakers to predict, up to 32. |
+| timestamps_granularity | String | No | `none`, `word`, or `character`. |
+| diarize | Boolean | No | Annotate who is speaking. |
+| diarization_threshold | Number | No | Only with `diarize=true` and no `num_speakers`. |
+| file_format | String | No | `pcm_s16le_16` or `other`. |
+| webhook | Boolean | No | Return early; deliver via webhook. |
+| webhook_id | String | No | Specific webhook when `webhook=true`. |
+| webhook_metadata | Object or String | No | Included in webhook payloads (max 16KB, depth 2). |
+| temperature | Number | No | 0.0–2.0. |
+| seed | Integer | No | 0–2147483647. |
+| use_multi_channel | Boolean | No | Transcribe each channel (max 5). Each channel is billed in full. |
+| multichannel_output_style | String | No | `separate` (default) or `combined`. |
+| entity_detection | String or List | No | `all`, a category (`pii`, `phi`, `pci`, `other`, `offensive_language`), or types. `+$0.12`/hour. |
+| entity_redaction | String or List | No | Subset of `entity_detection`. Extra 30% surcharge upstream, billed via entity add-on. |
+| entity_redaction_mode | String | No | `redacted`, `entity_type`, `enumerated_entity_type`. |
+| no_verbatim | Boolean | No | Drop fillers/false starts. `scribe_v2` only. |
+| use_speaker_library | Boolean | No | Match known speakers when `diarize=true`. |
+| detect_speaker_roles | Boolean | No | Requires `diarize=true`. **+10%** surcharge. Not with multi-channel. |
+| keyterms | List of Strings | No | Max 1000 terms, 50 chars, 5 words each. `+$0.10`/hour. >100 terms: 20s minimum duration. |
+| additional_formats | List of Objects | No | Extra export formats. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/speech-to-text \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "model_id=scribe_v2" \
+     -F "file=@interview.mp3" \
+     -F "diarize=true" \
+     -F "timestamps_granularity=word"
+```
+
+## Response
+
+### Success Response (200)
+
+Synchronous result:
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| text | string | Transcript. |
+| language_code | string | Detected language (for example `eng`). |
+| language_probability | number | 0–1. |
+| words | array | `text`, `type` (`word` / `spacing` / `audio_event`), `logprob`, `start`, `end`, optional `speaker_id`, `characters`, `channel_index`. |
+| transcription_id | string | Use with get/delete transcript. |
+| audio_duration_secs | number | Duration billed. |
+| entities | array | When entity detection is on: `text`, `entity_type`, `start_char`, `end_char`. |
+| transcripts | array | Multi-channel `separate` style. |
+
+When `webhook=true`, the request returns early without `text`.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

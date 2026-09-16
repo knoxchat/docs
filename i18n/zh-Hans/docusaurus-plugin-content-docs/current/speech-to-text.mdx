@@ -1,0 +1,117 @@
+---
+sidebar_position: 15
+sidebar_label: 语音转文本
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 语音转文本
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语音转文本**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。`https://api.knox.chat/v1` 提供相同路由。
+
+这不是把 `input_audio` 发给 [对话补全](/audio)，也不是 [实时语音](/realtime) 的语音到语音。STT 是把**音频或视频变成文本**。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/speech-to-text/models`](/1.0.0/list-stt-models)
+2. 转写 — [`POST /v1/speech-to-text`](/1.0.0/convert-speech-to-text)
+3. 可选：读取或删除 — [`GET`](/1.0.0/get-transcript) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](/1.0.0/delete-transcript)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+## 模型与计费
+
+```shell
+curl https://api.knoxstudio.ai/v1/speech-to-text/models
+```
+
+| `model_id` | 用途 | 价格 |
+| ---------- | ---- | ---- |
+| `scribe_v2` | 默认批量转写，90 余种语言 | **每音频小时 `$0.27`** |
+| `scribe_v2_realtime` | WebSocket 流式，约 150ms | **每音频小时 `$0.44`** |
+
+附加项（按小时，叠加在模型单价上）：
+
+| 附加项 | 价格 |
+| ------ | ---- |
+| 实体检测 / 脱敏 | **每小时 `$0.12`** |
+| 关键词提示 | **每小时 `$0.10`** |
+| 说话人角色检测 | 基础转写费用的 **+10%** |
+
+`use_multi_channel` 为 true 时，每个声道按完整音频时长独立计费。超过 100 个关键词还会应用 **20 秒**最低计费时长。
+
+Multipart 上传最大 **5GB**。音频至少 **100ms**。
+
+## 创建转写
+
+必须且只能提供 `file` 或 `source_url` 之一（`cloud_storage_url` 已弃用）。`model_id` 必填。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/speech-to-text \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "model_id=scribe_v2" \
+     -F "file=@interview.mp3" \
+     -F "diarize=true" \
+     -F "timestamps_granularity=word"
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("interview.mp3", "rb") as audio:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/speech-to-text",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"file": audio},
+        data={
+            "model_id": "scribe_v2",
+            "diarize": "true",
+            "timestamps_granularity": "word",
+        },
+    )
+response.raise_for_status()
+print(response.json()["text"])
+```
+
+</TabItem>
+</Tabs>
+
+同步 `200` 包含 `text`、`language_code`、`language_probability`、`words`，以及可选的 `transcription_id`。设置 `webhook=true` 可提前返回，稍后再接收结果。
+
+常用字段：`language_code`、`tag_audio_events`、`num_speakers`（最多 32）、`diarize`、`timestamps_granularity`（`none` / `word` / `character`）、`no_verbatim`（Scribe v2）、`keyterms`（最多 1000）。
+
+## 实时 WebSocket
+
+[`GET` / `POST /v1/speech-to-text/realtime`](/1.0.0/stt-realtime) 需要 WebSocket 升级。默认模型为 `scribe_v2_realtime`。
+
+发送：
+
+```json
+{
+  "message_type": "input_audio_chunk",
+  "audio_base_64": "<base64 pcm>",
+  "commit": false,
+  "sample_rate": 16000
+}
+```
+
+接收 `partial_transcript`（中间结果）和 `committed_transcript`（稳定结果）。`commit_strategy` 为 `manual` 或 `vad`。音频格式：`pcm_8000`、`pcm_16000`、`pcm_22050`、`pcm_24000`、`pcm_44100`、`pcm_48000`、`ulaw_8000`。
+
+不要把凭证放进 WebSocket JSON 消息体。Knox 会从客户端消息中剥离 `xi-api-key`。
+
+## 错误
+
+`422` 使用 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。其他错误使用 `{ "detail": "..." }`。
+
+常见状态：`401` 缺少或无效的 key、`402` 余额不足、`403` 无权使用该模型、`400` 未升级就访问实时路径、`422` 缺少 `model_id` / 文件 / URL。

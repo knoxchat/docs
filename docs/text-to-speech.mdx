@@ -1,0 +1,115 @@
+---
+sidebar_position: 14
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Text to Speech
+
+Knox exposes ElevenLabs-compatible **text-to-speech** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). The same routes are also served by `https://api.knox.chat/v1`.
+
+This is not [Realtime](/realtime) speech-to-speech, and it is not sending audio into [`/v1/chat/completions`](/audio). TTS turns **text into audio**.
+
+Typical flow:
+
+1. List models — [`GET /v1/text-to-speech/models`](/1.0.0/list-tts-models)
+2. Pick a `voice_id` (an ElevenLabs voice ID; Knox does not expose `/v1/voices`)
+3. Convert — [`POST /v1/text-to-speech/{voice_id}`](/1.0.0/convert-speech)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+A commonly used public voice is `21m00Tcm4TlvDq8ikWAM` (Rachel).
+
+## Models and billing
+
+```shell
+curl https://api.knoxstudio.ai/v1/text-to-speech/models
+```
+
+| `model_id` | Latency / use | Max characters | Price |
+| ---------- | ------------- | -------------- | ----- |
+| `eleven_multilingual_v2` | Default, 29 languages | 10,000 | **`$0.15` / 1K characters** |
+| `eleven_v3` | Most expressive, 70+ languages | 5,000 | **`$0.15` / 1K characters** |
+| `eleven_v3_conversational` | Voice agents, ~280ms | 5,000 | **`$0.10` / 1K characters** |
+| `eleven_flash_v2_5` | Ultra-low latency multilingual, ~75ms | 40,000 | **`$0.10` / 1K characters** |
+| `eleven_flash_v2` | Ultra-low latency English, ~75ms | 30,000 | **`$0.10` / 1K characters** |
+| `eleven_turbo_v2_5` | Deprecated; prefer Flash v2.5 | 40,000 | **`$0.10` / 1K characters** |
+| `eleven_turbo_v2` | Deprecated; prefer Flash v2 | 30,000 | **`$0.10` / 1K characters** |
+
+Default `model_id` is `eleven_multilingual_v2`. Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes.
+
+## Create speech
+
+`text` is required. Streaming variants do **not** support WAV `output_format` values.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -o speech.mp3 \
+     -d '{
+  "text": "Hello from Knox. This is text to speech.",
+  "model_id": "eleven_multilingual_v2"
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+voice_id = "21m00Tcm4TlvDq8ikWAM"
+response = requests.post(
+    f"https://api.knoxstudio.ai/v1/text-to-speech/{voice_id}",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    params={"output_format": "mp3_44100_128"},
+    json={
+        "text": "Hello from Knox. This is text to speech.",
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75,
+            "speed": 1.0,
+        },
+    },
+)
+response.raise_for_status()
+open("speech.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+## Related endpoints
+
+| Goal | Endpoint |
+| ---- | -------- |
+| Stream audio | [`POST /v1/text-to-speech/{voice_id}/stream`](/1.0.0/stream-speech) |
+| Character timestamps | [`POST /v1/text-to-speech/{voice_id}/with-timestamps`](/1.0.0/convert-speech-with-timestamps) |
+| Stream + timestamps | [`POST /v1/text-to-speech/{voice_id}/stream/with-timestamps`](/1.0.0/stream-speech-with-timestamps) |
+| Chunked text over WebSocket | [`/v1/text-to-speech/{voice_id}/stream-input`](/1.0.0/tts-stream-input) |
+| Multiple concurrent contexts | [`/v1/text-to-speech/{voice_id}/multi-stream-input`](/1.0.0/tts-multi-stream-input) |
+
+Use HTTP convert when the full text is available. Use WebSocket when text arrives in chunks (for example an LLM stream). Plain HTTP to a WebSocket path returns `400`.
+
+Optional `voice_settings`: `stability` (default 0.5), `similarity_boost` (0.75), `style` (0), `speed` (1.0), `use_speaker_boost` (true). Up to 3 `pronunciation_dictionary_locators` and 3 `previous_request_ids` / `next_request_ids`. `seed` is 0–4294967295.
+
+`apply_text_normalization` is `auto`, `on`, or `off`. `language_code` is ISO 639-1 and is ignored by `eleven_multilingual_v2`.
+
+## Errors
+
+`422` uses `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`. Other errors use `{ "detail": "..." }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed, `422` missing `text`, over the character limit, or invalid `output_format`.
