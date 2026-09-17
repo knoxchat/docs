@@ -1,0 +1,100 @@
+---
+id: replicate-voice
+title: "复制音色"
+description: "把 IVC 或 Voice Design 音色复制到其他工作区。"
+sidebar_label: "复制音色"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"复制音色"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/voices/{voice_id}/replicate-to-isolated-environment"}
+>
+</MethodEndpoint>
+
+必须提供 `target_workspace_id`。可选 `preserve_voice_id`（默认 true）。**不计费**。
+
+## 请求
+
+### 路径参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| voice_id | String | 是 | 音色 ID。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `application/json` |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| target_workspace_id | String | 是 | 同一计费组中的目标工作区。 |
+| preserve_voice_id | Boolean | 否 | 在目标驻留区保留相同 voice ID。默认 true。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/voices/voice_id/replicate-to-isolated-environment \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"target_workspace_id":"ws_123","preserve_voice_id":true}'
+```
+
+## 响应
+
+### 成功响应 (200)
+
+JSON，包含复制后的 `voice_id`。
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

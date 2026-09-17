@@ -1,0 +1,112 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Voices
+
+Knox exposes ElevenLabs-compatible **voice library** endpoints at `https://api.knoxstudio.ai/v1` (and `GET /v2/voices`) for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). The same routes are also served by `https://api.knox.chat/v1`.
+
+Use the returned `voice_id` with [Text to Speech](/text-to-speech) and [Voice Changer](/voice-changer). Voice reads, clones, and PVC operations are **not billed** as audio minutes; your token still needs access to a TTS model.
+
+Typical flow:
+
+1. Search — [`GET /v2/voices`](/1.0.0/search-voices)
+2. Or list — [`GET /v1/voices`](/1.0.0/list-voices)
+3. Clone (IVC) — [`POST /v1/voices/add`](/1.0.0/create-ivc-voice)
+4. Use `voice_id` on TTS / Voice Changer
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+Sample uploads stay under the music multipart ceiling (**210MB** wrapping). A commonly used public voice is `21m00Tcm4TlvDq8ikWAM` (Rachel).
+
+## Search and list
+
+`GET /v2/voices` is the filtered search API. `page_size` is 1–100 (default 10). `voice_ids` accepts at most 100 IDs.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X GET "https://api.knoxstudio.ai/v2/voices?page_size=10&sort=name&sort_direction=asc" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.get(
+    "https://api.knoxstudio.ai/v2/voices",
+    headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+    params={"page_size": 10, "category": "premade", "sort": "name"},
+)
+response.raise_for_status()
+print(response.json())
+```
+
+</TabItem>
+</Tabs>
+
+Search filters Knox validates: `sort` (`created_at_unix`, `name`), `sort_direction` (`asc`, `desc`), `voice_type` (`personal`, `community`, `default`, `workspace`, `non-default`, `non-community`, `saved`), `category` (`premade`, `cloned`, `generated`, `professional`), `fine_tuning_state`, plus booleans `include_custom_rates`, `include_live_moderated`, `high_quality`, `include_total_count`.
+
+Shared Voice Library: [`GET /v1/shared-voices`](/1.0.0/list-shared-voices). Add a shared voice with [`POST /v1/voices/add/{public_user_id}/{voice_id}`](/1.0.0/add-shared-voice) (`new_name` required).
+
+## Instant Voice Clone (IVC)
+
+[`POST /v1/voices/add`](/1.0.0/create-ivc-voice) requires `name` and `files` (audio samples).
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/voices/add \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "name=Studio Narrator" \
+     -F "files=@sample1.wav" \
+     -F "files=@sample2.wav"
+```
+
+Edit metadata with [`POST /v1/voices/{voice_id}/edit`](/1.0.0/edit-voice) (`name` required). Delete with [`DELETE /v1/voices/{voice_id}`](/1.0.0/delete-voice).
+
+## Voice settings
+
+| Goal | Endpoint |
+| ---- | -------- |
+| Default settings | [`GET /v1/voices/settings/default`](/1.0.0/get-default-voice-settings) |
+| Get settings | [`GET /v1/voices/{voice_id}/settings`](/1.0.0/get-voice-settings) |
+| Edit settings | [`POST /v1/voices/{voice_id}/settings/edit`](/1.0.0/edit-voice-settings) |
+| Accents for a TTS model | [`GET /v1/voices/accents`](/1.0.0/get-voice-accents) |
+| Similar voices | [`POST /v1/similar-voices`](/1.0.0/find-similar-voices) |
+
+Settings fields: `stability`, `similarity_boost`, `style`, `speed`, `use_speaker_boost`. `GET /v1/voices/{voice_id}` accepts `with_settings=true`.
+
+`similarity_threshold` on similar-voices is 0–2; `top_k` is 1–100.
+
+## Professional Voice Clone (PVC)
+
+PVC is a multi-step flow: create the voice, upload samples, optionally separate speakers, train, then verify.
+
+| Step | Endpoint |
+| ---- | -------- |
+| Create | [`POST /v1/voices/pvc`](/1.0.0/create-pvc-voice) — `name` and `language` required |
+| Update | [`POST /v1/voices/pvc/{voice_id}`](/1.0.0/update-pvc-voice) |
+| Upload samples | [`POST /v1/voices/pvc/{voice_id}/samples`](/1.0.0/create-pvc-samples) |
+| Train | [`POST /v1/voices/pvc/{voice_id}/train`](/1.0.0/train-pvc-voice) |
+| Verification docs | [`POST /v1/voices/pvc/{voice_id}/verification`](/1.0.0/request-pvc-verification) |
+| Captcha | [`GET`](/1.0.0/get-pvc-captcha) / [`POST /v1/voices/pvc/{voice_id}/captcha`](/1.0.0/verify-pvc-captcha) |
+
+Sample helpers: audio, waveform, speakers, speaker audio, speaker separation, trim (`trim_start_time` / `trim_end_time`), `remove_background_noise`, `selected_speaker_ids`.
+
+Replicate an IVC or Voice Design voice to another workspace with [`POST /v1/voices/{voice_id}/replicate-to-isolated-environment`](/1.0.0/replicate-voice) (`target_workspace_id` required).
+
+## Errors
+
+`422` uses `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`. Other errors use `{ "detail": "..." }`.
+
+Common statuses: `401` missing/invalid key, `403` token cannot use a TTS model, `404` voice not found, `422` missing `name` / `files` / `language`.

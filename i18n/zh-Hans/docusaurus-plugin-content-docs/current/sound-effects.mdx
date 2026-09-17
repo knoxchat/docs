@@ -1,0 +1,98 @@
+---
+sidebar_position: 16
+sidebar_label: 音效生成
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 音效生成
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**音效**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+
+这不是 [音乐生成](/music)。音效是把**文本提示变成短免版税片段**。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/sound-generation/models`](/1.0.0/list-sfx-models)
+2. 生成 — [`POST /v1/sound-generation`](/1.0.0/convert-sound-effect)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+把官方 ElevenLabs SDK 的 Base URL 指向 Knox，并用 Knox key 作为 `xi-api-key` 即可调用。
+
+## 模型与计费
+
+```shell
+curl https://api.knoxstudio.ai/v1/sound-generation/models
+```
+
+| `model_id` | 说明 | 价格 |
+| ---------- | ---- | ---- |
+| `eleven_text_to_sound_v2` | 默认。单次 0.5–30 秒。 | **每生成分钟 `$0.17`** |
+
+`duration_seconds` 必须介于 **0.5** 与 **30**。若省略，Knox 在得知实际时长前按 **5 秒**估算。
+
+未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。携带 Bearer token 时，仅返回该 token 被允许使用的模型。
+
+## 生成音效
+
+`text` 必填，发送 JSON。`loop` 仅对 `eleven_text_to_sound_v2` 有效。`prompt_influence` 为 0–1（默认 0.3）：值越高越贴近提示词。
+
+**不支持** WAV `output_format`。此路由也没有 `mp3_48000_*` 系列。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/sound-generation?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -o braam.mp3 \
+     -d '{
+  "text": "适合电影预告片的宽广电影感 braam",
+  "duration_seconds": 4.5,
+  "prompt_influence": 0.3,
+  "loop": false,
+  "model_id": "eleven_text_to_sound_v2"
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.post(
+    "https://api.knoxstudio.ai/v1/sound-generation",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    params={"output_format": "mp3_44100_128"},
+    json={
+        "text": "近距离录制的铁皮屋顶雨声",
+        "duration_seconds": 8.5,
+        "prompt_influence": 0.3,
+        "model_id": "eleven_text_to_sound_v2",
+    },
+)
+response.raise_for_status()
+open("rain.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+成功时返回**音频字节**。`Content-Type` 随 `output_format` 变化。
+
+## 错误
+
+`422` 使用 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。其他错误使用 `{ "detail": "..." }`。
+
+常见状态：`401` 缺少/无效 key，`402` 余额不足，`403` token 无权使用该模型，`422` 缺少 `text`、时长超范围或 `output_format` 无效。

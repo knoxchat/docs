@@ -1,0 +1,90 @@
+---
+id: get-voice-accents
+title: "Get Voice Accents"
+description: "List accents available for a TTS model."
+sidebar_label: "Get voice accents"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get Voice Accents"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/voices/accents"}
+>
+</MethodEndpoint>
+
+List accents for a TTS `model_id`. If set, `model_id` must be a valid TTS model. **Not billed**.
+
+## Request
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| model_id | String | No | TTS model such as `eleven_multilingual_v2` or `eleven_v3`. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET "https://api.knoxstudio.ai/v1/voices/accents?model_id=eleven_multilingual_v2" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+JSON list of accent identifiers.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

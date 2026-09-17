@@ -1,0 +1,96 @@
+---
+id: find-similar-voices
+title: "Find Similar Voices"
+description: "Find voices similar to an audio sample."
+sidebar_label: "Find similar voices"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Find Similar Voices"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/similar-voices"}
+>
+</MethodEndpoint>
+
+Upload a sample to find similar library voices. **Not billed**. `similarity_threshold` is 0–2; `top_k` is 1–100.
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `multipart/form-data` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| audio_file | File | No | Reference audio used for similarity search. |
+| similarity_threshold | Number | No | 0.0–2.0. |
+| top_k | Integer | No | 1–100 results. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/similar-voices \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio_file=@clip.wav" \
+     -F "top_k=10" \
+     -F "similarity_threshold=1.0"
+```
+
+## Response
+
+### Success Response (200)
+
+JSON list of similar voices and scores.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

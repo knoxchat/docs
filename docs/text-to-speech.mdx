@@ -14,7 +14,7 @@ This is not [Realtime](/realtime) speech-to-speech, and it is not sending audio 
 Typical flow:
 
 1. List models — [`GET /v1/text-to-speech/models`](/1.0.0/list-tts-models)
-2. Pick a `voice_id` (an ElevenLabs voice ID; Knox does not expose `/v1/voices`)
+2. Pick a `voice_id` from [Voices](/voices) (`GET /v1/voices` or `GET /v2/voices`)
 3. Convert — [`POST /v1/text-to-speech/{voice_id}`](/1.0.0/convert-speech)
 
 ```
@@ -96,6 +96,7 @@ open("speech.mp3", "wb").write(response.content)
 
 | Goal | Endpoint |
 | ---- | -------- |
+| List / search voices | [`GET /v1/voices`](/1.0.0/list-voices), [`GET /v2/voices`](/1.0.0/search-voices) |
 | Stream audio | [`POST /v1/text-to-speech/{voice_id}/stream`](/1.0.0/stream-speech) |
 | Character timestamps | [`POST /v1/text-to-speech/{voice_id}/with-timestamps`](/1.0.0/convert-speech-with-timestamps) |
 | Stream + timestamps | [`POST /v1/text-to-speech/{voice_id}/stream/with-timestamps`](/1.0.0/stream-speech-with-timestamps) |

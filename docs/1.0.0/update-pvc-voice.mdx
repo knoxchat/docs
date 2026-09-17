@@ -1,0 +1,102 @@
+---
+id: update-pvc-voice
+title: "Update PVC Voice"
+description: "Update a Professional Voice Clone."
+sidebar_label: "Update PVC voice"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update PVC Voice"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/voices/pvc/{voice_id}"}
+>
+</MethodEndpoint>
+
+Optional `name` / `language` must not be empty if sent. **Not billed**.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| voice_id | String | Yes | Voice ID. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `application/json` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| name | String | No | New name. |
+| language | String | No | New language. |
+| description | String | No | Description. |
+| labels | Object or String | No | Metadata labels. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/voices/pvc/voice_id \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Pro Narrator v2"}'
+```
+
+## Response
+
+### Success Response (200)
+
+Updated PVC voice JSON.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

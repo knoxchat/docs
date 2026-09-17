@@ -1,0 +1,91 @@
+---
+id: get-dubbing-language
+title: "Get Dubbing Language"
+description: "Get a language target, including output URLs when completed."
+sidebar_label: "Get language target"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get Dubbing Language"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/project/{project_id}/language/{language_id}"}
+>
+</MethodEndpoint>
+
+Fetch a language target. **Not billed**. When `status` is `completed`, the payload includes output URLs such as lossless audio.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| project_id | String | Yes | Parent dubbing project ID. |
+| language_id | String | Yes | Language target ID. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/dubbing/project/proj_123/language/lang_456 \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+Language target JSON (`status`, `model_id`, output URLs, optional `warnings`).
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

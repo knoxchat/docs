@@ -1,0 +1,100 @@
+---
+id: add-shared-voice
+title: "Add Shared Voice"
+description: "Add a shared Voice Library voice to your collection."
+sidebar_label: "Add shared voice"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Add Shared Voice"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/voices/add/{public_user_id}/{voice_id}"}
+>
+</MethodEndpoint>
+
+Copy a shared voice into your workspace. `new_name` is required. **Not billed**.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| public_user_id | String | Yes | Public user ID of the sharer. |
+| voice_id | String | Yes | Voice ID. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `application/json` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| new_name | String | Yes | Name shown in your voice list. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/voices/add/public_user_id/voice_id \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"new_name":"Library Voice"}'
+```
+
+## Response
+
+### Success Response (200)
+
+JSON with the new workspace `voice_id`.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

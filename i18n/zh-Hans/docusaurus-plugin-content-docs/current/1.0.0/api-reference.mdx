@@ -52,6 +52,11 @@ Knox API 包含以下主要端点：
 - [**列出音乐模型**](/1.0.0/list-music-models) - 获取音乐模型 ID、时长上限和按分钟定价
 - [**列出文本转语音模型**](/1.0.0/list-tts-models) - 获取 TTS 模型 ID、字符上限和每千字符定价
 - [**列出语音转文本模型**](/1.0.0/list-stt-models) - 获取 STT 模型 ID 和按小时定价
+- [**列出语音转换模型**](/1.0.0/list-sts-models) - 获取语音转换模型 ID 和按分钟定价
+- [**列出人声分离模型**](/1.0.0/list-isolation-models) - 获取人声分离模型 ID 和按分钟定价
+- [**列出音效模型**](/1.0.0/list-sfx-models) - 获取音效模型 ID 和按分钟定价
+- [**列出配音模型**](/1.0.0/list-dubbing-models) - 获取配音模型 ID 和按分钟定价
+- [**列出强制对齐模型**](/1.0.0/list-alignment-models) - 获取强制对齐模型 ID 和按小时定价
 
 ### 实时语音
 
@@ -107,6 +112,59 @@ Knox API 包含以下主要端点：
 - [**删除转写**](/1.0.0/delete-transcript) - 删除已存储的转写
 - [**实时语音转文本**](/1.0.0/stt-realtime) - WebSocket 流式转写（`/v1/speech-to-text/realtime`）
 
+### 音色
+
+搜索、克隆和管理 ElevenLabs 音色。Base URL：`https://api.knoxstudio.ai/v1`（搜索用 `GET /v2/voices`）。**不按音频分钟计费**。完整流程请参阅 [**音色**](/voices) 指南。
+
+- [**列出音色**](/1.0.0/list-voices) - 工作区音色（`GET /v1/voices`）
+- [**搜索音色**](/1.0.0/search-voices) - 带筛选搜索（`GET /v2/voices`）
+- [**获取 / 编辑 / 删除音色**](/1.0.0/get-voice) - 管理单个音色
+- [**创建即时音色克隆**](/1.0.0/create-ivc-voice) - 用样本做 IVC（`POST /v1/voices/add`）
+- [**共享音色库**](/1.0.0/list-shared-voices) - 浏览并添加共享音色
+- [**音色设置**](/1.0.0/get-voice-settings) - 获取/编辑设置与默认值
+- [**PVC**](/1.0.0/create-pvc-voice) - 专业音色克隆的创建、样本、训练与核验
+
+### 语音转换
+
+用目标 `voice_id` 改写源音频。Base URL：`https://api.knoxstudio.ai/v1`。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**语音转换**](/voice-changer) 指南。
+
+- [**列出语音转换模型**](/1.0.0/list-sts-models) - 目录（`GET /v1/speech-to-speech/models`）
+- [**转换语音**](/1.0.0/convert-speech-to-speech) - 完整音频文件（`POST /v1/speech-to-speech/{voice_id}`）
+- [**流式转换语音**](/1.0.0/stream-speech-to-speech) - 音频流（`POST /v1/speech-to-speech/{voice_id}/stream`）
+
+### 人声分离
+
+从混合音频或视频中分离人声。Base URL：`https://api.knoxstudio.ai/v1`。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**人声分离**](/voice-isolator) 指南。
+
+- [**列出人声分离模型**](/1.0.0/list-isolation-models) - 目录（`GET /v1/audio-isolation/models`）
+- [**分离人声**](/1.0.0/isolate-audio) - 完整音频文件（`POST /v1/audio-isolation`）
+- [**流式分离人声**](/1.0.0/stream-isolate-audio) - 音频流（`POST /v1/audio-isolation/stream`）
+- [**列出 / 删除历史**](/1.0.0/list-isolation-history) - 分离历史（`/v1/audio-isolation/history`）
+
+### 音效生成
+
+根据文本生成短免版税片段。Base URL：`https://api.knoxstudio.ai/v1`。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**音效生成**](/sound-effects) 指南。
+
+- [**列出音效模型**](/1.0.0/list-sfx-models) - 目录（`GET /v1/sound-generation/models`）
+- [**生成音效**](/1.0.0/convert-sound-effect) - 生成音频（`POST /v1/sound-generation`）
+
+### 配音
+
+把源音频或视频配成另一种语言。Base URL：`https://api.knoxstudio.ai/v1`。创建项目时预收第一种语言（`dubbing_v2` 每分钟 `$2.25`，`dubbing_v1` 每分钟 `$0.38`）。完整流程请参阅 [**配音**](/dubbing) 指南。
+
+- [**列出配音模型**](/1.0.0/list-dubbing-models) - 目录（`GET /v1/dubbing/models`）
+- [**创建 / 列出 / 获取 / 删除项目**](/1.0.0/create-dubbing-project) - 项目（`/v1/dubbing/project`）
+- [**语种目标**](/1.0.0/create-dubbing-language) - 添加、列出、获取、删除语种
+- [**源转写**](/1.0.0/get-dubbing-source-transcript) - 获取并编辑源片段
+- [**目标转写**](/1.0.0/get-dubbing-target-transcript) - 获取、编辑并 [重新生成](/1.0.0/regenerate-dubbing-target)
+
+### 强制对齐
+
+将语音与转写对齐。Base URL：`https://api.knoxstudio.ai/v1`。按 **每小时 `$0.27`** 计费。完整流程请参阅 [**强制对齐**](/forced-alignment) 指南。
+
+- [**列出强制对齐模型**](/1.0.0/list-alignment-models) - 目录（`GET /v1/forced-alignment/models`）
+- [**创建强制对齐**](/1.0.0/create-forced-alignment) - 字符级和词级时间戳（`POST /v1/forced-alignment`）
+
 ## 参数
 
 Knox 支持多种参数来控制模型行为和输出。详情请参阅 [**API 参数**](/1.0.0/parameters) 章节。
@@ -122,14 +180,14 @@ API 使用标准 HTTP 状态码来表示请求的结果：
 - `402` - 账户余额不足
 - `403` - Token 无权使用请求的模型
 - `404` - 请求的资源未找到
-- `422` - 校验错误（音乐、文本转语音、语音转文本）
+- `422` - 校验错误（音乐、文本转语音、语音转文本、音色、语音转换、人声分离、音效、配音、强制对齐）
 - `429` - 超出速率限制
 - `500` - 服务器内部错误
 - `502` - 上游 Realtime 提供商不可用或连接失败
 
 视频生成端点的错误格式为 `{ "error": { "code": 400, "message": "..." } }`。`status: "failed"` 的轮询响应仍然是 HTTP `200`。
 
-音乐、文本转语音和语音转文本端点使用 ElevenLabs 风格的错误：`{ "detail": "..." }`，或 `422` 时为 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。这些路由除 `Authorization: Bearer` 外还接受 `xi-api-key`。
+音乐、文本转语音、语音转文本、音色、语音转换、人声分离、音效、配音和强制对齐端点使用 ElevenLabs 风格的错误：`{ "detail": "..." }`，或 `422` 时为 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。这些路由除 `Authorization: Bearer` 外还接受 `xi-api-key`。
 
 ## 请求
 

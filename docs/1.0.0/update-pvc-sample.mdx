@@ -1,0 +1,104 @@
+---
+id: update-pvc-sample
+title: "Update PVC Sample"
+description: "Update a PVC sample (trim, speakers, noise removal)."
+sidebar_label: "Update PVC sample"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update PVC Sample"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/voices/pvc/{voice_id}/samples/{sample_id}"}
+>
+</MethodEndpoint>
+
+Optional trim, speaker selection, and noise removal. **Not billed**.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| voice_id | String | Yes | Voice ID. |
+| sample_id | String | Yes | Sample ID. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `application/json` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| remove_background_noise | Boolean | No | Isolate speech in the sample. |
+| selected_speaker_ids | List of Strings | No | Speakers to keep after separation. |
+| trim_start_time | Integer | No | Trim start (ms or samples, forwarded). |
+| trim_end_time | Integer | No | Trim end. |
+| file_name | String | No | Optional display name. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/voices/pvc/voice_id/samples/sample_id \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"remove_background_noise":true}'
+```
+
+## Response
+
+### Success Response (200)
+
+Updated sample JSON.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

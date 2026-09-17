@@ -1,0 +1,105 @@
+---
+id: list-dubbing-models
+title: "列出配音模型"
+description: "返回配音模型目录和按分钟定价。"
+sidebar_label: "列出配音模型"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"列出配音模型"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/models"}
+>
+</MethodEndpoint>
+
+返回配音模型。将 `id` 用作 `model_id`。默认 `dubbing_v2`。见 [配音](/dubbing)。
+
+认证是可选的（公开目录每分钟 **60** 次，缓存 **5** 分钟；携带 token 时过滤列表）。
+
+## 请求
+
+此端点不需要请求参数。
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 否 | 可选 `Bearer <token>`。省略则返回公开目录。也接受 `xi-api-key`。 |
+
+## cURL 示例
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/dubbing/models
+```
+
+## 响应
+
+### 成功响应 (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "dubbing_v2",
+      "pricing": { "per_minute": "2.25" }
+    }
+  ]
+}
+```
+
+同时列出：`dubbing_v1`（`per_minute`：`0.38`）。
+
+### 响应 Schema
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| data[].id | string | 用作 `model_id`。 |
+| data[].pricing.per_minute | string | 每片源分钟 × 语种的美元价格。 |
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

@@ -242,5 +242,293 @@
   "sidebar.apiSidebar.doc.Realtime speech-to-text": {
     "message": "实时语音转文本",
     "description": "The label for the doc item 'Realtime speech-to-text' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List voices": {
+    "message": "列出音色",
+    "description": "The label for the doc item 'List voices' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Search voices": {
+    "message": "搜索音色",
+    "description": "The label for the doc item 'Search voices' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get voice": {
+    "message": "获取音色",
+    "description": "The label for the doc item 'Get voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Edit voice": {
+    "message": "编辑音色",
+    "description": "The label for the doc item 'Edit voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete voice": {
+    "message": "删除音色",
+    "description": "The label for the doc item 'Delete voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create instant voice clone": {
+    "message": "创建即时音色克隆",
+    "description": "The label for the doc item 'Create instant voice clone' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Add shared voice": {
+    "message": "添加共享音色",
+    "description": "The label for the doc item 'Add shared voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Find similar voices": {
+    "message": "查找相似音色",
+    "description": "The label for the doc item 'Find similar voices' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List shared voices": {
+    "message": "列出共享音色",
+    "description": "The label for the doc item 'List shared voices' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get voice accents": {
+    "message": "获取音色口音",
+    "description": "The label for the doc item 'Get voice accents' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get default voice settings": {
+    "message": "获取默认音色设置",
+    "description": "The label for the doc item 'Get default voice settings' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get voice settings": {
+    "message": "获取音色设置",
+    "description": "The label for the doc item 'Get voice settings' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Edit voice settings": {
+    "message": "编辑音色设置",
+    "description": "The label for the doc item 'Edit voice settings' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get voice sample audio": {
+    "message": "获取音色样本音频",
+    "description": "The label for the doc item 'Get voice sample audio' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete voice sample": {
+    "message": "删除音色样本",
+    "description": "The label for the doc item 'Delete voice sample' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Replicate voice": {
+    "message": "复制音色",
+    "description": "The label for the doc item 'Replicate voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create PVC voice": {
+    "message": "创建 PVC 音色",
+    "description": "The label for the doc item 'Create PVC voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Update PVC voice": {
+    "message": "更新 PVC 音色",
+    "description": "The label for the doc item 'Update PVC voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Train PVC voice": {
+    "message": "训练 PVC 音色",
+    "description": "The label for the doc item 'Train PVC voice' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create PVC samples": {
+    "message": "创建 PVC 样本",
+    "description": "The label for the doc item 'Create PVC samples' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Update PVC sample": {
+    "message": "更新 PVC 样本",
+    "description": "The label for the doc item 'Update PVC sample' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete PVC sample": {
+    "message": "删除 PVC 样本",
+    "description": "The label for the doc item 'Delete PVC sample' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get PVC sample audio": {
+    "message": "获取 PVC 样本音频",
+    "description": "The label for the doc item 'Get PVC sample audio' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get PVC sample waveform": {
+    "message": "获取 PVC 样本波形",
+    "description": "The label for the doc item 'Get PVC sample waveform' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get PVC speakers": {
+    "message": "获取 PVC 说话人",
+    "description": "The label for the doc item 'Get PVC speakers' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get PVC speaker audio": {
+    "message": "获取 PVC 说话人音频",
+    "description": "The label for the doc item 'Get PVC speaker audio' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Separate PVC speakers": {
+    "message": "分离 PVC 说话人",
+    "description": "The label for the doc item 'Separate PVC speakers' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Request PVC verification": {
+    "message": "申请 PVC 核验",
+    "description": "The label for the doc item 'Request PVC verification' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get PVC captcha": {
+    "message": "获取 PVC 验证码",
+    "description": "The label for the doc item 'Get PVC captcha' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Verify PVC captcha": {
+    "message": "核验 PVC 验证码",
+    "description": "The label for the doc item 'Verify PVC captcha' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List Voice Changer models": {
+    "message": "列出语音转换模型",
+    "description": "The label for the doc item 'List Voice Changer models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Convert speech to speech": {
+    "message": "转换语音",
+    "description": "The label for the doc item 'Convert speech to speech' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Stream speech to speech": {
+    "message": "流式转换语音",
+    "description": "The label for the doc item 'Stream speech to speech' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List Voice Isolator models": {
+    "message": "列出人声分离模型",
+    "description": "The label for the doc item 'List Voice Isolator models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Isolate audio": {
+    "message": "分离人声",
+    "description": "The label for the doc item 'Isolate audio' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Stream isolated audio": {
+    "message": "流式分离人声",
+    "description": "The label for the doc item 'Stream isolated audio' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List isolation history": {
+    "message": "列出人声分离历史",
+    "description": "The label for the doc item 'List isolation history' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete isolation history": {
+    "message": "删除人声分离历史",
+    "description": "The label for the doc item 'Delete isolation history' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List sound effects models": {
+    "message": "列出音效模型",
+    "description": "The label for the doc item 'List sound effects models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create sound effect": {
+    "message": "生成音效",
+    "description": "The label for the doc item 'Create sound effect' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List dubbing models": {
+    "message": "列出配音模型",
+    "description": "The label for the doc item 'List dubbing models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create dubbing project": {
+    "message": "创建配音项目",
+    "description": "The label for the doc item 'Create dubbing project' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List dubbing projects": {
+    "message": "列出配音项目",
+    "description": "The label for the doc item 'List dubbing projects' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get dubbing project": {
+    "message": "获取配音项目",
+    "description": "The label for the doc item 'Get dubbing project' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete dubbing project": {
+    "message": "删除配音项目",
+    "description": "The label for the doc item 'Delete dubbing project' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create language target": {
+    "message": "创建语种目标",
+    "description": "The label for the doc item 'Create language target' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List language targets": {
+    "message": "列出语种目标",
+    "description": "The label for the doc item 'List language targets' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get language target": {
+    "message": "获取语种目标",
+    "description": "The label for the doc item 'Get language target' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete language target": {
+    "message": "删除语种目标",
+    "description": "The label for the doc item 'Delete language target' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get source transcript": {
+    "message": "获取源转写",
+    "description": "The label for the doc item 'Get source transcript' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Add source segment": {
+    "message": "添加源片段",
+    "description": "The label for the doc item 'Add source segment' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Update source segment": {
+    "message": "更新源片段",
+    "description": "The label for the doc item 'Update source segment' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Delete source segment": {
+    "message": "删除源片段",
+    "description": "The label for the doc item 'Delete source segment' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Batch update source segments": {
+    "message": "批量更新源片段",
+    "description": "The label for the doc item 'Batch update source segments' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Get target transcript": {
+    "message": "获取目标转写",
+    "description": "The label for the doc item 'Get target transcript' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Update target segment": {
+    "message": "更新目标片段",
+    "description": "The label for the doc item 'Update target segment' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Batch update target segments": {
+    "message": "批量更新目标片段",
+    "description": "The label for the doc item 'Batch update target segments' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Regenerate target": {
+    "message": "重新生成目标",
+    "description": "The label for the doc item 'Regenerate target' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.List forced alignment models": {
+    "message": "列出强制对齐模型",
+    "description": "The label for the doc item 'List forced alignment models' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Create forced alignment": {
+    "message": "创建强制对齐",
+    "description": "The label for the doc item 'Create forced alignment' in sidebar 'apiSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Voices": {
+    "message": "音色",
+    "description": "The label for the doc item 'Voices' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Voice Changer": {
+    "message": "语音转换",
+    "description": "The label for the doc item 'Voice Changer' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Voice Isolator": {
+    "message": "人声分离",
+    "description": "The label for the doc item 'Voice Isolator' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Sound Effects": {
+    "message": "音效生成",
+    "description": "The label for the doc item 'Sound Effects' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Dubbing": {
+    "message": "配音",
+    "description": "The label for the doc item 'Dubbing' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.Forced Alignment": {
+    "message": "强制对齐",
+    "description": "The label for the doc item 'Forced Alignment' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.apiSidebar.category.Voices": {
+    "message": "音色",
+    "description": "The label for category 'Voices' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Voice Changer": {
+    "message": "语音转换",
+    "description": "The label for category 'Voice Changer' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Voice Isolator": {
+    "message": "人声分离",
+    "description": "The label for category 'Voice Isolator' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Sound Effects": {
+    "message": "音效生成",
+    "description": "The label for category 'Sound Effects' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Dubbing": {
+    "message": "配音",
+    "description": "The label for category 'Dubbing' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.category.Forced Alignment": {
+    "message": "强制对齐",
+    "description": "The label for category 'Forced Alignment' in sidebar 'apiSidebar'"
   }
 }

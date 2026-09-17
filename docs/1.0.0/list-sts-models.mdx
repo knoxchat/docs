@@ -1,0 +1,118 @@
+---
+id: list-sts-models
+title: "List Voice Changer Models"
+description: "Returns the catalog of speech-to-speech models, duration limits, and per-minute pricing."
+sidebar_label: "List Voice Changer models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Voice Changer Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/speech-to-speech/models"}
+>
+</MethodEndpoint>
+
+Returns Voice Changer models. Use `id` as `model_id`. Default `eleven_multilingual_sts_v2`. See [Voice Changer](/voice-changer).
+
+Authentication is optional (public catalog **60/min**, cached **5 minutes**; a token filters the list).
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | No | Optional `Bearer <token>`. Omit for the public catalog. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/speech-to-speech/models
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "eleven_multilingual_sts_v2",
+      "canonical_slug": "eleven_multilingual_sts_v2",
+      "name": "ElevenLabs Multilingual STS v2",
+      "created": 1699920000,
+      "description": "Multilingual voice changer. Transform audio from one voice to another while keeping emotion, timing, and delivery. Up to 10 minutes per request. Billed per audio minute.",
+      "chinese_description": "多语言变声模型，转换音色并保留情绪、节奏与表达，单次最长 10 分钟，按音频分钟计费。",
+      "max_duration_seconds": 600,
+      "pricing": { "per_minute": "0.17" },
+      "architecture": {
+        "modality": "audio",
+        "input_modalities": ["audio"],
+        "output_modalities": ["audio"],
+        "tokenizer": "elevenlabs"
+      }
+    }
+  ]
+}
+```
+
+Also listed: `eleven_english_sts_v2` (`per_minute`: `0.17`, English only).
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data[].id | string | Send as `model_id`. |
+| data[].max_duration_seconds | integer | `600` (10 minutes). |
+| data[].pricing.per_minute | string | USD per audio minute (`0.17`). |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

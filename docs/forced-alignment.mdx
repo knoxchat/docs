@@ -1,0 +1,81 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Forced Alignment
+
+Knox exposes ElevenLabs-compatible **forced alignment** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+
+This is not [Speech to Text](/speech-to-text). Alignment takes **audio plus a transcript you already have** and returns character- and word-level timestamps.
+
+Typical flow:
+
+1. List models — [`GET /v1/forced-alignment/models`](/1.0.0/list-alignment-models)
+2. Align — [`POST /v1/forced-alignment`](/1.0.0/create-forced-alignment)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
+
+## Models and billing
+
+```shell
+curl https://api.knoxstudio.ai/v1/forced-alignment/models
+```
+
+| `model_id` | Notes | Price |
+| ---------- | ----- | ----- |
+| `forced_alignment` | Default. Character- and word-level timestamps. Up to **10 hours** and **675,000** transcript characters. | **`$0.27` / audio hour** (same published rate as Scribe v2) |
+
+Multipart uploads may be up to **3GB**. Audio must be at least **100ms**. The `file` and `text` fields are both required.
+
+Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes. A Bearer token returns only the models that token is allowed to use.
+
+## Create an alignment
+
+Send `multipart/form-data` with the audio `file` and the transcript `text`. Optional query: `enable_logging`.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/forced-alignment \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "file=@speech.wav" \
+     -F "text=Hello from Knox. This is forced alignment."
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("speech.wav", "rb") as audio:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/forced-alignment",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"file": audio},
+        data={"text": "Hello from Knox. This is forced alignment."},
+    )
+response.raise_for_status()
+print(response.json()["words"])
+```
+
+</TabItem>
+</Tabs>
+
+A successful `200` includes `characters` and `words` arrays with `text`, `start`, `end`, and optional `loss`. Unknown multipart fields are forwarded upstream.
+
+## Errors
+
+`422` uses `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`. Other errors use `{ "detail": "..." }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed, `422` missing `file` / `text`, over 675,000 characters, or over 10 hours.

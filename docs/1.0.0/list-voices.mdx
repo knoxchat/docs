@@ -1,0 +1,86 @@
+---
+id: list-voices
+title: "List Voices"
+description: "List voices available to the authenticated workspace."
+sidebar_label: "List voices"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Voices"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/voices"}
+>
+</MethodEndpoint>
+
+Legacy list of voices. For filtered search use [`GET /v2/voices`](/1.0.0/search-voices). **Not billed**; the token must be allowed to use a TTS model. Guide: [Voices](/voices).
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/voices \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+JSON list of voices (`voice_id`, `name`, `category`, samples, optional settings).
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

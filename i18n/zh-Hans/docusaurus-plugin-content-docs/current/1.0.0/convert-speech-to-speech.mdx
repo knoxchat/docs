@@ -1,0 +1,113 @@
+---
+id: convert-speech-to-speech
+title: "转换语音"
+description: "将源音频改写为目标音色并返回音频文件。"
+sidebar_label: "转换语音"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"转换语音"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/speech-to-speech/{voice_id}"}
+>
+</MethodEndpoint>
+
+语音转换。文件最大 **500MB**，时长 **100ms–10 分钟**。按 **每分钟 `$0.17`** 计费。指南：[语音转换](/voice-changer)。
+
+## 请求
+
+### 路径参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| voice_id | String | 是 | 目标 ElevenLabs 音色 ID。见 [音色](/voices)。 |
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| output_format | String | 否 | 默认跟随上游。允许值（含 WAV）：`alaw_8000`, `mp3_22050_32`, `mp3_24000_48`, `mp3_44100_128`, `mp3_44100_192`, `mp3_44100_32`, `mp3_44100_64`, `mp3_44100_96`, `opus_48000_128`, `opus_48000_192`, `opus_48000_32`, `opus_48000_64`, `opus_48000_96`, `pcm_16000`, `pcm_22050`, `pcm_24000`, `pcm_32000`, `pcm_44100`, `pcm_48000`, `pcm_8000`, `ulaw_8000`, `wav_16000`, `wav_22050`, `wav_24000`, `wav_32000`, `wav_44100`, `wav_48000`, `wav_8000`。 |
+| enable_logging | Boolean | 否 | 默认 `true`。`false` 请求零保留模式。 |
+| optimize_streaming_latency | Integer | 否 | 已弃用。0–4 延迟/质量权衡。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `multipart/form-data` |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| audio | File | 是 | 提供内容和情绪的源音频。 |
+| model_id | String | 否 | `eleven_multilingual_sts_v2`（默认）或 `eleven_english_sts_v2`。TTS ID 会被拒绝。 |
+| file_format | String | 否 | `pcm_s16le_16` 或 `other`。 |
+| seed | Integer | 否 | 0–4294967295。尽力保持确定性。 |
+| voice_settings | String (JSON object) | 否 | JSON 对象，例如 `stability` / `similarity_boost`。 |
+| remove_background_noise | Boolean | 否 | `true` / `false` / `1` / `0`。转换前先分离人声。 |
+
+## cURL 示例
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/speech-to-speech/21m00Tcm4TlvDq8ikWAM?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio=@speech.wav" \
+     -F "model_id=eleven_multilingual_sts_v2" \
+     -o changed.mp3
+```
+
+## 响应
+
+### 成功响应 (200)
+
+转换后的音频文件。`Content-Type` 随 `output_format` 变化。
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

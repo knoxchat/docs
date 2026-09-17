@@ -1,0 +1,113 @@
+---
+sidebar_position: 16
+sidebar_label: 音色
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 音色
+
+Knox 在 `https://api.knoxstudio.ai/v1`（以及 `GET /v2/voices`）上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**音色库**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。`https://api.knox.chat/v1` 提供相同路由。
+
+把返回的 `voice_id` 用于 [文本转语音](/text-to-speech) 和 [语音转换](/voice-changer)。音色读取、克隆和 PVC 操作**不按音频分钟计费**；token 仍需要具备 TTS 模型权限。
+
+典型流程：
+
+1. 搜索 — [`GET /v2/voices`](/1.0.0/search-voices)
+2. 或列出 — [`GET /v1/voices`](/1.0.0/list-voices)
+3. 即时克隆（IVC）— [`POST /v1/voices/add`](/1.0.0/create-ivc-voice)
+4. 在 TTS / 语音转换中使用 `voice_id`
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+音色样本上传上限与音乐 multipart 一致（包装后 **210MB**）。常用公开音色：`21m00Tcm4TlvDq8ikWAM`（Rachel）。
+
+## 搜索与列表
+
+`GET /v2/voices` 是带筛选的搜索接口。`page_size` 为 1–100（默认 10）。`voice_ids` 最多 100 个。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X GET "https://api.knoxstudio.ai/v2/voices?page_size=10&sort=name&sort_direction=asc" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.get(
+    "https://api.knoxstudio.ai/v2/voices",
+    headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+    params={"page_size": 10, "category": "premade", "sort": "name"},
+)
+response.raise_for_status()
+print(response.json())
+```
+
+</TabItem>
+</Tabs>
+
+Knox 校验的搜索筛选：`sort`（`created_at_unix`、`name`）、`sort_direction`（`asc`、`desc`）、`voice_type`（`personal`、`community`、`default`、`workspace`、`non-default`、`non-community`、`saved`）、`category`（`premade`、`cloned`、`generated`、`professional`）、`fine_tuning_state`，以及布尔值 `include_custom_rates`、`include_live_moderated`、`high_quality`、`include_total_count`。
+
+共享音色库：[`GET /v1/shared-voices`](/1.0.0/list-shared-voices)。添加共享音色：[`POST /v1/voices/add/{public_user_id}/{voice_id}`](/1.0.0/add-shared-voice)（必须提供 `new_name`）。
+
+## 即时音色克隆（IVC）
+
+[`POST /v1/voices/add`](/1.0.0/create-ivc-voice) 需要 `name` 和 `files`（音频样本）。
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/voices/add \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "name=Studio Narrator" \
+     -F "files=@sample1.wav" \
+     -F "files=@sample2.wav"
+```
+
+用 [`POST /v1/voices/{voice_id}/edit`](/1.0.0/edit-voice) 编辑元数据（必须提供 `name`）。用 [`DELETE /v1/voices/{voice_id}`](/1.0.0/delete-voice) 删除。
+
+## 音色设置
+
+| 目标 | 端点 |
+| ---- | ---- |
+| 默认设置 | [`GET /v1/voices/settings/default`](/1.0.0/get-default-voice-settings) |
+| 获取设置 | [`GET /v1/voices/{voice_id}/settings`](/1.0.0/get-voice-settings) |
+| 编辑设置 | [`POST /v1/voices/{voice_id}/settings/edit`](/1.0.0/edit-voice-settings) |
+| 某 TTS 模型的口音 | [`GET /v1/voices/accents`](/1.0.0/get-voice-accents) |
+| 相似音色 | [`POST /v1/similar-voices`](/1.0.0/find-similar-voices) |
+
+设置字段：`stability`、`similarity_boost`、`style`、`speed`、`use_speaker_boost`。`GET /v1/voices/{voice_id}` 接受 `with_settings=true`。
+
+相似音色的 `similarity_threshold` 为 0–2；`top_k` 为 1–100。
+
+## 专业音色克隆（PVC）
+
+PVC 是多步流程：创建音色、上传样本、可选分离说话人、训练、再核验。
+
+| 步骤 | 端点 |
+| ---- | ---- |
+| 创建 | [`POST /v1/voices/pvc`](/1.0.0/create-pvc-voice) — 必须提供 `name` 和 `language` |
+| 更新 | [`POST /v1/voices/pvc/{voice_id}`](/1.0.0/update-pvc-voice) |
+| 上传样本 | [`POST /v1/voices/pvc/{voice_id}/samples`](/1.0.0/create-pvc-samples) |
+| 训练 | [`POST /v1/voices/pvc/{voice_id}/train`](/1.0.0/train-pvc-voice) |
+| 核验材料 | [`POST /v1/voices/pvc/{voice_id}/verification`](/1.0.0/request-pvc-verification) |
+| 验证码 | [`GET`](/1.0.0/get-pvc-captcha) / [`POST /v1/voices/pvc/{voice_id}/captcha`](/1.0.0/verify-pvc-captcha) |
+
+样本辅助：音频、波形、说话人、说话人音频、说话人分离、裁剪（`trim_start_time` / `trim_end_time`）、`remove_background_noise`、`selected_speaker_ids`。
+
+用 [`POST /v1/voices/{voice_id}/replicate-to-isolated-environment`](/1.0.0/replicate-voice) 把 IVC 或 Voice Design 音色复制到其他工作区（必须提供 `target_workspace_id`）。
+
+## 错误
+
+`422` 使用 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。其他错误使用 `{ "detail": "..." }`。
+
+常见状态：`401` 缺少/无效 key，`403` token 不能使用 TTS 模型，`404` 音色未找到，`422` 缺少 `name` / `files` / `language`。

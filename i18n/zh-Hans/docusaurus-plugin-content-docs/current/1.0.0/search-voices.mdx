@@ -1,0 +1,103 @@
+---
+id: search-voices
+title: "搜索音色"
+description: "搜索并筛选音色（v2）。"
+sidebar_label: "搜索音色"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"搜索音色"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v2/voices"}
+>
+</MethodEndpoint>
+
+在 `/v2/voices` 上筛选搜索音色。**不计费**。指南：[音色](/voices)。
+
+## 请求
+
+### 查询参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| page_size | Integer | 否 | 1–100，默认 10。 |
+| sort | String | 否 | `created_at_unix` 或 `name`。 |
+| sort_direction | String | 否 | `asc` 或 `desc`。 |
+| voice_type | String | 否 | `personal`、`community`、`default`、`workspace`、`non-default`、`non-community`、`saved`。 |
+| category | String | 否 | `premade`、`cloned`、`generated`、`professional`。 |
+| fine_tuning_state | String | 否 | `draft`、`not_verified`、`not_started`、`queued`、`fine_tuning`、`fine_tuned`、`failed`、`delayed`。 |
+| voice_ids | String | 否 | 逗号分隔的 ID，最多 100 个。 |
+| min_notice_period_days | Integer | 否 | 最短通知期筛选。 |
+| include_custom_rates | Boolean | 否 | 包含自定义费率。 |
+| include_live_moderated | Boolean | 否 | 包含实时审核音色。 |
+| high_quality | Boolean | 否 | 筛选高质量音色。 |
+| include_total_count | Boolean | 否 | 包含总数。 |
+| search | String | 否 | 自由文本搜索，原样转发到上游。 |
+| next_page_token | String | 否 | 分页 token，原样转发到上游。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+
+## cURL 示例
+
+```shell
+curl -X GET "https://api.knoxstudio.ai/v2/voices?page_size=10&category=premade&sort=name" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## 响应
+
+### 成功响应 (200)
+
+分页音色 JSON。
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

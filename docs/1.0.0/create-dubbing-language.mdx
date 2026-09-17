@@ -1,0 +1,101 @@
+---
+id: create-dubbing-language
+title: "Create Dubbing Language"
+description: "Add a target language to a dubbing project."
+sidebar_label: "Create language target"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create Dubbing Language"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/project/{project_id}/language"}
+>
+</MethodEndpoint>
+
+Add another dubbed language. Billed at **source duration × model rate**. `target_language` is a BCP-47 tag.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| project_id | String | Yes | Parent dubbing project ID. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `application/json` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| target_language | String | Yes | BCP-47 language tag. |
+| voice_settings.cloning_strength | Integer | No | 0–10. |
+| translations | Object | No | Optional per-segment translations. At most 20,000 entries. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/dubbing/project/proj_123/language \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"target_language":"ja","voice_settings":{"cloning_strength":5}}'
+```
+
+## Response
+
+### Success Response (200)
+
+JSON for the new language target (`language_id`, `status`).
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

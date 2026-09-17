@@ -1,0 +1,118 @@
+---
+id: list-alignment-models
+title: "List Forced Alignment Models"
+description: "Returns the catalog of forced-alignment models, limits, and per-hour pricing."
+sidebar_label: "List forced alignment models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Forced Alignment Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/forced-alignment/models"}
+>
+</MethodEndpoint>
+
+Returns Forced Alignment models. Use `id` as `model_id`. Default `forced_alignment`. See [Forced Alignment](/forced-alignment).
+
+Authentication is optional (public catalog **60/min**, cached **5 minutes**; a token filters the list).
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | No | Optional `Bearer <token>`. Omit for the public catalog. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/forced-alignment/models
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "forced_alignment",
+      "canonical_slug": "forced_alignment",
+      "name": "ElevenLabs Forced Alignment",
+      "created": 1730419200,
+      "description": "Force-align spoken audio to a transcript for character- and word-level timestamps. Up to 10 hours and 675,000 characters per request. Billed per audio hour at the Speech to Text rate.",
+      "chinese_description": "将语音与文本强制对齐，返回字符级和词级时间戳。单次最长 10 小时、最多 675,000 字符，按音频小时计费，费率与语音转文本相同。",
+      "max_duration_seconds": 36000,
+      "max_characters": 675000,
+      "pricing": { "per_hour": "0.27" },
+      "architecture": {
+        "modality": "audio",
+        "input_modalities": ["audio", "text"],
+        "output_modalities": ["text"],
+        "tokenizer": "elevenlabs"
+      }
+    }
+  ]
+}
+```
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data[].id | string | Send as `model_id`. |
+| data[].max_duration_seconds | integer | `36000` (10 hours). |
+| data[].max_characters | integer | `675000`. |
+| data[].pricing.per_hour | string | USD per audio hour (`0.27`). |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

@@ -1,0 +1,100 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Voice Changer
+
+Knox exposes ElevenLabs-compatible **Voice Changer** (speech-to-speech) endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+
+This is not [Text to Speech](/text-to-speech), not [Realtime](/realtime) speech-to-speech with `gpt-realtime-2.1`, and not [Voice Isolator](/voice-isolator). Voice Changer takes **source audio** and restyles it with a target `voice_id` while keeping emotion, timing, and delivery.
+
+Typical flow:
+
+1. List models — [`GET /v1/speech-to-speech/models`](/1.0.0/list-sts-models)
+2. Pick a `voice_id` from [Voices](/voices) (`GET /v1/voices` or `GET /v2/voices`)
+3. Convert — [`POST /v1/speech-to-speech/{voice_id}`](/1.0.0/convert-speech-to-speech)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+A commonly used public voice is `21m00Tcm4TlvDq8ikWAM` (Rachel).
+
+## Models and billing
+
+```shell
+curl https://api.knoxstudio.ai/v1/speech-to-speech/models
+```
+
+| `model_id` | Use | Price |
+| ---------- | --- | ----- |
+| `eleven_multilingual_sts_v2` | Default multilingual voice changer | **`$0.17` / audio minute** |
+| `eleven_english_sts_v2` | English-only voice changer | **`$0.17` / audio minute** |
+
+Uploads may be up to **500MB**. Audio must be at least **100ms** and at most **10 minutes**. Default model is `eleven_multilingual_sts_v2`.
+
+Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes. A Bearer token returns only the models that token is allowed to use.
+
+## Convert speech to speech
+
+Send `multipart/form-data` with the source `audio`. Do **not** send a TTS `model_id` such as `eleven_multilingual_v2`.
+
+Streaming variants do **not** support WAV `output_format` values.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/speech-to-speech/21m00Tcm4TlvDq8ikWAM?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio=@speech.wav" \
+     -F "model_id=eleven_multilingual_sts_v2" \
+     -F "remove_background_noise=true" \
+     -o changed.mp3
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+voice_id = "21m00Tcm4TlvDq8ikWAM"
+with open("speech.wav", "rb") as audio:
+    response = requests.post(
+        f"https://api.knoxstudio.ai/v1/speech-to-speech/{voice_id}",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        params={"output_format": "mp3_44100_128"},
+        files={"audio": audio},
+        data={
+            "model_id": "eleven_multilingual_sts_v2",
+            "remove_background_noise": "true",
+            "voice_settings": '{"stability":0.5,"similarity_boost":0.75}',
+        },
+    )
+response.raise_for_status()
+open("changed.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+Useful fields: `file_format` (`pcm_s16le_16` or `other`), `seed` (0–4294967295), `voice_settings` (JSON object), `remove_background_noise` (`true` / `false`). Optional query: `enable_logging`, `optimize_streaming_latency` (0–4, deprecated).
+
+## Related endpoints
+
+| Goal | Endpoint |
+| ---- | -------- |
+| Stream converted audio | [`POST /v1/speech-to-speech/{voice_id}/stream`](/1.0.0/stream-speech-to-speech) |
+| List / search voices | [`GET /v1/voices`](/1.0.0/list-voices), [`GET /v2/voices`](/1.0.0/search-voices) |
+
+## Errors
+
+`422` uses `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`. Other errors use `{ "detail": "..." }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed, `422` missing `audio`, over 10 minutes, invalid STS `model_id`, or invalid `output_format`.

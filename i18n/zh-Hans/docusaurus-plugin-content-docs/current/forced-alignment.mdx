@@ -1,0 +1,82 @@
+---
+sidebar_position: 16
+sidebar_label: 强制对齐
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 强制对齐
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**强制对齐**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+
+这不是 [语音转文本](/speech-to-text)。对齐接收**已有音频和转写文本**，返回字符级和词级时间戳。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/forced-alignment/models`](/1.0.0/list-alignment-models)
+2. 对齐 — [`POST /v1/forced-alignment`](/1.0.0/create-forced-alignment)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+把官方 ElevenLabs SDK 的 Base URL 指向 Knox，并用 Knox key 作为 `xi-api-key` 即可调用。
+
+## 模型与计费
+
+```shell
+curl https://api.knoxstudio.ai/v1/forced-alignment/models
+```
+
+| `model_id` | 说明 | 价格 |
+| ---------- | ---- | ---- |
+| `forced_alignment` | 默认。字符级和词级时间戳。单次最长 **10 小时**、转写最多 **675,000** 字符。 | **每音频小时 `$0.27`**（与 Scribe v2 公布费率相同） |
+
+Multipart 上传最大 **3GB**。音频至少 **100ms**。`file` 和 `text` 均为必填。
+
+未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。携带 Bearer token 时，仅返回该 token 被允许使用的模型。
+
+## 创建对齐
+
+发送带音频 `file` 和转写 `text` 的 `multipart/form-data`。可选查询参数：`enable_logging`。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/forced-alignment \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "file=@speech.wav" \
+     -F "text=Hello from Knox. This is forced alignment."
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("speech.wav", "rb") as audio:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/forced-alignment",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"file": audio},
+        data={"text": "Hello from Knox. This is forced alignment."},
+    )
+response.raise_for_status()
+print(response.json()["words"])
+```
+
+</TabItem>
+</Tabs>
+
+成功的 `200` 包含 `characters` 和 `words` 数组，字段有 `text`、`start`、`end` 以及可选 `loss`。未知 multipart 字段会原样转发到上游。
+
+## 错误
+
+`422` 使用 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。其他错误使用 `{ "detail": "..." }`。
+
+常见状态：`401` 缺少/无效 key，`402` 余额不足，`403` token 无权使用该模型，`422` 缺少 `file` / `text`、超过 675,000 字符或超过 10 小时。

@@ -1,0 +1,101 @@
+---
+sidebar_position: 16
+sidebar_label: 语音转换
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 语音转换
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语音转换（Voice Changer / speech-to-speech）**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+
+这不是 [文本转语音](/text-to-speech)，不是 `gpt-realtime-2.1` 的 [实时语音](/realtime)，也不是 [人声分离](/voice-isolator)。语音转换接收**源音频**，用目标 `voice_id` 改写音色，同时保留情绪、节奏与表达。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/speech-to-speech/models`](/1.0.0/list-sts-models)
+2. 从 [音色](/voices) 选择 `voice_id`（`GET /v1/voices` 或 `GET /v2/voices`）
+3. 转换 — [`POST /v1/speech-to-speech/{voice_id}`](/1.0.0/convert-speech-to-speech)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+常用公开音色示例：`21m00Tcm4TlvDq8ikWAM`（Rachel）。
+
+## 模型与计费
+
+```shell
+curl https://api.knoxstudio.ai/v1/speech-to-speech/models
+```
+
+| `model_id` | 用途 | 价格 |
+| ---------- | ---- | ---- |
+| `eleven_multilingual_sts_v2` | 默认多语言变声 | **每音频分钟 `$0.17`** |
+| `eleven_english_sts_v2` | 仅英语变声 | **每音频分钟 `$0.17`** |
+
+上传最大 **500MB**。音频至少 **100ms**，最长 **10 分钟**。默认模型为 `eleven_multilingual_sts_v2`。
+
+未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。携带 Bearer token 时，仅返回该 token 被允许使用的模型。
+
+## 转换语音
+
+发送带源 `audio` 的 `multipart/form-data`。不要发送 TTS 的 `model_id`（例如 `eleven_multilingual_v2`）。
+
+流式路径**不支持** WAV `output_format`。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/speech-to-speech/21m00Tcm4TlvDq8ikWAM?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio=@speech.wav" \
+     -F "model_id=eleven_multilingual_sts_v2" \
+     -F "remove_background_noise=true" \
+     -o changed.mp3
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+voice_id = "21m00Tcm4TlvDq8ikWAM"
+with open("speech.wav", "rb") as audio:
+    response = requests.post(
+        f"https://api.knoxstudio.ai/v1/speech-to-speech/{voice_id}",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        params={"output_format": "mp3_44100_128"},
+        files={"audio": audio},
+        data={
+            "model_id": "eleven_multilingual_sts_v2",
+            "remove_background_noise": "true",
+            "voice_settings": '{"stability":0.5,"similarity_boost":0.75}',
+        },
+    )
+response.raise_for_status()
+open("changed.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+常用字段：`file_format`（`pcm_s16le_16` 或 `other`）、`seed`（0–4294967295）、`voice_settings`（JSON 对象）、`remove_background_noise`（`true` / `false`）。可选查询参数：`enable_logging`、`optimize_streaming_latency`（0–4，已弃用）。
+
+## 相关端点
+
+| 目标 | 端点 |
+| ---- | ---- |
+| 流式转换 | [`POST /v1/speech-to-speech/{voice_id}/stream`](/1.0.0/stream-speech-to-speech) |
+| 列出 / 搜索音色 | [`GET /v1/voices`](/1.0.0/list-voices)、[`GET /v2/voices`](/1.0.0/search-voices) |
+
+## 错误
+
+`422` 使用 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。其他错误使用 `{ "detail": "..." }`。
+
+常见状态：`401` 缺少/无效 key，`402` 余额不足，`403` token 无权使用该模型，`422` 缺少 `audio`、超过 10 分钟、无效 STS `model_id` 或无效 `output_format`。

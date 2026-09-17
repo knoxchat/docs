@@ -1,0 +1,103 @@
+---
+id: search-voices
+title: "Search Voices"
+description: "Search and filter voices (v2)."
+sidebar_label: "Search voices"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Search Voices"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v2/voices"}
+>
+</MethodEndpoint>
+
+Filtered voice search on `/v2/voices`. **Not billed**. Guide: [Voices](/voices).
+
+## Request
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| page_size | Integer | No | 1–100, default 10. |
+| sort | String | No | `created_at_unix` or `name`. |
+| sort_direction | String | No | `asc` or `desc`. |
+| voice_type | String | No | `personal`, `community`, `default`, `workspace`, `non-default`, `non-community`, `saved`. |
+| category | String | No | `premade`, `cloned`, `generated`, `professional`. |
+| fine_tuning_state | String | No | `draft`, `not_verified`, `not_started`, `queued`, `fine_tuning`, `fine_tuned`, `failed`, `delayed`. |
+| voice_ids | String | No | Comma-separated IDs, max 100. |
+| min_notice_period_days | Integer | No | Minimum notice period filter. |
+| include_custom_rates | Boolean | No | Include custom rates. |
+| include_live_moderated | Boolean | No | Include live-moderated voices. |
+| high_quality | Boolean | No | Filter high-quality voices. |
+| include_total_count | Boolean | No | Include total count. |
+| search | String | No | Free-text search; forwarded upstream. |
+| next_page_token | String | No | Pagination token; forwarded upstream. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET "https://api.knoxstudio.ai/v2/voices?page_size=10&category=premade&sort=name" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+Paginated voices JSON.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

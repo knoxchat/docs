@@ -1,0 +1,116 @@
+---
+id: list-dubbing-models
+title: "List Dubbing Models"
+description: "Returns the catalog of dubbing models and per-minute pricing."
+sidebar_label: "List dubbing models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Dubbing Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/models"}
+>
+</MethodEndpoint>
+
+Returns dubbing models. Use `id` as `model_id`. Default `dubbing_v2`. See [Dubbing](/dubbing).
+
+Authentication is optional (public catalog **60/min**, cached **5 minutes**; a token filters the list).
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | No | Optional `Bearer <token>`. Omit for the public catalog. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/dubbing/models
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "dubbing_v2",
+      "canonical_slug": "dubbing_v2",
+      "name": "ElevenLabs Dubbing v2",
+      "created": 1767225600,
+      "description": "Direct audio-to-audio dubbing that preserves performance across 90+ languages. Billed per source minute per language; the first language is charged when the project is created.",
+      "chinese_description": "直出音频对音频配音，保留表演并支持 90 余种语言，按片源分钟×语种计费，创建项目时预收第一种语言。",
+      "pricing": { "per_minute": "2.25" },
+      "architecture": {
+        "modality": "audio",
+        "input_modalities": ["audio", "video"],
+        "output_modalities": ["audio"],
+        "tokenizer": "elevenlabs"
+      }
+    }
+  ]
+}
+```
+
+Also listed: `dubbing_v1` (`per_minute`: `0.38`).
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data[].id | string | Send as `model_id`. |
+| data[].pricing.per_minute | string | USD per source minute per language. |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

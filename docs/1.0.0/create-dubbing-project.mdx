@@ -1,0 +1,103 @@
+---
+id: create-dubbing-project
+title: "Create Dubbing Project"
+description: "Create a dubbing project from a source file or URL."
+sidebar_label: "Create dubbing project"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create Dubbing Project"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/project"}
+>
+</MethodEndpoint>
+
+Create a project. Provide exactly one of `file` or `source_url`. Source media up to **3 GiB**. The **first target language** is billed at source duration (`$2.25`/min for `dubbing_v2`, `$0.38`/min for `dubbing_v1`). Guide: [Dubbing](/dubbing).
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `multipart/form-data or application/json` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| file | File | No | Source media. Exactly one of `file` or `source_url`. Max 3 GiB. |
+| source_url | String | No | Public HTTP(S) URL for the source media. |
+| model_id | String | No | `dubbing_v2` (default) or `dubbing_v1`. |
+| source_language | String | No | BCP-47 tag. **Required** when `transcript` is provided. |
+| target_language | String | No | BCP-47 tag for the first dubbed language. |
+| transcript | File | No | Optional source transcript. Max 4MB. Requires `source_language`. |
+| reference | String | No | Optional notes, max 500 characters. |
+| keyterms | List of Strings | No | Max 1000 terms, 50 chars / 5 words each. Characters `<>{}[]\` are not allowed. |
+| webhook_ids | List of Strings | No | At most 3 non-empty webhook IDs. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/dubbing/project \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "file=@episode.mp4" \
+     -F "model_id=dubbing_v2" \
+     -F "source_language=en" \
+     -F "target_language=zh-CN"
+```
+
+## Response
+
+### Success Response (200)
+
+JSON including `project_id`. Poll [Get dubbing project](/1.0.0/get-dubbing-project) until `ready` or `failed`.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

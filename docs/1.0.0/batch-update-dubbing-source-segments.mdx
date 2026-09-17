@@ -1,0 +1,99 @@
+---
+id: batch-update-dubbing-source-segments
+title: "Batch Update Source Segments"
+description: "Batch-update source-transcript segments."
+sidebar_label: "Batch update source segments"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "patch api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Batch Update Source Segments"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"patch"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/project/{project_id}/transcript/segments"}
+>
+</MethodEndpoint>
+
+`segments` must contain **1–500** entries. **Not billed**.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| project_id | String | Yes | Dubbing project ID. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `application/json` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| segments | Object | Yes | Map of `segment_id` to patch objects (`text`, `speaker_id`, `start_s`, `end_s`). 1–500 entries. |
+
+## cURL Example
+
+```shell
+curl -X PATCH https://api.knoxstudio.ai/v1/dubbing/project/proj_123/transcript/segments \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"segments":{"seg_789":{"text":"Updated line"}}}'
+```
+
+## Response
+
+### Success Response (200)
+
+Batch result JSON.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

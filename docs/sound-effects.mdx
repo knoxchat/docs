@@ -1,0 +1,97 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Sound Effects
+
+Knox exposes ElevenLabs-compatible **sound effects** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+
+This is not [Music](/music). Sound effects turn a **text prompt into a short royalty-free clip**.
+
+Typical flow:
+
+1. List models — [`GET /v1/sound-generation/models`](/1.0.0/list-sfx-models)
+2. Generate — [`POST /v1/sound-generation`](/1.0.0/convert-sound-effect)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
+
+## Models and billing
+
+```shell
+curl https://api.knoxstudio.ai/v1/sound-generation/models
+```
+
+| `model_id` | Notes | Price |
+| ---------- | ----- | ----- |
+| `eleven_text_to_sound_v2` | Default. 0.5–30 seconds per generation. | **`$0.17` per generated minute** |
+
+`duration_seconds` must be between **0.5** and **30**. If omitted, Knox estimates **5 seconds** until the actual duration is known.
+
+Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes. A Bearer token returns only the models that token is allowed to use.
+
+## Generate a sound effect
+
+`text` is required. Send JSON. `loop` is only valid with `eleven_text_to_sound_v2`. `prompt_influence` is 0–1 (default 0.3): higher values follow the prompt more closely.
+
+WAV `output_format` values are **not** supported. There is no `mp3_48000_*` family on this route.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST "https://api.knoxstudio.ai/v1/sound-generation?output_format=mp3_44100_128" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -o braam.mp3 \
+     -d '{
+  "text": "Spacious cinematic braam suitable for a movie trailer",
+  "duration_seconds": 4.5,
+  "prompt_influence": 0.3,
+  "loop": false,
+  "model_id": "eleven_text_to_sound_v2"
+}'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.post(
+    "https://api.knoxstudio.ai/v1/sound-generation",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    params={"output_format": "mp3_44100_128"},
+    json={
+        "text": "Rain on a tin roof, close microphone",
+        "duration_seconds": 8.5,
+        "prompt_influence": 0.3,
+        "model_id": "eleven_text_to_sound_v2",
+    },
+)
+response.raise_for_status()
+open("rain.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+A successful request returns the **audio bytes**. `Content-Type` follows `output_format`.
+
+## Errors
+
+`422` uses `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`. Other errors use `{ "detail": "..." }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed, `422` missing `text`, duration out of range, or invalid `output_format`.

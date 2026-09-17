@@ -1,0 +1,90 @@
+---
+id: get-pvc-captcha
+title: "获取 PVC 验证码"
+description: "获取 PVC 核验验证码挑战。"
+sidebar_label: "获取 PVC 验证码"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"获取 PVC 验证码"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/voices/pvc/{voice_id}/captcha"}
+>
+</MethodEndpoint>
+
+获取用于核验说话人的验证码挑战。**不计费**。
+
+## 请求
+
+### 路径参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| voice_id | String | 是 | 音色 ID。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+
+## cURL 示例
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/voices/pvc/voice_id/captcha \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## 响应
+
+### 成功响应 (200)
+
+验证码挑战载荷（上游返回的音频/图像）。
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

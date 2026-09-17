@@ -1,0 +1,96 @@
+---
+id: isolate-audio
+title: "分离人声"
+description: "从音频或视频中去除背景噪声并分离人声。"
+sidebar_label: "分离人声"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"分离人声"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/audio-isolation"}
+>
+</MethodEndpoint>
+
+从混合音频或视频中分离人声。文件最大 **500MB**，时长 **100ms–1 小时**。按 **每分钟 `$0.17`** 计费。指南：[人声分离](/voice-isolator)。
+
+## 请求
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `multipart/form-data` |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| audio | File | 是 | 要从中分离人声的音频或视频文件。 |
+| file_format | String | 否 | `pcm_s16le_16` 或 `other`（MP3/WAV 等编码文件）。 |
+| preview_b64 | String | 否 | 可选预览数据，原样转发到上游。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/audio-isolation \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio=@interview.wav" \
+     -F "file_format=other" \
+     -o vocals.mp3
+```
+
+## 响应
+
+### 成功响应 (200)
+
+分离后的音频文件。`Content-Type` 随上游编码（通常为 MP3）。
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

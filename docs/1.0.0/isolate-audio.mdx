@@ -1,0 +1,96 @@
+---
+id: isolate-audio
+title: "Isolate Audio"
+description: "Remove background noise and isolate speech from an audio or video file."
+sidebar_label: "Isolate audio"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Isolate Audio"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/audio-isolation"}
+>
+</MethodEndpoint>
+
+Isolate vocals/speech from mixed audio or video. Files up to **500MB**, duration **100ms–1 hour**. Billed at **`$0.17`/minute**. Guide: [Voice Isolator](/voice-isolator).
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `multipart/form-data` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| audio | File | Yes | Audio or video file to isolate speech from. |
+| file_format | String | No | `pcm_s16le_16` or `other` (encoded files such as MP3/WAV). |
+| preview_b64 | String | No | Optional preview payload; forwarded upstream. |
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/audio-isolation \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio=@interview.wav" \
+     -F "file_format=other" \
+     -o vocals.mp3
+```
+
+## Response
+
+### Success Response (200)
+
+The isolated audio file. `Content-Type` follows the upstream codec (typically MP3).
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

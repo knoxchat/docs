@@ -1,0 +1,116 @@
+---
+id: list-isolation-models
+title: "List Voice Isolator Models"
+description: "Returns the catalog of Voice Isolator models, duration limits, and per-minute pricing."
+sidebar_label: "List Voice Isolator models"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Voice Isolator Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/audio-isolation/models"}
+>
+</MethodEndpoint>
+
+Returns Voice Isolator models. Use `id` as `model_id`. Default `audio_isolation`. See [Voice Isolator](/voice-isolator).
+
+Authentication is optional (public catalog **60/min**, cached **5 minutes**; a token filters the list).
+
+## Request
+
+This endpoint does not require any request parameters.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | No | Optional `Bearer <token>`. Omit for the public catalog. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET https://api.knoxstudio.ai/v1/audio-isolation/models
+```
+
+## Response
+
+### Success Response (200)
+
+```json
+{
+  "data": [
+    {
+      "id": "audio_isolation",
+      "canonical_slug": "audio_isolation",
+      "name": "ElevenLabs Voice Isolator",
+      "created": 1699920000,
+      "description": "Remove background noise and isolate speech from audio or video. Up to 1 hour per request. Billed per audio minute.",
+      "chinese_description": "从音频或视频中去除背景噪声并分离人声，单次最长 1 小时，按音频分钟计费。",
+      "max_duration_seconds": 3600,
+      "pricing": { "per_minute": "0.17" },
+      "architecture": {
+        "modality": "audio",
+        "input_modalities": ["audio", "video"],
+        "output_modalities": ["audio"],
+        "tokenizer": "elevenlabs"
+      }
+    }
+  ]
+}
+```
+
+### Response Schema
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data[].id | string | Send as `model_id`. Always `audio_isolation`. |
+| data[].max_duration_seconds | integer | `3600` (1 hour). |
+| data[].pricing.per_minute | string | USD per audio minute (`0.17`). |
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

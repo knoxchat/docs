@@ -1,0 +1,103 @@
+---
+id: update-dubbing-source-segment
+title: "Update Source Segment"
+description: "Update a source-transcript segment."
+sidebar_label: "Update source segment"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "patch api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update Source Segment"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"patch"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/project/{project_id}/transcript/segment/{segment_id}"}
+>
+</MethodEndpoint>
+
+Patch a source segment. At least one of `text`, `speaker_id`, `start_s`, `end_s` is required. **Not billed**.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| project_id | String | Yes | Dubbing project ID. |
+| segment_id | String | Yes | Segment ID. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+| Content-Type | String | Yes | `application/json` |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| text | String | No | Replacement source text. |
+| speaker_id | String | No | Replacement speaker ID. |
+| start_s | Number | No | Start time. If either time is sent, the span must be 0.1–25s. |
+| end_s | Number | No | End time. |
+
+## cURL Example
+
+```shell
+curl -X PATCH https://api.knoxstudio.ai/v1/dubbing/project/proj_123/transcript/segment/seg_789 \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"text":"Hello there, friend"}'
+```
+
+## Response
+
+### Success Response (200)
+
+Updated segment JSON.
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

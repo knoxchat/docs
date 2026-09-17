@@ -52,6 +52,11 @@ The Knox API includes the following main endpoints:
 - [**List Music Models**](/1.0.0/list-music-models) - Get music model IDs, duration limits, and per-minute pricing
 - [**List Text-to-Speech Models**](/1.0.0/list-tts-models) - Get TTS model IDs, character limits, and per-1K pricing
 - [**List Speech-to-Text Models**](/1.0.0/list-stt-models) - Get STT model IDs and per-hour pricing
+- [**List Voice Changer Models**](/1.0.0/list-sts-models) - Get speech-to-speech model IDs and per-minute pricing
+- [**List Voice Isolator Models**](/1.0.0/list-isolation-models) - Get isolator model IDs and per-minute pricing
+- [**List Sound Effects Models**](/1.0.0/list-sfx-models) - Get sound-effects model IDs and per-minute pricing
+- [**List Dubbing Models**](/1.0.0/list-dubbing-models) - Get dubbing model IDs and per-minute pricing
+- [**List Forced Alignment Models**](/1.0.0/list-alignment-models) - Get alignment model IDs and per-hour pricing
 
 ### Realtime
 
@@ -107,6 +112,59 @@ Transcribe audio or video with Scribe. Base URL: `https://api.knoxstudio.ai/v1`.
 - [**Delete Transcript**](/1.0.0/delete-transcript) - Delete a stored transcript
 - [**Realtime Speech-to-Text**](/1.0.0/stt-realtime) - WebSocket streaming transcription (`/v1/speech-to-text/realtime`)
 
+### Voices
+
+Search, clone, and manage ElevenLabs voices. Base URL: `https://api.knoxstudio.ai/v1` (`GET /v2/voices` for search). **Not billed** as audio minutes. See the [**Voices**](/voices) guide.
+
+- [**List Voices**](/1.0.0/list-voices) - Workspace voices (`GET /v1/voices`)
+- [**Search Voices**](/1.0.0/search-voices) - Filtered search (`GET /v2/voices`)
+- [**Get / Edit / Delete Voice**](/1.0.0/get-voice) - Manage a voice
+- [**Create Instant Voice Clone**](/1.0.0/create-ivc-voice) - IVC from samples (`POST /v1/voices/add`)
+- [**Shared Voice Library**](/1.0.0/list-shared-voices) - Browse and add shared voices
+- [**Voice Settings**](/1.0.0/get-voice-settings) - Get/edit settings and defaults
+- [**PVC**](/1.0.0/create-pvc-voice) - Professional Voice Clone create, samples, train, verify
+
+### Voice Changer
+
+Restyle source audio with a target `voice_id`. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.17`/minute**. See the [**Voice Changer**](/voice-changer) guide.
+
+- [**List Voice Changer Models**](/1.0.0/list-sts-models) - Catalog (`GET /v1/speech-to-speech/models`)
+- [**Convert Speech to Speech**](/1.0.0/convert-speech-to-speech) - Full audio file (`POST /v1/speech-to-speech/{voice_id}`)
+- [**Stream Speech to Speech**](/1.0.0/stream-speech-to-speech) - Audio stream (`POST /v1/speech-to-speech/{voice_id}/stream`)
+
+### Voice Isolator
+
+Isolate speech from mixed audio or video. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.17`/minute**. See the [**Voice Isolator**](/voice-isolator) guide.
+
+- [**List Voice Isolator Models**](/1.0.0/list-isolation-models) - Catalog (`GET /v1/audio-isolation/models`)
+- [**Isolate Audio**](/1.0.0/isolate-audio) - Full audio file (`POST /v1/audio-isolation`)
+- [**Stream Isolated Audio**](/1.0.0/stream-isolate-audio) - Audio stream (`POST /v1/audio-isolation/stream`)
+- [**List / Delete History**](/1.0.0/list-isolation-history) - Isolation history (`/v1/audio-isolation/history`)
+
+### Sound Effects
+
+Generate short royalty-free clips from text. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.17`/minute**. See the [**Sound Effects**](/sound-effects) guide.
+
+- [**List Sound Effects Models**](/1.0.0/list-sfx-models) - Catalog (`GET /v1/sound-generation/models`)
+- [**Create Sound Effect**](/1.0.0/convert-sound-effect) - Generate audio (`POST /v1/sound-generation`)
+
+### Dubbing
+
+Dub source audio or video into another language. Base URL: `https://api.knoxstudio.ai/v1`. First language is billed on project create (`$2.25`/min `dubbing_v2`, `$0.38`/min `dubbing_v1`). See the [**Dubbing**](/dubbing) guide.
+
+- [**List Dubbing Models**](/1.0.0/list-dubbing-models) - Catalog (`GET /v1/dubbing/models`)
+- [**Create / List / Get / Delete Project**](/1.0.0/create-dubbing-project) - Projects (`/v1/dubbing/project`)
+- [**Language Targets**](/1.0.0/create-dubbing-language) - Add, list, get, delete languages
+- [**Source Transcript**](/1.0.0/get-dubbing-source-transcript) - Get and edit source segments
+- [**Target Transcript**](/1.0.0/get-dubbing-target-transcript) - Get, edit, and [regenerate](/1.0.0/regenerate-dubbing-target)
+
+### Forced Alignment
+
+Align spoken audio to a transcript. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.27`/hour**. See the [**Forced Alignment**](/forced-alignment) guide.
+
+- [**List Forced Alignment Models**](/1.0.0/list-alignment-models) - Catalog (`GET /v1/forced-alignment/models`)
+- [**Create Forced Alignment**](/1.0.0/create-forced-alignment) - Character- and word-level timestamps (`POST /v1/forced-alignment`)
+
 ## Parameters
 
 Knox supports various parameters to control model behavior and output. See the [**Parameters**](/1.0.0/parameters) section for details.
@@ -122,14 +180,14 @@ The API uses standard HTTP status codes to indicate the result of a request:
 - `402` - Insufficient account balance
 - `403` - Token is not authorized to use the requested model
 - `404` - Requested resource not found
-- `422` - Validation error (music, text-to-speech, and speech-to-text)
+- `422` - Validation error (music, text-to-speech, speech-to-text, voices, voice changer, isolator, sound effects, dubbing, forced alignment)
 - `429` - Rate limit exceeded
 - `500` - Internal server error
 - `502` - Upstream Realtime provider unavailable or connect failed
 
 Video generation endpoints return errors as `{ "error": { "code": 400, "message": "..." } }`. A poll response with `status: "failed"` is still HTTP `200`.
 
-Music, text-to-speech, and speech-to-text endpoints return ElevenLabs-style errors: `{ "detail": "..." }` or `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }` for `422`. These routes also accept `xi-api-key` in addition to `Authorization: Bearer`.
+Music, text-to-speech, speech-to-text, voices, voice changer, Voice Isolator, sound effects, dubbing, and forced alignment endpoints return ElevenLabs-style errors: `{ "detail": "..." }` or `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }` for `422`. These routes also accept `xi-api-key` in addition to `Authorization: Bearer`.
 
 ## Requests
 

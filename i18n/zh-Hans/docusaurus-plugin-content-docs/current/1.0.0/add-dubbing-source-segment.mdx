@@ -1,0 +1,102 @@
+---
+id: add-dubbing-source-segment
+title: "添加源片段"
+description: "向源转写添加片段。"
+sidebar_label: "添加源片段"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"添加源片段"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/dubbing/project/{project_id}/transcript/segment"}
+>
+</MethodEndpoint>
+
+插入源片段。时长必须为 **0.1–25 秒**。**不计费**。
+
+## 请求
+
+### 路径参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| project_id | String | 是 | 配音项目 ID。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `application/json` |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| text | String | 是 | 源文本。 |
+| speaker_id | String | 是 | 说话人 ID。 |
+| start_s | Number | 是 | 开始时间（秒，≥ 0）。 |
+| end_s | Number | 是 | 结束时间（秒）。`end_s - start_s` 必须为 0.1–25。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/dubbing/project/proj_123/transcript/segment \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"text":"Hello there","speaker_id":"spk_1","start_s":1.0,"end_s":3.2}'
+```
+
+## 响应
+
+### 成功响应 (200)
+
+新建片段 JSON，包含 `segment_id`。
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

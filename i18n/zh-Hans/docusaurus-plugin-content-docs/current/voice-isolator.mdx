@@ -1,0 +1,96 @@
+---
+sidebar_position: 16
+sidebar_label: 人声分离
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 人声分离
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**人声分离（Voice Isolator）**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+
+这不是 [语音转文本](/speech-to-text)，也不是 [语音转换](/voice-changer)。人声分离把混合的**音频或视频变成干净人声**。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/audio-isolation/models`](/1.0.0/list-isolation-models)
+2. 分离 — [`POST /v1/audio-isolation`](/1.0.0/isolate-audio)
+3. 或流式分离 — [`POST /v1/audio-isolation/stream`](/1.0.0/stream-isolate-audio)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+把官方 ElevenLabs SDK 的 Base URL 指向 Knox，并用 Knox key 作为 `xi-api-key` 即可调用。
+
+## 模型与计费
+
+人声分离模型**不是** `/v1/models` 那份目录。请获取：
+
+```shell
+curl https://api.knoxstudio.ai/v1/audio-isolation/models
+```
+
+| `model_id` | 说明 | 价格 |
+| ---------- | ---- | ---- |
+| `audio_isolation` | 默认。去除背景噪声并分离人声。单次最长 **1 小时**。 | **每音频分钟 `$0.17`** |
+
+Multipart 上传最大 **500MB**。音频至少 **100ms**。历史列表和删除**不计费**。
+
+未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。携带 Bearer token 时，仅返回该 token 被允许使用的模型。
+
+## 分离人声
+
+发送带 `audio` 文件的 `multipart/form-data`。可选 `file_format` 为 `pcm_s16le_16`（16 kHz 16-bit PCM）或 `other`（MP3 / WAV 等编码文件的默认值）。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/audio-isolation \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio=@interview.wav" \
+     -F "file_format=other" \
+     -o vocals.mp3
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("interview.wav", "rb") as audio:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/audio-isolation",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"audio": audio},
+        data={"file_format": "other"},
+    )
+response.raise_for_status()
+open("vocals.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+成功时返回**分离后的音频字节**。未知 multipart 字段会原样转发到上游。
+
+## 相关端点
+
+| 目标 | 端点 |
+| ---- | ---- |
+| 流式分离 | [`POST /v1/audio-isolation/stream`](/1.0.0/stream-isolate-audio) |
+| 列出分离历史 | [`GET /v1/audio-isolation/history`](/1.0.0/list-isolation-history) |
+| 删除历史条目 | [`DELETE /v1/audio-isolation/history/{history_item_id}`](/1.0.0/delete-isolation-history) |
+
+历史 `page_size` 为 1–1000（默认 100）。`page` 必须 ≥ 1。
+
+## 错误
+
+这些端点返回 `{ "detail": "..." }`，校验失败时为 HTTP `422`：`{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。
+
+常见状态：`401` 缺少/无效 key，`402` 余额不足，`403` token 无权使用该模型，`422` 缺少 `audio`、超过 1 小时或 `file_format` 无效。

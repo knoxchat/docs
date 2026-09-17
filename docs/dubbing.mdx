@@ -1,0 +1,113 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Dubbing
+
+Knox exposes ElevenLabs-compatible **dubbing** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills billed operations and relays the request upstream. The same routes are also served by `https://api.knox.chat/v1`.
+
+Dubbing takes **source audio or video** and produces a dubbed version in another language. It is not [Voice Changer](/voice-changer) (same-language restyle) and not [Text to Speech](/text-to-speech).
+
+Typical flow:
+
+1. List models — [`GET /v1/dubbing/models`](/1.0.0/list-dubbing-models)
+2. Create a project — [`POST /v1/dubbing/project`](/1.0.0/create-dubbing-project)
+3. Poll — [`GET /v1/dubbing/project/{project_id}`](/1.0.0/get-dubbing-project)
+4. Fetch a language target — [`GET /v1/dubbing/project/{project_id}/language/{language_id}`](/1.0.0/get-dubbing-language)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
+
+## Models and billing
+
+```shell
+curl https://api.knoxstudio.ai/v1/dubbing/models
+```
+
+| `model_id` | Use | Price |
+| ---------- | --- | ----- |
+| `dubbing_v2` | Default. Direct audio-to-audio dubbing, 90+ languages | **`$2.25` / source minute / language** |
+| `dubbing_v1` | Cascaded TTS dubbing, 70+ languages | **`$0.38` / source minute / language** |
+
+| Operation | Billing |
+| --------- | ------- |
+| Create project | First target language, billed on source duration |
+| Add a language | Additional language, billed on source duration |
+| Regenerate a target transcript | Billed on `charged_seconds` from the response |
+| List / get / delete / transcript edits | Not billed |
+
+Source media may be up to **3 GiB**. Provide exactly one of `file` or `source_url`. Default model is `dubbing_v2`.
+
+Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes. A Bearer token returns only the models that token is allowed to use.
+
+## Create a project
+
+`source_language` and `target_language` are BCP-47 tags (for example `en`, `zh-CN`). `source_language` is **required** when you attach a `transcript`. Transcript files are at most **4MB**. At most **1000** `keyterms` (50 characters / 5 words each; `<>{}[]\` are not allowed). At most **3** `webhook_ids`. Optional `reference` is at most 500 characters.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/dubbing/project \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "file=@episode.mp4" \
+     -F "model_id=dubbing_v2" \
+     -F "source_language=en" \
+     -F "target_language=zh-CN"
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("episode.mp4", "rb") as media:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/dubbing/project",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"file": media},
+        data={
+            "model_id": "dubbing_v2",
+            "source_language": "en",
+            "target_language": "zh-CN",
+        },
+    )
+response.raise_for_status()
+print(response.json()["project_id"])
+```
+
+</TabItem>
+</Tabs>
+
+Project statuses: `queued`, `preparing`, `processing`, `ready`, `failed`. Language statuses: `queued`, `processing`, `completed`, `stale`, `failed`.
+
+## Transcripts and extra languages
+
+Edit the source transcript, then the target translation, then regenerate:
+
+| Goal | Endpoint |
+| ---- | -------- |
+| Add a language | [`POST /v1/dubbing/project/{project_id}/language`](/1.0.0/create-dubbing-language) |
+| Source transcript | [`GET /v1/dubbing/project/{project_id}/transcript`](/1.0.0/get-dubbing-source-transcript) |
+| Add / update / delete source segments | [`/transcript/segment`](/1.0.0/add-dubbing-source-segment) |
+| Batch source updates | [`PATCH .../transcript/segments`](/1.0.0/batch-update-dubbing-source-segments) |
+| Target transcript | [`GET .../language/{language_id}/transcript`](/1.0.0/get-dubbing-target-transcript) |
+| Update target segments | [`PATCH .../transcript/segment/{segment_id}`](/1.0.0/update-dubbing-target-segment) |
+| Regenerate dubbed audio | [`POST .../transcript/regenerate`](/1.0.0/regenerate-dubbing-target) |
+
+Source segments must last **0.1–25 seconds**. Batch updates accept **1–500** segment entries. `voice_settings.cloning_strength` is 0–10.
+
+## Errors
+
+`422` uses `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`. Other errors use `{ "detail": "..." }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed, `422` missing `file`/`source_url`, invalid BCP-47 language, or segment span out of range.

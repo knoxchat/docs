@@ -1,0 +1,96 @@
+---
+id: find-similar-voices
+title: "查找相似音色"
+description: "根据音频样本查找相似音色。"
+sidebar_label: "查找相似音色"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"查找相似音色"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knoxstudio.ai/v1/similar-voices"}
+>
+</MethodEndpoint>
+
+上传样本以查找相似库音色。**不计费**。`similarity_threshold` 为 0–2；`top_k` 为 1–100。
+
+## 请求
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>` Knox API key。也接受 `xi-api-key`。 |
+| Content-Type | String | 是 | `multipart/form-data` |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| audio_file | File | 否 | 用于相似度搜索的参考音频。 |
+| similarity_threshold | Number | 否 | 0.0–2.0。 |
+| top_k | Integer | 否 | 返回 1–100 条。 |
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/similar-voices \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio_file=@clip.wav" \
+     -F "top_k=10" \
+     -F "similarity_threshold=1.0"
+```
+
+## 响应
+
+### 成功响应 (200)
+
+相似音色及分数的 JSON 列表。
+
+## 错误响应
+
+校验失败使用 HTTP `422`：
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+其他错误使用 `{ "detail": "message" }`。
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 未升级 WebSocket 就访问 WebSocket 端点。 |
+| `401` | 缺少或无效的 API key。 |
+| `402` | 余额不足。 |
+| `403` | Token 无权使用该模型。 |
+| `404` | 资源未找到。 |
+| `422` | 校验错误。 |
+| `429` | 超出速率限制。 |
+| `500` | 服务器内部错误。 |

@@ -1,0 +1,92 @@
+---
+id: list-isolation-history
+title: "List Isolation History"
+description: "List Voice Isolator history items."
+sidebar_label: "List isolation history"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Isolation History"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knoxstudio.ai/v1/audio-isolation/history"}
+>
+</MethodEndpoint>
+
+List previous isolation jobs. **Not billed**. Guide: [Voice Isolator](/voice-isolator).
+
+## Request
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| page_size | Integer | No | How many items to return. 1–1000, default 100. |
+| page | Integer | No | Page number, must be ≥ 1. |
+| search | String | No | Optional search string; forwarded upstream. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key. `xi-api-key` is also accepted. |
+
+## cURL Example
+
+```shell
+curl -X GET "https://api.knoxstudio.ai/v1/audio-isolation/history?page_size=100&page=1" \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+```
+
+## Response
+
+### Success Response (200)
+
+Upstream history list. Use `history_item_id` with [Delete isolation history](/1.0.0/delete-isolation-history).
+
+## Error Responses
+
+Validation uses HTTP `422`:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "field"],
+      "msg": "…",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+Other errors use `{ "detail": "message" }`.
+
+| Status | When |
+| ------ | ---- |
+| `400` | WebSocket path called without `Upgrade: websocket`. |
+| `401` | Missing or invalid API key. |
+| `402` | Insufficient credits. |
+| `403` | Token is not allowed to use this model. |
+| `404` | Resource not found. |
+| `422` | Validation error. |
+| `429` | Rate limit exceeded. |
+| `500` | Internal server error. |

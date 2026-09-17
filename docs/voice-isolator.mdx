@@ -1,0 +1,95 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Voice Isolator
+
+Knox exposes ElevenLabs-compatible **Voice Isolator** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+
+This is not [Speech to Text](/speech-to-text) and not [Voice Changer](/voice-changer). Isolator turns mixed **audio or video into isolated speech**.
+
+Typical flow:
+
+1. List models — [`GET /v1/audio-isolation/models`](/1.0.0/list-isolation-models)
+2. Isolate — [`POST /v1/audio-isolation`](/1.0.0/isolate-audio)
+3. Or stream — [`POST /v1/audio-isolation/stream`](/1.0.0/stream-isolate-audio)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
+
+## Models and billing
+
+Isolation models are **not** the same catalog as `/v1/models`. Fetch:
+
+```shell
+curl https://api.knoxstudio.ai/v1/audio-isolation/models
+```
+
+| `model_id` | Notes | Price |
+| ---------- | ----- | ----- |
+| `audio_isolation` | Default. Remove background noise and isolate speech. Up to **1 hour** per request. | **`$0.17` per audio minute** |
+
+Multipart uploads may be up to **500MB**. Audio must be at least **100ms**. History list and delete are **not billed**.
+
+Unauthenticated catalog requests are limited to 60/minute and may be cached for 5 minutes. A Bearer token returns only the models that token is allowed to use.
+
+## Isolate speech
+
+Send `multipart/form-data` with the `audio` file. Optional `file_format` is `pcm_s16le_16` (raw 16-bit PCM at 16 kHz) or `other` (default for encoded files such as MP3 or WAV).
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/audio-isolation \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "audio=@interview.wav" \
+     -F "file_format=other" \
+     -o vocals.mp3
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("interview.wav", "rb") as audio:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/audio-isolation",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"audio": audio},
+        data={"file_format": "other"},
+    )
+response.raise_for_status()
+open("vocals.mp3", "wb").write(response.content)
+```
+
+</TabItem>
+</Tabs>
+
+A successful convert returns the **isolated audio bytes**. Unknown multipart fields are forwarded upstream.
+
+## Related endpoints
+
+| Goal | Endpoint |
+| ---- | -------- |
+| Stream isolated audio | [`POST /v1/audio-isolation/stream`](/1.0.0/stream-isolate-audio) |
+| List isolation history | [`GET /v1/audio-isolation/history`](/1.0.0/list-isolation-history) |
+| Delete a history item | [`DELETE /v1/audio-isolation/history/{history_item_id}`](/1.0.0/delete-isolation-history) |
+
+History `page_size` is 1–1000 (default 100). `page` must be ≥ 1.
+
+## Errors
+
+These endpoints return `{ "detail": "..." }` or, for validation, HTTP `422` with `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`.
+
+Common statuses: `401` missing/invalid key, `402` insufficient credits, `403` model not allowed for the token, `422` missing `audio`, over 1 hour, or invalid `file_format`.

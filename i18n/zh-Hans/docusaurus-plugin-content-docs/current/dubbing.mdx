@@ -1,0 +1,114 @@
+---
+sidebar_position: 16
+sidebar_label: 配音
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 配音
+
+Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**配音**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 对计费操作扣费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+
+配音把**源音频或视频**生成另一种语言的对白版本。它不是 [语音转换](/voice-changer)（同语言改音色），也不是 [文本转语音](/text-to-speech)。
+
+典型流程：
+
+1. 列出模型 — [`GET /v1/dubbing/models`](/1.0.0/list-dubbing-models)
+2. 创建项目 — [`POST /v1/dubbing/project`](/1.0.0/create-dubbing-project)
+3. 轮询 — [`GET /v1/dubbing/project/{project_id}`](/1.0.0/get-dubbing-project)
+4. 获取语种目标 — [`GET /v1/dubbing/project/{project_id}/language/{language_id}`](/1.0.0/get-dubbing-language)
+
+```
+https://api.knoxstudio.ai/v1
+Authorization: Bearer sk-...
+```
+
+把官方 ElevenLabs SDK 的 Base URL 指向 Knox，并用 Knox key 作为 `xi-api-key` 即可调用。
+
+## 模型与计费
+
+```shell
+curl https://api.knoxstudio.ai/v1/dubbing/models
+```
+
+| `model_id` | 用途 | 价格 |
+| ---------- | ---- | ---- |
+| `dubbing_v2` | 默认。直出音频对音频配音，90 余种语言 | **每片源分钟 × 语种 `$2.25`** |
+| `dubbing_v1` | 级联 TTS 配音，70 余种语言 | **每片源分钟 × 语种 `$0.38`** |
+
+| 操作 | 计费 |
+| ---- | ---- |
+| 创建项目 | 按片源时长预收第一种目标语言 |
+| 添加语种 | 按片源时长收取额外语种 |
+| 重新生成目标转写 | 按响应中的 `charged_seconds` 计费 |
+| 列表 / 获取 / 删除 / 转写编辑 | 不计费 |
+
+源媒体最大 **3 GiB**。必须提供 `file` 或 `source_url` 二者之一。默认模型为 `dubbing_v2`。
+
+未认证的目录请求限制为每分钟 60 次，并且可能被缓存 5 分钟。携带 Bearer token 时，仅返回该 token 被允许使用的模型。
+
+## 创建项目
+
+`source_language` 和 `target_language` 为 BCP-47 标签（例如 `en`、`zh-CN`）。提供 `transcript` 时 **必须** 同时提供 `source_language`。转写文件最大 **4MB**。最多 **1000** 个 `keyterms`（每项 50 字符 / 5 个词；不允许 `<>{}[]\`）。最多 **3** 个 `webhook_ids`。可选 `reference` 最多 500 字符。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knoxstudio.ai/v1/dubbing/project \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -F "file=@episode.mp4" \
+     -F "model_id=dubbing_v2" \
+     -F "source_language=en" \
+     -F "target_language=zh-CN"
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+with open("episode.mp4", "rb") as media:
+    response = requests.post(
+        "https://api.knoxstudio.ai/v1/dubbing/project",
+        headers={"Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}"},
+        files={"file": media},
+        data={
+            "model_id": "dubbing_v2",
+            "source_language": "en",
+            "target_language": "zh-CN",
+        },
+    )
+response.raise_for_status()
+print(response.json()["project_id"])
+```
+
+</TabItem>
+</Tabs>
+
+项目状态：`queued`、`preparing`、`processing`、`ready`、`failed`。语种状态：`queued`、`processing`、`completed`、`stale`、`failed`。
+
+## 转写与额外语种
+
+先编辑源转写，再编辑目标译文，然后重新生成：
+
+| 目标 | 端点 |
+| ---- | ---- |
+| 添加语种 | [`POST /v1/dubbing/project/{project_id}/language`](/1.0.0/create-dubbing-language) |
+| 源转写 | [`GET /v1/dubbing/project/{project_id}/transcript`](/1.0.0/get-dubbing-source-transcript) |
+| 添加 / 更新 / 删除源片段 | [`/transcript/segment`](/1.0.0/add-dubbing-source-segment) |
+| 批量更新源片段 | [`PATCH .../transcript/segments`](/1.0.0/batch-update-dubbing-source-segments) |
+| 目标转写 | [`GET .../language/{language_id}/transcript`](/1.0.0/get-dubbing-target-transcript) |
+| 更新目标片段 | [`PATCH .../transcript/segment/{segment_id}`](/1.0.0/update-dubbing-target-segment) |
+| 重新生成配音 | [`POST .../transcript/regenerate`](/1.0.0/regenerate-dubbing-target) |
+
+源片段时长必须为 **0.1–25 秒**。批量更新接受 **1–500** 条。`voice_settings.cloning_strength` 为 0–10。
+
+## 错误
+
+`422` 使用 `{ "detail": [{ "loc": [...], "msg": "...", "type": "value_error" }] }`。其他错误使用 `{ "detail": "..." }`。
+
+常见状态：`401` 缺少/无效 key，`402` 余额不足，`403` token 无权使用该模型，`422` 缺少 `file`/`source_url`、BCP-47 语言无效或片段时长超范围。
