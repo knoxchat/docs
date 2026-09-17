@@ -130,9 +130,9 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://knox.chat',
+            href: 'https://knoxstudio.ai',
             position: 'right',
-            label: 'Back to knox.chat'
+            label: 'KnoxStudio'
           }
         ]
       },
@@ -144,7 +144,7 @@ const config = {
       },
       footer: {
         style: 'dark',
-        copyright: `Copyright © ${new Date().getFullYear()} Knox.Chat `
+        copyright: `Copyright © ${new Date().getFullYear()} KnoxCore `
       },
       prism: {
         additionalLanguages: [
