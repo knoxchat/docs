@@ -1,0 +1,104 @@
+/*
+ * Click-to-toggle language pill.
+ *
+ * Colours come from Infima variables so the control follows the site palette
+ * in both light and dark mode, the same way the color mode toggle does.
+ */
+
+.localeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0 0.2rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 999px;
+  user-select: none;
+  transition: border-color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+}
+
+.localeToggle:hover {
+  border-color: var(--ifm-color-emphasis-400);
+}
+
+.localeToggleDesktop {
+  height: 2rem;
+  margin-inline: 0.25rem;
+}
+
+/*
+ * The navbar items collapse into the hamburger drawer on small viewports
+ * (`.navbar__item {display: none}` under 996px). This pill has no `.navbar__item`
+ * class, so mirror that breakpoint to avoid a second switcher next to the drawer.
+ */
+@media (max-width: 996px) {
+  .localeToggleDesktop {
+    display: none;
+  }
+}
+
+.localeToggleMobile {
+  /* Reset the <li> list marker, the pill is the only decoration needed. */
+  list-style: none;
+  width: 100%;
+  margin: 0.5rem 0 0.25rem;
+  padding: 0.2rem;
+}
+
+.localeToggleIcon {
+  flex-shrink: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-inline: 0.2rem 0.1rem;
+  color: var(--ifm-color-emphasis-600);
+  transition: color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+}
+
+.localeToggle:hover .localeToggleIcon {
+  color: var(--ifm-color-primary);
+}
+
+.localeSegment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 1.5rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--ifm-transition-fast) var(--ifm-transition-timing-default),
+    color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+}
+
+/* The locale currently being read: a filled pill, mirroring a switch's "on" side. */
+.localeSegmentActive {
+  background-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+/* The locale one click away. */
+.localeSegmentLink {
+  color: var(--ifm-navbar-link-color);
+}
+
+.localeSegmentLink:hover {
+  background-color: var(--ifm-color-emphasis-200);
+  color: var(--ifm-navbar-link-hover-color);
+  text-decoration: none;
+}
+
+.localeSegmentLink:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+/* Mobile: the sidebar is a list, so let both segments share the full width. */
+.localeToggleMobile .localeSegment {
+  flex: 1;
+  height: 1.75rem;
+  font-size: 0.8rem;
+}

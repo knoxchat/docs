@@ -128,6 +128,13 @@ const config = {
           {
             type: 'localeDropdown',
             position: 'right',
+            // Rendered as a click-to-toggle pill by the swizzled
+            // src/theme/NavbarItem/LocaleDropdownNavbarItem. Optional: when
+            // omitted, labels default to the uppercased language subtag.
+            shortLabels: {
+              en: 'EN',
+              'zh-Hans': '中文',
+            },
           },
           {
             href: 'https://knoxstudio.ai',

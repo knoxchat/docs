@@ -59,6 +59,14 @@
     "message": "切换浅色/暗黑模式（当前为{mode}）",
     "description": "The ARIA label for the color mode toggle"
   },
+  "theme.navbar.localeToggle.ariaLabel": {
+    "message": "语言切换",
+    "description": "The ARIA label of the language switcher in the navbar"
+  },
+  "theme.navbar.localeToggle.switchTo": {
+    "message": "切换到{language}",
+    "description": "The title of a language switcher segment for a non-current language"
+  },
   "theme.docs.breadcrumbs.navAriaLabel": {
     "message": "页面路径",
     "description": "The ARIA label for the breadcrumbs"
