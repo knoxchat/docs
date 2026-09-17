@@ -1,0 +1,23 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # --ignore-scripts avoids postman-code-generators' postinstall, which shells
+        # out a nested `yarn install` for each of its 35 codegens and crashes the
+        # install. Its published tarball already contains lib/assets/languages.js,
+        # and the codegens resolve lodash/postman-collection from the hoisted root.
+        - yarn install --frozen-lockfile --ignore-scripts
+        # sharp (via plugin-ideal-image) needs its install script to fetch libvips.
+        - npm rebuild sharp
+        - node scripts/patch-search-local.js
+    build:
+      commands:
+        - yarn build
+  artifacts:
+    baseDirectory: build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
