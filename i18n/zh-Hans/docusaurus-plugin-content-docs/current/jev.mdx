@@ -1,0 +1,388 @@
+---
+sidebar_position: 6
+sidebar_label: Jev
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Jev
+
+**Jev** 是 Knox 上的 TypeSafe System One 模型。你提交一份 `state` 和一组 typed `questions`，得到代码可直接使用的结构化 `answers`。它**不是**聊天模型，也**不会**生成自然语言。
+
+需要做判断时用 Jev：工单分流、按量表打分、用校准后的概率回答是/否。需要生成文本时，请使用 [聊天补全](/1.0.0/chat-completion)。
+
+| 聊天 / LLM | Jev（System One） |
+| --- | --- |
+| 提示词进，生成文本出 | `state` + typed `questions` 进，结构化 `answers` 出 |
+| [`POST /v1/chat/completions`](/1.0.0/chat-completion) | [`POST /v1/systemone`](/1.0.0/systemone) |
+| 流式、工具、图片 | 单次 JSON 评估。文本进、JSON 出。无流式。 |
+| 输入和输出 token 都计费 | **按输入 token 计费；输出 token 免费** |
+
+完整 HTTP schema：[评估（System One）](/1.0.0/systemone)。
+
+## 快速开始
+
+1. 在 [Keys](https://knox.chat/keys) 页面创建 Knox API key。
+2. 在 [Models](https://knox.chat/models) 或 `GET /v1/models` 中确认已列出 `jev-latest`（或 `jev-1.13.0`）。
+3. 向 `https://api.knox.chat/v1/systemone` 发送 `POST`，请求头为 `Authorization: Bearer sk-...`。
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knox.chat/v1/systemone \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "state": "Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.",
+    "model": "jev-latest",
+    "questions": {
+      "is_urgent": {
+        "type": "noul",
+        "instructions": "Does this message express urgency?"
+      }
+    }
+  }'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.post(
+    "https://api.knox.chat/v1/systemone",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    json={
+        "state": "Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.",
+        "model": "jev-latest",
+        "questions": {
+            "is_urgent": {
+                "type": "noul",
+                "instructions": "Does this message express urgency?",
+            }
+        },
+    },
+)
+print(response.json())
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const response = await fetch('https://api.knox.chat/v1/systemone', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${process.env.KNOXCHAT_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    state: 'Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.',
+    model: 'jev-latest',
+    questions: {
+      is_urgent: {
+        type: 'noul',
+        instructions: 'Does this message express urgency?',
+      },
+    },
+  }),
+});
+
+console.log(await response.json());
+```
+
+</TabItem>
+</Tabs>
+
+响应示例：
+
+```json
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "is_urgent": {
+      "type": "noul",
+      "noul": 0.999
+    }
+  },
+  "usage": {
+    "input_tokens": 312,
+    "output_tokens": 48
+  }
+}
+```
+
+请求可以发送 `jev-latest`；响应里的 `model` 是实际运行的版本化 ID（`jev-1.13.0`）。
+
+Jev 目前对英语效果最好。问题的 `instructions` 建议用英语书写。
+
+## 问题类型
+
+每个问题都有 **ID**（map 的键）、`type` 和 `instructions`。Choice 和 Score 还需要 `criteria`。一次请求可混合多种类型；所有问题共享同一份 `state`，并并行评估。
+
+| 类型 | 在问什么 | 返回 |
+| --- | --- | --- |
+| **noul** | 这是真的吗？ | `noul`，从 `0`（否）到 `1`（是） |
+| **choice** | 选哪一项？ | `choice`、`probabilities`、`confidence` |
+| **score** | 落在量表的哪一级？ | `score`、`legend`、`probabilities`、`confidence` |
+
+每个问题只问一个瞬间判断——相当于内行人看一眼就能给出的结论。复杂任务拆成多个问题，再在代码里组合答案。
+
+问题 ID 只给你的代码用，不会发给模型。完整问题写在 `instructions` 里。
+
+### Noul（是 / 否）
+
+当概率本身就是信号时用 Noul：是否紧急、是否要求退款、是否提到 bug。
+
+```json
+{
+  "is_urgent": {
+    "type": "noul",
+    "instructions": "The message conveys urgency or time-sensitivity",
+    "criteria": {
+      "true": "Explicitly time-sensitive",
+      "false": "No urgency expressed"
+    }
+  }
+}
+```
+
+`criteria` 可选。接近 `1` 是明确的是，接近 `0` 是明确的否，接近 `0.5` 表示不确定。Noul 没有单独的 `confidence` 字段。
+
+不要用 Noul 去度量一个连续谱。「这位候选人 Python 强吗？」应该用带技能等级的 Score，而不是是/否。
+
+### Choice（选一项）
+
+无序集合用 Choice：部门、文档类型、意图。如果列表可能覆盖不全，务必加上 `other` 或 `none`。
+
+```json
+{
+  "department": {
+    "type": "choice",
+    "instructions": "Which team should handle this",
+    "criteria": {
+      "billing": "Payment or subscription issues",
+      "technical": "Bugs or integration problems",
+      "sales": "Pricing or account questions"
+    }
+  }
+}
+```
+
+`choice` 是概率最高的选项。`probabilities` 之和为 `1`。`confidence`（0–1）表示分布有多尖锐——用来决定自动处理还是升级给人工。
+
+### Score（量表）
+
+当答案落在你定义的有序等级上时用 Score。返回的 `score` **可以落在两级之间**。
+
+```json
+{
+  "frustration": {
+    "type": "score",
+    "instructions": "How frustrated the customer appears",
+    "criteria": [
+      "Calm, just stating facts",
+      "Frustrated but civil",
+      "Very angry, strong language"
+    ]
+  }
+}
+```
+
+`legend` 按索引重复你的等级（`"0"`、`"1"`、…）。`criteria` 至少需要两级。
+
+## State
+
+`state` 是被评判的内容：字符串、JSON 对象，或文本数组。仅支持文本——没有图片、音频或视频。非文本请先转成文本再传入。
+
+单条消息用字符串即可。工单、记录或政策请传 JSON 对象，并在 `instructions` 里用反引号路径**点名字段**：
+
+```json
+{
+  "state": {
+    "ticket": {
+      "subject": "Duplicate charge",
+      "messages": [
+        { "from": "customer", "text": "I was charged twice for order A-104. Please refund the duplicate." }
+      ]
+    },
+    "refund_policy": "Duplicate charges are eligible for a refund."
+  },
+  "model": "jev-latest",
+  "questions": {
+    "refund_requested": {
+      "type": "noul",
+      "instructions": "Does `ticket.messages[0].text` request a refund?"
+    },
+    "policy_supports_refund": {
+      "type": "noul",
+      "instructions": "Does `refund_policy` support the refund requested in `ticket.messages[0].text`?"
+    }
+  }
+}
+```
+
+## 模型、上下文与计费
+
+| ID | 种类 | 说明 |
+| --- | --- | --- |
+| `jev-1.13.0` | 版本化 ID | 生产环境请钉死此 ID。 |
+| `jev-latest` | 别名 | 当前正式版（`jev-1.13.0`）。SDK / 文档默认值。 |
+| `jev-preview` | 别名 | 目前同样指向 `jev-1.13.0`。有预览版时会领先于 `jev-latest`。 |
+
+若省略 `model`，Knox 会把转发请求默认成 `jev-latest`。未知 ID 返回 `422`。
+
+| | |
+| --- | --- |
+| 价格 | **每百万输入 token `$0.042`**。输出免费。成功调用至少计费 `$0.0001`。上游失败不计费。 |
+| 上下文 | `state` + 全部问题合计 64k token；`state` + 最长单个问题 32k token。 |
+| 输入 | 仅文本（字符串、对象或文本数组）。 |
+| 语言 | 英语效果最好。包括中日韩在内的其他语言可接受但较弱——上线前请用自己的数据测试。 |
+| 目录 | `jev-*` ID 会出现在 Knox `GET /v1/models` 的 OpenAI 列表信封中。 |
+
+若希望某个 token 只能调用 Jev，可在 [Keys](https://knox.chat/keys) 页面把该 key 限制为 `jev-*`。
+
+## SDK
+
+把官方 TypeSafe SDK 指向 Knox。使用 **Knox** key 认证，不要使用 TypeSafe key。
+
+<Tabs>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import { TypeSafeClient, noul, choice, score } from '@typesafe-ai/sdk';
+
+const client = new TypeSafeClient({
+  baseURL: 'https://api.knox.chat',
+  apiKey: process.env.KNOXCHAT_API_KEY,
+  defaultModel: 'jev-latest',
+});
+
+const response = await client.systemOne({
+  state: 'My flight was cancelled. Can I get a refund?',
+  questions: {
+    refund_requested: noul('Does the customer request a refund?'),
+    request_type: choice('What is the main request?', {
+      refund: 'The customer wants money returned.',
+      rebooking: 'The customer wants a replacement flight.',
+      information: 'The customer is asking for information only.',
+    }),
+    frustration: score('How frustrated does the customer appear?', [
+      'Calm and neutral.',
+      'Concerned but civil.',
+      'Very angry or using strong language.',
+    ]),
+  },
+});
+
+console.log(response.answers.refund_requested.noul);
+console.log(response.answers.request_type.choice);
+console.log(response.answers.frustration.score);
+```
+
+安装：`npm install @typesafe-ai/sdk`（Node.js 20+）。
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
+
+client = TypeSafeClient(
+    api_key=os.environ["KNOXCHAT_API_KEY"],
+    base_url="https://api.knox.chat",
+    model="jev-latest",
+)
+
+response = client.system_one(
+    state="My flight was cancelled. Can I get a refund?",
+    questions={
+        "refund_requested": Noul(
+            instructions="Does the customer request a refund?",
+        ),
+        "request_type": Choice(
+            instructions="What is the main request?",
+            criteria={
+                "refund": "The customer wants money returned.",
+                "rebooking": "The customer wants a replacement flight.",
+                "information": "The customer is asking for information only.",
+            },
+        ),
+        "frustration": Score(
+            instructions="How frustrated does the customer appear?",
+            criteria=[
+                "Calm and neutral.",
+                "Concerned but civil.",
+                "Very angry or using strong language.",
+            ],
+        ),
+    },
+)
+
+print(response.answers["refund_requested"].noul)
+print(response.answers["request_type"].choice)
+print(response.answers["frustration"].score)
+```
+
+安装：`pip install typesafe-sdk`（Python ≥ 3.10）。
+
+</TabItem>
+</Tabs>
+
+Knox 实现的是 `systemOne()` / `system_one()`。Knox 的 `GET /v1/models` 使用 OpenAI 的 `{ object: "list", data: [...] }` 信封，因此 SDK 的 `models.list()` 在 Knox 上不会匹配 TypeSafe 的 `{ models: [...] }` 形状。请用 Knox 的 [`GET /v1/models`](/1.0.0/list-available-models) 列出 Jev ID。
+
+## 常见模式
+
+同一份 `state` 上的问题**放进一次请求**，包括你可能会忽略的问题。增加问题几乎不影响延迟，只多消耗问题本身的 token。
+
+**并行发散。** 一次完成分类、紧急程度和情绪打分，再在代码里分支。
+
+**组合打分。** 把「这张工单有多严重」拆成严重度、情绪、信息完整度几个 Score，权重自己定。优先级变了就改系数，不用改提示词。
+
+**按置信度分流。** Choice 和 Score 在置信度高于阈值时自动处理，低于阈值时升级给人工。
+
+**只有必要时才发第二次请求。** 同一次调用里的问题互相独立。只有当下一次的 `state` 或选项列表依赖第一次答案时（拉取更多数据、做层级分类），才需要跟进请求。否则一次性问完。
+
+```ts
+if (response.answers.department.confidence > 0.7) {
+  routeTo(response.answers.department.choice);
+} else {
+  escalateToHuman();
+}
+```
+
+## 错误
+
+Jev 使用 TypeSafe 风格的 JSON：`{ "detail": "..." }`，或 `422` 时的字段错误数组。
+
+| 状态码 | 含义 |
+| --- | --- |
+| `401` | Knox token 缺失或无效。 |
+| `402` | Knox 余额不足。请到 [Credits](https://knox.chat/credits) 充值。 |
+| `403` | 该 token 的模型白名单不包含请求的 `jev-*` ID。 |
+| `404` | 没有可用的 Jev 渠道。 |
+| `422` | 请求体无效（缺少 `state` / `questions`、错误的 `type`、Score 少于两级、未知模型）。 |
+| `429` | 触发限流。若响应带有 `Retry-After`，请遵守。 |
+| `502` | 无法连接上游。 |
+| `529` | 上游过载。请退避重试。 |
+
+Knox 不会自动重试 `429` / `529`。TypeSafe SDK 默认会重试这些状态码。
+
+**不要**把 Jev 模型发到 `/v1/chat/completions`、`/v1/completions`、`/v1/messages` 或 `/v1/realtime`。这些路由会拒绝它们。
+
+## 限制与非目标
+
+- 无流式、工具调用、图片、音频或视频输入。
+- 无聊天 Playground 适配——Jev 不是聊天机器人。
+- 无微调或 LoRA。通过 `state`、`instructions` 和 `criteria` 塑造答案。
+- 请求上的额外 JSON 字段会原样转发。
+
+下一步：[评估（System One）API](/1.0.0/systemone)。

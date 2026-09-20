@@ -33,6 +33,8 @@ import Heading from "@theme/Heading";
 
 Returns a public list of models available through the API. Authentication is optional: requests without an API key return the public active model list, while requests with a Bearer token return the models available to that token.
 
+Jev IDs (`jev-1.13.0`, `jev-latest`, `jev-preview`) appear in this OpenAI-shaped list. Call them with [`POST /v1/systemone`](/1.0.0/systemone), not chat completions. See [Jev](/jev).
+
 Public unauthenticated requests are rate limited to 60 requests per minute and may be cached for up to 5 minutes.
 
 ## Request

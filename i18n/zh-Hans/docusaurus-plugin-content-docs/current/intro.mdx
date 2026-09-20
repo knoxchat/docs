@@ -18,6 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 - **多模态输入输出**：支持文本、图片、PDF、视频和音频输入，以及图像生成、视频生成、[音乐生成](/music)、[文本转语音](/text-to-speech)、[语音转文本](/speech-to-text)、[音色](/voices)、[语音转换](/voice-changer)、[人声分离](/voice-isolator)、[音效生成](/sound-effects)、[配音](/dubbing)、[强制对齐](/forced-alignment)，以及语音到语音的 [实时语音](/realtime)。
 - **工具调用与 MCP**：兼容 OpenAI 工具调用规范，并可桥接 MCP 服务器。
 - **联网搜索**：使用 `:online` 模型变体或 `web` 插件获取实时引用。
+- **Jev（System One）**：对共享 state 提出 typed questions，返回结构化 answers（不是 LLM）。详见 [Jev](/jev)。
 - **结构化输出与推理**：支持 JSON Schema 强制约束和标准化推理 token。
 - **效率功能**：支持提示缓存和中间消息裁剪，优化长上下文处理。
 - **可靠性保障**：零输出补偿保险，确保失败或空响应不会产生费用。

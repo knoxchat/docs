@@ -1,0 +1,193 @@
+---
+id: systemone
+title: "评估（System One）"
+description: "对 state 评估 typed questions，由 Jev 返回结构化 answers。"
+sidebar_label: "评估（System One）"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"评估（System One）"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/systemone"}
+>
+</MethodEndpoint>
+
+对一份 `state` 评估一组 typed `questions`，由 **Jev** 返回结构化 `answers`。这不是聊天补全，也不支持流式。指南：[Jev](/jev)。
+
+使用 Knox API key 认证。同一路由也挂载在 `/api/v1/systemone`。
+
+## 请求
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer <token>`，来自 [Keys](https://knox.chat/keys) 的 Knox API key。 |
+| Content-Type | String | 是 | `application/json`。 |
+
+### 请求体
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| state | String、Object、Array 或 `null` | 是 | 要评估的内容。仅文本。可以是字符串、JSON 对象、文本数组或 JSON `null`。 |
+| questions | Object | 是 | 非空 map：问题 ID → 问题。答案按相同 ID 返回。ID 不会发给模型。 |
+| model | String | 否 | `jev-1.13.0`、`jev-latest` 或 `jev-preview`。默认 `jev-latest`。未知 ID 返回 `422`。 |
+
+额外字段会原样转发给上游。
+
+#### 问题对象
+
+每个问题都需要 `type` 和 `instructions`。
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| type | String | 是 | `noul`、`choice` 或 `score`。 |
+| instructions | String、Object、Array 或 `null` | 是 | 针对 `state` 要做的判断。 |
+| criteria | Object 或 Array | 有条件 | `choice` 必须是对象 map。`score` 必须是至少 2 级的数组。`noul` 可选 `{ true, false }` 对象。 |
+
+**Noul** — 是/否。可选 `criteria: { "true": "...", "false": "..." }`。
+
+**Choice** — 从选项中选一项。`criteria` 是选项 ID → 描述（`string` 或 `null`）的 map。
+
+**Score** — 有序量表。`criteria` 是至少两级描述的数组。
+
+## cURL 示例
+
+```shell
+curl -X POST https://api.knox.chat/v1/systemone \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "state": "Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.",
+  "model": "jev-latest",
+  "questions": {
+    "department": {
+      "type": "choice",
+      "instructions": "Which team should handle this",
+      "criteria": {
+        "billing": "Payment or subscription issues",
+        "technical": "Bugs or integration problems",
+        "sales": "Pricing or account questions"
+      }
+    },
+    "frustration": {
+      "type": "score",
+      "instructions": "How frustrated the customer appears",
+      "criteria": [
+        "Calm, just stating facts",
+        "Frustrated but civil",
+        "Very angry, strong language"
+      ]
+    },
+    "is_urgent": {
+      "type": "noul",
+      "instructions": "The message conveys urgency or time-sensitivity"
+    }
+  }
+}'
+```
+
+## 响应
+
+### 成功响应（200）
+
+`model` 是实际运行的版本化 ID（例如 `jev-1.13.0`），即使请求发送的是别名。
+
+```json
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "department": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+        "billing": 0.84,
+        "technical": 0.159,
+        "sales": 0.001
+      },
+      "confidence": 0.596
+    },
+    "frustration": {
+      "type": "score",
+      "score": 1.035,
+      "legend": {
+        "0": "Calm, just stating facts",
+        "1": "Frustrated but civil",
+        "2": "Very angry, strong language"
+      },
+      "probabilities": {
+        "0": 0.12,
+        "1": 0.73,
+        "2": 0.15
+      },
+      "confidence": 0.842
+    },
+    "is_urgent": {
+      "type": "noul",
+      "noul": 0.999
+    }
+  },
+  "usage": {
+    "input_tokens": 312,
+    "output_tokens": 48
+  }
+}
+```
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| model | String | 产出答案的版本化模型。 |
+| answers | Object | 每个问题 ID 对应一个答案。 |
+| usage.input_tokens | Integer | 计费 token。Knox 按 **每百万 `$0.042`** 收费，成功时最低 **`$0.0001`**。 |
+| usage.output_tokens | Integer | 会出现，且**免费**。 |
+
+#### 答案对象
+
+| `type` | 字段 |
+| --- | --- |
+| `noul` | `noul`（`0`–`1`）— 陈述为真的概率。 |
+| `choice` | `choice`（选中的选项）、`probabilities`（选项 → 浮点数，之和为 1）、`confidence`（`0`–`1`）。 |
+| `score` | `score`（可落在两级之间）、`legend`（索引 → 描述）、`probabilities`、`confidence`。 |
+
+## 错误
+
+响应体为 TypeSafe 风格：`{ "detail": "..." }`，或 `422` 的字段列表。
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "questions"],
+      "msg": "questions is required",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+| 状态码 | 含义 |
+| ------ | ---- |
+| `401` | Knox token 缺失或无效。 |
+| `402` | 余额不足。 |
+| `403` | Token 模型白名单不包含该 `jev-*` ID。 |
+| `404` | 没有可用的 Jev 渠道。 |
+| `422` | 校验失败（缺少字段、问题格式错误、未知模型）。 |
+| `429` | 触发限流。若带有 `Retry-After`，请遵守。 |
+| `502` | 无法连接上游。 |
+| `529` | 上游过载。请退避重试。 |
+
+上游失败不计费。Knox 不会自动重试 `429` / `529`。

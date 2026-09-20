@@ -47,6 +47,18 @@
     "message": "快速入门",
     "description": "The label for the doc item 'Quickstart' in sidebar 'tutorialSidebar'"
   },
+  "sidebar.tutorialSidebar.doc.Jev": {
+    "message": "Jev",
+    "description": "The label for the doc item 'Jev' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.apiSidebar.category.Jev": {
+    "message": "Jev",
+    "description": "The label for category 'Jev' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Evaluate (System One)": {
+    "message": "评估（System One）",
+    "description": "The label for the doc item 'Evaluate (System One)' in sidebar 'apiSidebar', linking to the doc 1.0.0/systemone"
+  },
   "sidebar.tutorialSidebar.doc.Music": {
     "message": "音乐生成",
     "description": "The label for the doc item 'Music' in sidebar 'tutorialSidebar'"

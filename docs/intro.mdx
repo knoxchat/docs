@@ -18,6 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 - **Multimodal I/O**: text, images, PDFs, and audio inputs, plus image, video, and [music](/music) generation, [text to speech](/text-to-speech), [speech to text](/speech-to-text), [voices](/voices), [voice changer](/voice-changer), [Voice Isolator](/voice-isolator), [sound effects](/sound-effects), [dubbing](/dubbing), [forced alignment](/forced-alignment), and speech-to-speech [Realtime](/realtime).
 - **Tools and MCP**: OpenAI‑compatible tool calling and MCP server bridging.
 - **Web search**: `:online` model variant or the `web` plugin for live citations.
+- **Jev (System One)**: typed questions against a shared state, structured answers (not an LLM). See [Jev](/jev).
 - **Structured & reasoning outputs**: JSON Schema enforcement and standardized reasoning tokens.
 - **Efficiency features**: prompt caching and middle‑out message transforms for long contexts.
 - **Reliability**: zero‑completion insurance so failed/empty responses aren’t billed.
@@ -300,6 +301,12 @@ Different models use different tokenization methods (as indicated by the `tokeni
           Knox‑MS is a memory‑centric system that adds multi‑level memory, summaries, vector search, and a knowledge graph. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS documentation](/knox-ms-unlimited-formula).
         </AccordionContent>
     </AccordionItem>
+    <AccordionItem value="item-3b">
+      <AccordionTrigger>What is Jev and when should I use it?</AccordionTrigger>
+        <AccordionContent>
+          Jev is TypeSafe's System One model on Knox. It is not an LLM: you send a `state` and typed questions (yes/no, choice, or score) to [`POST /v1/systemone`](/1.0.0/systemone) and get structured answers your code can use directly. Use it for routing, classification, and calibrated judgments. Use chat completions when you need generated text. See the [Jev](/jev) guide.
+        </AccordionContent>
+    </AccordionItem>
     <AccordionItem value="item-4">
       <AccordionTrigger>Where can I get technical support?</AccordionTrigger>
         <AccordionContent>
@@ -394,7 +401,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-3">
       <AccordionTrigger>What API endpoints are available?</AccordionTrigger>
       <AccordionContent>
-        Knox implements the OpenAI API specification for `/completions` and `/chat/completions`, allowing you to use any model with the same request/response format. Additional endpoints like `/v1/models`, `/v1/realtime`, `/v1/videos`, and Knox‑MS routes are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
+        Knox implements the OpenAI API specification for `/completions` and `/chat/completions`, allowing you to use any model with the same request/response format. Additional endpoints like `/v1/models`, `/v1/systemone` ([Jev](/jev)), `/v1/realtime`, `/v1/videos`, and Knox‑MS routes are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-4">

@@ -40,6 +40,19 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Jev",
+      collapsed: true,
+      items: [
+        {
+          type: "doc",
+          id: "1.0.0/systemone",
+          label: "评估（System One）",
+          className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "实时语音",
       collapsed: true,
       items: [

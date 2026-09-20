@@ -33,6 +33,8 @@ import Heading from "@theme/Heading";
 
 返回通过 API 可用的公开模型列表。认证是可选的：不携带 API Key 的请求会返回公开的活跃模型列表；携带 Bearer Token 的请求会返回该 token 可访问的模型列表。
 
+Jev ID（`jev-1.13.0`、`jev-latest`、`jev-preview`）会出现在这个 OpenAI 形状的列表中。请通过 [`POST /v1/systemone`](/1.0.0/systemone) 调用它们，不要走聊天补全。详见 [Jev](/jev)。
+
 公开的未认证请求限制为每分钟 60 次，并且可能被缓存最多 5 分钟。
 
 ## 请求

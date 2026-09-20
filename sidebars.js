@@ -45,6 +45,7 @@ const sidebars = {
       collapsible: true,
       collapsed: false,
       items: [
+        'jev',
         'structured-outputs',
         'tool-calling',
         'mcp-servers',

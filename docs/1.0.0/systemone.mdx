@@ -1,0 +1,193 @@
+---
+id: systemone
+title: "Evaluate (System One)"
+description: "Evaluate a state against typed questions and return structured answers from Jev."
+sidebar_label: "Evaluate (System One)"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Evaluate (System One)"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/systemone"}
+>
+</MethodEndpoint>
+
+Evaluate a `state` against a map of typed `questions` and return structured `answers` from **Jev**. This is not chat completion and does not stream. Guide: [Jev](/jev).
+
+Authenticate with a Knox API key. The same route is also served under `/api/v1/systemone`.
+
+## Request
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer <token>` Knox API key from [Keys](https://knox.chat/keys). |
+| Content-Type | String | Yes | `application/json`. |
+
+### Request Body
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| state | String, Object, Array, or `null` | Yes | Content to evaluate. Text only. A string, JSON object, array of text, or JSON `null`. |
+| questions | Object | Yes | Non-empty map of question ID → question. Answers come back under the same IDs. IDs are not sent to the model. |
+| model | String | No | `jev-1.13.0`, `jev-latest`, or `jev-preview`. Default `jev-latest`. Unknown IDs return `422`. |
+
+Extra properties are forwarded upstream.
+
+#### Question object
+
+Every question requires `type` and `instructions`.
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| type | String | Yes | `noul`, `choice`, or `score`. |
+| instructions | String, Object, Array, or `null` | Yes | The judgment to make about `state`. |
+| criteria | Object or Array | Conditional | Required object map for `choice`. Required array of ≥ 2 levels for `score`. Optional `{ true, false }` object for `noul`. |
+
+**Noul** — yes/no. Optional `criteria: { "true": "...", "false": "..." }`.
+
+**Choice** — pick one option. `criteria` is a map of option ID → description (`string` or `null`).
+
+**Score** — ordered rubric. `criteria` is an array of at least two level descriptions.
+
+## cURL Example
+
+```shell
+curl -X POST https://api.knox.chat/v1/systemone \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "state": "Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.",
+  "model": "jev-latest",
+  "questions": {
+    "department": {
+      "type": "choice",
+      "instructions": "Which team should handle this",
+      "criteria": {
+        "billing": "Payment or subscription issues",
+        "technical": "Bugs or integration problems",
+        "sales": "Pricing or account questions"
+      }
+    },
+    "frustration": {
+      "type": "score",
+      "instructions": "How frustrated the customer appears",
+      "criteria": [
+        "Calm, just stating facts",
+        "Frustrated but civil",
+        "Very angry, strong language"
+      ]
+    },
+    "is_urgent": {
+      "type": "noul",
+      "instructions": "The message conveys urgency or time-sensitivity"
+    }
+  }
+}'
+```
+
+## Response
+
+### Success Response (200)
+
+`model` is the versioned ID that ran (for example `jev-1.13.0`), even if the request sent an alias.
+
+```json
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "department": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+        "billing": 0.84,
+        "technical": 0.159,
+        "sales": 0.001
+      },
+      "confidence": 0.596
+    },
+    "frustration": {
+      "type": "score",
+      "score": 1.035,
+      "legend": {
+        "0": "Calm, just stating facts",
+        "1": "Frustrated but civil",
+        "2": "Very angry, strong language"
+      },
+      "probabilities": {
+        "0": 0.12,
+        "1": 0.73,
+        "2": 0.15
+      },
+      "confidence": 0.842
+    },
+    "is_urgent": {
+      "type": "noul",
+      "noul": 0.999
+    }
+  },
+  "usage": {
+    "input_tokens": 312,
+    "output_tokens": 48
+  }
+}
+```
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| model | String | Versioned model that produced the answers. |
+| answers | Object | One answer per question ID. |
+| usage.input_tokens | Integer | Billed tokens. Knox charges **`$0.042` / million**, minimum **`$0.0001`** on success. |
+| usage.output_tokens | Integer | Present and **free**. |
+
+#### Answer objects
+
+| `type` | Fields |
+| --- | --- |
+| `noul` | `noul` (`0`–`1`) — probability the statement is true. |
+| `choice` | `choice` (selected option), `probabilities` (option → float, sums to 1), `confidence` (`0`–`1`). |
+| `score` | `score` (can fall between levels), `legend` (index → description), `probabilities`, `confidence`. |
+
+## Errors
+
+Bodies are TypeSafe-shaped: `{ "detail": "..." }` or a `422` field list.
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "questions"],
+      "msg": "questions is required",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+| Status | Meaning |
+| ------ | ------- |
+| `401` | Missing or invalid Knox token. |
+| `402` | Insufficient credits. |
+| `403` | Token model allowlist does not include this `jev-*` ID. |
+| `404` | No Jev channel is available. |
+| `422` | Validation failed (missing field, bad question, unknown model). |
+| `429` | Rate limited. Honor `Retry-After` when present. |
+| `502` | Failed to connect to provider. |
+| `529` | Upstream overloaded. Retry with backoff. |
+
+Failed upstream calls are not billed. Knox does not automatically retry `429` / `529`.

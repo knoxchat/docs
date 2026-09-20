@@ -1,0 +1,386 @@
+---
+sidebar_position: 6
+sidebar_label: Jev
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Jev
+
+**Jev** is TypeSafe's System One model on Knox. Send a `state` plus typed `questions`; get structured `answers` your code can use directly. It is **not** a chat model and does **not** generate prose.
+
+Use Jev when your application needs a judgment: route a ticket, score a rubric, or answer yes/no with a calibrated probability. Use [chat completions](/1.0.0/chat-completion) when you need generated text.
+
+| Chat / LLM | Jev (System One) |
+| --- | --- |
+| Prompt in, generated text out | `state` + typed `questions` in, structured `answers` out |
+| [`POST /v1/chat/completions`](/1.0.0/chat-completion) | [`POST /v1/systemone`](/1.0.0/systemone) |
+| Streaming, tools, images | Single JSON evaluate call. Text in, JSON out. No streaming. |
+| Input and output tokens billed | **Input tokens billed; output tokens free** |
+
+Full HTTP schema: [Evaluate (System One)](/1.0.0/systemone).
+
+## Quickstart
+
+1. Create a Knox API key on the [Keys](https://knox.chat/keys) page.
+2. Confirm `jev-latest` (or `jev-1.13.0`) is listed on [Models](https://knox.chat/models) or `GET /v1/models`.
+3. `POST` to `https://api.knox.chat/v1/systemone` with `Authorization: Bearer sk-...`.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```shell
+curl -X POST https://api.knox.chat/v1/systemone \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "state": "Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.",
+    "model": "jev-latest",
+    "questions": {
+      "is_urgent": {
+        "type": "noul",
+        "instructions": "Does this message express urgency?"
+      }
+    }
+  }'
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+import requests
+
+response = requests.post(
+    "https://api.knox.chat/v1/systemone",
+    headers={
+        "Authorization": f"Bearer {os.environ['KNOXCHAT_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    json={
+        "state": "Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.",
+        "model": "jev-latest",
+        "questions": {
+            "is_urgent": {
+                "type": "noul",
+                "instructions": "Does this message express urgency?",
+            }
+        },
+    },
+)
+print(response.json())
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+const response = await fetch('https://api.knox.chat/v1/systemone', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${process.env.KNOXCHAT_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    state: 'Hi, I have been trying to connect my Stripe account for 3 days and it keeps failing. I am losing sales. Please help ASAP.',
+    model: 'jev-latest',
+    questions: {
+      is_urgent: {
+        type: 'noul',
+        instructions: 'Does this message express urgency?',
+      },
+    },
+  }),
+});
+
+console.log(await response.json());
+```
+
+</TabItem>
+</Tabs>
+
+Example response:
+
+```json
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "is_urgent": {
+      "type": "noul",
+      "noul": 0.999
+    }
+  },
+  "usage": {
+    "input_tokens": 312,
+    "output_tokens": 48
+  }
+}
+```
+
+The request can send `jev-latest`; the response `model` is the versioned ID that actually ran (`jev-1.13.0`).
+
+## Question types
+
+Every question has an **ID** (the map key), a `type`, and `instructions`. Choice and Score also need `criteria`. Mix types in one request; every question sees the same `state` and is evaluated in parallel.
+
+| Type | Ask | Returns |
+| --- | --- | --- |
+| **noul** | Is this true? | `noul` from `0` (no) to `1` (yes) |
+| **choice** | Which option? | `choice`, `probabilities`, `confidence` |
+| **score** | Where on this rubric? | `score`, `legend`, `probabilities`, `confidence` |
+
+Write one snap judgment per question — the kind of call a knowledgeable person could make in a few seconds. Split complex work into several questions and combine the answers in your code.
+
+Question IDs are for **your** code. They are not sent to the model. Put the full question in `instructions`.
+
+### Noul (yes / no)
+
+Use Noul when the probability itself is the signal: urgency, refund requested, mentions a bug.
+
+```json
+{
+  "is_urgent": {
+    "type": "noul",
+    "instructions": "The message conveys urgency or time-sensitivity",
+    "criteria": {
+      "true": "Explicitly time-sensitive",
+      "false": "No urgency expressed"
+    }
+  }
+}
+```
+
+`criteria` is optional. Near `1` is a strong yes, near `0` a strong no, near `0.5` uncertain. Noul has no separate `confidence` field.
+
+Do not use Noul to measure a spectrum. "Is this candidate strong in Python?" is a Score with defined skill levels, not a yes/no.
+
+### Choice (pick one)
+
+Use Choice for an unordered set: department, document type, intent. Always include an `other` or `none` option if the list might not cover every input.
+
+```json
+{
+  "department": {
+    "type": "choice",
+    "instructions": "Which team should handle this",
+    "criteria": {
+      "billing": "Payment or subscription issues",
+      "technical": "Bugs or integration problems",
+      "sales": "Pricing or account questions"
+    }
+  }
+}
+```
+
+`choice` is the highest-probability option. `probabilities` sums to `1`. `confidence` (0–1) is how peaked that distribution is — use it to auto-act vs escalate.
+
+### Score (rubric)
+
+Use Score when the answer sits on ordered levels you define. The returned `score` can land **between** levels.
+
+```json
+{
+  "frustration": {
+    "type": "score",
+    "instructions": "How frustrated the customer appears",
+    "criteria": [
+      "Calm, just stating facts",
+      "Frustrated but civil",
+      "Very angry, strong language"
+    ]
+  }
+}
+```
+
+`legend` repeats your levels by index (`"0"`, `"1"`, …). `criteria` must have at least two levels.
+
+## State
+
+`state` is the content being judged: a string, a JSON object, or an array of text. Text only — no image, audio, or video. Pre-process those into text first.
+
+A string is enough for a single message. For tickets, records, or policies, send a JSON object and **name fields in `instructions`** with backtick paths:
+
+```json
+{
+  "state": {
+    "ticket": {
+      "subject": "Duplicate charge",
+      "messages": [
+        { "from": "customer", "text": "I was charged twice for order A-104. Please refund the duplicate." }
+      ]
+    },
+    "refund_policy": "Duplicate charges are eligible for a refund."
+  },
+  "model": "jev-latest",
+  "questions": {
+    "refund_requested": {
+      "type": "noul",
+      "instructions": "Does `ticket.messages[0].text` request a refund?"
+    },
+    "policy_supports_refund": {
+      "type": "noul",
+      "instructions": "Does `refund_policy` support the refund requested in `ticket.messages[0].text`?"
+    }
+  }
+}
+```
+
+## Models, context, and billing
+
+| ID | Kind | Notes |
+| --- | --- | --- |
+| `jev-1.13.0` | Versioned | Pin this in production. |
+| `jev-latest` | Alias | Current production (`jev-1.13.0`). SDK / docs default. |
+| `jev-preview` | Alias | Currently also `jev-1.13.0`. Moves ahead of `jev-latest` when a preview exists. |
+
+If `model` is omitted, Knox defaults the forwarded request to `jev-latest`. Unknown IDs return `422`.
+
+| | |
+| --- | --- |
+| Price | **`$0.042` per million input tokens**. Output is free. Successful calls bill at least `$0.0001`. Failed upstream calls are not billed. |
+| Context | 64k tokens for `state` + all questions; 32k for `state` + the single longest question. |
+| Input | Text only (string, object, or array of text). |
+| Language | English is strongest. Other languages, including CJK, are accepted but weaker — test before relying on them. |
+| Catalog | `jev-*` IDs appear on Knox `GET /v1/models` in the OpenAI list envelope. |
+
+Restrict a key to `jev-*` on the [Keys](https://knox.chat/keys) page if you want that token to call only Jev.
+
+## SDK
+
+Point the official TypeSafe SDKs at Knox. Authenticate with a **Knox** key, not a TypeSafe key.
+
+<Tabs>
+<TabItem value="ts" label="TypeScript">
+
+```ts showLineNumbers
+import { TypeSafeClient, noul, choice, score } from '@typesafe-ai/sdk';
+
+const client = new TypeSafeClient({
+  baseURL: 'https://api.knox.chat',
+  apiKey: process.env.KNOXCHAT_API_KEY,
+  defaultModel: 'jev-latest',
+});
+
+const response = await client.systemOne({
+  state: 'My flight was cancelled. Can I get a refund?',
+  questions: {
+    refund_requested: noul('Does the customer request a refund?'),
+    request_type: choice('What is the main request?', {
+      refund: 'The customer wants money returned.',
+      rebooking: 'The customer wants a replacement flight.',
+      information: 'The customer is asking for information only.',
+    }),
+    frustration: score('How frustrated does the customer appear?', [
+      'Calm and neutral.',
+      'Concerned but civil.',
+      'Very angry or using strong language.',
+    ]),
+  },
+});
+
+console.log(response.answers.refund_requested.noul);
+console.log(response.answers.request_type.choice);
+console.log(response.answers.frustration.score);
+```
+
+Install with `npm install @typesafe-ai/sdk` (Node.js 20+).
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```py showLineNumbers
+import os
+from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
+
+client = TypeSafeClient(
+    api_key=os.environ["KNOXCHAT_API_KEY"],
+    base_url="https://api.knox.chat",
+    model="jev-latest",
+)
+
+response = client.system_one(
+    state="My flight was cancelled. Can I get a refund?",
+    questions={
+        "refund_requested": Noul(
+            instructions="Does the customer request a refund?",
+        ),
+        "request_type": Choice(
+            instructions="What is the main request?",
+            criteria={
+                "refund": "The customer wants money returned.",
+                "rebooking": "The customer wants a replacement flight.",
+                "information": "The customer is asking for information only.",
+            },
+        ),
+        "frustration": Score(
+            instructions="How frustrated does the customer appear?",
+            criteria=[
+                "Calm and neutral.",
+                "Concerned but civil.",
+                "Very angry or using strong language.",
+            ],
+        ),
+    },
+)
+
+print(response.answers["refund_requested"].noul)
+print(response.answers["request_type"].choice)
+print(response.answers["frustration"].score)
+```
+
+Install with `pip install typesafe-sdk` (Python ≥ 3.10).
+
+</TabItem>
+</Tabs>
+
+`systemOne()` / `system_one()` is the path Knox implements. Knox `GET /v1/models` uses the OpenAI `{ object: "list", data: [...] }` envelope, so SDK `models.list()` against Knox will not match TypeSafe's `{ models: [...] }` shape. List Jev IDs with Knox [`GET /v1/models`](/1.0.0/list-available-models) instead.
+
+## Patterns
+
+Ask every question that uses the same state **in one request**, including ones you might ignore. Adding questions barely changes latency and costs only the extra question tokens.
+
+**Fan-out.** Classify, check urgency, and score frustration together, then branch in code.
+
+**Composite scoring.** Split "how bad is this ticket?" into severity, frustration, and completeness Scores; weight them yourself. When priorities change, change coefficients — not the prompt.
+
+**Confidence routing.** For Choice and Score, auto-act above a confidence threshold and escalate when confidence is low.
+
+**Second request only when needed.** Questions in one call are independent. Make a follow-up call only when the next `state` or option list depends on the first answer (fetch more data, build a hierarchy). Otherwise ask everything up front.
+
+```ts
+if (response.answers.department.confidence > 0.7) {
+  routeTo(response.answers.department.choice);
+} else {
+  escalateToHuman();
+}
+```
+
+## Errors
+
+Jev uses TypeSafe-shaped JSON: `{ "detail": "..." }` or a `422` array of field errors.
+
+| Status | Meaning |
+| --- | --- |
+| `401` | Missing or invalid Knox token. |
+| `402` | Insufficient Knox credits. Add balance at [Credits](https://knox.chat/credits). |
+| `403` | This token's model allowlist does not include the requested `jev-*` ID. |
+| `404` | No Jev channel is available. |
+| `422` | Invalid body (missing `state` / `questions`, bad `type`, Score with fewer than two levels, unknown model). |
+| `429` | Rate limited. Honor `Retry-After` when present. |
+| `502` | Could not reach the provider. |
+| `529` | Upstream overloaded. Retry with backoff. |
+
+Knox does not automatically retry `429` / `529`. TypeSafe SDKs retry those by default.
+
+Do **not** send Jev models to `/v1/chat/completions`, `/v1/completions`, `/v1/messages`, or `/v1/realtime`. Those routes reject them.
+
+## Limits and non-goals
+
+- No streaming, tools, images, audio, or video input.
+- No chat playground adapter — Jev is not a chatbot.
+- No fine-tuning or LoRA. Shape answers with `state`, `instructions`, and `criteria`.
+- Extra JSON properties on the request are forwarded.
+
+Next: the [Evaluate (System One) API](/1.0.0/systemone).
