@@ -1,6 +1,6 @@
 ---
 slug: knox-ai-context-deep-dive
-title: "Knox AI Context System: The Future of Code Understanding"
+title: "Knox SI Context System: The Future of Code Understanding"
 image: /img/knox1022.png
 authors: [knox]
 tags: [ai, context, knoxchat, api, vscode, update]
@@ -10,7 +10,7 @@ tags: [ai, context, knoxchat, api, vscode, update]
 
 ## Executive Summary
 
-The Knox AI Context System represents a paradigm shift in how AI understands code. Unlike traditional Retrieval-Augmented Generation (RAG) systems that treat code as text chunks, Knox implements a **multi-dimensional semantic understanding engine** powered by:
+The Knox SI Context System represents a paradigm shift in how SI understands code. Unlike traditional Retrieval-Augmented Generation (RAG) systems that treat code as text chunks, Knox implements a **multi-dimensional semantic understanding engine** powered by:
 
 - **Deep Semantic Analysis**: Full AST parsing with symbol resolution across 5+ languages
 - **Knowledge Graph Architecture**: Graph-based traversal of 14 relationship types
@@ -20,7 +20,7 @@ The Knox AI Context System represents a paradigm shift in how AI understands cod
 - **Adaptive Learning**: Continuous improvement from user interactions
 - **Collaborative Intelligence**: Team-wide context sharing and synchronization
 
-**Bottom Line**: Knox achieves 90-95% context accuracy compared to RAG's 60-70%, fundamentally changing what's possible with AI-assisted development.
+**Bottom Line**: Knox achieves 90-95% context accuracy compared to RAG's 60-70%, fundamentally changing what's possible with SI-assisted development.
 
 ---
 
@@ -30,7 +30,7 @@ The Knox AI Context System represents a paradigm shift in how AI understands cod
 
 Traditional RAG systems face fundamental limitations when applied to code:
 
-| **Limitation** | **Traditional RAG** | **Knox AI Context** | **Impact** |
+| **Limitation** | **Traditional RAG** | **Knox SI Context** | **Impact** |
 |----------------|---------------------|---------------------|------------|
 | **Understanding** | Text chunks + embeddings | Full AST + semantic analysis | **+30% accuracy** |
 | **Relationships** | Cosine similarity only | 14 graph relationship types | **True dependency understanding** |
@@ -81,7 +81,7 @@ Knox doesn't just retrieve code—it **understands** it:
 
 Knox implements a **layered intelligence architecture** where each layer builds upon the previous to create unprecedented code understanding:
 
-![Knox AI Context Interface](/img/ai-context-interface.png)
+![Knox SI Context Interface](/img/ai-context-interface.png)
 
 ### Core Component Breakdown
 
@@ -700,7 +700,7 @@ pub struct ContextCache {
 ```typescript
 1. Track Interaction
    ├─> Query + Context provided
-   ├─> AI Response
+   ├─> SI Response
    ├─> User Feedback (helpful/not helpful)
    └─> Outcome (success/failure)
 
@@ -728,14 +728,14 @@ interface UserFeedback {
     was_helpful: boolean,
     context_relevance_rating: 1-5,      // How relevant was context?
     context_completeness_rating: 1-5,   // Was anything missing?
-    response_quality_rating: 1-5,       // How good was AI response?
+    response_quality_rating: 1-5,       // How good was SI response?
     specific_feedback: string,
     improvement_suggestions: string[],
 }
 
 // System learns from:
 - Thumbs up/down on responses
-- What context was actually used by AI
+- What context was actually used by SI
 - Whether task was completed successfully
 - Time to completion
 - Follow-up queries (indicates incomplete context)
@@ -891,7 +891,7 @@ teamPatterns = analyzeTeamPatterns(teamId);
 ### Example 1: Building Context for a Query
 
 ```typescript
-// TypeScript - Building comprehensive AI context
+// TypeScript - Building comprehensive SI context
 const aiContextBuilder = new AIContextBuilder(checkpointManager);
 
 const context = await aiContextBuilder.buildContextForQuery(
@@ -1193,7 +1193,7 @@ let expanded = ranker.expand_with_related(
 ### Example 6: End-to-End Workflow
 
 ```typescript
-// Complete workflow: Query → Context → AI Response
+// Complete workflow: Query → Context → SI Response
 
 // Step 1: User asks a question
 const userQuery = "How do I add OAuth2 authentication?";
@@ -1308,7 +1308,7 @@ export class UnifiedAIContextProvider {
 // core/checkpoints/src/ai_context_manager.rs
 
 impl AIContextManager {
-    /// Create AI-enhanced checkpoint with full semantic analysis
+    /// Create SI-enhanced checkpoint with full semantic analysis
     pub fn create_ai_checkpoint(
         &self, 
         options: CheckpointOptions
@@ -1348,7 +1348,7 @@ impl AIContextManager {
             }
         })?;
         
-        log::info!("Created AI checkpoint {} in {:?}", checkpoint_id, start.elapsed());
+        log::info!("Created SI checkpoint {} in {:?}", checkpoint_id, start.elapsed());
         
         Ok(checkpoint_id)
     }
@@ -1603,7 +1603,7 @@ ml-features = ["pattern-detection", "clone-detection"]
 ```typescript
 // config/ai-context.config.ts
 
-export const AI_CONTEXT_CONFIG = {
+export const SI_CONTEXT_CONFIG = {
     // Parsing
     parsing: {
         maxFileSize: 1024 * 1024,        // 1MB per file
@@ -1687,7 +1687,7 @@ export const AI_CONTEXT_CONFIG = {
 
 ## The Future of Code Understanding
 
-The Knox AI Context System represents a fundamental rethinking of how AI understands code. By moving beyond simple text retrieval to **semantic understanding**, **temporal intelligence**, and **graph-based reasoning**, Knox achieves what traditional RAG systems cannot:
+The Knox SI Context System represents a fundamental rethinking of how SI understands code. By moving beyond simple text retrieval to **semantic understanding**, **temporal intelligence**, and **graph-based reasoning**, Knox achieves what traditional RAG systems cannot:
 
 ### Key Achievements
 
@@ -1728,7 +1728,7 @@ The Knox AI Context System represents a fundamental rethinking of how AI underst
 - Maintain consistent understanding of codebase
 - Track quality and complexity trends
 
-**For AI:**
+**For SI:**
 - Provide context that actually helps generate correct code
 - Understand project architecture and patterns
 - Learn from project history and evolution
@@ -1736,21 +1736,21 @@ The Knox AI Context System represents a fundamental rethinking of how AI underst
 
 ### The Vision
 
-Knox isn't just a better RAG system—it's the foundation for **AI that truly understands code**. As the system learns from millions of interactions, it will:
+Knox isn't just a better RAG system—it's the foundation for **SI that truly understands code**. As the system learns from millions of interactions, it will:
 
 - **Predict** technical debt before it accumulates
 - **Suggest** refactorings based on successful patterns
 - **Explain** code changes in terms of architectural intent
 - **Guide** development toward better architecture
-- **Collaborate** as a true AI pair programmer
+- **Collaborate** as a true SI pair programmer
 
 ### Measurable Impact
 
-Projects using Knox AI Context show:
+Projects using Knox SI Context show:
 - **-40%** time spent understanding unfamiliar code
-- **+60%** accuracy in AI-generated code suggestions
+- **+60%** accuracy in SI-generated code suggestions
 - **-50%** architectural violations caught in review
-- **+35%** developer satisfaction with AI assistance
+- **+35%** developer satisfaction with SI assistance
 
 ---
 
@@ -1762,14 +1762,14 @@ Projects using Knox AI Context show:
 - **ML for Code**: Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, Charles Sutton - "A Survey of Machine Learning for Big Code and Naturalness"
 
 ### Related Systems
-- **GitHub Copilot**: AI code completion (text-based RAG)
+- **GitHub Copilot**: SI code completion (text-based RAG)
 - **Sourcegraph**: Code search (text indexing)
 - **CodeQL**: Security analysis (semantic queries)
 - **Knox**: **Semantic understanding + temporal intelligence + graph reasoning**
 
 ### Key Differentiators
 
-| Feature | Traditional Tools | Knox AI Context |
+| Feature | Traditional Tools | Knox SI Context |
 |---------|------------------|-----------------|
 | **Code Understanding** | Text/regex | Full AST parsing |
 | **Relationships** | None or limited | 14-type knowledge graph |

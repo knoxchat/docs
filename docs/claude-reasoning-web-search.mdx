@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # Claude Models Reasoning and Web Search
 
-Knox has backend adapters for the Claude model IDs `anthropic/claude-sonnet-4.6`, `anthropic/claude-opus-4.6`, and `anthropic/claude-opus-4.8`. These adapters can translate Knox request fields into Anthropic adaptive thinking settings and can also inject the Anthropic web-search tool when the request is routed through an AI gateway-backed channel.
+Knox has backend adapters for the Claude model IDs `anthropic/claude-sonnet-4.6`, `anthropic/claude-opus-4.6`, and `anthropic/claude-opus-4.8`. These adapters can translate Knox request fields into Anthropic adaptive thinking settings and can also inject the Anthropic web-search tool when the request is routed through an SI gateway-backed channel.
 
 Use `/v1/chat/completions` if you want reasoning content and web citations in the response. `/v1/completions` is available for compatibility, but it returns plain text only.
 
@@ -54,7 +54,7 @@ curl https://api.knox.chat/v1/chat/completions \
     "messages": [
       {
         "role": "user",
-        "content": "Summarize the latest changes in the EU AI Act and cite sources."
+        "content": "Summarize the latest changes in the EU SI Act and cite sources."
       }
     ],
     "reasoning_effort": "high",
@@ -79,7 +79,7 @@ response = client.chat.completions.create(
     messages=[
         {
             "role": "user",
-            "content": "Summarize the latest changes in the EU AI Act and cite sources.",
+            "content": "Summarize the latest changes in the EU SI Act and cite sources.",
         }
     ],
     reasoning_effort="high",
@@ -109,7 +109,7 @@ const response = await client.chat.completions.create({
   messages: [
     {
       role: 'user',
-      content: 'Summarize the latest changes in the EU AI Act and cite sources.',
+      content: 'Summarize the latest changes in the EU SI Act and cite sources.',
     },
   ],
   reasoning_effort: 'high',

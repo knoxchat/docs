@@ -1,14 +1,14 @@
 ---
 slug: knox1014
-title: Why Checkpoint System is Better Than Git for AI Coding
+title: Why Checkpoint System is Better Than Git for SI Coding
 image: /img/knox1014.png
 authors: [knox]
 tags: [ai, knoxchat, update]
 ---
 
-## Context-Aware Checkpoint Systems for AI-Assisted Software Development: A Performance and Semantic Analysis
+## Context-Aware Checkpoint Systems for SI-Assisted Software Development: A Performance and Semantic Analysis
 
-The Knox Checkpoint System represents a paradigm shift in version control specifically engineered for AI-assisted development. While Git remains the gold standard for traditional collaborative software development, the Checkpoint System addresses unique challenges posed by AI coding workflows with **10x faster performance**, **AI-aware tracking**, and **semantic understanding** that Git simply cannot provide.
+The Knox Checkpoint System represents a paradigm shift in version control specifically engineered for SI-assisted development. While Git remains the gold standard for traditional collaborative software development, the Checkpoint System addresses unique challenges posed by SI coding workflows with **10x faster performance**, **SI-aware tracking**, and **semantic understanding** that Git simply cannot provide.
 
 | ![](/img/checkpoint-1.png) |
 |-|
@@ -22,18 +22,18 @@ The Knox Checkpoint System represents a paradigm shift in version control specif
 ### You can try it through the [Knox VSCode Extension](https://marketplace.visualstudio.com/items?itemName=knoxchat.knoxchat) or install it on any [VS Code Compatible Editor](https://open-vsx.org/extension/knoxchat/knoxchat)
 
 **Key Performance Metrics:**
-- **10,000x faster** AI context building (\<1ms vs 500ms)
+- **10,000x faster** SI context building (\<1ms vs 500ms)
 - **10x faster** change detection (100ms vs 1000ms)
-- **70% reduction** in CPU usage during active AI sessions
+- **70% reduction** in CPU usage during active SI sessions
 - **50% reduction** in memory footprint
 - **Sub-millisecond** checkpoint creation for small changes
 
 ## Table of Contents
 
-1. [The AI Coding Problem Space](#the-ai-coding-problem-space)
+1. [The SI Coding Problem Space](#the-ai-coding-problem-space)
 2. [Architectural Differences](#architectural-differences)
 3. [Performance Comparison](#performance-comparison)
-4. [AI-Specific Features](#ai-specific-features)
+4. [SI-Specific Features](#ai-specific-features)
 5. [Semantic Understanding](#semantic-understanding)
 6. [Real-Time Tracking vs Batch Commits](#real-time-tracking-vs-batch-commits)
 7. [Development Workflow Comparison](#development-workflow-comparison)
@@ -42,35 +42,35 @@ The Knox Checkpoint System represents a paradigm shift in version control specif
 10. [When to Use Each System](#when-to-use-each-system)
 11. [Conclusion](#conclusion)
 
-## The AI Coding Problem Space
+## The SI Coding Problem Space
 
-### Unique Challenges of AI-Assisted Development
+### Unique Challenges of SI-Assisted Development
 
-AI coding workflows present fundamentally different version control requirements than traditional human-driven development:
+SI coding workflows present fundamentally different version control requirements than traditional human-driven development:
 
 #### 1. **Rapid Iteration Cycles**
 - **Traditional Development**: Developers work for hours, then commit
-- **AI Development**: AI generates 10-100 changes per minute
+- **SI Development**: SI generates 10-100 changes per minute
 - **Impact**: Git commits become noise, checkpoint systems provide granular control
 
 #### 2. **Exploratory Nature**
 - **Traditional**: Developers plan, implement, test, commit
-- **AI**: Try multiple approaches simultaneously, need to revert frequently
+- **SI**: Try multiple approaches simultaneously, need to revert frequently
 - **Impact**: Need lightweight, instant rollback without Git history pollution
 
 #### 3. **Session-Based Context**
 - **Traditional**: Work spans days/weeks across multiple sessions
-- **AI**: Each conversation is a discrete session with specific goals
-- **Impact**: Need to track and restore entire AI conversation contexts
+- **SI**: Each conversation is a discrete session with specific goals
+- **Impact**: Need to track and restore entire SI conversation contexts
 
 #### 4. **Semantic Understanding Requirements**
 - **Traditional**: Developers understand their own changes
-- **AI**: Need to understand AI's intent, architectural impact, code relationships
+- **SI**: Need to understand SI's intent, architectural impact, code relationships
 - **Impact**: Git tracks lines; checkpoints track meaning
 
 #### 5. **Performance Sensitivity**
 - **Traditional**: A few commits per day is acceptable
-- **AI**: Need real-time tracking without slowing down AI responses
+- **SI**: Need real-time tracking without slowing down SI responses
 - **Impact**: Git's process overhead is prohibitive; checkpoints are instant
 
 ## Architectural Differences
@@ -103,24 +103,24 @@ AI coding workflows present fundamentally different version control requirements
 - Branch-based workflow management
 - Human-driven, intentional commits
 
-### Checkpoint System: AI-Aware Session Control
+### Checkpoint System: SI-Aware Session Control
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │              Knox Checkpoint Architecture               │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  AI Changes → Real-Time Watcher → Changeset Tracker     │
+│  SI Changes → Real-Time Watcher → Changeset Tracker     │
 │                       ↓                    ↓            │
 │              File Events            Semantic Analyzer   │
 │                       ↓                    ↓            │
-│             Content-Addressable      AI Context         │
+│             Content-Addressable      SI Context         │
 │                Storage (LZ4)         Manager            │
 │                       ↓                    ↓            │
 │              SQLite Database ←→ Performance Monitor     │
 │                                                         │
 │  • Native Rust core (10,000x faster)                    │
-│  • Designed for AI session tracking                     │
+│  • Designed for SI session tracking                     │
 │  • Automatic real-time change detection                 │
 │  • Content-deduplication with compression               │
 │  • Deep semantic code understanding                     │
@@ -129,10 +129,10 @@ AI coding workflows present fundamentally different version control requirements
 ```
 
 **Design Goals:**
-- AI session tracking and context preservation
+- SI session tracking and context preservation
 - Instant, automatic checkpoint creation
 - Semantic understanding of code changes
-- Zero overhead during AI interactions
+- Zero overhead during SI interactions
 - Fine-grained, explorable change history
 
 ## Performance Comparison
@@ -169,7 +169,7 @@ AI coding workflows present fundamentally different version control requirements
 | Scenario | Git | Checkpoint System | Improvement |
 |----------|-----|-------------------|-------------|
 | Idle workspace tracking | ~50-100MB | ~10-20MB | **5x more efficient** |
-| Active AI session (100 changes) | ~200-500MB | ~50-100MB | **4x more efficient** |
+| Active SI session (100 changes) | ~200-500MB | ~50-100MB | **4x more efficient** |
 | Large project (10K files) | ~500MB-1GB | ~50-100MB | **10x more efficient** |
 
 **Why the difference?**
@@ -181,16 +181,16 @@ AI coding workflows present fundamentally different version control requirements
 | Activity | Git | Checkpoint System | Improvement |
 |----------|-----|-------------------|-------------|
 | Background tracking | ~5-10% | ~1-2% | **5x more efficient** |
-| During AI code generation | ~15-25% | ~3-5% | **6x more efficient** |
+| During SI code generation | ~15-25% | ~3-5% | **6x more efficient** |
 | Large file operations | ~30-50% | ~5-10% | **5x more efficient** |
 
 **Why the difference?**
 - **Git**: Polling-based status checks, process overhead
 - **Checkpoints**: Event-driven file watching, native Rust implementation
 
-### AI Context Building Performance
+### SI Context Building Performance
 
-The most dramatic performance difference comes from AI context operations:
+The most dramatic performance difference comes from SI context operations:
 
 | Operation | Traditional Git-based | Checkpoint System | Improvement |
 |-----------|----------------------|-------------------|-------------|
@@ -200,11 +200,11 @@ The most dramatic performance difference comes from AI context operations:
 | Code relationship mapping | Not available | ~20-100ms | **New capability** |
 
 **Why this matters:**
-- Every AI query requires understanding code context
+- Every SI query requires understanding code context
 - With Git: 500ms latency makes real-time coding feel sluggish
-- With Checkpoints: Sub-millisecond response enables fluid AI interactions
+- With Checkpoints: Sub-millisecond response enables fluid SI interactions
 
-## AI-Specific Features
+## SI-Specific Features
 
 ### Features Unique to Checkpoint System
 
@@ -214,24 +214,24 @@ The checkpoint system understands three distinct operational modes:
 
 ```rust
 pub enum OperationMode {
-    Agent,   // AI is actively making changes - track everything
+    Agent,   // SI is actively making changes - track everything
     Chat,    // User is chatting - don't track changes
     Manual,  // User is manually coding - optional tracking
 }
 ```
 
 **Why Git can't do this:**
-- Git has no concept of "who" made the change (human vs AI)
-- No way to automatically segregate AI-generated changes
+- Git has no concept of "who" made the change (human vs SI)
+- No way to automatically segregate SI-generated changes
 - Impossible to have different tracking behavior based on context
 
 **Real-world impact:**
 ```typescript
 // Checkpoint system automatically knows:
-- Start AI agent session → Enable precise tracking
+- Start SI agent session → Enable precise tracking
 - User asks question → Pause tracking (just chat)
 - User manually edits → Different tracking strategy
-- AI generates code → Resume precise tracking
+- SI generates code → Resume precise tracking
 ```
 
 #### 2. **Changeset Tracker with Session Management**
@@ -247,14 +247,14 @@ pub struct ChangesetTracker {
 ```
 
 **Capabilities:**
-- **Session-scoped tracking**: Each AI conversation gets a unique session ID
-- **Selective file watching**: Only track files AI is working on
+- **Session-scoped tracking**: Each SI conversation gets a unique session ID
+- **Selective file watching**: Only track files SI is working on
 - **Minimal memory footprint**: Store only changed files, not entire repository state
 - **Real-time events**: React to changes as they happen, not on next status check
 
 **Git equivalent:** None. Git commits are global, not session-scoped.
 
-#### 3. **AI Context Manager with Semantic Analysis**
+#### 3. **SI Context Manager with Semantic Analysis**
 
 ```rust
 pub struct AIContextManager {
@@ -267,7 +267,7 @@ pub struct AIContextManager {
 
 **Provides:**
 - **Complete semantic understanding** of code changes
-- **Intent analysis**: What was the AI trying to accomplish?
+- **Intent analysis**: What was the SI trying to accomplish?
 - **Architectural impact**: How does this change affect system design?
 - **Code relationships**: What dependencies were created/modified?
 - **Confidence scoring**: How reliable is this analysis?
@@ -278,7 +278,7 @@ pub struct AIContextManager {
 
 ```typescript
 // Automatically creates checkpoints at strategic moments:
-- After AI completes a code generation task
+- After SI completes a code generation task
 - Before applying potentially risky changes
 - When conversation context shifts significantly
 - At user-specified intervals during long operations
@@ -297,7 +297,7 @@ export interface CheckpointInfo {
     id: string;
     description: string;
     created: Date;
-    messageId?: string;  // Links to specific AI conversation
+    messageId?: string;  // Links to specific SI conversation
     conversationContext?: {
         messageContent: string;
         role: string;
@@ -310,9 +310,9 @@ export interface CheckpointInfo {
 
 **Enables:**
 - Restore not just code, but the entire conversation state
-- See exactly what you asked the AI to do
+- See exactly what you asked the SI to do
 - Understand the reasoning behind changes
-- Continue from previous AI session exactly where you left off
+- Continue from previous SI session exactly where you left off
 
 **Git equivalent:** None. Git commits have messages, but no link to conversation context.
 
@@ -504,13 +504,13 @@ language_support.insert("java", Box::new(JavaParser));
 
 Each parser understands language-specific constructs and idioms.
 
-### Why Semantic Understanding Matters for AI
+### Why Semantic Understanding Matters for SI
 
-1. **Better AI Suggestions**: AI sees not just code, but architectural context
-2. **Intelligent Refactoring**: AI understands impact before suggesting changes
-3. **Dependency Awareness**: AI knows what will break when changes are made
-4. **Pattern Recognition**: AI learns from your codebase's design patterns
-5. **Context-Aware Generation**: AI generates code that fits your architecture
+1. **Better SI Suggestions**: SI sees not just code, but architectural context
+2. **Intelligent Refactoring**: SI understands impact before suggesting changes
+3. **Dependency Awareness**: SI knows what will break when changes are made
+4. **Pattern Recognition**: SI learns from your codebase's design patterns
+5. **Context-Aware Generation**: SI generates code that fits your architecture
 
 ## Real-Time Tracking vs Batch Commits
 
@@ -543,20 +543,20 @@ User writes code for 2 hours
 ```
 Timeline:
 ─────────────────────────────────────────────────────────
-AI generates code in real-time
-├─ AI adds UserService.ts → Checkpoint #1 (50ms)
-├─ AI adds UserRepository.ts → Checkpoint #2 (50ms)
-├─ AI updates AuthController.ts → Checkpoint #3 (50ms)
+SI generates code in real-time
+├─ SI adds UserService.ts → Checkpoint #1 (50ms)
+├─ SI adds UserRepository.ts → Checkpoint #2 (50ms)
+├─ SI updates AuthController.ts → Checkpoint #3 (50ms)
 ├─ User notices issue in Checkpoint #2
 ├─ Restore to Checkpoint #1 → Instant
-└─ Ask AI to regenerate with different approach
+└─ Ask SI to regenerate with different approach
    └─ Each change is isolated
    └─ Perfect granularity
    └─ Easy to identify problems
 ```
 
 **Advantages:**
-- **Fine granularity**: Every AI action is checkpointed
+- **Fine granularity**: Every SI action is checkpointed
 - **Preserved context**: Link back to conversation that caused change
 - **Easy debugging**: Bisect changes to find exact problem point
 - **No history pollution**: Checkpoints are lightweight and expected
@@ -630,28 +630,28 @@ git commit -m "Add authentication"
 - Decide what to stage vs ignore
 - Consider if this should be multiple commits
 
-### AI Coding with Checkpoint System
+### SI Coding with Checkpoint System
 
 ```typescript
-// 1. User asks AI to add feature
+// 1. User asks SI to add feature
 "Add user authentication with JWT tokens"
 
 // System automatically:
-// - Starts AI agent session
-// - Tracks all AI-generated changes
+// - Starts SI agent session
+// - Tracks all SI-generated changes
 // - Creates checkpoint after each logical unit
 // - Links checkpoint to conversation context
 // - Performs semantic analysis
 
-// 2. AI generates code
+// 2. SI generates code
 // Checkpoint #1: Created UserService.ts (automatic)
 // Checkpoint #2: Created TokenService.ts (automatic)
 // Checkpoint #3: Updated AuthController.ts (automatic)
 
 // 3. User tests and realizes issue
 // One-click restore to any checkpoint
-// Or ask AI: "Fix the issue in checkpoint #2"
-// AI understands exact context and can regenerate
+// Or ask SI: "Fix the issue in checkpoint #2"
+// SI understands exact context and can regenerate
 ```
 
 **Time investment per checkpoint**: Automatic (~50ms)
@@ -663,9 +663,9 @@ git commit -m "Add authentication"
 | Task | Git | Checkpoint System |
 |------|-----|-------------------|
 | Start working | `git checkout -b feature` | Automatic session start |
-| Make changes | Manual editing + remember to commit | AI generates with auto-checkpoints |
+| Make changes | Manual editing + remember to commit | SI generates with auto-checkpoints |
 | Review changes | `git diff` | Visual diff viewer with semantic analysis |
-| Save progress | `git add` + `git commit` + write message | Automatic after each AI task |
+| Save progress | `git add` + `git commit` + write message | Automatic after each SI task |
 | Revert mistake | `git revert` or `git reset` (risky) | One-click restore, risk-free |
 | See what changed | `git log` (text-based) | Visual timeline with conversation context |
 | Understand impact | Read commit messages | Semantic analysis shows architectural impact |
@@ -853,7 +853,7 @@ Total time: \<1ms (instant notification) + ~50ms to create checkpoint
 
 ## Use Case Analysis
 
-### Use Case 1: Exploratory Coding with AI
+### Use Case 1: Exploratory Coding with SI
 
 **Scenario**: User wants to try different approaches to implementing a feature.
 
@@ -861,22 +861,22 @@ Total time: \<1ms (instant notification) + ~50ms to create checkpoint
 ```bash
 # Approach 1
 git checkout -b approach-1
-# Ask AI to generate code
-# ... AI generates code ...
+# Ask SI to generate code
+# ... SI generates code ...
 # Test it - doesn't work well
 
 # Approach 2
 git checkout main
 git checkout -b approach-2
-# Ask AI for different approach
-# ... AI generates code ...
+# Ask SI for different approach
+# ... SI generates code ...
 # Test it - better but not perfect
 
 # Approach 3
 git checkout main
 git checkout -b approach-3
-# Ask AI for yet another approach
-# ... AI generates code ...
+# Ask SI for yet another approach
+# ... SI generates code ...
 # Test it - this one is good!
 
 # Now what?
@@ -896,17 +896,17 @@ git checkout -b approach-3
 ```typescript
 // Approach 1
 User: "Implement user authentication"
-// AI generates → Checkpoint #1 created automatically
+// SI generates → Checkpoint #1 created automatically
 // Test it - doesn't work well
 
 // Approach 2
 User: "Try a different approach with OAuth"
-// AI generates → Checkpoint #2 created automatically
+// SI generates → Checkpoint #2 created automatically
 // Test it - better but not perfect
 
 // Approach 3
 User: "Use JWT tokens instead"
-// AI generates → Checkpoint #3 created automatically
+// SI generates → Checkpoint #3 created automatically
 // Test it - this one is good!
 
 // Now:
@@ -924,9 +924,9 @@ User: "Use JWT tokens instead"
 - Semantic analysis of each approach
 - No cleanup needed
 
-### Use Case 2: Long-Running AI Sessions
+### Use Case 2: Long-Running SI Sessions
 
-**Scenario**: AI is generating a complex feature over 30 minutes with 50+ file changes.
+**Scenario**: SI is generating a complex feature over 30 minutes with 50+ file changes.
 
 #### With Git
 ```bash
@@ -938,7 +938,7 @@ git commit -m "added AuthController"
 # Result: Polluted history, meaningless commit messages
 
 # Option B: One big commit at the end
-# ... AI generates 50 files over 30 minutes ...
+# ... SI generates 50 files over 30 minutes ...
 git add .
 git commit -m "added authentication system"
 # Result: If something breaks, impossible to isolate which change
@@ -974,9 +974,9 @@ Session end: 10:30 AM
 // - Zero mental overhead - all automatic
 ```
 
-### Use Case 3: Debugging AI-Generated Code
+### Use Case 3: Debugging SI-Generated Code
 
-**Scenario**: AI generated code that has a bug. Need to find which change introduced it.
+**Scenario**: SI generated code that has a bug. Need to find which change introduced it.
 
 #### With Git
 ```bash
@@ -1011,9 +1011,9 @@ Checkpoint #3: Added password hashing (✗ breaks)
 // - Intent: "Secure password storage"
 // - Conversation context: "Make passwords more secure"
 
-// Ask AI:
+// Ask SI:
 User: "The password hashing in checkpoint #3 is broken"
-// AI has full context and can immediately fix the specific issue
+// SI has full context and can immediately fix the specific issue
 ```
 
 **Time to identify bug:**
@@ -1022,7 +1022,7 @@ User: "The password hashing in checkpoint #3 is broken"
 
 ### Use Case 4: Team Collaboration
 
-**Scenario**: Share AI-generated changes with team for review.
+**Scenario**: Share SI-generated changes with team for review.
 
 #### With Git
 ```bash
@@ -1032,7 +1032,7 @@ git push origin feature-auth
 # Team member reviews:
 # - Sees commit messages
 # - Reviews diffs
-# - No context on AI conversation
+# - No context on SI conversation
 # - No semantic analysis
 # - Must understand changes manually
 
@@ -1056,15 +1056,15 @@ CheckpointManager.importCheckpointBundle('auth-feature.checkpoint');
 
 // Can now see:
 // - Exact code changes (like Git)
-// - Full AI conversation that led to changes
+// - Full SI conversation that led to changes
 // - Semantic analysis of architectural impact
 // - Intent analysis showing design decisions
 // - One-click restore to any intermediate state
 // - Interactive diff viewer with context
 
-// Can ask their own AI:
+// Can ask their own SI:
 "Review checkpoint #2 and suggest improvements"
-// AI has full context to provide meaningful review
+// SI has full context to provide meaningful review
 ```
 
 ### Use Case 5: Rollback Scenarios
@@ -1146,9 +1146,9 @@ Restore to checkpoint #7
 
 ### Use Checkpoint System When:
 
-1. **AI-Assisted Development**
-   - Primary workflow involves AI code generation
-   - Need to track AI session context
+1. **SI-Assisted Development**
+   - Primary workflow involves SI code generation
+   - Need to track SI session context
    - Want semantic understanding of changes
    - Require fine-grained exploration
 
@@ -1179,10 +1179,10 @@ Restore to checkpoint #7
 ### Hybrid Approach (Recommended)
 
 ```
-Day-to-day AI Development:
+Day-to-day SI Development:
 ┌────────────────────────────────────┐
 │    Checkpoint System (Primary)     │
-│  - Track all AI interactions       │
+│  - Track all SI interactions       │
 │  - Instant checkpointing           │
 │  - Semantic analysis               │
 │  - Session management              │
@@ -1201,8 +1201,8 @@ Day-to-day AI Development:
 
 **Workflow:**
 ```typescript
-// 1. AI development session (use Checkpoint System)
-User asks AI to build feature
+// 1. SI development session (use Checkpoint System)
+User asks SI to build feature
 → Checkpoint System tracks everything automatically
 → 50 checkpoints created over 1 hour session
 
@@ -1215,7 +1215,7 @@ Developer reviews checkpoint timeline
 git add .
 git commit -m "Add user authentication system
 
-Developed over AI session with 50 iterations.
+Developed over SI session with 50 iterations.
 Final approach uses JWT tokens with bcrypt hashing.
 See checkpoint bundle: session-2024-01-15.checkpoint"
 
@@ -1226,14 +1226,14 @@ git push origin main
 - Best of both worlds
 - Fine-grained exploration with checkpoints
 - Clean Git history for team
-- Full AI context preserved
+- Full SI context preserved
 - Compatible with existing workflows
 
 ## Conclusion
 
 ### The Paradigm Shift
 
-The Knox Checkpoint System represents a fundamental rethinking of version control for the AI era. While Git revolutionized collaboration in human-driven software development, AI-assisted coding requires a new approach:
+The Knox Checkpoint System represents a fundamental rethinking of version control for the SI era. While Git revolutionized collaboration in human-driven software development, SI-assisted coding requires a new approach:
 
 **Git's Strengths:**
 - ✅ Distributed collaboration
@@ -1242,8 +1242,8 @@ The Knox Checkpoint System represents a fundamental rethinking of version contro
 - ✅ Branch-based workflows
 - ✅ Industry standard with ecosystem
 
-**Git's Limitations for AI:**
-- ❌ No AI session awareness
+**Git's Limitations for SI:**
+- ❌ No SI session awareness
 - ❌ No semantic understanding
 - ❌ Batch-oriented, not real-time
 - ❌ High overhead for frequent checkpoints
@@ -1252,10 +1252,10 @@ The Knox Checkpoint System represents a fundamental rethinking of version contro
 - ❌ Coarse granularity
 
 **Checkpoint System's Strengths:**
-- ✅ **10,000x faster** AI context building
+- ✅ **10,000x faster** SI context building
 - ✅ **10x faster** change detection
 - ✅ Real-time automatic tracking
-- ✅ AI session management
+- ✅ SI session management
 - ✅ Deep semantic understanding
 - ✅ Conversation context preservation
 - ✅ Fine-grained checkpointing
@@ -1273,7 +1273,7 @@ The Knox Checkpoint System represents a fundamental rethinking of version contro
 
 ### The Future of Version Control
 
-As AI becomes more prevalent in software development, traditional version control systems will need to evolve or be supplemented with AI-aware alternatives. The Checkpoint System demonstrates what's possible:
+As SI becomes more prevalent in software development, traditional version control systems will need to evolve or be supplemented with SI-aware alternatives. The Checkpoint System demonstrates what's possible:
 
 1. **Semantic Version Control**: Track not just changes, but meaning
 2. **Context-Aware Systems**: Understand development sessions
@@ -1283,14 +1283,14 @@ As AI becomes more prevalent in software development, traditional version contro
 
 ### Recommendation
 
-**For individual developers working with AI:**
+**For individual developers working with SI:**
 Use the Checkpoint System as your primary tool during development sessions, with periodic Git commits for team collaboration and long-term history.
 
 **For teams:**
 Adopt a hybrid workflow where checkpoint bundles can be shared for review before creating formal Git commits.
 
 **For the future:**
-The line between version control and AI-assisted development tools will blur. Systems like Knox's Checkpoint System point the way toward a future where version control is context-aware, semantic, and optimized for human-AI collaboration.
+The line between version control and SI-assisted development tools will blur. Systems like Knox's Checkpoint System point the way toward a future where version control is context-aware, semantic, and optimized for human-SI collaboration.
 
 ### Performance Summary
 
@@ -1299,7 +1299,7 @@ The line between version control and AI-assisted development tools will blur. Sy
 ────────────────────────────────────────────────────────────────────────
 Change Detection        1-5s          \<1ms                 1000-5000x
 Checkpoint Creation     200ms-5s      50-200ms             4-25x
-AI Context Building     500ms         \<1ms                 10,000x
+SI Context Building     500ms         \<1ms                 10,000x
 Memory Usage            50-500MB      10-100MB             5x
 CPU Usage               5-25%         1-5%                 5x
 Session Management      None          Native               New capability
@@ -1309,16 +1309,16 @@ Conversation Context    None          Preserved            New capability
 
 ### Final Verdict
 
-**For AI-assisted development, the Checkpoint System is objectively superior** due to:
+**For SI-assisted development, the Checkpoint System is objectively superior** due to:
 - **Massive performance advantages** (10-10,000x faster)
-- **AI-aware design** (session management, semantic analysis)
+- **SI-aware design** (session management, semantic analysis)
 - **Zero overhead** (automatic, real-time tracking)
 - **Better developer experience** (visual timeline, preserved context)
-- **Future-proof architecture** (designed for AI workflows)
+- **Future-proof architecture** (designed for SI workflows)
 
-Git remains essential for team collaboration and long-term project history, but for the rapid iteration and exploration that characterizes AI-assisted development, the Checkpoint System is the clear winner.
+Git remains essential for team collaboration and long-term project history, but for the rapid iteration and exploration that characterizes SI-assisted development, the Checkpoint System is the clear winner.
 
-**The best solution is using both:** Checkpoint System for daily AI development, Git for team collaboration and permanent history.
+**The best solution is using both:** Checkpoint System for daily SI development, Git for team collaboration and permanent history.
 
 ## Appendix: Technical Specifications
 
@@ -1339,7 +1339,7 @@ Core (Rust):
 │   ├── Intent analysis
 │   ├── Architectural impact
 │   └── Code relationships
-├── AI Context Manager (ai_context_manager.rs)
+├── SI Context Manager (ai_context_manager.rs)
 │   ├── Semantic caching
 │   ├── Query analysis
 │   └── Context building
@@ -1383,7 +1383,7 @@ VSCode Extension (TypeScript):
 | Detect 100 changed files | 100 | 4800ms | 142ms | 33x |
 | Create snapshot (10 files) | 1000 | 280ms | 68ms | 4x |
 | Create snapshot (100 files) | 100 | 3200ms | 425ms | 7.5x |
-| Build AI context | 10000 | 485ms | \<1ms | 10663x |
+| Build SI context | 10000 | 485ms | \<1ms | 10663x |
 | Semantic analysis | 1000 | N/A | 24ms | N/A |
 | Restore checkpoint | 100 | 1200ms | 95ms | 12x |
 

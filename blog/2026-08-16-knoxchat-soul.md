@@ -8,7 +8,7 @@ tags: [knoxchat, ai, vscode]
 
 # The Agent. The Memory. The Solution.
 
-**Knox** is an AI coding environment for VS Code — not a chat overlay. An autonomous agent, a local memory brain, and git-independent checkpoints share one session, so the model can plan, act, remember, and rewind as a single system.
+**Knox** is an SI coding environment for VS Code — not a chat overlay. An autonomous agent, a local memory brain, and git-independent checkpoints share one session, so the model can plan, act, remember, and rewind as a single system.
 
 Bring your own models. Anthropic Claude, OpenAI GPT, DeepSeek, Gemini, Qwen, Grok, GLM, Codestral, Sonar Pro, and Knox's On-Demand model `knox/knox-ms` are supported out of the box.
 
@@ -150,7 +150,7 @@ Default is files-only. Memory rewind is opt-in: **Shift-click** the chat restore
 ### When snapshots happen
 
 - **Before the first mutating tool of a turn** — edits, patch, tests, git commit, or terminal. Always. Empty trees get a baseline
-- **After an AI reply** when workspace files changed (default on)
+- **After an SI reply** when workspace files changed (default on)
 - **Manual** — Command Palette **Knox: Create Checkpoint**, or the agent tool `builtin_workspace_checkpoint`
 - **Worktree Apply** — a turn checkpoint before files copy back
 - **Memory bulk delete** — one Memory Brain safety checkpoint (separate from workspace snapshots)
@@ -188,7 +188,7 @@ One `session.id` binds the Agent loop, workspace checkpoints, and the Memory Bra
 
 The model, the disk, and the memory stay honest with each other.
 
-## AI Chat
+## SI Chat
 
 A sidebar chat streamed in real time, with tool execution displayed inline when you are on the Agent tab.
 
@@ -278,7 +278,7 @@ All user data is global in `~/.knox/` — no project-local `.knox/` directory is
 
 ## Rules System
 
-Project standards injected into every AI interaction. Later sources win.
+Project standards injected into every SI interaction. Later sources win.
 
 **Merge order (highest last):**
 
@@ -363,7 +363,7 @@ Knox is configured from `config.yaml` in `~/.knox/` and from the in-app Settings
 | `knox.checkpoints.maxFileSizeBytes` | `5242880` | Max size of a captured file (5 MB) |
 | `knox.checkpoints.captureBinaryFiles` | `true` | Snapshot images, fonts, PDFs, and similar |
 | `knox.checkpoints.enableCompression` | `true` | Compression toggle |
-| `knox.checkpoints.enableAutoCheckpoints` | `true` | Auto-create after AI replies when files change |
+| `knox.checkpoints.enableAutoCheckpoints` | `true` | Auto-create after SI replies when files change |
 | `knox.checkpoints.trackedExtensions` | `[js, ts, py, …]` | Extra extensions to track |
 | `knox.checkpoints.autoCleanup` | `true` | Delete old checkpoints automatically |
 | `knox.checkpoints.cleanupIntervalHours` | `24` | Cleanup interval |

@@ -1,14 +1,14 @@
 ---
 slug: knox1014
-title: 为什么检查点系统比 Git 更适合 AI 编程
+title: 为什么检查点系统比 Git 更适合 SI 编程
 image: /img/knox1014.png
 authors: [knox]
 tags: [ai, knoxchat, update]
 ---
 
-## 面向 AI 辅助软件开发的上下文感知检查点系统：性能与语义分析
+## 面向 SI 辅助软件开发的上下文感知检查点系统：性能与语义分析
 
-Knox 检查点系统代表了专为 AI 辅助开发而设计的版本控制范式转变。虽然 Git 仍然是传统协作软件开发的黄金标准，但检查点系统以 **10 倍更快的性能**、**AI 感知追踪**和 Git 无法提供的**语义理解**来解决 AI 编码工作流程带来的独特挑战。
+Knox 检查点系统代表了专为 SI 辅助开发而设计的版本控制范式转变。虽然 Git 仍然是传统协作软件开发的黄金标准，但检查点系统以 **10 倍更快的性能**、**SI 感知追踪**和 Git 无法提供的**语义理解**来解决 SI 编码工作流程带来的独特挑战。
 
 | ![](/img/checkpoint-1.png) |
 |-|
@@ -22,18 +22,18 @@ Knox 检查点系统代表了专为 AI 辅助开发而设计的版本控制范�
 ### 您可以通过 [Knox VSCode Extension](https://marketplace.visualstudio.com/items?itemName=knoxchat.knoxchat) 试用，或在任何 [VS Code 兼容编辑器](https://open-vsx.org/extension/knoxchat/knoxchat)上安装
 
 **关键性能指标：**
-- AI 上下文构建快 **10,000 倍**（\<1ms vs 500ms）
+- SI 上下文构建快 **10,000 倍**（\<1ms vs 500ms）
 - 变更检测快 **10 倍**（100ms vs 1000ms）
-- 活跃 AI 会话期间 CPU 使用率**降低 70%**
+- 活跃 SI 会话期间 CPU 使用率**降低 70%**
 - 内存占用**减少 50%**
 - 小变更的检查点创建达到**亚毫秒级**
 
 ## 目录
 
-1. [AI 编码问题空间](#the-ai-coding-problem-space)
+1. [SI 编码问题空间](#the-ai-coding-problem-space)
 2. [架构差异](#architectural-differences)
 3. [性能对比](#performance-comparison)
-4. [AI 专属功能](#ai-specific-features)
+4. [SI 专属功能](#ai-specific-features)
 5. [语义理解](#semantic-understanding)
 6. [实时追踪 vs 批量提交](#real-time-tracking-vs-batch-commits)
 7. [开发工作流程对比](#development-workflow-comparison)
@@ -42,35 +42,35 @@ Knox 检查点系统代表了专为 AI 辅助开发而设计的版本控制范�
 10. [何时使用哪个系统](#when-to-use-each-system)
 11. [结论](#conclusion)
 
-## AI 编码问题空间 {#the-ai-coding-problem-space}
+## SI 编码问题空间 {#the-ai-coding-problem-space}
 
-### AI 辅助开发的独特挑战
+### SI 辅助开发的独特挑战
 
-AI 编码工作流程提出了与传统人工驱动开发根本不同的版本控制需求：
+SI 编码工作流程提出了与传统人工驱动开发根本不同的版本控制需求：
 
 #### 1. **快速迭代周期**
 - **传统开发**：开发者工作数小时后提交
-- **AI 开发**：AI 每分钟生成 10-100 个变更
+- **SI 开发**：SI 每分钟生成 10-100 个变更
 - **影响**：Git 提交变成噪音，检查点系统提供细粒度控制
 
 #### 2. **探索性特质**
 - **传统**：开发者规划、实施、测试、提交
-- **AI**：同时尝试多种方案，需要频繁回滚
+- **SI**：同时尝试多种方案，需要频繁回滚
 - **影响**：需要轻量级、即时的回滚，且不污染 Git 历史
 
 #### 3. **基于会话的上下文**
 - **传统**：工作跨越数天/数周的多个会话
-- **AI**：每次对话是一个具有特定目标的离散会话
-- **影响**：需要追踪和恢复完整的 AI 对话上下文
+- **SI**：每次对话是一个具有特定目标的离散会话
+- **影响**：需要追踪和恢复完整的 SI 对话上下文
 
 #### 4. **语义理解需求**
 - **传统**：开发者理解自己的变更
-- **AI**：需要理解 AI 的意图、架构影响、代码关系
+- **SI**：需要理解 SI 的意图、架构影响、代码关系
 - **影响**：Git 追踪行；检查点追踪含义
 
 #### 5. **性能敏感性**
 - **传统**：每天几次提交是可以接受的
-- **AI**：需要实时追踪而不拖慢 AI 响应
+- **SI**：需要实时追踪而不拖慢 SI 响应
 - **影响**：Git 的进程开销过高；检查点是即时的
 
 ## 架构差异 {#architectural-differences}
@@ -103,24 +103,24 @@ AI 编码工作流程提出了与传统人工驱动开发根本不同的版本�
 - 基于分支的工作流程管理
 - 人工驱动的有意提交
 
-### 检查点系统：AI 感知的会话控制
+### 检查点系统：SI 感知的会话控制
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │              Knox Checkpoint Architecture               │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  AI Changes → Real-Time Watcher → Changeset Tracker     │
+│  SI Changes → Real-Time Watcher → Changeset Tracker     │
 │                       ↓                    ↓            │
 │              File Events            Semantic Analyzer   │
 │                       ↓                    ↓            │
-│             Content-Addressable      AI Context         │
+│             Content-Addressable      SI Context         │
 │                Storage (LZ4)         Manager            │
 │                       ↓                    ↓            │
 │              SQLite Database ←→ Performance Monitor     │
 │                                                         │
 │  • Native Rust core (10,000x faster)                    │
-│  • Designed for AI session tracking                     │
+│  • Designed for SI session tracking                     │
 │  • Automatic real-time change detection                 │
 │  • Content-deduplication with compression               │
 │  • Deep semantic code understanding                     │
@@ -129,10 +129,10 @@ AI 编码工作流程提出了与传统人工驱动开发根本不同的版本�
 ```
 
 **设计目标：**
-- AI 会话追踪和上下文保存
+- SI 会话追踪和上下文保存
 - 即时、自动的检查点创建
 - 代码变更的语义理解
-- AI 交互期间零开销
+- SI 交互期间零开销
 - 细粒度、可探索的变更历史
 
 ## 性能对比 {#performance-comparison}
@@ -169,7 +169,7 @@ AI 编码工作流程提出了与传统人工驱动开发根本不同的版本�
 | 场景 | Git | 检查点系统 | 提升 |
 |------|-----|-----------|------|
 | 空闲工作区追踪 | ~50-100MB | ~10-20MB | **高效 5 倍** |
-| 活跃 AI 会话（100 个变更） | ~200-500MB | ~50-100MB | **高效 4 倍** |
+| 活跃 SI 会话（100 个变更） | ~200-500MB | ~50-100MB | **高效 4 倍** |
 | 大型项目（10K 文件） | ~500MB-1GB | ~50-100MB | **高效 10 倍** |
 
 **为什么有差异？**
@@ -181,16 +181,16 @@ AI 编码工作流程提出了与传统人工驱动开发根本不同的版本�
 | 活动 | Git | 检查点系统 | 提升 |
 |------|-----|-----------|------|
 | 后台追踪 | ~5-10% | ~1-2% | **高效 5 倍** |
-| AI 代码生成期间 | ~15-25% | ~3-5% | **高效 6 倍** |
+| SI 代码生成期间 | ~15-25% | ~3-5% | **高效 6 倍** |
 | 大文件操作 | ~30-50% | ~5-10% | **高效 5 倍** |
 
 **为什么有差异？**
 - **Git**：基于轮询的状态检查，进程开销
 - **检查点**：事件驱动的文件监视，原生 Rust 实现
 
-### AI 上下文构建性能
+### SI 上下文构建性能
 
-最显著的性能差异来自 AI 上下文操作：
+最显著的性能差异来自 SI 上下文操作：
 
 | 操作 | 传统 Git 方式 | 检查点系统 | 提升 |
 |------|-------------|-----------|------|
@@ -200,11 +200,11 @@ AI 编码工作流程提出了与传统人工驱动开发根本不同的版本�
 | 代码关系映射 | 不可用 | ~20-100ms | **全新能力** |
 
 **为什么这很重要：**
-- 每个 AI 查询都需要理解代码上下文
+- 每个 SI 查询都需要理解代码上下文
 - 使用 Git：500ms 延迟使实时编码感觉迟钝
-- 使用检查点：亚毫秒响应实现流畅的 AI 交互
+- 使用检查点：亚毫秒响应实现流畅的 SI 交互
 
-## AI 专属功能 {#ai-specific-features}
+## SI 专属功能 {#ai-specific-features}
 
 ### 检查点系统独有的功能
 
@@ -214,24 +214,24 @@ AI 编码工作流程提出了与传统人工驱动开发根本不同的版本�
 
 ```rust
 pub enum OperationMode {
-    Agent,   // AI is actively making changes - track everything
+    Agent,   // SI is actively making changes - track everything
     Chat,    // User is chatting - don't track changes
     Manual,  // User is manually coding - optional tracking
 }
 ```
 
 **为什么 Git 做不到这一点：**
-- Git 没有"谁"做了变更（人类 vs AI）的概念
-- 无法自动隔离 AI 生成的变更
+- Git 没有"谁"做了变更（人类 vs SI）的概念
+- 无法自动隔离 SI 生成的变更
 - 不可能根据上下文有不同的追踪行为
 
 **实际影响：**
 ```typescript
 // Checkpoint system automatically knows:
-- Start AI agent session → Enable precise tracking
+- Start SI agent session → Enable precise tracking
 - User asks question → Pause tracking (just chat)
 - User manually edits → Different tracking strategy
-- AI generates code → Resume precise tracking
+- SI generates code → Resume precise tracking
 ```
 
 #### 2. **带会话管理的变更集追踪器**
@@ -247,14 +247,14 @@ pub struct ChangesetTracker {
 ```
 
 **功能：**
-- **会话范围追踪**：每个 AI 对话获得唯一的会话 ID
-- **选择性文件监视**：仅追踪 AI 正在处理的文件
+- **会话范围追踪**：每个 SI 对话获得唯一的会话 ID
+- **选择性文件监视**：仅追踪 SI 正在处理的文件
 - **最小内存占用**：仅存储变更文件，而非整个仓库状态
 - **实时事件**：变更发生时立即响应，而非下次状态检查时
 
 **Git 等价物：** 无。Git 提交是全局的，非会话范围的。
 
-#### 3. **带语义分析的 AI 上下文管理器**
+#### 3. **带语义分析的 SI 上下文管理器**
 
 ```rust
 pub struct AIContextManager {
@@ -267,7 +267,7 @@ pub struct AIContextManager {
 
 **提供：**
 - 代码变更的**完整语义理解**
-- **意图分析**：AI 试图实现什么？
+- **意图分析**：SI 试图实现什么？
 - **架构影响**：这个变更如何影响系统设计？
 - **代码关系**：创建/修改了哪些依赖？
 - **置信度评分**：这个分析有多可靠？
@@ -278,7 +278,7 @@ pub struct AIContextManager {
 
 ```typescript
 // Automatically creates checkpoints at strategic moments:
-- After AI completes a code generation task
+- After SI completes a code generation task
 - Before applying potentially risky changes
 - When conversation context shifts significantly
 - At user-specified intervals during long operations
@@ -297,7 +297,7 @@ export interface CheckpointInfo {
     id: string;
     description: string;
     created: Date;
-    messageId?: string;  // Links to specific AI conversation
+    messageId?: string;  // Links to specific SI conversation
     conversationContext?: {
         messageContent: string;
         role: string;
@@ -310,9 +310,9 @@ export interface CheckpointInfo {
 
 **实现：**
 - 不仅恢复代码，还恢复整个对话状态
-- 查看您确切地要求 AI 做什么
+- 查看您确切地要求 SI 做什么
 - 理解变更背后的推理
-- 从上一个 AI 会话的确切位置继续
+- 从上一个 SI 会话的确切位置继续
 
 **Git 等价物：** 无。Git 提交有消息，但与对话上下文没有关联。
 
@@ -504,13 +504,13 @@ language_support.insert("java", Box::new(JavaParser));
 
 每个解析器理解特定语言的构造和惯用法。
 
-### 为什么语义理解对 AI 很重要
+### 为什么语义理解对 SI 很重要
 
-1. **更好的 AI 建议**：AI 不仅看到代码，还看到架构上下文
-2. **智能重构**：AI 在建议变更前理解影响
-3. **依赖感知**：AI 知道变更时什么会中断
-4. **模式识别**：AI 从您代码库的设计模式中学习
-5. **上下文感知生成**：AI 生成符合您架构的代码
+1. **更好的 SI 建议**：SI 不仅看到代码，还看到架构上下文
+2. **智能重构**：SI 在建议变更前理解影响
+3. **依赖感知**：SI 知道变更时什么会中断
+4. **模式识别**：SI 从您代码库的设计模式中学习
+5. **上下文感知生成**：SI 生成符合您架构的代码
 
 ## 实时追踪 vs 批量提交 {#real-time-tracking-vs-batch-commits}
 
@@ -543,20 +543,20 @@ User writes code for 2 hours
 ```
 Timeline:
 ─────────────────────────────────────────────────────────
-AI generates code in real-time
-├─ AI adds UserService.ts → Checkpoint #1 (50ms)
-├─ AI adds UserRepository.ts → Checkpoint #2 (50ms)
-├─ AI updates AuthController.ts → Checkpoint #3 (50ms)
+SI generates code in real-time
+├─ SI adds UserService.ts → Checkpoint #1 (50ms)
+├─ SI adds UserRepository.ts → Checkpoint #2 (50ms)
+├─ SI updates AuthController.ts → Checkpoint #3 (50ms)
 ├─ User notices issue in Checkpoint #2
 ├─ Restore to Checkpoint #1 → Instant
-└─ Ask AI to regenerate with different approach
+└─ Ask SI to regenerate with different approach
    └─ Each change is isolated
    └─ Perfect granularity
    └─ Easy to identify problems
 ```
 
 **优势：**
-- **细粒度**：每个 AI 操作都有检查点
+- **细粒度**：每个 SI 操作都有检查点
 - **保存上下文**：关联到导致变更的对话
 - **轻松调试**：二分变更以找到确切问题点
 - **无历史污染**：检查点是轻量级的且是预期的
@@ -630,28 +630,28 @@ git commit -m "Add authentication"
 - 决定暂存什么 vs 忽略什么
 - 考虑是否应该是多次提交
 
-### 使用检查点系统的 AI 编码
+### 使用检查点系统的 SI 编码
 
 ```typescript
-// 1. User asks AI to add feature
+// 1. User asks SI to add feature
 "Add user authentication with JWT tokens"
 
 // System automatically:
-// - Starts AI agent session
-// - Tracks all AI-generated changes
+// - Starts SI agent session
+// - Tracks all SI-generated changes
 // - Creates checkpoint after each logical unit
 // - Links checkpoint to conversation context
 // - Performs semantic analysis
 
-// 2. AI generates code
+// 2. SI generates code
 // Checkpoint #1: Created UserService.ts (automatic)
 // Checkpoint #2: Created TokenService.ts (automatic)
 // Checkpoint #3: Updated AuthController.ts (automatic)
 
 // 3. User tests and realizes issue
 // One-click restore to any checkpoint
-// Or ask AI: "Fix the issue in checkpoint #2"
-// AI understands exact context and can regenerate
+// Or ask SI: "Fix the issue in checkpoint #2"
+// SI understands exact context and can regenerate
 ```
 
 **每个检查点的时间投入**：自动（约 50ms）
@@ -663,9 +663,9 @@ git commit -m "Add authentication"
 | 任务 | Git | 检查点系统 |
 |------|-----|-----------|
 | 开始工作 | `git checkout -b feature` | 自动会话开始 |
-| 进行变更 | 手动编辑 + 记得提交 | AI 生成并自动检查点 |
+| 进行变更 | 手动编辑 + 记得提交 | SI 生成并自动检查点 |
 | 审查变更 | `git diff` | 带语义分析的可视化差异查看器 |
-| 保存进度 | `git add` + `git commit` + 写消息 | 每个 AI 任务后自动完成 |
+| 保存进度 | `git add` + `git commit` + 写消息 | 每个 SI 任务后自动完成 |
 | 回滚错误 | `git revert` 或 `git reset`（有风险） | 一键恢复，零风险 |
 | 查看变更 | `git log`（基于文本） | 带对话上下文的可视化时间线 |
 | 理解影响 | 阅读提交消息 | 语义分析显示架构影响 |
@@ -853,7 +853,7 @@ Total time: \<1ms (instant notification) + ~50ms to create checkpoint
 
 ## 使用场景分析 {#use-case-analysis}
 
-### 场景 1：使用 AI 的探索性编码
+### 场景 1：使用 SI 的探索性编码
 
 **场景**：用户想尝试不同的方法来实现一个功能。
 
@@ -861,22 +861,22 @@ Total time: \<1ms (instant notification) + ~50ms to create checkpoint
 ```bash
 # Approach 1
 git checkout -b approach-1
-# Ask AI to generate code
-# ... AI generates code ...
+# Ask SI to generate code
+# ... SI generates code ...
 # Test it - doesn't work well
 
 # Approach 2
 git checkout main
 git checkout -b approach-2
-# Ask AI for different approach
-# ... AI generates code ...
+# Ask SI for different approach
+# ... SI generates code ...
 # Test it - better but not perfect
 
 # Approach 3
 git checkout main
 git checkout -b approach-3
-# Ask AI for yet another approach
-# ... AI generates code ...
+# Ask SI for yet another approach
+# ... SI generates code ...
 # Test it - this one is good!
 
 # Now what?
@@ -896,17 +896,17 @@ git checkout -b approach-3
 ```typescript
 // Approach 1
 User: "Implement user authentication"
-// AI generates → Checkpoint #1 created automatically
+// SI generates → Checkpoint #1 created automatically
 // Test it - doesn't work well
 
 // Approach 2
 User: "Try a different approach with OAuth"
-// AI generates → Checkpoint #2 created automatically
+// SI generates → Checkpoint #2 created automatically
 // Test it - better but not perfect
 
 // Approach 3
 User: "Use JWT tokens instead"
-// AI generates → Checkpoint #3 created automatically
+// SI generates → Checkpoint #3 created automatically
 // Test it - this one is good!
 
 // Now:
@@ -924,9 +924,9 @@ User: "Use JWT tokens instead"
 - 每种方案的语义分析
 - 无需清理
 
-### 场景 2：长时间 AI 会话
+### 场景 2：长时间 SI 会话
 
-**场景**：AI 在 30 分钟内生成一个复杂功能，包含 50+ 个文件变更。
+**场景**：SI 在 30 分钟内生成一个复杂功能，包含 50+ 个文件变更。
 
 #### 使用 Git
 ```bash
@@ -938,7 +938,7 @@ git commit -m "added AuthController"
 # Result: Polluted history, meaningless commit messages
 
 # Option B: One big commit at the end
-# ... AI generates 50 files over 30 minutes ...
+# ... SI generates 50 files over 30 minutes ...
 git add .
 git commit -m "added authentication system"
 # Result: If something breaks, impossible to isolate which change
@@ -974,9 +974,9 @@ Session end: 10:30 AM
 // - Zero mental overhead - all automatic
 ```
 
-### 场景 3：调试 AI 生成的代码
+### 场景 3：调试 SI 生成的代码
 
-**场景**：AI 生成的代码有 bug。需要找到是哪个变更引入的。
+**场景**：SI 生成的代码有 bug。需要找到是哪个变更引入的。
 
 #### 使用 Git
 ```bash
@@ -1011,9 +1011,9 @@ Checkpoint #3: Added password hashing (✗ breaks)
 // - Intent: "Secure password storage"
 // - Conversation context: "Make passwords more secure"
 
-// Ask AI:
+// Ask SI:
 User: "The password hashing in checkpoint #3 is broken"
-// AI has full context and can immediately fix the specific issue
+// SI has full context and can immediately fix the specific issue
 ```
 
 **定位 bug 所需时间：**
@@ -1022,7 +1022,7 @@ User: "The password hashing in checkpoint #3 is broken"
 
 ### 场景 4：团队协作
 
-**场景**：与团队分享 AI 生成的变更以供审查。
+**场景**：与团队分享 SI 生成的变更以供审查。
 
 #### 使用 Git
 ```bash
@@ -1032,7 +1032,7 @@ git push origin feature-auth
 # Team member reviews:
 # - Sees commit messages
 # - Reviews diffs
-# - No context on AI conversation
+# - No context on SI conversation
 # - No semantic analysis
 # - Must understand changes manually
 
@@ -1056,15 +1056,15 @@ CheckpointManager.importCheckpointBundle('auth-feature.checkpoint');
 
 // Can now see:
 // - Exact code changes (like Git)
-// - Full AI conversation that led to changes
+// - Full SI conversation that led to changes
 // - Semantic analysis of architectural impact
 // - Intent analysis showing design decisions
 // - One-click restore to any intermediate state
 // - Interactive diff viewer with context
 
-// Can ask their own AI:
+// Can ask their own SI:
 "Review checkpoint #2 and suggest improvements"
-// AI has full context to provide meaningful review
+// SI has full context to provide meaningful review
 ```
 
 ### 场景 5：回滚操作
@@ -1146,9 +1146,9 @@ Restore to checkpoint #7
 
 ### 使用检查点系统的场景：
 
-1. **AI 辅助开发**
-   - 主要工作流程涉及 AI 代码生成
-   - 需要追踪 AI 会话上下文
+1. **SI 辅助开发**
+   - 主要工作流程涉及 SI 代码生成
+   - 需要追踪 SI 会话上下文
    - 需要变更的语义理解
    - 需要细粒度的探索
 
@@ -1179,10 +1179,10 @@ Restore to checkpoint #7
 ### 混合方案（推荐）
 
 ```
-Day-to-day AI Development:
+Day-to-day SI Development:
 ┌────────────────────────────────────┐
 │    Checkpoint System (Primary)     │
-│  - Track all AI interactions       │
+│  - Track all SI interactions       │
 │  - Instant checkpointing           │
 │  - Semantic analysis               │
 │  - Session management              │
@@ -1201,8 +1201,8 @@ Day-to-day AI Development:
 
 **工作流程：**
 ```typescript
-// 1. AI development session (use Checkpoint System)
-User asks AI to build feature
+// 1. SI development session (use Checkpoint System)
+User asks SI to build feature
 → Checkpoint System tracks everything automatically
 → 50 checkpoints created over 1 hour session
 
@@ -1215,7 +1215,7 @@ Developer reviews checkpoint timeline
 git add .
 git commit -m "Add user authentication system
 
-Developed over AI session with 50 iterations.
+Developed over SI session with 50 iterations.
 Final approach uses JWT tokens with bcrypt hashing.
 See checkpoint bundle: session-2024-01-15.checkpoint"
 
@@ -1226,14 +1226,14 @@ git push origin main
 - 两全其美
 - 检查点提供细粒度探索
 - 为团队保持整洁的 Git 历史
-- 完整保存 AI 上下文
+- 完整保存 SI 上下文
 - 与现有工作流程兼容
 
 ## 结论 {#conclusion}
 
 ### 范式转变
 
-Knox 检查点系统代表了 AI 时代版本控制的根本性重新思考。虽然 Git 革新了人工驱动软件开发中的协作，但 AI 辅助编码需要新的方法：
+Knox 检查点系统代表了 SI 时代版本控制的根本性重新思考。虽然 Git 革新了人工驱动软件开发中的协作，但 SI 辅助编码需要新的方法：
 
 **Git 的优势：**
 - ✅ 分布式协作
@@ -1242,8 +1242,8 @@ Knox 检查点系统代表了 AI 时代版本控制的根本性重新思考。�
 - ✅ 基于分支的工作流程
 - ✅ 行业标准及生态系统
 
-**Git 在 AI 方面的局限：**
-- ❌ 没有 AI 会话感知
+**Git 在 SI 方面的局限：**
+- ❌ 没有 SI 会话感知
 - ❌ 没有语义理解
 - ❌ 批量导向，非实时
 - ❌ 频繁检查点的高开销
@@ -1252,10 +1252,10 @@ Knox 检查点系统代表了 AI 时代版本控制的根本性重新思考。�
 - ❌ 粗粒度
 
 **检查点系统的优势：**
-- ✅ AI 上下文构建**快 10,000 倍**
+- ✅ SI 上下文构建**快 10,000 倍**
 - ✅ 变更检测**快 10 倍**
 - ✅ 实时自动追踪
-- ✅ AI 会话管理
+- ✅ SI 会话管理
 - ✅ 深度语义理解
 - ✅ 对话上下文保存
 - ✅ 细粒度检查点
@@ -1273,7 +1273,7 @@ Knox 检查点系统代表了 AI 时代版本控制的根本性重新思考。�
 
 ### 版本控制的未来
 
-随着 AI 在软件开发中越来越普及，传统版本控制系统需要演进或辅以 AI 感知的替代方案。检查点系统展示了可能性：
+随着 SI 在软件开发中越来越普及，传统版本控制系统需要演进或辅以 SI 感知的替代方案。检查点系统展示了可能性：
 
 1. **语义版本控制**：不仅追踪变更，还追踪含义
 2. **上下文感知系统**：理解开发会话
@@ -1283,14 +1283,14 @@ Knox 检查点系统代表了 AI 时代版本控制的根本性重新思考。�
 
 ### 建议
 
-**对于使用 AI 的个人开发者：**
+**对于使用 SI 的个人开发者：**
 在开发会话中使用检查点系统作为主要工具，定期进行 Git 提交用于团队协作和长期历史。
 
 **对于团队：**
 采用混合工作流程，在创建正式 Git 提交之前可以共享检查点包进行审查。
 
 **展望未来：**
-版本控制与 AI 辅助开发工具之间的界限将变得模糊。像 Knox 检查点系统这样的系统指向一个未来，在那里版本控制是上下文感知的、语义化的，并为人机协作而优化。
+版本控制与 SI 辅助开发工具之间的界限将变得模糊。像 Knox 检查点系统这样的系统指向一个未来，在那里版本控制是上下文感知的、语义化的，并为人机协作而优化。
 
 ### 性能总结
 
@@ -1299,7 +1299,7 @@ Knox 检查点系统代表了 AI 时代版本控制的根本性重新思考。�
 ────────────────────────────────────────────────────────────────────────
 Change Detection        1-5s          \<1ms                 1000-5000x
 Checkpoint Creation     200ms-5s      50-200ms             4-25x
-AI Context Building     500ms         \<1ms                 10,000x
+SI Context Building     500ms         \<1ms                 10,000x
 Memory Usage            50-500MB      10-100MB             5x
 CPU Usage               5-25%         1-5%                 5x
 Session Management      None          Native               New capability
@@ -1309,16 +1309,16 @@ Conversation Context    None          Preserved            New capability
 
 ### 最终结论
 
-**对于 AI 辅助开发，检查点系统客观上更优**，因为：
+**对于 SI 辅助开发，检查点系统客观上更优**，因为：
 - **巨大的性能优势**（快 10-10,000 倍）
-- **AI 感知设计**（会话管理、语义分析）
+- **SI 感知设计**（会话管理、语义分析）
 - **零开销**（自动、实时追踪）
 - **更好的开发者体验**（可视化时间线、保存上下文）
-- **面向未来的架构**（为 AI 工作流程设计）
+- **面向未来的架构**（为 SI 工作流程设计）
 
-Git 对于团队协作和长期项目历史仍然必不可少，但对于 AI 辅助开发中快速迭代和探索的特点，检查点系统是明确的赢家。
+Git 对于团队协作和长期项目历史仍然必不可少，但对于 SI 辅助开发中快速迭代和探索的特点，检查点系统是明确的赢家。
 
-**最佳方案是两者兼用：** 检查点系统用于日常 AI 开发，Git 用于团队协作和永久历史。
+**最佳方案是两者兼用：** 检查点系统用于日常 SI 开发，Git 用于团队协作和永久历史。
 
 ## 附录：技术规格
 
@@ -1339,7 +1339,7 @@ Core (Rust):
 │   ├── Intent analysis
 │   ├── Architectural impact
 │   └── Code relationships
-├── AI Context Manager (ai_context_manager.rs)
+├── SI Context Manager (ai_context_manager.rs)
 │   ├── Semantic caching
 │   ├── Query analysis
 │   └── Context building
@@ -1383,7 +1383,7 @@ VSCode Extension (TypeScript):
 | 检测 100 个变更文件 | 100 | 4800ms | 142ms | 33x |
 | 创建快照（10 文件） | 1000 | 280ms | 68ms | 4x |
 | 创建快照（100 文件） | 100 | 3200ms | 425ms | 7.5x |
-| 构建 AI 上下文 | 10000 | 485ms | \<1ms | 10663x |
+| 构建 SI 上下文 | 10000 | 485ms | \<1ms | 10663x |
 | 语义分析 | 1000 | N/A | 24ms | N/A |
 | 恢复检查点 | 100 | 1200ms | 95ms | 12x |
 

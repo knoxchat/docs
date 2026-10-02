@@ -10,7 +10,7 @@ tags: [knoxchat, api, ai, context, rag, update]
 
 ## Overview
 
-**Knox Memory System (knox-ms)** is a revolutionary custom AI model that provides **truly unlimited context window length** through an intelligent memory management system that operates like a human brain. Unlike traditional LLMs constrained by fixed context windows (even with context caching), knox-ms breaks through these limitations by orchestrating multiple underlying models through a sophisticated Plan-Task-Memory architecture.
+**Knox Memory System (knox-ms)** is a revolutionary custom SI model that provides **truly unlimited context window length** through an intelligent memory management system that operates like a human brain. Unlike traditional LLMs constrained by fixed context windows (even with context caching), knox-ms breaks through these limitations by orchestrating multiple underlying models through a sophisticated Plan-Task-Memory architecture.
 
 <iframe width="900" height="600" src="https://www.youtube.com/embed/y10ez14CcI0?si=whude9nfdYNQ79PH" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 

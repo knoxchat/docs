@@ -10,7 +10,7 @@ tags: [knoxchat, api, ai, context, rag, update]
 
 ## 概述
 
-**Knox Memory System (knox-ms)** 是一个革命性的自定义 AI 模型，通过像人脑一样运作的智能记忆管理系统，提供**真正无限的上下文窗口长度**。与受固定上下文窗口限制的传统 LLM（即使有上下文缓存）不同，knox-ms 通过复杂的计划-任务-记忆架构编排多个底层模型来突破这些限制。
+**Knox Memory System (knox-ms)** 是一个革命性的自定义 SI 模型，通过像人脑一样运作的智能记忆管理系统，提供**真正无限的上下文窗口长度**。与受固定上下文窗口限制的传统 LLM（即使有上下文缓存）不同，knox-ms 通过复杂的计划-任务-记忆架构编排多个底层模型来突破这些限制。
 
 <iframe width="900" height="600" src="https://www.youtube.com/embed/y10ez14CcI0?si=whude9nfdYNQ79PH" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 

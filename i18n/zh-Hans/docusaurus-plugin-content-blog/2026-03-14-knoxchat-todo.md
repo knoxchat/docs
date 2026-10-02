@@ -6,7 +6,7 @@ authors: [knox]
 tags: [knoxchat, api, ai, context, vscode]
 ---
 
-### Todo/Task 管理系统 — AI 驱动的任务编排
+### Todo/Task 管理系统 — SI 驱动的任务编排
 
 一个全面的 Todo/Task 管理系统，分析复杂的用户请求，将其分解为结构化的依赖感知任务，并通过工具调用驱动的流同步和持久化会话管理来跟踪进度。
 
@@ -18,7 +18,7 @@ tags: [knoxchat, api, ai, context, vscode]
 #### 问题 — 非结构化的任务执行
 
 此前，复杂的多步骤请求以整体操作方式处理：
-- **无可见性**：用户无法看到 AI 正在处理什么或还有什么待处理
+- **无可见性**：用户无法看到 SI 正在处理什么或还有什么待处理
 - **无恢复**：失败的步骤需要重新启动整个请求
 - **无持久化**：如果会话中断，进度就会丢失
 - **无依赖管理**：不了解任务排序或前置条件
@@ -114,7 +114,7 @@ interface TodoSessionStats {
 
 ---
 
-#### 功能 1：AI 驱动的任务分析与分解
+#### 功能 1：SI 驱动的任务分析与分解
 
 自动分析用户消息以检测何时任务分解有价值，然后使用 `ReasoningEngine` 或本地 NLP 回退来将其分解。
 
@@ -124,11 +124,11 @@ interface TodoSessionStats {
 - 多子句检测：包含 3+ 个由逗号、分号、`and` 或 `then` 分隔的子句（每个 >10 字符）的消息
 - 阈值：2+ 模式匹配触发创建
 
-**AI 分析（通过 `ReasoningEngine.performTaskAnalysis()`）：**
+**SI 分析（通过 `ReasoningEngine.performTaskAnalysis()`）：**
 ```
 User: "Build a REST API with authentication, add unit tests, and set up Docker deployment"
 
-AI Analysis Result:
+SI Analysis Result:
 ├── Todo 1: Set up Express.js REST API scaffold     [high, coding, simple]
 ├── Todo 2: Implement JWT authentication middleware  [high, coding, medium]
 ├── Todo 3: Create CRUD endpoints                   [medium, coding, medium]
@@ -366,7 +366,7 @@ interface TodoState {
 
 **设计原则：**
 1. **工具调用 = 进度。** 每个工具调用推进当前任务的计数。足够多的调用后，任务被标记为完成。
-2. **顺序模型。** AI 按顺序执行任务。`currentIndex` 指针向前推进。
+2. **顺序模型。** SI 按顺序执行任务。`currentIndex` 指针向前推进。
 3. **不得提前完成。** 任务仅在积累足够的工具调用后 或 整个对话结束时（在 `wrapperDepth === 0` 的最外层包装退出）才完成。
 4. **每个完成的任务都获得盾牌图标。** 在跟踪器层面没有"低证据"与"已验证"的区分。
 

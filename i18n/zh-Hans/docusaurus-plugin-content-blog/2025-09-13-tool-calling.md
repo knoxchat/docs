@@ -1,21 +1,21 @@
 ---
 slug: knox0913
-title: 工具调用 - 赋予 AI 与现实世界交互的能力
+title: 工具调用 - 赋予 SI 与现实世界交互的能力
 image: /img/tool-calling-cover.png
 authors: [knox]
 tags: [ai, api, rag]
 ---
 
-# 工具调用革命：当 AI 遇上现实世界的操作
+# 工具调用革命：当 SI 遇上现实世界的操作
 
-被动 AI 对话的时代已经终结。今天标志着人工智能的一个关键时刻——**工具调用**功能无缝集成到 Knox.Chat 中，将静态的 AI 回复转变为动态的、面向操作的交互，能够与现实世界进行接口对接。
+被动 SI 对话的时代已经终结。今天标志着人工智能的一个关键时刻——**工具调用**功能无缝集成到 Knox.Chat 中，将静态的 SI 回复转变为动态的、面向操作的交互，能够与现实世界进行接口对接。
 
 | ![](/img/tool-calling-cover.png) |
 |-|
 
-## 什么是工具调用？连接 AI 与现实的桥梁
+## 什么是工具调用？连接 SI 与现实的桥梁
 
-工具调用（也称为函数调用）代表了 AI 系统运作方式的根本性转变。AI 模型不再局限于生成文本回复，现在可以：
+工具调用（也称为函数调用）代表了 SI 系统运作方式的根本性转变。SI 模型不再局限于生成文本回复，现在可以：
 
 - **执行函数**：使用特定参数调用预定义的函数
 - **访问实时数据**：获取当前的天气、时间或股票价格等信息
@@ -23,7 +23,7 @@ tags: [ai, api, rag]
 - **执行操作**：发送电子邮件、创建日历事件或更新系统
 - **处理复杂任务**：智能地将多个操作串联在一起
 
-可以将其理解为给 AI 模型赋予了与周围数字世界交互的双手和眼睛。
+可以将其理解为给 SI 模型赋予了与周围数字世界交互的双手和眼睛。
 
 ## Knox.Chat 优势：兼容 OpenAI 的卓越实现
 
@@ -74,27 +74,27 @@ Knox.Chat 的工具调用实现不仅功能完备——它**完全兼容 OpenAI 
 
 ```bash
 User: "What time is it in Tokyo right now?"
-AI: *calls get_current_time(timezone: "Asia/Tokyo")*
-AI: "It's currently 3:47 PM JST (Japan Standard Time) in Tokyo."
+SI: *calls get_current_time(timezone: "Asia/Tokyo")*
+SI: "It's currently 3:47 PM JST (Japan Standard Time) in Tokyo."
 ```
 
 ### **动态天气集成**
 
 ```bash
 User: "Should I bring an umbrella to my meeting in Shanghai?"
-AI: *calls get_weather(city: "Shanghai", unit: "celsius")*
-AI: "Yes! It's currently 22°C with heavy rain expected. Definitely bring an umbrella."
+SI: *calls get_weather(city: "Shanghai", unit: "celsius")*
+SI: "Yes! It's currently 22°C with heavy rain expected. Definitely bring an umbrella."
 ```
 
 ### **多工具编排**
 
-当 AI 模型智能地组合多个工具时，真正的威力才会显现：
+当 SI 模型智能地组合多个工具时，真正的威力才会显现：
 
 ```bash
 User: "Plan my day in Beijing - I need the time and weather."
-AI: *calls get_current_time(timezone: "Asia/Shanghai")*
-AI: *calls get_weather(city: "Beijing", unit: "celsius")*
-AI: "Perfect timing! It's 2:30 PM in Beijing with sunny skies at 25°C. 
+SI: *calls get_current_time(timezone: "Asia/Shanghai")*
+SI: *calls get_weather(city: "Beijing", unit: "celsius")*
+SI: "Perfect timing! It's 2:30 PM in Beijing with sunny skies at 25°C. 
      Great weather for outdoor activities this afternoon."
 ```
 
@@ -125,9 +125,9 @@ const tools = [
 ```
 
 ### **2. 智能工具选择**
-AI 模型分析用户请求并自动选择合适的工具：
+SI 模型分析用户请求并自动选择合适的工具：
 
-- **自动模式**：AI 决定何时使用哪个工具
+- **自动模式**：SI 决定何时使用哪个工具
 - **必选模式**：强制使用特定工具
 - **禁用模式**：禁用工具调用，进行纯对话
 
@@ -169,7 +169,7 @@ calculate_mortgage(principal: 500000, rate: 0.065, years: 30)
 Knox.Chat 的工具调用支持复杂的多步骤工作流程：
 
 1. **信息收集**：获取当前数据
-2. **分析处理**：使用 AI 推理处理信息
+2. **分析处理**：使用 SI 推理处理信息
 3. **执行操作**：执行适当的响应
 4. **验证确认**：确认结果并在需要时进行迭代
 
@@ -178,11 +178,11 @@ Knox.Chat 的工具调用支持复杂的多步骤工作流程：
 
 ```bash
 User: "Book me a flight to Tokyo"
-AI: *calls get_flights(destination: "Tokyo")*
+SI: *calls get_flights(destination: "Tokyo")*
 User: "Make it business class"
-AI: *calls update_flight_booking(class: "business")* 
+SI: *calls update_flight_booking(class: "business")* 
 User: "And add hotel recommendations"
-AI: *calls get_hotels(city: "Tokyo", arrival_date: "2024-03-15")*
+SI: *calls get_hotels(city: "Tokyo", arrival_date: "2024-03-15")*
 ```
 
 ### **⚡ 性能优化**
@@ -190,7 +190,7 @@ AI: *calls get_hotels(city: "Tokyo", arrival_date: "2024-03-15")*
 - **缓存机制**：对重复操作进行智能结果缓存
 - **故障处理**：工具不可用时的优雅降级
 
-## 行业影响：变革 AI 应用
+## 行业影响：变革 SI 应用
 
 ### **业务自动化**
 - **CRM 集成**：自动更新客户记录
@@ -232,7 +232,7 @@ curl -X POST https://api.knox.chat/v1/chat/completions \
 ```
 
 ### **第二步：定义你的工具**
-创建你的 AI 可以调用的函数：
+创建你的 SI 可以调用的函数：
 
 ```python
 def get_weather(city, unit="celsius"):
@@ -281,9 +281,9 @@ if (response.choices[0].finish_reason === "tool_calls") {
 - **监控**：跟踪性能指标
 - **扩展**：为高流量使用而设计
 
-## AI 交互的未来
+## SI 交互的未来
 
-工具调用仅仅是 AI 从对话伙伴进化为主动数字助理的开端。随着这项技术的成熟，我们预见到：
+工具调用仅仅是 SI 从对话伙伴进化为主动数字助理的开端。随着这项技术的成熟，我们预见到：
 
 ### **高级推理**
 - **多步骤规划**：复杂任务分解
@@ -295,11 +295,11 @@ if (response.choices[0].finish_reason === "tool_calls") {
 - **API 生态系统**：无缝的第三方集成
 - **跨平台**：跨设备的统一工具调用
 - **实时同步**：即时数据同步
-- **协作 AI**：多个 AI 智能体协同工作
+- **协作 SI**：多个 SI 智能体协同工作
 
 ### **创意应用**
 - **动态内容**：实时内容生成
-- **交互体验**：响应式 AI 应用
+- **交互体验**：响应式 SI 应用
 - **个性化**：自适应用户体验
 - **创新催化剂**：赋能全新的应用范式
 
@@ -310,7 +310,7 @@ if (response.choices[0].finish_reason === "tool_calls") {
 ### **完整兼容性**
 - 完全兼容 OpenAI API
 - 从现有实现无缝迁移
-- 支持所有主流 AI 模型
+- 支持所有主流 SI 模型
 - 在流式和非流式模式下行为一致
 
 ### **开发者友好**
@@ -333,9 +333,9 @@ if (response.choices[0].finish_reason === "tool_calls") {
 
 ## 立即开始构建未来
 
-工具调用革命已经到来，Knox.Chat 是你通往这项变革性技术的大门。无论你是在构建下一代 AI 助手、自动化复杂的业务流程，还是创建全新类别的智能应用，我们强大的工具调用实现都为你的成功奠定基础。
+工具调用革命已经到来，Knox.Chat 是你通往这项变革性技术的大门。无论你是在构建下一代 SI 助手、自动化复杂的业务流程，还是创建全新类别的智能应用，我们强大的工具调用实现都为你的成功奠定基础。
 
-**准备好赋予你的 AI 与现实世界交互的能力了吗？**
+**准备好赋予你的 SI 与现实世界交互的能力了吗？**
 
 **开始构建**：[knox.chat](https://knox.chat)  
 **开发者文档**：[docs.knox.chat/tool-calling](https://docs.knox.chat/tool-calling)  

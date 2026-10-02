@@ -6,9 +6,9 @@ authors: [knox]
 tags: [knoxchat, ai, context, vscode]
 ---
 
-# Memory Brain — Persistent AI Memory System
+# Memory Brain — Persistent SI Memory System
 
-> **Give your AI a brain that remembers.**
+> **Give your SI a brain that remembers.**
 >
 > Memory Brain is a local-first, SQLite-powered memory system that gives Knox
 > persistent, structured recall across conversations, sessions, and projects.
@@ -36,7 +36,7 @@ tags: [knoxchat, ai, context, vscode]
 
 ## Why Memory Brain?
 
-Every conversation with an LLM starts from zero. The AI forgets your
+Every conversation with an LLM starts from zero. The SI forgets your
 preferences, past decisions, project context, and the patterns that
 worked before. You end up repeating yourself, re-explaining your
 codebase, and losing insights that took hours to reach.
@@ -45,10 +45,10 @@ codebase, and losing insights that took hours to reach.
 
 | Problem | Solution |
 |---------|----------|
-| AI forgets everything between sessions | Semantic memory persists facts, preferences, and decisions |
+| SI forgets everything between sessions | Semantic memory persists facts, preferences, and decisions |
 | You repeat the same context every time | Context Builder auto-assembles relevant memories |
 | No learning from past mistakes | Learning Engine tracks success/failure patterns |
-| AI can't connect concepts across sessions | Knowledge Graph links entities with typed relationships |
+| SI can't connect concepts across sessions | Knowledge Graph links entities with typed relationships |
 | Conversation history is lost | Episodic memory stores full session transcripts |
 | No way to undo destructive changes | Checkpoint system with full rollback capability |
 | Memory grows unbounded | 5-tier hierarchy with Ebbinghaus decay auto-consolidation |
@@ -258,7 +258,7 @@ access it, the longer it stays.
 ### 1. Context Builder
 
 Automatically assembles the most relevant memories within a token budget.
-Used to prime the AI with context at the start of each conversation.
+Used to prime the SI with context at the start of each conversation.
 
 **Budget allocation (default 4000 tokens):**
 

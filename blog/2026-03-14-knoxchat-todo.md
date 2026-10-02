@@ -6,7 +6,7 @@ authors: [knox]
 tags: [knoxchat, api, ai, context, vscode]
 ---
 
-### Todo/Task Management System — AI-Powered Task Orchestration
+### Todo/Task Management System — SI-Powered Task Orchestration
 
 A comprehensive Todo/Task Management System that analyzes complex user requests, breaks them into structured dependency-aware tasks, and tracks progress via tool-call-driven stream synchronization with persistent session management.
 
@@ -18,7 +18,7 @@ A comprehensive Todo/Task Management System that analyzes complex user requests,
 #### The Problem — Unstructured Task Execution
 
 Previously, complex multi-step requests were handled as monolithic operations:
-- **No Visibility**: Users couldn't see what the AI was working on or what remained
+- **No Visibility**: Users couldn't see what the SI was working on or what remained
 - **No Recovery**: Failed steps required restarting the entire request
 - **No Persistence**: Progress was lost if the session was interrupted
 - **No Dependencies**: No awareness of task ordering or prerequisites
@@ -114,7 +114,7 @@ interface TodoSessionStats {
 
 ---
 
-#### Feature 1: AI-Powered Task Analysis & Decomposition
+#### Feature 1: SI-Powered Task Analysis & Decomposition
 
 Automatically analyzes user messages to detect when task decomposition is beneficial, then uses the `ReasoningEngine` or a local NLP fallback to break them down.
 
@@ -124,11 +124,11 @@ Automatically analyzes user messages to detect when task decomposition is benefi
 - Multi-clause detection: Messages with 3+ clauses separated by commas, semicolons, `and`, or `then` (each >10 chars)
 - Threshold: 2+ pattern matches triggers creation
 
-**AI Analysis (via `ReasoningEngine.performTaskAnalysis()`):**
+**SI Analysis (via `ReasoningEngine.performTaskAnalysis()`):**
 ```
 User: "Build a REST API with authentication, add unit tests, and set up Docker deployment"
 
-AI Analysis Result:
+SI Analysis Result:
 ├── Todo 1: Set up Express.js REST API scaffold     [high, coding, simple]
 ├── Todo 2: Implement JWT authentication middleware  [high, coding, medium]
 ├── Todo 3: Create CRUD endpoints                   [medium, coding, medium]
@@ -366,7 +366,7 @@ Full multilingual support with 107 translation keys across English and Chinese.
 
 **Design Principles:**
 1. **Tool calls = progress.** Each tool call advances the current task's count. After enough calls, the task is marked done.
-2. **Sequential model.** The AI works through tasks in order. A `currentIndex` pointer advances forward.
+2. **Sequential model.** The SI works through tasks in order. A `currentIndex` pointer advances forward.
 3. **No premature completion.** Tasks only complete when enough tool calls accumulate OR the entire conversation ends (outermost wrapper exit at `wrapperDepth === 0`).
 4. **Every completed task gets the shield icon.** No "low evidence" vs "verified" distinction at the tracker level.
 

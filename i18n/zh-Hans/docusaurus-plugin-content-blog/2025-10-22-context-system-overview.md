@@ -1,6 +1,6 @@
 ---
 slug: knox-ai-context-deep-dive
-title: "Knox AI 上下文系统：代码理解的未来"
+title: "Knox SI 上下文系统：代码理解的未来"
 image: /img/knox1022.png
 authors: [knox]
 tags: [ai, context, knoxchat, api, vscode, update]
@@ -10,7 +10,7 @@ tags: [ai, context, knoxchat, api, vscode, update]
 
 ## 执行摘要
 
-Knox AI 上下文系统代表了 AI 理解代码方式的范式转变。与将代码视为文本块的传统检索增强生成（RAG）系统不同，Knox 实现了一个**多维语义理解引擎**，由以下技术驱动：
+Knox SI 上下文系统代表了 SI 理解代码方式的范式转变。与将代码视为文本块的传统检索增强生成（RAG）系统不同，Knox 实现了一个**多维语义理解引擎**，由以下技术驱动：
 
 - **深度语义分析**：跨 5+ 种语言的完整 AST 解析和符号解析
 - **知识图谱架构**：14 种关系类型的基于图的遍历
@@ -20,7 +20,7 @@ Knox AI 上下文系统代表了 AI 理解代码方式的范式转变。与将�
 - **自适应学习**：从用户交互中持续改进
 - **协作智能**：团队级上下文共享和同步
 
-**核心结论**：Knox 实现了 90-95% 的上下文准确率，相比 RAG 的 60-70%，从根本上改变了 AI 辅助开发的可能性。
+**核心结论**：Knox 实现了 90-95% 的上下文准确率，相比 RAG 的 60-70%，从根本上改变了 SI 辅助开发的可能性。
 
 ---
 
@@ -30,7 +30,7 @@ Knox AI 上下文系统代表了 AI 理解代码方式的范式转变。与将�
 
 传统 RAG 系统应用于代码时面临根本性局限：
 
-| **局限性** | **传统 RAG** | **Knox AI 上下文** | **影响** |
+| **局限性** | **传统 RAG** | **Knox SI 上下文** | **影响** |
 |-----------|-------------|-------------------|---------|
 | **理解能力** | 文本块 + 嵌入 | 完整 AST + 语义分析 | **准确率 +30%** |
 | **关系** | 仅余弦相似度 | 14 种图关系类型 | **真正的依赖理解** |
@@ -81,7 +81,7 @@ Knox 不仅仅是检索代码——它**理解**代码：
 
 Knox 实现了一个**分层智能架构**，每一层都建立在前一层之上，创造前所未有的代码理解能力：
 
-![Knox AI Context Interface](/img/ai-context-interface.png)
+![Knox SI Context Interface](/img/ai-context-interface.png)
 
 ### 核心组件详解
 
@@ -700,7 +700,7 @@ pub struct ContextCache {
 ```typescript
 1. Track Interaction
    ├─> Query + Context provided
-   ├─> AI Response
+   ├─> SI Response
    ├─> User Feedback (helpful/not helpful)
    └─> Outcome (success/failure)
 
@@ -728,14 +728,14 @@ interface UserFeedback {
     was_helpful: boolean,
     context_relevance_rating: 1-5,      // How relevant was context?
     context_completeness_rating: 1-5,   // Was anything missing?
-    response_quality_rating: 1-5,       // How good was AI response?
+    response_quality_rating: 1-5,       // How good was SI response?
     specific_feedback: string,
     improvement_suggestions: string[],
 }
 
 // System learns from:
 - Thumbs up/down on responses
-- What context was actually used by AI
+- What context was actually used by SI
 - Whether task was completed successfully
 - Time to completion
 - Follow-up queries (indicates incomplete context)
@@ -891,7 +891,7 @@ teamPatterns = analyzeTeamPatterns(teamId);
 ### 示例 1：为查询构建上下文
 
 ```typescript
-// TypeScript - Building comprehensive AI context
+// TypeScript - Building comprehensive SI context
 const aiContextBuilder = new AIContextBuilder(checkpointManager);
 
 const context = await aiContextBuilder.buildContextForQuery(
@@ -1193,7 +1193,7 @@ let expanded = ranker.expand_with_related(
 ### 示例 6：端到端工作流程
 
 ```typescript
-// Complete workflow: Query → Context → AI Response
+// Complete workflow: Query → Context → SI Response
 
 // Step 1: User asks a question
 const userQuery = "How do I add OAuth2 authentication?";
@@ -1308,7 +1308,7 @@ export class UnifiedAIContextProvider {
 // core/checkpoints/src/ai_context_manager.rs
 
 impl AIContextManager {
-    /// Create AI-enhanced checkpoint with full semantic analysis
+    /// Create SI-enhanced checkpoint with full semantic analysis
     pub fn create_ai_checkpoint(
         &self, 
         options: CheckpointOptions
@@ -1348,7 +1348,7 @@ impl AIContextManager {
             }
         })?;
         
-        log::info!("Created AI checkpoint {} in {:?}", checkpoint_id, start.elapsed());
+        log::info!("Created SI checkpoint {} in {:?}", checkpoint_id, start.elapsed());
         
         Ok(checkpoint_id)
     }
@@ -1603,7 +1603,7 @@ ml-features = ["pattern-detection", "clone-detection"]
 ```typescript
 // config/ai-context.config.ts
 
-export const AI_CONTEXT_CONFIG = {
+export const SI_CONTEXT_CONFIG = {
     // Parsing
     parsing: {
         maxFileSize: 1024 * 1024,        // 1MB per file
@@ -1687,7 +1687,7 @@ export const AI_CONTEXT_CONFIG = {
 
 ## 代码理解的未来
 
-Knox AI 上下文系统代表了对 AI 如何理解代码的根本性重新思考。通过超越简单的文本检索，走向**语义理解**、**时序智能**和**基于图的推理**，Knox 实现了传统 RAG 系统无法做到的：
+Knox SI 上下文系统代表了对 SI 如何理解代码的根本性重新思考。通过超越简单的文本检索，走向**语义理解**、**时序智能**和**基于图的推理**，Knox 实现了传统 RAG 系统无法做到的：
 
 ### 关键成就
 
@@ -1728,7 +1728,7 @@ Knox AI 上下文系统代表了对 AI 如何理解代码的根本性重新思�
 - 保持对代码库的一致理解
 - 追踪质量和复杂度趋势
 
-**对 AI：**
+**对 SI：**
 - 提供真正有助于生成正确代码的上下文
 - 理解项目架构和模式
 - 从项目历史和演化中学习
@@ -1736,21 +1736,21 @@ Knox AI 上下文系统代表了对 AI 如何理解代码的根本性重新思�
 
 ### 愿景
 
-Knox 不仅仅是一个更好的 RAG 系统——它是**真正理解代码的 AI** 的基础。随着系统从数百万次交互中学习，它将：
+Knox 不仅仅是一个更好的 RAG 系统——它是**真正理解代码的 SI** 的基础。随着系统从数百万次交互中学习，它将：
 
 - **预测**技术债务在积累之前
 - **建议**基于成功模式的重构
 - **解释**从架构意图角度解释代码变更
 - **引导**开发走向更好的架构
-- **协作**作为真正的 AI 结对编程伙伴
+- **协作**作为真正的 SI 结对编程伙伴
 
 ### 可衡量的影响
 
-使用 Knox AI 上下文的项目显示：
+使用 Knox SI 上下文的项目显示：
 - 理解不熟悉代码的时间**减少 40%**
-- AI 生成代码建议的准确率**提高 60%**
+- SI 生成代码建议的准确率**提高 60%**
 - 代码审查中捕获的架构违规**减少 50%**
-- 开发者对 AI 辅助的满意度**提高 35%**
+- 开发者对 SI 辅助的满意度**提高 35%**
 
 ---
 
@@ -1762,14 +1762,14 @@ Knox 不仅仅是一个更好的 RAG 系统——它是**真正理解代码的 A
 - **代码的机器学习**：Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, Charles Sutton - "A Survey of Machine Learning for Big Code and Naturalness"
 
 ### 相关系统
-- **GitHub Copilot**：AI 代码补全（基于文本的 RAG）
+- **GitHub Copilot**：SI 代码补全（基于文本的 RAG）
 - **Sourcegraph**：代码搜索（文本索引）
 - **CodeQL**：安全分析（语义查询）
 - **Knox**：**语义理解 + 时序智能 + 图推理**
 
 ### 关键差异化因素
 
-| 功能 | 传统工具 | Knox AI 上下文 |
+| 功能 | 传统工具 | Knox SI 上下文 |
 |------|---------|---------------|
 | **代码理解** | 文本/正则 | 完整 AST 解析 |
 | **关系** | 无或有限 | 14 类型知识图谱 |

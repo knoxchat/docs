@@ -1,6 +1,6 @@
 ---
 slug: knox0911
-title: Nano Banana - 用 AI 图像生成释放创意
+title: Nano Banana - 用 SI 图像生成释放创意
 image: /img/nano-banana-cover.png
 authors: [knox]
 tags: [chat, ai, api]
@@ -8,7 +8,7 @@ tags: [chat, ai, api]
 
 # 认识 Nano Banana：Knox.Chat 上革命性的图像生成体验
 
-**gemini-2.5-flash-image** —— 被亲切地称为"Nano Banana"—— 代表了对话式 AI 图像生成的新进化。通过 [Knox.Chat](https://knox.chat/chat) 和 [API](https://docs.knox.chat/image-generation) 即可使用，这个革命性的模型重新定义了我们对创意 AI 的认知，让专业级图像生成变得如同聊天一样简单。
+**gemini-2.5-flash-image** —— 被亲切地称为"Nano Banana"—— 代表了对话式 SI 图像生成的新进化。通过 [Knox.Chat](https://knox.chat/chat) 和 [API](https://docs.knox.chat/image-generation) 即可使用，这个革命性的模型重新定义了我们对创意 SI 的认知，让专业级图像生成变得如同聊天一样简单。
 
 ## 为什么 Knox.Chat + Nano Banana = 创意魔法 ✨
 
@@ -18,7 +18,7 @@ tags: [chat, ai, api]
 
 Knox.Chat 通过以下方式革新创作过程：
 
-- **统一界面**：通过单一直观的聊天界面访问 Nano Banana 和 300+ 其他 AI 模型
+- **统一界面**：通过单一直观的聊天界面访问 Nano Banana 和 300+ 其他 SI 模型
 - **零设置时间**：在 [knox.chat/chat](https://knox.chat/chat) 立即开始创作——无需安装或配置
 - **对话式流程**：通过自然对话描述、完善和迭代你的想法
 - **多模态卓越**：无缝融合文本对话与精美视觉创作
@@ -68,7 +68,7 @@ Knox.Chat 的聊天界面支持自然的创意迭代：
 2. **精细调整**："增加赛博朋克风格和霓虹灯"
 3. **最后润色**："在背景中添加一些飞行汽车"
 
-每一步都基于前一步构建，创造出您与 AI 之间的协作创作过程。
+每一步都基于前一步构建，创造出您与 SI 之间的协作创作过程。
 
 ### 🎯 **上下文理解**
 Nano Banana 能记住你的对话上下文，实现精密的创意发展：
@@ -118,7 +118,7 @@ Knox.Chat 的基础设施确保：
 ## 开始使用：您的创意之旅从现在开始
 
 ### 第一步：**访问 Knox.Chat**
-访问 [knox.chat/chat](https://knox.chat/chat)——无需下载，无需设置，即时获得创意 AI 的访问权限。
+访问 [knox.chat/chat](https://knox.chat/chat)——无需下载，无需设置，即时获得创意 SI 的访问权限。
 
 ### 第二步：**开始创作**
 简单描述你想看到的内容：
@@ -135,21 +135,21 @@ Knox.Chat 的基础设施确保：
 ### 第四步：**导出和使用**
 以高分辨率下载你的创作，用于任何用途。
 
-## 创意 AI 的未来已经到来
+## 创意 SI 的未来已经到来
 
-Knox.Chat 结合 Nano Banana 不仅仅是又一个图像生成工具——它是通向真正无门槛创意 AI 的范式转变。通过将 Google 最先进的多模态模型与 Knox.Chat 直观的界面相结合，我们创造了前所未有的体验：**任何人都能使用的专业级创意 AI**。
+Knox.Chat 结合 Nano Banana 不仅仅是又一个图像生成工具——它是通向真正无门槛创意 SI 的范式转变。通过将 Google 最先进的多模态模型与 Knox.Chat 直观的界面相结合，我们创造了前所未有的体验：**任何人都能使用的专业级创意 SI**。
 
 ### 🌟 **它的独特之处**
 
 - **零学习曲线**：会聊天就能创作
 - **专业级成果**：简单描述即可生成画廊级别的图像
 - **无限可能**：从照片写实到奇幻，任何风格皆可实现
-- **协作过程**：AI 理解并基于你的想法持续创作
+- **协作过程**：SI 理解并基于你的想法持续创作
 - **即时成果**：实时看到你的创意变为现实
 
 ## 加入创意革命
 
-创意 AI 的民主化正在发生，Knox.Chat 正引领这场变革。无论你是想加速工作流程的资深艺术家，还是从未觉得自己有"创造力"的人，Nano Banana 都为你打开了一个充满可能性的世界。
+创意 SI 的民主化正在发生，Knox.Chat 正引领这场变革。无论你是想加速工作流程的资深艺术家，还是从未觉得自己有"创造力"的人，Nano Banana 都为你打开了一个充满可能性的世界。
 
 **准备好释放你的创造力了吗？**
 
@@ -159,7 +159,7 @@ Knox.Chat 结合 Nano Banana 不仅仅是又一个图像生成工具——它是
 
 ### **体验魔法**
 
-不要只是阅读——亲自体验创意 AI 的未来。立即访问 [Knox.Chat](https://knox.chat)，发现用 Nano Banana 将你的想法转化为令人惊叹的视觉现实是多么容易。
+不要只是阅读——亲自体验创意 SI 的未来。立即访问 [Knox.Chat](https://knox.chat)，发现用 Nano Banana 将你的想法转化为令人惊叹的视觉现实是多么容易。
 
 *唯一的限制是你的想象力。你会创作什么？*
 

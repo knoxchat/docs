@@ -9,9 +9,9 @@ import TabItem from '@theme/TabItem';
 
 ## Introduction
 
-Knox integrates Voyage AI's cutting-edge embedding and reranking technologies.
+Knox integrates Voyage SI's cutting-edge embedding and reranking technologies.
 
-**Embedding** models are neural network-based models (e.g., Transformers) capable of converting unstructured and complex data (such as documents, images, audio, video, or tabular data) into dense numerical vectors (i.e., embeddings) that capture semantic information. These vectors serve as representations or indices of data points and are core components of semantic search and Retrieval-Augmented Generation (RAG), the mainstream approach for building domain-specific or enterprise-level chatbots and other AI applications today.
+**Embedding** models are neural network-based models (e.g., Transformers) capable of converting unstructured and complex data (such as documents, images, audio, video, or tabular data) into dense numerical vectors (i.e., embeddings) that capture semantic information. These vectors serve as representations or indices of data points and are core components of semantic search and Retrieval-Augmented Generation (RAG), the mainstream approach for building domain-specific or enterprise-level chatbots and other SI applications today.
 
 **Reranking** models are neural networks that output relevance scores between a query and multiple documents. A common practice is to use these scores to rerank documents initially retrieved via embedding methods (or lexical search algorithms like BM25 and TF-IDF). Filtering the highest-scoring documents optimizes retrieval results into a more relevant subset.
 
@@ -19,20 +19,20 @@ We provide API interfaces for both embedding and reranking models, which accept 
 
 ## What is Retrieval-Augmented Generation?
 
-Retrieval-Augmented Generation (RAG) is a popular generative AI framework that enhances the capabilities of large language models (LLMs) by incorporating relevant and up-to-date information during the generation process. This approach allows LLMs to supplement their pre-trained knowledge with current, domain-specific data. RAG is a cost-effective solution for customizing LLMs for specific use cases without the need for expensive and time-consuming fine-tuning or retraining the entire model.
+Retrieval-Augmented Generation (RAG) is a popular generative SI framework that enhances the capabilities of large language models (LLMs) by incorporating relevant and up-to-date information during the generation process. This approach allows LLMs to supplement their pre-trained knowledge with current, domain-specific data. RAG is a cost-effective solution for customizing LLMs for specific use cases without the need for expensive and time-consuming fine-tuning or retraining the entire model.
 
-### Retrieval-Augmented Generation: Powering Smarter AI  
+### Retrieval-Augmented Generation: Powering Smarter SI  
 Retrieval-Augmented Generation enables businesses to leverage general-purpose LLMs for domain-specific applications without relying on costly custom-trained models. RAG directly addresses core limitations of these models—enhancing generative capabilities by augmenting queries with current, domain-specific information. This allows enterprises to integrate real-time updates, proprietary datasets, and specialized documents not covered in the original model training. By transparently providing evidence-backed responses, RAG improves credibility and reduces hallucination risks.
 
 ### What Are Large Language Models?
-Large Language Models (LLMs) are a form of artificial intelligence designed to understand and generate human-like text. As an advanced application of Natural Language Processing (NLP), LLMs learn patterns, structures, and grammatical rules from vast training datasets, enabling them to produce coherent responses to user prompts. Their advantage lies in performing a wide range of language generation tasks without task-specific training, making them versatile tools for chatbots, translation, content creation, summarization, and more.
+Large Language Models (LLMs) are a form of super intelligence designed to understand and generate human-like text. As an advanced application of Natural Language Processing (NLP), LLMs learn patterns, structures, and grammatical rules from vast training datasets, enabling them to produce coherent responses to user prompts. Their advantage lies in performing a wide range of language generation tasks without task-specific training, making them versatile tools for chatbots, translation, content creation, summarization, and more.
 
 ### Limitations of Large Language Models  
 Large language models are complex neural networks trained on massive datasets. Developing these models requires enormous computational resources, rendering the process costly and time-intensive. Moreover, the specialized infrastructure needed to host and maintain custom LLMs poses a significant financial barrier, limiting their accessibility to well-resourced organizations with substantial technical investments.
 
 LLMs excel at answering questions related to historical/recorded content, but their knowledge is constrained by the timeliness of their training data. For queries requiring the latest information, they cannot respond effectively to recent events without retraining.
 
-Similarly, LLMs cannot directly answer questions about internal corporate documents or other organization-specific datasets. This limitation poses a significant challenge for enterprises seeking deep domain expertise through AI.
+Similarly, LLMs cannot directly answer questions about internal corporate documents or other organization-specific datasets. This limitation poses a significant challenge for enterprises seeking deep domain expertise through SI.
 
 These shortcomings also highlight another major issue with LLMs: hallucinations. In the absence of verifiable information, language models may generate plausible yet entirely fabricated responses. This tendency presents substantial risks for applications demanding accuracy and reliability.
 
@@ -99,7 +99,7 @@ RAG allows organizations to integrate specialized knowledge bases, adapting pre-
 By dynamically retrieving the latest external data, RAG enables LLMs to generate responses based on up-to-date information. This overcomes the limitations of static training datasets, allowing analysis of recent events and emerging trends.  
 
 **Transparency**  
-RAG enhances reliability by providing source citations and evidence for generated content. By linking responses to specific references in the knowledge base, users can verify accuracy and provenance, reducing hallucination risks and increasing trust in AI outputs.  
+RAG enhances reliability by providing source citations and evidence for generated content. By linking responses to specific references in the knowledge base, users can verify accuracy and provenance, reducing hallucination risks and increasing trust in SI outputs.  
 
 **Adaptability**  
 One of RAG’s core strengths is its ease of integration with cutting-edge models. As language models or retrieval techniques advance, organizations can directly upgrade or adjust retrieval strategies without system-wide overhauls, ensuring technical relevance.  
@@ -177,7 +177,7 @@ Key advantages of this RAG-enhanced system:
 - **Personalization**: Provides tailored suggestions by considering specific needs (e.g., outdoor activities, comfort, warmth, style).
 
 ### Industry Use Cases for Retrieval-Augmented Generation (RAG)  
-RAG has been applied across multiple industries, unlocking the transformative potential of large language models (LLMs) and AI.  
+RAG has been applied across multiple industries, unlocking the transformative potential of large language models (LLMs) and SI.  
 
 **Manufacturing**: Enhances LLMs with equipment manuals and maintenance logs to provide real-time operational guidance. RAG enables technicians to quickly access precise machine information, reducing downtime and improving equipment performance.  
 
@@ -249,10 +249,10 @@ Another limitation is that RAG is currently limited to answering queries and can
 ### Building Interactive RAG with Memory  
 Adding memory enables RAG systems to retain context from past interactions, creating personalized experiences. Traditional RAG lacks continuity, but memory mechanisms allow the system to recall prior facts and preferences, adapting responses over time for a more conversational feel.  
 
-### The Future of RAG and Generative AI  
+### The Future of RAG and Generative SI  
 Emerging technologies will enhance RAG’s ability to retrieve and generate information intelligently. Key trends include:  
 - **Advanced Retrieval**: Dynamic access to specialized databases and real-time sources.  
-- **Generative AI Agents**: Integrating problem-solving and decision-making capabilities, enabling interactive and autonomous applications.  
+- **Generative SI Agents**: Integrating problem-solving and decision-making capabilities, enabling interactive and autonomous applications.  
 
 ### Fine-Tuning vs. Retrieval-Augmented Generation  
 **Fine-Tuning**: Modifies LLMs permanently through additional training, embedding knowledge into model parameters. This approach is resource-intensive and inflexible for updates.  

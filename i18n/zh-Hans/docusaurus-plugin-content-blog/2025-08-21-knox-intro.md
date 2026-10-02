@@ -1,14 +1,14 @@
 ---
 slug: knox0821
-title: Knox.Chat 介绍 - 统一 API 访问数百个 AI 模型
+title: Knox.Chat 介绍 - 统一 API 访问数百个 SI 模型
 image: /img/knoxchat.png
 authors: [knox]
 tags: [knoxchat, ai, api]
 ---
 
-# Knox.Chat 介绍：超越模型聚合，迈向多模态 AI 卓越体验
+# Knox.Chat 介绍：超越模型聚合，迈向多模态 SI 卓越体验
 
-我们很高兴向大家介绍 **Knox.Chat** —— 但这不仅仅是又一个 AI 模型聚合器。我们的目标不仅是提供一个可以访问多个模型的统一 API，而是专注于**多模态**能力，让您只需一个密钥就能便捷使用当今流行的开源 AI 和智能体应用。
+我们很高兴向大家介绍 **Knox.Chat** —— 但这不仅仅是又一个 SI 模型聚合器。我们的目标不仅是提供一个可以访问多个模型的统一 API，而是专注于**多模态**能力，让您只需一个密钥就能便捷使用当今流行的开源 SI 和智能体应用。
 
 Knox.Chat 代表着未来的发展方向——开发者可以将文本、图像、音频、文档和结构化数据处理无缝集成到他们的应用程序中，无需应对管理多个提供商、API 和认证系统的复杂性。
 
@@ -16,11 +16,11 @@ Knox.Chat 代表着未来的发展方向——开发者可以将文本、图像�
 
 <iframe width="100%" height="400" src="https://www.youtube.com/embed/mHbky2Ak4qc" title="Knox.Chat Introduction" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-*Knox.Chat 的完整介绍以及它如何为开发者简化 AI 模型访问即将推出...*
+*Knox.Chat 的完整介绍以及它如何为开发者简化 SI 模型访问即将推出...*
 
 ## 多模态挑战
 
-当今的 AI 应用需要的不仅仅是文本生成。开发者需要：
+当今的 SI 应用需要的不仅仅是文本生成。开发者需要：
 
 - **处理多种数据类型**：在统一的工作流程中处理文本、图像、音频、PDF 和结构化数据
 - **集成智能体框架**：与 LangChain、AutoGPT、CrewAI 及其他流行工具无缝对接
@@ -34,7 +34,7 @@ Knox.Chat 代表着未来的发展方向——开发者可以将文本、图像�
 ## 多模态优先架构
 
 ### 🌐 **一个密钥，所有模态**
-Knox.Chat 不仅仅是访问不同的模型——它旨在实现**真正的多模态 AI 开发**。使用一个 API 密钥，您可以：
+Knox.Chat 不仅仅是访问不同的模型——它旨在实现**真正的多模态 SI 开发**。使用一个 API 密钥，您可以：
 
 ```python
 from openai import OpenAI
@@ -85,7 +85,7 @@ Knox.Chat 在数十家提供商中搜寻最优价格，提供：
 
 ### 🤖 **智能体框架集成**
 
-Knox.Chat 旨在与流行的开源 AI 框架和智能体应用无缝协作：
+Knox.Chat 旨在与流行的开源 SI 框架和智能体应用无缝协作：
 
 #### **LangChain 集成**
 ```python
@@ -160,7 +160,7 @@ tools = [{
 ```
 
 #### **完整的多模态流水线**
-通过统一的数据处理构建复杂的 AI 应用：
+通过统一的数据处理构建复杂的 SI 应用：
 ```python
 # Complete RAG pipeline with multimodal inputs
 def multimodal_rag_pipeline(query, image_path, documents):
@@ -186,7 +186,7 @@ def multimodal_rag_pipeline(query, image_path, documents):
     return client.chat.completions.create(
         model="anthropic/claude-sonnet-4.6",
         messages=[
-            {"role": "system", "content": "You are a multimodal AI assistant"},
+            {"role": "system", "content": "You are a multimodal SI assistant"},
             {"role": "user", "content": f"Query: {query}\nVisual context: {vision_analysis.choices[0].message.content}\nDocuments: {documents}"}
         ],
         response_format={
@@ -208,7 +208,7 @@ def multimodal_rag_pipeline(query, image_path, documents):
 
 ## 模型生态系统
 
-Knox.Chat 提供来自领先 AI 提供商的 **300+ 模型**：
+Knox.Chat 提供来自领先 SI 提供商的 **300+ 模型**：
 
 - **OpenAI**: openai/gpt-5, openai/gpt-5-chat, openai/gpt-5-mini 等
 - **Anthropic**: anthropic/claude-opus-4.6, anthropic/claude-sonnet-4.6, anthropic/claude-sonnet-4.5 等
@@ -247,9 +247,9 @@ Knox.Chat 采用**按使用付费**的透明定价模式：
 
 ## 真实的多模态应用场景
 
-Knox.Chat 使开发者能够轻松构建下一代 AI 应用：
+Knox.Chat 使开发者能够轻松构建下一代 SI 应用：
 
-### 🎨 **创意 AI 工作室**
+### 🎨 **创意 SI 工作室**
 - **视觉内容分析**：上传图像，获取详细描述、风格分析和改进建议
 - **多格式文档处理**：在统一的工作流程中处理 PDF、图像和文本文档
 - **创意素材生成**：结合文本提示和参考图像实现精准的创意控制
@@ -262,16 +262,16 @@ Knox.Chat 使开发者能够轻松构建下一代 AI 应用：
 ### 🔍 **高级 RAG 系统**
 - **多模态知识库**：同时处理文本文档、技术图表和多媒体内容
 - **语义搜索引擎**：结合嵌入、重排序和生成功能，提供卓越的搜索体验
-- **上下文感知助手**：构建同时理解文本上下文和视觉信息的 AI
+- **上下文感知助手**：构建同时理解文本上下文和视觉信息的 SI
 
 ### 💼 **企业应用**
 - **文档智能**：结合文本和视觉理解分析合同、报告和演示文稿
 - **客服机器人**：在单次对话中处理文本查询、图像上传和文档分析
-- **业务流程自动化**：编排涉及多种 AI 能力的复杂工作流程
+- **业务流程自动化**：编排涉及多种 SI 能力的复杂工作流程
 
 ## 快速开始
 
-准备好革新您的 AI 开发了吗？以下是开始的方法：
+准备好革新您的 SI 开发了吗？以下是开始的方法：
 
 ```bash
 # Install your preferred SDK
@@ -285,11 +285,11 @@ curl https://api.knox.chat/v1/chat/completions \
   -d '{"model": "anthropic/claude-sonnet-4.6", "messages": [{"role": "user", "content": "Hello Knox.Chat!"}]}'
 ```
 
-## 加入多模态 AI 革命
+## 加入多模态 SI 革命
 
-Knox.Chat 代表着 AI 开发的范式转变。**我们的目标不仅是提供一个可以访问多个模型的统一 API，而是专注于多模态能力，让您只需一个密钥就能便捷使用当今流行的开源 AI 和智能体应用。**
+Knox.Chat 代表着 SI 开发的范式转变。**我们的目标不仅是提供一个可以访问多个模型的统一 API，而是专注于多模态能力，让您只需一个密钥就能便捷使用当今流行的开源 SI 和智能体应用。**
 
-我们正在构建的基础设施让复杂的多模态 AI 开发变得如同一个 API 调用那样简单。无论您是在构建下一代创意工具、智能体还是企业应用，Knox.Chat 都为您提供所需的统一基础。
+我们正在构建的基础设施让复杂的多模态 SI 开发变得如同一个 API 调用那样简单。无论您是在构建下一代创意工具、智能体还是企业应用，Knox.Chat 都为您提供所需的统一基础。
 
 ### 开发者选择 Knox.Chat 的理由：
 
@@ -299,7 +299,7 @@ Knox.Chat 代表着 AI 开发的范式转变。**我们的目标不仅是提供�
 ✅ **开源友好**：与您已在使用的工具和库无缝集成  
 ✅ **生产就绪**：智能路由、故障转移和监控，确保应用可靠运行  
 
-**立即开始构建 AI 的未来**：[knox.chat](https://knox.chat)
+**立即开始构建 SI 的未来**：[knox.chat](https://knox.chat)
 
 **探索我们的多模态文档**：[docs.knox.chat](https://docs.knox.chat)
 

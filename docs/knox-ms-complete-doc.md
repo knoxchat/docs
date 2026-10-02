@@ -10,7 +10,7 @@ keywords: [knox, knox api, ai integration, knox-ms, memory system, developer gui
 > **Base URL:** `https://api.knox.chat`  
 > **API Version:** v1
 
-Knox-MS is an AI orchestration engine with a human-brain-inspired memory architecture with hierarchical memory levels, autonomous execution, and intelligent context management that enables effectively unlimited context windows and persistent memory across sessions.
+Knox-MS is an SI orchestration engine with a human-brain-inspired memory architecture with hierarchical memory levels, autonomous execution, and intelligent context management that enables effectively unlimited context windows and persistent memory across sessions.
 
 ## Table of Contents
 
@@ -318,7 +318,7 @@ Generate vector embeddings for text input.
 ```json
 {
   "model": "voyage-4-lite",
-  "input": "Knox-MS is an AI orchestration engine."
+  "input": "Knox-MS is an SI orchestration engine."
 }
 ```
 

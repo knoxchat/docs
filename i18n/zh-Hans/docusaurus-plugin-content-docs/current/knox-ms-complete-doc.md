@@ -11,7 +11,7 @@ keywords: [knox, knox api, ai integration, knox-ms, memory system, developer gui
 > **Base URL:** `https://api.knox.chat`  
 > **API 版本:** v1
 
-Knox-MS 是一个 AI 编排引擎，采用受人脑启发的记忆架构，具备分层记忆级别、自主执行和智能上下文管理功能，实现有效的无限上下文窗口和跨会话持久记忆。
+Knox-MS 是一个 SI 编排引擎，采用受人脑启发的记忆架构，具备分层记忆级别、自主执行和智能上下文管理功能，实现有效的无限上下文窗口和跨会话持久记忆。
 
 ## 目录
 
@@ -319,7 +319,7 @@ POST /v1/embeddings
 ```json
 {
   "model": "voyage-4-lite",
-  "input": "Knox-MS is an AI orchestration engine."
+  "input": "Knox-MS is an SI orchestration engine."
 }
 ```
 

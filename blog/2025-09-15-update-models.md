@@ -8,7 +8,7 @@ tags: [ai, api, update]
 
 # Major Models Page Update - Enhanced Navigation with Smart Tabs
 
-We're excited to announce a major update to KnoxChat's models page! We've completely redesigned the user experience with a new tabbed interface that makes it easier than ever to discover and access the AI models you need.
+We're excited to announce a major update to KnoxChat's models page! We've completely redesigned the user experience with a new tabbed interface that makes it easier than ever to discover and access the SI models you need.
 
 | ![](/img/modelslist-cover.png) |
 |-|
@@ -19,7 +19,7 @@ We're excited to announce a major update to KnoxChat's models page! We've comple
 The models page now features four distinct tabs, each designed for specific use cases:
 
 #### 🏠 **Default Tab**
-- Browse our complete catalog of AI models
+- Browse our complete catalog of SI models
 - Advanced search and filtering capabilities
 - Sort by newest, oldest, price, or context length
 - Perfect for exploring all available options
@@ -38,7 +38,7 @@ The models page now features four distinct tabs, each designed for specific use 
 #### 🔧 **Tool Calling Tab**
 - Dedicated section for models that support function calling
 - Filter between models that support or don't support tool calling
-- Essential for developers building AI agents and automated workflows
+- Essential for developers building SI agents and automated workflows
 - Includes models like `anthropic/claude-sonnet-4.6` and other tool-enabled models
 
 #### 🎁 **Free Models Tab**

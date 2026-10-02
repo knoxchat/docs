@@ -1,14 +1,14 @@
 ---
 slug: knox0821
-title: Introducing Knox.Chat - A Unified API Accessing Hundreds of AI Models
+title: Introducing Knox.Chat - A Unified API Accessing Hundreds of SI Models
 image: /img/knoxchat.png
 authors: [knox]
 tags: [knoxchat, ai, api]
 ---
 
-# Introducing Knox.Chat: Beyond Model Aggregation to Multimodal AI Excellence
+# Introducing Knox.Chat: Beyond Model Aggregation to Multimodal SI Excellence
 
-We're excited to introduce **Knox.Chat** – but this isn't just another AI model aggregator. Our goal is not merely to provide a single API for accessing multiple models, but to focus on **multimodality** and enable convenient usage of today's popular open-source AI and agent applications with just one key.
+We're excited to introduce **Knox.Chat** – but this isn't just another SI model aggregator. Our goal is not merely to provide a single API for accessing multiple models, but to focus on **multimodality** and enable convenient usage of today's popular open-source SI and agent applications with just one key.
 
 Knox.Chat represents the future where developers can seamlessly integrate text, images, audio, documents, and structured data processing into their applications without the complexity of managing multiple providers, APIs, and authentication systems.
 
@@ -16,11 +16,11 @@ Knox.Chat represents the future where developers can seamlessly integrate text, 
 
 <iframe width="100%" height="400" src="https://www.youtube.com/embed/mHbky2Ak4qc" title="Knox.Chat Introduction" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-*The full introduction to Knox.Chat and see how it simplifies AI model access for developers will coming soon...*
+*The full introduction to Knox.Chat and see how it simplifies SI model access for developers will coming soon...*
 
 ## The Multimodal Challenge
 
-Today's AI applications demand more than just text generation. Developers need to:
+Today's SI applications demand more than just text generation. Developers need to:
 
 - **Process Multiple Data Types**: Handle text, images, audio, PDFs, and structured data in unified workflows
 - **Integrate Agent Frameworks**: Connect with LangChain, AutoGPT, CrewAI, and other popular tools seamlessly  
@@ -34,7 +34,7 @@ The traditional approach requires juggling multiple APIs, authentication systems
 ## Multimodal-First Architecture
 
 ### 🌐 **One Key, All Modalities**
-Knox.Chat isn't just about accessing different models – it's about enabling **true multimodal AI development**. With a single API key, you can:
+Knox.Chat isn't just about accessing different models – it's about enabling **true multimodal SI development**. With a single API key, you can:
 
 ```python
 from openai import OpenAI
@@ -85,7 +85,7 @@ Knox.Chat scouts for the best prices across dozens of providers, offering:
 
 ### 🤖 **Agent Framework Integration**
 
-Knox.Chat is designed to work seamlessly with popular open-source AI frameworks and agent applications:
+Knox.Chat is designed to work seamlessly with popular open-source SI frameworks and agent applications:
 
 #### **LangChain Integration**
 ```python
@@ -160,7 +160,7 @@ Enforce JSON Schema validation for consistent, parseable responses:
 ```
 
 #### **Complete Multimodal Pipeline**
-Build sophisticated AI applications with unified data processing:
+Build sophisticated SI applications with unified data processing:
 ```python
 # Complete RAG pipeline with multimodal inputs
 def multimodal_rag_pipeline(query, image_path, documents):
@@ -186,7 +186,7 @@ def multimodal_rag_pipeline(query, image_path, documents):
     return client.chat.completions.create(
         model="anthropic/claude-sonnet-4.6",
         messages=[
-            {"role": "system", "content": "You are a multimodal AI assistant"},
+            {"role": "system", "content": "You are a multimodal SI assistant"},
             {"role": "user", "content": f"Query: {query}\nVisual context: {vision_analysis.choices[0].message.content}\nDocuments: {documents}"}
         ],
         response_format={
@@ -208,7 +208,7 @@ def multimodal_rag_pipeline(query, image_path, documents):
 
 ## Model Ecosystem
 
-Knox.Chat provides access to **300+ models** from leading AI providers:
+Knox.Chat provides access to **300+ models** from leading SI providers:
 
 - **OpenAI**: openai/gpt-5, openai/gpt-5-chat, openai/gpt-5-mini, and more
 - **Anthropic**: anthropic/claude-opus-4.6, anthropic/claude-sonnet-4.6, anthropic/claude-sonnet-4.5, and more
@@ -247,9 +247,9 @@ Knox.Chat operates on a **pay-as-you-use** model with transparent pricing:
 
 ## Real-World Multimodal Applications
 
-Knox.Chat enables developers to build next-generation AI applications with ease:
+Knox.Chat enables developers to build next-generation SI applications with ease:
 
-### 🎨 **Creative AI Studios**
+### 🎨 **Creative SI Studios**
 - **Visual Content Analysis**: Upload images, get detailed descriptions, style analysis, and improvement suggestions
 - **Multi-format Document Processing**: Handle PDFs, images, and text documents in unified workflows
 - **Creative Asset Generation**: Combine text prompts with reference images for precise creative control
@@ -262,16 +262,16 @@ Knox.Chat enables developers to build next-generation AI applications with ease:
 ### 🔍 **Advanced RAG Systems**
 - **Multimodal Knowledge Bases**: Process text documents, technical diagrams, and multimedia content together
 - **Semantic Search Engines**: Combine embeddings, reranking, and generation for superior search experiences  
-- **Context-Aware Assistants**: Build AI that understands both textual context and visual information
+- **Context-Aware Assistants**: Build SI that understands both textual context and visual information
 
 ### 💼 **Enterprise Applications**
 - **Document Intelligence**: Analyze contracts, reports, and presentations with combined text and visual understanding
 - **Customer Support Bots**: Handle text queries, image uploads, and document analysis in single conversations
-- **Business Process Automation**: Orchestrate complex workflows involving multiple AI capabilities
+- **Business Process Automation**: Orchestrate complex workflows involving multiple SI capabilities
 
 ## Getting Started
 
-Ready to revolutionize your AI development? Here's how to begin:
+Ready to revolutionize your SI development? Here's how to begin:
 
 ```bash
 # Install your preferred SDK
@@ -285,11 +285,11 @@ curl https://api.knox.chat/v1/chat/completions \
   -d '{"model": "anthropic/claude-sonnet-4.6", "messages": [{"role": "user", "content": "Hello Knox.Chat!"}]}'
 ```
 
-## Join the Multimodal AI Revolution
+## Join the Multimodal SI Revolution
 
-Knox.Chat represents a paradigm shift in AI development. **Our goal is not merely to provide a single API for accessing multiple models, but to focus on multimodality and enable convenient usage of today's popular open-source AI and agent applications with just one key.**
+Knox.Chat represents a paradigm shift in SI development. **Our goal is not merely to provide a single API for accessing multiple models, but to focus on multimodality and enable convenient usage of today's popular open-source SI and agent applications with just one key.**
 
-We're building the infrastructure that makes complex multimodal AI development as simple as a single API call. Whether you're building the next generation of creative tools, intelligent agents, or enterprise applications, Knox.Chat provides the unified foundation you need.
+We're building the infrastructure that makes complex multimodal SI development as simple as a single API call. Whether you're building the next generation of creative tools, intelligent agents, or enterprise applications, Knox.Chat provides the unified foundation you need.
 
 ### Why Developers Choose Knox.Chat:
 
@@ -299,7 +299,7 @@ We're building the infrastructure that makes complex multimodal AI development a
 ✅ **Open-Source Friendly**: Seamless integration with the tools and libraries you already use  
 ✅ **Production-Ready**: Intelligent routing, fallbacks, and monitoring for reliable applications  
 
-**Start building the future of AI today**: [knox.chat](https://knox.chat)
+**Start building the future of SI today**: [knox.chat](https://knox.chat)
 
 **Explore our multimodal documentation**: [docs.knox.chat](https://docs.knox.chat)
 

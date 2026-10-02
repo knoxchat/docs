@@ -8,7 +8,7 @@ tags: [knoxchat, ai, vscode]
 
 # 智能体。记忆。解决方案。
 
-**Knox** 是面向 VS Code 的 AI 编程环境——不是聊天浮层。自主 Agent、本地 Memory Brain，以及不依赖 Git 的检查点共享同一会话，模型可以作为一个系统来规划、执行、记忆和回退。
+**Knox** 是面向 VS Code 的 SI 编程环境——不是聊天浮层。自主 Agent、本地 Memory Brain，以及不依赖 Git 的检查点共享同一会话，模型可以作为一个系统来规划、执行、记忆和回退。
 
 自带模型。开箱即用支持 Anthropic Claude、OpenAI GPT、DeepSeek、Gemini、Qwen、Grok、GLM、Codestral、Sonar Pro，以及 Knox 的按需模型 `knox/knox-ms`。
 
@@ -150,7 +150,7 @@ Git 用于您有意提交的内容。检查点用于 Agent 刚刚做的一切—
 ### 何时拍快照
 
 - **每轮第一次变更类工具之前** — 编辑、补丁、测试、git commit 或终端。始终如此。空树会先打基线
-- **AI 回复之后**，当工作区文件发生变化时（默认开启）
+- **SI 回复之后**，当工作区文件发生变化时（默认开启）
 - **手动** — 命令面板 **Knox: Create Checkpoint**，或 Agent 工具 `builtin_workspace_checkpoint`
 - **Worktree Apply** — 文件拷回前先打一轮检查点
 - **记忆批量删除** — 一次 Memory Brain 安全检查点（与工作区快照分开）
@@ -188,7 +188,7 @@ Git 用于您有意提交的内容。检查点用于 Agent 刚刚做的一切—
 
 模型、磁盘和记忆彼此保持一致。
 
-## AI 聊天
+## SI 聊天
 
 侧边栏聊天实时流式输出；在 Agent 标签上时，工具执行会内联显示。
 
@@ -278,7 +278,7 @@ Git 用于您有意提交的内容。检查点用于 Agent 刚刚做的一切—
 
 ## 规则系统
 
-项目标准会注入每一次 AI 交互。后出现的来源优先。
+项目标准会注入每一次 SI 交互。后出现的来源优先。
 
 **合并顺序（越后越高）：**
 
@@ -363,7 +363,7 @@ Knox 通过 `~/.knox/` 中的 `config.yaml` 以及应用内 Settings 页面配�
 | `knox.checkpoints.maxFileSizeBytes` | `5242880` | 捕获文件大小上限（5 MB） |
 | `knox.checkpoints.captureBinaryFiles` | `true` | 快照图片、字体、PDF 等 |
 | `knox.checkpoints.enableCompression` | `true` | 压缩开关 |
-| `knox.checkpoints.enableAutoCheckpoints` | `true` | 文件变化时在 AI 回复后自动创建 |
+| `knox.checkpoints.enableAutoCheckpoints` | `true` | 文件变化时在 SI 回复后自动创建 |
 | `knox.checkpoints.trackedExtensions` | `[js, ts, py, …]` | 额外跟踪的扩展名 |
 | `knox.checkpoints.autoCleanup` | `true` | 自动删除旧检查点 |
 | `knox.checkpoints.cleanupIntervalHours` | `24` | 清理间隔 |

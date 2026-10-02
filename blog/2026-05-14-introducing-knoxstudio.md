@@ -6,17 +6,17 @@ authors: [knox]
 tags: [knoxstudio, ai, context]
 ---
 
-# KnoxStudio: Building a Native AI-Powered Video Production Studio in Rust
+# KnoxStudio: Building a Native SI-Powered Video Production Studio in Rust
 
-*A deep dive into how we built a professional-grade, macOS-native video editing and AI media generation application from the ground up — entirely in Rust.*
+*A deep dive into how we built a professional-grade, macOS-native video editing and SI media generation application from the ground up — entirely in Rust.*
 
 <script src="https://fast.wistia.com/player.js" async></script><script src="https://fast.wistia.com/embed/wu8kanddnm.js" async type="module"></script><style>wistia-player[media-id='wu8kanddnm']:not(:defined) { background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/wu8kanddnm/swatch'); display: block; filter: blur(5px); padding-top:56.25%; }</style> <wistia-player media-id="wu8kanddnm" aspect="1.7777777777777777"></wistia-player>
 
 ## The Vision
 
-The video production landscape has long been dominated by heavyweight, proprietary editing suites that treat AI as an afterthought — a plugin bolted on, a sidebar feature buried in menus. We asked a different question: **What if AI wasn't a feature of the editor, but the co-director?**
+The video production landscape has long been dominated by heavyweight, proprietary editing suites that treat SI as an afterthought — a plugin bolted on, a sidebar feature buried in menus. We asked a different question: **What if SI wasn't a feature of the editor, but the co-director?**
 
-KnoxStudio is the answer. It's a native [**macOS**](https://www.apple.com/mac/) application that fuses a professional multi-track video editor with an intelligent AI agent capable of generating videos, images, and audio from natural language — then placing them directly onto the timeline. No browser tabs. No cloud dashboards. No copy-pasting URLs. You describe a scene, and it materializes in your project.
+KnoxStudio is the answer. It's a native [**macOS**](https://www.apple.com/mac/) application that fuses a professional multi-track video editor with an intelligent SI agent capable of generating videos, images, and audio from natural language — then placing them directly onto the timeline. No browser tabs. No cloud dashboards. No copy-pasting URLs. You describe a scene, and it materializes in your project.
 
 Built entirely in [**Rust**](https://rust-lang.org/) with over **416,000 lines of hand-written code**, KnoxStudio is not a thin wrapper around a web API. It's a from-scratch video production environment where every pixel, every frame, and every interaction was designed with one philosophy: **the creative intent flows from your words to the screen, uninterrupted.**
 
@@ -27,7 +27,7 @@ Built entirely in [**Rust**](https://rust-lang.org/) with over **416,000 lines o
 
 Video editing is one of the most demanding categories of desktop software. Frame-accurate playback, real-time canvas compositing, multi-track timeline manipulation, and FFmpeg pipeline orchestration all demand predictable, low-latency performance. Electron was never an option.
 
-We chose [**Rust**](https://rust-lang.org/) for its unique combination of memory safety, zero-cost abstractions, and fearless concurrency. The same language manages our GPU-backed UI rendering, our async AI agent pipeline, [**SQLite**](https://sqlite.org/) media database, and [**FFmpeg**](https://ffmpeg.org/) export orchestration — all without a garbage collector, and with compile-time guarantees that eliminate entire classes of runtime bugs.
+We chose [**Rust**](https://rust-lang.org/) for its unique combination of memory safety, zero-cost abstractions, and fearless concurrency. The same language manages our GPU-backed UI rendering, our async SI agent pipeline, [**SQLite**](https://sqlite.org/) media database, and [**FFmpeg**](https://ffmpeg.org/) export orchestration — all without a garbage collector, and with compile-time guarantees that eliminate entire classes of runtime bugs.
 
 The UI framework is [**egui**](https://www.egui.rs/) via **eframe** — an immediate-mode GUI library that gives us pixel-level control over every widget while running at native speed. The result is a macOS-dark-mode-inspired interface that feels like it belongs on the platform, with smooth 60fps rendering even during complex timeline operations.
 
@@ -50,14 +50,14 @@ KnoxStudio's architecture is organized into clearly separated domains, each resp
 
 - **Export Pipeline** — A sophisticated FFmpeg-based export system supporting multiple resolution presets (480p through 4K), percentage-based scaling, custom resolutions, multiple encoding quality tiers, and format selection. The pipeline handles multi-segment composition, annotation rendering, cursor effect overlays, and audio mixing during export.
 
-- **AI Agent System** — The crown jewel. A complete AI-powered production assistant that understands natural language, generates media, manages creative assets, and orchestrates complex multi-step workflows. This deserves its own section.
+- **SI Agent System** — The crown jewel. A complete SI-powered production assistant that understands natural language, generates media, manages creative assets, and orchestrates complex multi-step workflows. This deserves its own section.
 
 | ![](/img/first-run.png) |
 |-|
 
-## The AI Agent: Your Creative Co-Director
+## The SI Agent: Your Creative Co-Director
 
-The AI system in KnoxStudio isn't a simple prompt-to-video button. It's a multi-layered, stateful agent architecture that operates like a virtual production team.
+The SI system in KnoxStudio isn't a simple prompt-to-video button. It's a multi-layered, stateful agent architecture that operates like a virtual production team.
 
 ### The Agent Hierarchy
 
@@ -106,7 +106,7 @@ Visual description blocks (written as blockquotes in Markdown or action lines in
 
 ## Roles: Character Consistency Across Generations
 
-Maintaining visual consistency for characters across multiple AI-generated shots is one of the hardest problems in AI filmmaking. KnoxStudio addresses this with the **Roles** system.
+Maintaining visual consistency for characters across multiple SI-generated shots is one of the hardest problems in SI filmmaking. KnoxStudio addresses this with the **Roles** system.
 
 A Role represents a character or subject — "Hero," "Sidekick," "The Villain's Lair." Each role carries reference images and reference videos that are uploaded to the cloud asset library and associated with an asset ID. When the agent generates a shot involving a character, the active roles' asset IDs are automatically injected into the generation request, ensuring the output maintains visual consistency with the established references.
 
@@ -156,7 +156,7 @@ The layout follows a professional NLE (Non-Linear Editor) paradigm:
 - **Canvas** in the center for real-time preview with annotation overlays
 - **Inspector** on the right for clip properties, color controls, and transform settings
 - **Timeline** across the bottom with multi-track editing, track headers, and transport controls
-- **AI Agent Panel** as a slide-out chat panel for conversational media generation
+- **SI Agent Panel** as a slide-out chat panel for conversational media generation
 
 ---
 
@@ -203,7 +203,7 @@ For tutorial creators, product demos, and educational content, KnoxStudio includ
 
 ## The Generation Workflow
 
-Here's what a typical AI-assisted production workflow looks like in KnoxStudio:
+Here's what a typical SI-assisted production workflow looks like in KnoxStudio:
 
 1. **Write a screenplay** in Markdown or Fountain format, or paste one into the Screenplay panel.
 2. **Define roles** for your characters with reference images to ensure visual consistency.
@@ -222,7 +222,7 @@ The agent remembers the conversation context, the generation history, and the pr
 
 - **416,000+ lines of Rust** — No scripting languages, no glue code. Pure Rust from UI to export.
 - **Rust Edition 2024** — Using the latest Rust edition features and a minimum Rust version of 1.95.
-- **Async-first AI pipeline** — Tokio-powered multi-threaded runtime for concurrent API calls, polling, and downloads without blocking the UI.
+- **Async-first SI pipeline** — Tokio-powered multi-threaded runtime for concurrent API calls, polling, and downloads without blocking the UI.
 - **Immediate-mode UI** — The entire interface renders at 60fps using egui's immediate-mode paradigm, ensuring the UI is always in sync with application state.
 - **State machine-driven agent** — Formal state machine (via `statig`) prevents impossible agent states and makes the conversation lifecycle predictable.
 - **Custom Markdown parser** — Purpose-built streaming parser for rendering LLM output in real time.
@@ -237,7 +237,7 @@ The agent remembers the conversation context, the generation history, and the pr
 
 ## What's Next
 
-KnoxStudio is version 1.0.2, but the roadmap is ambitious. The foundation — a native, performant, AI-first video editor — is solid. The architecture was designed from day one to support additional providers, new generation modalities, and deeper timeline intelligence.
+KnoxStudio is version 1.0.2, but the roadmap is ambitious. The foundation — a native, performant, SI-first video editor — is solid. The architecture was designed from day one to support additional providers, new generation modalities, and deeper timeline intelligence.
 
 We believe the future of video production is conversational. Not clicking through menus, but describing what you want and watching it appear. Not switching between five different apps, but having one environment where creative intent flows directly into finished media.
 

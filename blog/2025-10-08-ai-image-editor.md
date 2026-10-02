@@ -1,16 +1,16 @@
 ---
 slug: knox1008
-title: Introducing Knox AI Image Editor - Professional Image Editing with Natural Language
+title: Introducing Knox SI Image Editor - Professional Image Editing with Natural Language
 image: /img/ai-image-editor.png
 authors: [knox]
 tags: [ai, knoxchat, update]
 ---
 
-# Introducing Knox AI Image Editor: The Future of Image Editing is Here
+# Introducing Knox SI Image Editor: The Future of Image Editing is Here
 
 **Edit images like you're talking to a designer. No buttons. No sliders. Just natural language.**
 
-Today, we're thrilled to announce big update to Knox yet: **Knox AI Image Editor** - a professional-grade image editing suite powered by Gemini 2.5 Flash Image, a.k.a. "Nano Banana,". This isn't just another filter app. This is a complete reimagining of how humans interact with image editing tools.
+Today, we're thrilled to announce big update to Knox yet: **Knox SI Image Editor** - a professional-grade image editing suite powered by Gemini 2.5 Flash Image, a.k.a. "Nano Banana,". This isn't just another filter app. This is a complete reimagining of how humans interact with image editing tools.
 
 <!--truncate-->
 
@@ -29,7 +29,7 @@ What if you could:
 
 **That's exactly what we built.**
 
-## What Makes Knox AI Image Editor Different?
+## What Makes Knox SI Image Editor Different?
 
 ### 1. **Natural Language = No Learning Curve**
 
@@ -56,7 +56,7 @@ Press Enter. Done. ✅
 
 ### 2. **11 Powerful Features in One Interface**
 
-We didn't just add "AI filters." We built a complete editing ecosystem:
+We didn't just add "SI filters." We built a complete editing ecosystem:
 
 #### **Quick Edit Commands**
 10 preset commands for instant transformations:
@@ -89,15 +89,15 @@ Full-featured viewer with:
 - Annotation tools
 - Region selection for precise edits
 
-**Draw on what you want to edit. The AI understands.**
+**Draw on what you want to edit. The SI understands.**
 
-#### **Smart AI Suggestions**
+#### **Smart SI Suggestions**
 Context-aware recommendations based on your image:
 - Detects portraits → Suggests "Enhance Portrait", "Glamour Shot"
 - Detects landscapes → Suggests "Dramatic Lighting", "Time of Day"
 - Detects architecture → Suggests "Architectural Enhancement"
 
-**The AI analyzes your image and suggests the best edits.**
+**The SI analyzes your image and suggests the best edits.**
 
 #### **Edit History Timeline**
 Visual timeline of all your edits:
@@ -223,7 +223,7 @@ Press `S` → Choose "Cinematic"
 - Social media managers who need variety
 - E-commerce teams who process hundreds of images
 - Content creators who lack editing skills
-- Digital artists who want AI assistance
+- Digital artists who want SI assistance
 - Anyone who values time over complexity
 
 ### **Maybe Not For:**
@@ -235,7 +235,7 @@ Press `S` → Choose "Cinematic"
 
 ## Technical Innovation
 
-### **Built on Cutting-Edge AI**
+### **Built on Cutting-Edge SI**
 
 Powered by **Google Gemini 2.5 Flash Image** models:
 - Advanced image understanding
@@ -285,7 +285,7 @@ For those who want to push the limits:
 1. Open in viewer
 2. Draw on problem areas
 3. Type: "Fix overexposure in marked regions"
-4. AI targets only those areas
+4. SI targets only those areas
 ```
 
 ### **Keyboard Workflow**
@@ -365,7 +365,7 @@ Ready to experience the future of image editing?
 
 We believe **creativity shouldn't be blocked by complexity**. 
 
-With Knox AI Image Editor, we've made professional image editing as simple as having a conversation. Whether you're a seasoned photographer or have never edited an image in your life, you can now create stunning visuals in seconds.
+With Knox SI Image Editor, we've made professional image editing as simple as having a conversation. Whether you're a seasoned photographer or have never edited an image in your life, you can now create stunning visuals in seconds.
 
 **The future of image editing is conversational. And it's here today.**
 
