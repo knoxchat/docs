@@ -1,0 +1,53 @@
+---
+title: 常见问题
+sidebar_label: 常见问题
+description: 数据在哪、为什么没有 API 密钥框、8732 对 8733、缺失媒体、额度，以及 KnoxCoder。
+---
+
+import Link from '@docusaurus/Link';
+
+# 常见问题
+
+## 我的数据在哪？
+
+项目：`.knoxstudio` 包。生成的媒体、对话、角色：`~/.knoxmedia`。密钥：钥匙串。<Link to="/knoxstudio/settings/data">磁盘上的数据</Link>。
+
+## 为什么没有 API 密钥框？
+
+1.7.0 已移除。用 <Link to="/knoxstudio/sign-in">KnoxStudio 登录</Link>。
+
+## 浏览器登录一直不回来
+
+**8732** 端口必须空闲。必须在线。代理不得截断 `knoxstudio.ai` / `api.knoxstudio.ai`。KnoxCoder 用 **8733**——另一个产品。
+
+## 剪辑需要账号吗？
+
+不需要。录制、时间线、写作、导出可离线。SI 生成、字幕、Voice Director、Director、Storyboard、音色库才要登录。
+
+## 导出说缺失媒体
+
+点传输条 **缺失媒体** 徽章。重新链接某个文件（该文件夹里同名片段会跟着）、**跳过** 一个，或跳过剩余。在重新链接或跳过之前，缺失媒体 **会拦住** 导出。
+
+## 退出登录会撤销云端密钥吗？
+
+有网时会。钥匙串里的密钥无论是否在线都会删掉。离线退出：到 [knoxstudio.ai/keys](https://knoxstudio.ai/keys) 撤销 **KnoxStudio Desktop**。
+
+## 费用表在哪？
+
+应用里没有。用量记在 KnoxStudio 账号上。
+
+## 能跳过更新吗？
+
+不能。版本强制。先完成录制/导出；若提示就保存；应用安装并重新启动。
+
+## 这是 KnoxCoder 吗？
+
+不是。[KnoxCoder](/knoxcoder) 是代码编辑器。本标签是 macOS SI 工作室。对比：<Link to="/knoxstudio/reference/compare">对比</Link>。
+
+## 能在 Windows 上跑吗？
+
+不能。只做 macOS 13+。
+
+## 专注模式 / F11？
+
+没上线。从 **显示** 隐藏面板。⌘Enter 发送对话。

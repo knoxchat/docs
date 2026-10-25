@@ -1,0 +1,31 @@
+---
+title: 转场
+sidebar_label: 转场
+description: 十八种重叠转场、缓动曲线，以及 ⌘T 在播放头添加或移除。
+---
+
+import Link from '@docusaurus/Link';
+
+# 转场
+
+<kbd>⌘T</kbd> 在重叠处添加转场（或移除）。时长和类型在检查器的重叠上。
+
+## 种类
+
+| 组 | 类型 |
+|---|---|
+| 混合 | 交叉淡化、交叉溶解、淡入黑、淡入白 |
+| 擦除 | 向左 / 右 / 上 / 下擦除 |
+| 滑入 | 向左 / 右 / 上 / 下滑入 |
+| 推 | 向左 / 右 / 上 / 下推 |
+| 柔和 | **缩放溶解**、**模糊溶解** |
+
+## 缓动
+
+线性、缓入、缓出、**缓入缓出**（默认）、幂、保持、贝塞尔。
+
+## 重叠处的音频
+
+两段音频重叠时，混合模式是 **交叉淡化**、**等功率**（默认）、**全混合** 或 **硬切**。<Link to="/knoxstudio/audio/mixer">混音台</Link>。
+
+Editor Agent 可以用同样的类型名 `add_transition` / `remove_transition`。<Link to="/knoxstudio/agent/editor">Editor Agent</Link>。

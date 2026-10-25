@@ -1,0 +1,43 @@
+---
+title: Known limitations
+sidebar_label: Known limitations
+description: Honest gaps in KnoxStudio 1.7 — no coding agent, no Windows app, no credits UI, no focus mode, no PDF export.
+---
+
+import Link from '@docusaurus/Link';
+
+# Known limitations
+
+Honest gaps in KnoxStudio **1.7.3**. Also see <Link to="/knoxstudio/reference/troubleshooting">Troubleshooting</Link>.
+
+## Not in this release
+
+| Gap | Notes |
+|---|---|
+| **Coding agent** | Explicitly later. Writer treats source as text |
+| **Windows / Linux app** | macOS 13+ only. Use [KnoxCoder](/knoxcoder) for a coding editor on those platforms |
+| **Paste API key** | Removed in 1.7.0. Sign in with KnoxStudio only |
+| **Focus mode (F11 / Cmd+Enter)** | Documented in older notes; **not implemented**. Cmd+Enter sends chat |
+| **User-facing credits / cost** | SQLite column only; billed on the account |
+| **Generation History window** | Variations dialog + internal SQLite |
+| **Direct PDF export** of screenplays | HTML + Print → Save as PDF |
+| **SI Agent Configuration model tabs** | Single pane: account + defaults |
+| **Continue scene / Write a shot list chips** | i18n only; not in the empty grid |
+| **Wave filter** | Catalog listing; not applyable |
+| Extra locales | **English and Chinese only** |
+
+## Capture
+
+System audio needs macOS 13+. Screen Recording permission often needs a **relaunch** after you enable it in System Settings.
+
+## Director
+
+Needs a **vision** capability from the signed-in catalog. Empty shots in a shot list are skipped.
+
+## Confirm
+
+Voice Director **bypasses** Confirm while the call is live. Default composer mode is **Auto**.
+
+## Updates
+
+GitHub Releases are **mandatory**. You cannot skip a version. Recording/export finish first; unsaved work still prompts.

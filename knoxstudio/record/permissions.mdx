@@ -1,0 +1,40 @@
+---
+title: Permissions
+sidebar_label: Permissions
+description: Screen Recording, Microphone, Camera, and System Audio — when KnoxStudio asks and where to flip them later.
+---
+
+import Link from '@docusaurus/Link';
+
+# Permissions
+
+macOS prompts the first time a capture or speech surface needs access — not at app launch. **Preferences → Devices** shows Screen and Camera chips and a **Refresh Devices** button.
+
+## What KnoxStudio asks for
+
+| Area | System Settings | When |
+|---|---|---|
+| **Screen Recording** | Privacy & Security → Screen Recording | First screen capture / Recording setup |
+| **Microphone** | Privacy & Security → Microphone | Mic in a take, or Voice Director |
+| **Camera** | Privacy & Security → Camera | Camera in a take |
+| **System Audio** | Privacy & Security → Screen & System Audio Recording | System-audio loopback (macOS 13+) |
+
+The app ships usage strings (`NSScreenCaptureUsageDescription`, `NSMicrophoneUsageDescription`, `NSCameraUsageDescription`). System audio shares the Screen Capture pane.
+
+`Info.plist` also declares `NSSpeechRecognitionUsageDescription` (“dictation in text fields”). **1.7 does not prompt for Speech Recognition.** Voice Director is Knox realtime speech-to-speech over the microphone — not macOS dictation. You will not see a Speech Recognition toggle for this app unless a later build wires the kit recognizer.
+
+## If a source is missing
+
+1. Open **System Settings → Privacy & Security** and enable KnoxStudio for that category.
+2. **Quit and reopen** KnoxStudio. Screen Recording in particular often needs a full relaunch.
+3. **Preferences → Devices → Refresh Devices**.
+
+Record and export also need **FFmpeg** (bundled). Devices tab shows bundled vs system vs missing.
+
+## What does not need permission
+
+Opening a project, editing the timeline, writing in Screenplay, and exporting already-imported media. SI features need a <Link to="/knoxstudio/sign-in">signed-in account</Link>, which is not a macOS TCC permission.
+
+## Next
+
+<Link to="/knoxstudio/record/screen">Screen recording</Link> · <Link to="/knoxstudio/safety/privacy">Privacy</Link>

@@ -1,0 +1,42 @@
+---
+title: Compare
+sidebar_label: Compare
+description: KnoxStudio vs KnoxCoder vs Knox.Chat API vs older blog names — which tab to read.
+---
+
+import Link from '@docusaurus/Link';
+
+# Compare
+
+Four names people mix up. Only the first row is this tab.
+
+| Product | What it is | Data dir | Where the docs live |
+|---|---|---|---|
+| **KnoxStudio** | Native macOS SI studio | `.knoxstudio` + `~/.knoxmedia` | **This tab** (`/knoxstudio`) |
+| **KnoxCoder + Knox Agent** | Desktop code editor with builtin `vscode.knox` | `~/.knoxcoder` | [KnoxCoder](/knoxcoder) tab |
+| **Knox.Chat API** | HTTP API (`api.knoxstudio.ai`, same backend as `api.knox.chat`) | Cloud | Docs / API Reference tabs |
+| **Marketplace Knox** (`knoxchat.knoxchat`) | VSIX for vanilla VS Code | `~/.knox` | Not this app |
+
+## KnoxStudio vs KnoxCoder
+
+| | KnoxStudio | KnoxCoder |
+|---|---|---|
+| Job | Record, generate, write, cut, export | Edit code with a coding agent |
+| OS | macOS 13+ | macOS, Windows, Linux |
+| OAuth loopback | **8732** | **8733** |
+| Sign-in | SI Agent Configuration | Knox: Settings / Add Model |
+| Home | `~/.knoxmedia` | `~/.knoxcoder` |
+
+You can use the **same KnoxStudio account** in both. Keys are not copied automatically.
+
+## KnoxStudio vs Knox.Chat API
+
+This app **calls** the API after you sign in. Multimodal HTTP routes, OpenAPI, and cloud memory live under **Docs** — different audience (developers). This tab is for people using the Mac app.
+
+## Older blog posts
+
+Some posts describe egui, Electron, or a video-only editor. Trust **this guide** and the running 1.7 UI (GPUI, Explorer, Voice Director orb) over outdated screenshots.
+
+## Next
+
+<Link to="/knoxstudio">What is KnoxStudio</Link> · [What is KnoxCoder](/knoxcoder)

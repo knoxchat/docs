@@ -1,0 +1,52 @@
+---
+title: Editor agent
+sidebar_label: Editor agent
+description: Plain-language timeline edits — cut, trim, watch, caption, regenerate — with Confirm cards for destructive batches.
+---
+
+import Link from '@docusaurus/Link';
+
+# Editor agent
+
+Dock **Editor**. Empty: “Ask the SI to edit the timeline — video, audio, and images. Cut, trim, split, move, retime, mix, and place media. It can watch and listen to decide what to do.”
+
+Tracks it knows: Video, Audio, Camera, Annotation, Adjustment, Caption.
+
+Destructive batches in **Confirm** show **Confirm edits** with **Apply** / **Discard**.
+
+## What you can ask
+
+Examples the tools support:
+
+- “Remove the silences.” (`analyze_timeline` silence + cuts)
+- “Cut on every scene change.”
+- “Cut to where she says…” (`transcribe_clip`)
+- “Caption this clip.”
+- “Slow this down.” (uses the current selection)
+
+## Tool groups
+
+| Group | Examples |
+|---|---|
+| Inspect | `read_timeline`, `set_playhead`, `move_playhead`, `watch_clip` (1–24 frames, default 3), `analyze_timeline` (`scenes` / `silence` / `both`) |
+| Speech | `transcribe_clip`, `caption_clip`, `align_clip`, `caption_align_clip` |
+| Audio | `isolate_clip`, `change_voice_clip`, `voices` |
+| Cut | `split_clip`, `trim_clip`, `delete_clip`, `move_clip`, `set_clip_speed`, `set_clip_property` |
+| Transitions | `add_transition`, `remove_transition` |
+| Clipboard | `duplicate_clip`, `copy_clip`, `cut_clip`, `paste_clip` |
+| Picture | `detach_audio`, `add_freeze_frame`, `set_clip_locked`, `select_clips` |
+| Structure | `ripple_delete_range`, `insert_space`, `group_clips`, `ungroup_clips` |
+| Tracks | `add_track`, `remove_track`, `move_track`, `rename_track`, `set_track_property` |
+| Frames | `extract_frame`, `extract_key_frames` |
+| Media | `insert_media` (path, @ name, or Explorer filename) |
+| SI | `regenerate_clip`, `generate_variation`, `extend_clip` |
+| Titles | `add_text`, `add_captions`, annotation templates |
+| Markers | `add_marker`, `remove_marker` |
+| Effects / motion | `apply_effect`, `add_keyframe_preset`, `zoom_to_region`, keyframes |
+| Export dialog | `export_range` (`whole` / `in_out` / `selection` / `markers`) — **does not encode** |
+
+STT, isolation, Voice Changer, Forced Alignment, and vision need the matching Knox-Studio capability after sign-in.
+
+## Next
+
+<Link to="/knoxstudio/agent/confirm">Confirm and Auto</Link> · <Link to="/knoxstudio/timeline/clips">Clips</Link>

@@ -1,0 +1,32 @@
+---
+title: Chat history
+sidebar_label: Chat history
+description: Local conversations in SQLite — search, archive, smart titles, drafts, and export. No credits UI.
+---
+
+import Link from '@docusaurus/Link';
+
+# Chat history
+
+Header **Chat history**. Persisted in `~/.knoxmedia/database/media_index.db`.
+
+- **Search conversations...**
+- **Hide archived** / **Show archived**
+- **Select** / **Select all** / **Delete** / **Archive**
+- Groups: Today, Yesterday, This Week, This Month
+- Empty: **No conversations yet** / “Your chat history will appear here”
+- Delete is **permanent**
+- Opening another thread while streaming: “A response is still generating… Opening another conversation will stop it.”
+- Smart titles after the first exchange (2–6 words, same language as the user). Placeholder **New Conversation**. Drafts restore per conversation.
+- Relaunch restores the **last conversation and unsent composer draft**. **New Conversation** still starts blank.
+- Generation cards can show **Missing** / **Show in Finder** when the output file moved.
+
+## Generation records
+
+Prompt, model, provider, duration, resolution, roles, scene, and output path are stored locally. They power **Variations** and Director coverage. There is **no** dedicated Generation History browser.
+
+`provider_usage.total_cost_estimate` exists in SQLite. There is **no** user-facing cost / credits UI in this app. Usage is billed on your KnoxStudio account.
+
+## Next
+
+<Link to="/knoxstudio/production/variations">Variations</Link> · <Link to="/knoxstudio/settings/data">Data on disk</Link>

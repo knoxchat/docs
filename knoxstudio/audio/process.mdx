@@ -1,0 +1,24 @@
+---
+title: Isolate, voice, stems
+sidebar_label: Isolate, voice, stems
+description: Speech isolation, Voice Changer, stem split, and forced alignment from the clip menu or the Editor agent.
+---
+
+import Link from '@docusaurus/Link';
+
+# Isolate, voice, stems
+
+Right-click an audio or video clip after you <Link to="/knoxstudio/sign-in">sign in</Link>. The Editor agent exposes the same jobs as tools.
+
+| Action | What it does |
+|---|---|
+| **Isolate audio** | Speech isolation from a mix |
+| **Change voice** | Voice Changer to a `voice_id` (role / selected / default) |
+| **Separate stems** | Split a mix into stems |
+| **Forced alignment** | Time a transcript to the audio (also used for captions) |
+
+Manager can call `isolate_audio`, `change_voice`, `force_align`, `list_audio_isolation`, `delete_audio_isolation`, and `voices` on library files. Editor wraps the selected **clip**.
+
+Isolation history can be listed and deleted. These jobs send **audio** (or an extracted clip window) to KnoxChat. <Link to="/knoxstudio/safety/privacy">Privacy</Link>.
+
+Forced alignment: files up to 3 GB, audio 100 ms–10 h, transcript ≤ 675,000 characters. The client sets `enable_logging=false`.

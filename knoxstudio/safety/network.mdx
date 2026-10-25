@@ -1,0 +1,28 @@
+---
+title: Network
+sidebar_label: Network
+description: Hosts KnoxStudio talks to — OAuth, api.knoxstudio.ai, GitHub updates, and loopback 8732.
+---
+
+import Link from '@docusaurus/Link';
+
+# Network
+
+Offline, you can record, edit, write, and export. These hosts are used when a feature needs the network:
+
+| Host / URL | Why |
+|---|---|
+| `https://knoxstudio.ai/oauth2/authorize` | Sign in |
+| `http://127.0.0.1:8732/callback` | OAuth loopback (this Mac only) |
+| `https://api.knoxstudio.ai` | Catalog, generation, realtime, voices, STT, vision |
+| `https://github.com/knoxchat/knoxstudio/releases/...` | `latest.json` and the DMG |
+
+A corporate proxy that intercepts TLS to `knoxstudio.ai` / `api.knoxstudio.ai` breaks sign-in and generation.
+
+KnoxCoder uses loopback **8733**. This app uses **8732**. Do not bind either port if you need both products to sign in.
+
+No Knox telemetry channel is documented in this app. Crash reports stay local when enabled.
+
+## Next
+
+<Link to="/knoxstudio/sign-in">Sign in</Link> · <Link to="/knoxstudio/settings/updates">Updates</Link>

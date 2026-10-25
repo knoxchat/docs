@@ -1,0 +1,52 @@
+---
+title: 磁盘上的数据
+sidebar_label: 磁盘上的数据
+description: .knoxstudio 包、~/.knoxmedia 布局、钥匙串密钥、自动保存快照，以及怎样备份才安全。
+---
+
+import Link from '@docusaurus/Link';
+
+# 磁盘上的数据
+
+## 项目包
+
+`.knoxstudio` 是一个 **包**（访达把它当文件）。UTI `com.knoxstudio.knoxstudio.project`。双击打开 KnoxStudio。
+
+里面：
+
+| 路径 | 内容 |
+|---|---|
+| `project.json` 或 `project.json.zst` | 清单（超过 4 KB 会压缩）。版本 2。保存时 SHA-256 校验 |
+| `media/` | 导入和采集的文件 |
+| `proxies/` | 可选代理 |
+| `nests/` | 复合片段 |
+| `luts/` | `.cube` LUT |
+| `cache/` | 渲染缓存 |
+
+## `~/.knoxmedia`（权限 0700）
+
+| 路径 | 内容 |
+|---|---|
+| `video/` `audio/` `image/` | 生成的媒体 |
+| `docs/` | 转换后的 Office/PDF Markdown |
+| `screenplay/` | 剧本 + `exports/` |
+| `storyboard/` | Storyboard 运行 |
+| `roles/` | 角色 YAML |
+| `database/media_index.db` | 对话、生成记录、搜索 |
+| `config.yaml` | Agent 配置 |
+| `defaults.yaml` | 生成默认值 |
+| `chat/` | 额外对话产物 |
+| `continuity/` | 序列工作文件 |
+| `projects/autosave/` | 轮转项目快照（最近 **5** 份） |
+
+旧的 `.{name}.autosave.json` 可能还在。项目打不开或崩溃后，**快照选择器** 会列出最近 5 份自动保存。崩溃恢复的 **恢复** 在有快照时会用自动保存。<Link to="/knoxstudio/reference/troubleshooting">故障排除</Link>。
+
+## 密钥
+
+macOS 钥匙串：`knoxchat_api_key`、`knoxchat_oauth_refresh`。从不写日志。账号元数据（用户 id、用户名、token id）在应用配置里——不是原始密钥。
+
+## 备份
+
+若要保留生成资产、角色和对话，请同时拷贝 `.knoxstudio` 包 **和** `~/.knoxmedia`。媒体挪了位置要重新链接。<Link to="/knoxstudio/reference/troubleshooting">缺失媒体</Link>。
+
+这个目录 **不是** `~/.knoxcoder`（KnoxCoder），也 **不是** `~/.knox`（市场 VS Code 扩展）。

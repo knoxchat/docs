@@ -1,0 +1,59 @@
+---
+title: 对话界面
+sidebar_label: 对话界面
+description: SI Agent 面板、工作室模式坞、作曲栏、气泡、任务卡片，以及 Voice Director 标题切换。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# 对话界面
+
+右侧栏空闲时标题是 **SI Agent**，语音会话时是 **Voice Director**，历史视图是 **对话历史**。
+
+Manager 空文案：**SI Studio Agent**——「生成视频、图像、音乐或文档——或编辑时间线。打字或说话。」作曲栏提示：**随便问——生成、剪辑或写作…**
+
+## 工作室模式
+
+作曲栏上的坞：
+
+| 坞 | 模式 |
+|---|---|
+| 用户 | **角色** |
+| 剧本 | **画布 / 剧本**（切换中央标签——不是专家） |
+| 喇叭 | **Director** |
+| 网格 | **Storyboard** |
+| 铅笔 | **Writer** |
+| 剪刀 | **Editor** |
+
+再点一次当前专家是 **回到对话**（Manager）。即使不在角色模式，已激活的角色仍会点亮角色井。
+
+标题栏：**新对话**、**查看视频序列**、**对话历史**、**SI 配置**、**在窗口中打开**。
+
+## 发送
+
+「回车发送」是偏好设置开关（关 = <kbd>⌘Enter</kbd>）。<kbd>⇧Enter</kbd> 换行。<kbd>Esc</kbd> **停止生成**。<kbd>⌘K</kbd> 聚焦对话。<kbd>⌘G</kbd> 从输入生成。<kbd>⌘⇧V</kbd> Voice Director。
+
+确认在等待时作曲栏锁定：「先批准或取消，再发下一条。Esc 取消。」
+
+## 气泡
+
+复制、引用、编辑消息、删除这一轮、复制 markdown、钉住 / 取消、打开更大视图、查看图像、在画布打开、在时间线揭示、复制提示、显示更多/更少。
+
+**推理** / **思考了 Ns** / **复制推理**。工具行：**已调用**、**参数**、**结果**。
+
+任务卡片：等待、生成中、完成、失败、已放置、缺失、已取消、已过期。**停止**、**重试**。**放置在**、**生成于**。
+
+**↓ 新内容** / **↓ N 条新**。**搜索此对话**（<kbd>⌘F</kbd>）。**选择消息**（<kbd>⌘⇧A</kbd>）。**导出对话**（存为 Markdown / 纯文本、复制为…、**跳过系统通知**）。
+
+Agent 提问：**Agent 问题**——「点选项或按 1–9。也可以打字回答。」
+
+## 空状态芯片（Manager）
+
+生成视频 · 生成图像 · 生成音乐 · 写文档 · 编辑上一个片段 · 解释选区。
+
+**续写场景** 和 **写分镜表** 作为文案存在，但 1.7 的空网格里 **没有**。
+
+## 下一步
+
+<Link to="/knoxstudio/agent/manager">Manager</Link> · <Link to="/knoxstudio/agent/mentions">提及</Link> · <Link to="/knoxstudio/agent/confirm">确认与自动</Link>

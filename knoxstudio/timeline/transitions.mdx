@@ -1,0 +1,31 @@
+---
+title: Transitions
+sidebar_label: Transitions
+description: Eighteen overlap transitions, easing curves, and ⌘T to add or remove at the playhead.
+---
+
+import Link from '@docusaurus/Link';
+
+# Transitions
+
+<kbd>⌘T</kbd> adds a transition at the overlap (or removes it). Duration and type live on the overlap in the inspector.
+
+## Kinds
+
+| Group | Types |
+|---|---|
+| Mix | Crossfade, Cross Dissolve, Dip to Black, Dip to White |
+| Wipe | Wipe Left / Right / Up / Down |
+| Slide | Slide Left / Right / Up / Down |
+| Push | Push Left / Right / Up / Down |
+| Soft | **Zoom Dissolve**, **Blur Dissolve** |
+
+## Easing
+
+Linear, Ease In, Ease Out, **Ease In Out** (default), Power, Hold, Bezier.
+
+## Audio at overlaps
+
+When two audio clips overlap, mix mode is **Crossfade**, **Equal Power** (default), **Full Mix**, or **Hard Cut**. <Link to="/knoxstudio/audio/mixer">Mixer</Link>.
+
+The Editor agent can `add_transition` / `remove_transition` with the same type names. <Link to="/knoxstudio/agent/editor">Editor agent</Link>.

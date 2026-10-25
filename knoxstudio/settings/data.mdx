@@ -1,0 +1,52 @@
+---
+title: Data on disk
+sidebar_label: Data on disk
+description: .knoxstudio packages, ~/.knoxmedia layout, Keychain secrets, autosave snapshots, and what is safe to back up.
+---
+
+import Link from '@docusaurus/Link';
+
+# Data on disk
+
+## Project packages
+
+`.knoxstudio` is a **package** (Finder treats it as a file). UTI `com.knoxstudio.knoxstudio.project`. Double-click opens KnoxStudio.
+
+Inside:
+
+| Path | Contents |
+|---|---|
+| `project.json` or `project.json.zst` | Manifest (compressed above 4 KB). Version 2. SHA-256 checksum on save |
+| `media/` | Imported and captured files |
+| `proxies/` | Optional proxies |
+| `nests/` | Compound clips |
+| `luts/` | `.cube` LUTs |
+| `cache/` | Render cache |
+
+## `~/.knoxmedia` (mode 0700)
+
+| Path | Contents |
+|---|---|
+| `video/` `audio/` `image/` | Generated media |
+| `docs/` | Converted Office/PDF Markdown |
+| `screenplay/` | Scripts + `exports/` |
+| `storyboard/` | Storyboard runs |
+| `roles/` | Character Role YAML |
+| `database/media_index.db` | Chat, generation records, search |
+| `config.yaml` | Agent config |
+| `defaults.yaml` | Generation defaults |
+| `chat/` | Extra chat artifacts |
+| `continuity/` | Sequence working files |
+| `projects/autosave/` | Rotating project snapshots (**last 5**) |
+
+Legacy `.{name}.autosave.json` may still exist. If a project will not open, or after a crash, a **snapshot picker** lists the last 5 autosaves. Crash recovery **Restore** uses an autosave when one exists. <Link to="/knoxstudio/reference/troubleshooting">Troubleshooting</Link>.
+
+## Secrets
+
+macOS Keychain: `knoxchat_api_key`, `knoxchat_oauth_refresh`. Never logged. Account metadata (user id, username, token id) in app config — not the raw key.
+
+## Back up
+
+Copy `.knoxstudio` packages **and** `~/.knoxmedia` if you want generated assets, roles, and chat. Relink if media moved. <Link to="/knoxstudio/reference/troubleshooting">Missing media</Link>.
+
+This directory is **not** `~/.knoxcoder` (KnoxCoder) and **not** `~/.knox` (marketplace VS Code extension).

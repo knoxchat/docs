@@ -1,0 +1,42 @@
+---
+title: 对比
+sidebar_label: 对比
+description: KnoxStudio 对 KnoxCoder 对 Knox.Chat API 对旧博客名字——该读哪个标签。
+---
+
+import Link from '@docusaurus/Link';
+
+# 对比
+
+四个名字容易混。只有第一行是本标签。
+
+| 产品 | 是什么 | 数据目录 | 文档在哪 |
+|---|---|---|---|
+| **KnoxStudio** | 原生 macOS SI 工作室 | `.knoxstudio` + `~/.knoxmedia` | **本标签**（`/knoxstudio`） |
+| **KnoxCoder + Knox Agent** | 带内置 `vscode.knox` 的桌面代码编辑器 | `~/.knoxcoder` | [KnoxCoder](/knoxcoder) 标签 |
+| **Knox.Chat API** | HTTP API（`api.knoxstudio.ai`，与 `api.knox.chat` 同一后端） | 云 | 文档 / API 参考标签 |
+| **市场 Knox**（`knoxchat.knoxchat`） | 给原版 VS Code 的 VSIX | `~/.knox` | 不是本应用 |
+
+## KnoxStudio 对 KnoxCoder
+
+| | KnoxStudio | KnoxCoder |
+|---|---|---|
+| 工作 | 录制、生成、写作、剪辑、导出 | 用编程 Agent 改代码 |
+| 系统 | macOS 13+ | macOS、Windows、Linux |
+| OAuth 回环 | **8732** | **8733** |
+| 登录 | SI 配置 | Knox: 设置 / 添加模型 |
+| 主目录 | `~/.knoxmedia` | `~/.knoxcoder` |
+
+两个都可以用 **同一个 KnoxStudio 账号**。密钥不会自动拷贝。
+
+## KnoxStudio 对 Knox.Chat API
+
+本应用登录后会 **调用** API。多模态 HTTP 路由、OpenAPI 和云记忆在 **文档** 里——受众是开发者。本标签给用 Mac 应用的人。
+
+## 旧博客
+
+有些文章写 egui、Electron 或只做视频的编辑器。相信 **本指南** 和正在跑的 1.7 界面（GPUI、Explorer、Voice Director 圆球），不要信过时截图。
+
+## 下一步
+
+<Link to="/knoxstudio">KnoxStudio 是什么</Link> · [KnoxCoder 是什么](/knoxcoder)

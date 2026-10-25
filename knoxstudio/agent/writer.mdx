@@ -1,0 +1,31 @@
+---
+title: Writer
+sidebar_label: Writer
+description: Read, write, and revise Markdown and screenplays under ~/.knoxmedia — no media generation.
+---
+
+import Link from '@docusaurus/Link';
+
+# Writer
+
+Dock **Writer**. Empty: “Ask the SI to read, write, or revise documents and screenplays in your workspace. Dropped PDFs and Office files become Markdown the agent can use.”
+
+Hint: **Ask the writer to read, write, or revise documents and screenplays...** Cmd+Enter or Enter, depending on prefs.
+
+## Sandbox
+
+Only `~/.knoxmedia`. Paths knoxmedia-relative (`docs/brief.md`, `screenplay/act1.md`) or screenplay-relative (`act1.md`). No `..`, no absolute paths.
+
+## Tools
+
+`list_files`, `read_file` (cap **200,000** bytes), `write_file` (full overwrite), `create_file`, `delete_file` (Trash, undoable in Explorer), `move_file`, `reveal_in_tree`, `expand_path`, `get_tree_selection`, `search_files`.
+
+Writer **cannot** generate video, images, or audio. The coding specialist is later — treat source as text.
+
+## Stale error copy
+
+You may still see “No Screenplay Editor model configured. Add one in SI Agent Configuration → Editor Models.” The current config dialog is a **single pane** (no Editor Models tab). Chat LLM is `knox/knox-studio` after sign-in.
+
+## Next
+
+<Link to="/knoxstudio/write/documents">Documents</Link> · <Link to="/knoxstudio/write/screenplay">Screenplay</Link>

@@ -1,0 +1,48 @@
+---
+title: Cursor and click effects
+sidebar_label: Cursor and clicks
+description: Six click styles, left and right colors, auto-zoom, and a pointer overlay that composites on preview and export.
+---
+
+import Link from '@docusaurus/Link';
+
+# Cursor and click effects
+
+KnoxStudio records the **cursor path** and **click events** with the take. Preview and export composite those overlays — they are not burned into the `.mov` until then, so you can restyle after the fact.
+
+## Click styles
+
+**Preferences → Recording** (and clip inspector fields for per-clip overrides):
+
+| Style | In the Recording prefs dropdown |
+|---|---|
+| **Ring** | Default |
+| **Filled** | Yes |
+| **Spotlight** | Yes |
+| **Ripple** | Yes |
+| **Sonar** | Yes |
+| **Freeze Ring** | Yes |
+
+## Timing and color
+
+| Control | Range / notes |
+|---|---|
+| Left-click color | Prefs + inspector |
+| Right-click color | Prefs + inspector |
+| Radius | 8–180 px |
+| Duration | 0.1–2.5 s |
+| Opacity | Inspector |
+| **Auto-zoom** on click | Inspector |
+| **Show pointer** overlay | From the recorded path |
+| Pointer scale | Inspector |
+| Scale-on-click | Inspector |
+
+**Show cursor** and **Highlight clicks** are the Recording setup master switches. Turn clicks off for a clean desktop capture; the path can still drive a pointer overlay if you enable it later.
+
+## What you see is what you export
+
+The canvas composites cursor and click overlays with video, camera, annotations, and transitions. Export uses the same composite path. Safe-area overlays are **not** exported.
+
+## Next
+
+<Link to="/knoxstudio/canvas/preview">Preview canvas</Link> · <Link to="/knoxstudio/record/screen">Screen recording</Link>

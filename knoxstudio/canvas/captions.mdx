@@ -1,0 +1,34 @@
+---
+title: Captions
+sidebar_label: Captions
+description: Caption tracks, SRT/VTT import and export, burn-in vs sidecar, and auto-caption with Scribe.
+---
+
+import Link from '@docusaurus/Link';
+
+# Captions
+
+Caption cues live on **Caption** tracks (prefix CC). Overlap is off by default.
+
+## Add a caption track
+
+1. Right-click a **gap** on the timeline (or the track headers) → **Add Caption track**.
+2. Right-click a clip or gap → **Insert caption** / add at the playhead from Inspector **Annotate**.
+3. Click a cue on the CC lane to edit the text, in/out, and the pill style (color, size, position).
+
+Caption is a **track kind**, not a digit annotation tool. Shapes and titles stay on Annotation (N) tracks. <Link to="/knoxstudio/canvas/annotations">Annotations</Link>.
+
+## Import and auto-caption
+
+- Import **SRT** or **VTT** from the gap / clip menu. Export the cue list the same way.
+- **Auto-caption** on a clip (context menu) uses KnoxChat **Scribe** — needs <Link to="/knoxstudio/sign-in">sign-in</Link>. The Editor agent `caption_clip` / `transcribe_clip` is the same path.
+
+Forced alignment (`caption_align_clip` / `align_clip`) can time a transcript to the audio. Files up to 3 GB, audio 100 ms–10 h, transcript ≤ 675,000 characters. The tool sends `enable_logging=false` (zero-retention on that API).
+
+## Export
+
+Export dialog **Captions**: **Burn in** (default) or sidecar `.srt`. <Link to="/knoxstudio/export/formats">Formats</Link>.
+
+## Next
+
+<Link to="/knoxstudio/audio/process">Process audio</Link> · <Link to="/knoxstudio/agent/editor">Editor agent</Link>

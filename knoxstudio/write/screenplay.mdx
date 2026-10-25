@@ -1,0 +1,55 @@
+---
+title: Screenplay editor
+sidebar_label: Screenplay editor
+description: Edit, Read, and Outline modes, Fountain and Knox dialects, templates, roles chips, and Send to Director.
+---
+
+import Link from '@docusaurus/Link';
+
+# Screenplay editor
+
+Center tab **Screenplay**. Open a file from Explorer or **New Screenplay**. Last-open document restores on launch. The Canvas / Screenplay tab strip appears once a document is open.
+
+## Dialects
+
+Knox `[NAME]`, Fountain `INT.` / `EXT.` sluglines, and literary `**NAME**` / `>` dialogue all parse. Outline, characters, Director, find, and export share that parse.
+
+Welcome copy: “Knox [NAME], Fountain INT./EXT., and literary **NAME** / > dialogue all parse.”
+
+## Modes
+
+<kbd>⌘1</kbd> / <kbd>⌘2</kbd> / <kbd>⌘3</kbd> in the screenplay (these keys are Inspector / Agent / Roles when the NLE is focused — focus matters).
+
+| Mode | What you get |
+|---|---|
+| **Edit** | Markdown with One Dark Pro highlighting and a thin overlay for `[CHAR]`, Fountain cues, and transitions |
+| **Read** | Scene cards, **Roles:** chips, **Add to timeline**, **Generate All**, background image |
+| **Outline** | Reorder scenes, **Cycle status** (Draft, In Progress, Complete, Needs Review) |
+
+**Split view (Edit \| Read)**. **Soft wrap**, **Line numbers** (<kbd>⌘L</kbd>), **Scene minimap** (<kbd>⌘B</kbd>).
+
+Read-mode **Roles:** chips: click to activate / deactivate a Character Role. Missing → “No character role for …” / create one in Roles.
+
+## Templates
+
+New screenplay template (screenplay preferences): **Feature** (Untitled Feature, INT. APARTMENT, EXT. STREET), **Short**, **TV Episode** (Teaser + Act One).
+
+## Writing aids
+
+Toolbar: **Import file** / **Open folder**, Find / replace (<kbd>⌘F</kbd>, F3 / Shift+F3), go to scene (<kbd>⌘G</kbd>), prev / next scene (<kbd>⌘↑</kbd> / <kbd>⌘↓</kbd>).
+
+Side panels (1.7.3): **Characters**, **Relationships**, **Comments**. Click a completion in the list to insert it at the caret. Autocomplete covers Characters, Locations, and Scene Headings. Dialect-aware parse is shared with Outline, Director, find, and export.
+
+Also: **Character name generator**, **Statistics** (words, pages ~250 wpp, runtime, dialogue vs action), **Revision Marks** (diff vs the file-open snapshot — not git history), **Keep local .bak backups on save**, autosave interval, **Apply scene numbers**, **Start a 25-minute Pomodoro**, **Send selection to Agent**, Tips panel.
+
+<kbd>⌘W</kbd> closes the tab. <kbd>⌘N</kbd> new file when Screenplay is focused.
+
+## Send to production
+
+**Send to Director Mode** (status: **Director Mode: analyzing screenplay**) or **Analyze Open Screenplay** from Director. <Link to="/knoxstudio/production/director">Director</Link>.
+
+There is **no** Focus mode / F11 in 1.7. Hide Explorer and the right panel from **View** if you want a quieter page.
+
+## Next
+
+<Link to="/knoxstudio/write/export">Export scripts</Link> · <Link to="/knoxstudio/production/roles">Character Roles</Link>

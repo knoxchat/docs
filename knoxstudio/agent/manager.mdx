@@ -1,0 +1,52 @@
+---
+title: Manager
+sidebar_label: Manager
+description: The default SI Agent — route to generate, library, timeline place, and Editor without rewriting your prompt.
+---
+
+import Link from '@docusaurus/Link';
+
+# Manager
+
+Manager is the default **SI Agent**. It is a pass-through orchestrator: it must **not** rewrite your prompts. It routes to tools. Video / image / audio defaults come from `~/.knoxmedia/defaults.yaml` — the agent is instructed never to ask about duration, resolution, or ratio.
+
+## Typical turn
+
+1. <Link to="/knoxstudio/sign-in">Sign in</Link>.
+2. Type, tap a chip, drop files, or `@` a target.
+3. Send. **Stop generating (Esc)** while streaming.
+4. Results land in `~/.knoxmedia/{video,image,audio}/` and on the timeline. **Video is async** (**Submitted to generation queue**); image and audio are synchronous.
+
+## Tools
+
+| Group | Tools |
+|---|---|
+| Library | `library_search`, `library_read`, `library_write`, `library_remove` |
+| Store | `memory_read`, `memory_search` |
+| Plan | `plan_generation` (content **>15 s** per clip) |
+| Generate | `generate_video`, `generate_image`, `generate_audio` |
+| Audio | `isolate_audio`, `change_voice`, `force_align`, `list_audio_isolation`, `delete_audio_isolation`, `voices` |
+| Context | `get_role_context`, `get_scene_context`, `get_scene_environment`, `set_scene_environment`, `set_scene_reference_image`, `get_timeline_context` |
+| Place / edit | `timeline_place`, `editor_instruct` |
+| Clarify | `ask_user` |
+| Director (when that mode is on) | `director_*` continuity and generate helpers |
+
+## Video routing (automatic)
+
+| You attach | Route |
+|---|---|
+| Text only | Text-to-video |
+| `first_frame` / an image | Image-to-video |
+| Reference videos / audios or many images | Reference-to-video |
+
+Caps: reference videos up to **3**, total ≤ **15 s**; reference audios 2–15 s each, up to 3, total ≤ 15 s. Image default size 1920×1080, divisible by 16. GPT Image 2 generate vs edit from reference images.
+
+## What Manager will not do
+
+- It does not write documents itself — `library_read` / `library_write`, or hand off to **Writer**.
+- Captions / transcripts of existing clips go to **Editor** (`editor_instruct`), not `generate_video`.
+- Coding is later. Treat source as text.
+
+## Next
+
+<Link to="/knoxstudio/agent/writer">Writer</Link> · <Link to="/knoxstudio/agent/editor">Editor</Link> · <Link to="/knoxstudio/production/director">Director</Link>

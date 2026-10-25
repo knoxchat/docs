@@ -1,0 +1,28 @@
+---
+title: 网络
+sidebar_label: 网络
+description: KnoxStudio 会访问的主机——OAuth、api.knoxstudio.ai、GitHub 更新，以及回环 8732。
+---
+
+import Link from '@docusaurus/Link';
+
+# 网络
+
+离线时可以录制、剪辑、写作和导出。功能需要网络时会用到这些主机：
+
+| 主机 / URL | 为什么 |
+|---|---|
+| `https://knoxstudio.ai/oauth2/authorize` | 登录 |
+| `http://127.0.0.1:8732/callback` | OAuth 回环（只在这台 Mac） |
+| `https://api.knoxstudio.ai` | 目录、生成、实时、音色、STT、视觉 |
+| `https://github.com/knoxchat/knoxstudio/releases/...` | `latest.json` 和 DMG |
+
+公司代理若截断到 `knoxstudio.ai` / `api.knoxstudio.ai` 的 TLS，登录和生成都会失败。
+
+KnoxCoder 用回环 **8733**。本应用用 **8732**。若两个产品都要登录，不要占用这两个端口。
+
+本应用没有文档化的 Knox 遥测通道。打开时崩溃报告留在本地。
+
+## 下一步
+
+<Link to="/knoxstudio/sign-in">登录</Link> · <Link to="/knoxstudio/settings/updates">更新</Link>

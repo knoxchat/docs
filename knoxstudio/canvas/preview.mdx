@@ -1,0 +1,49 @@
+---
+title: Preview canvas
+sidebar_label: Preview canvas
+description: Canvas size, background, safe-area overlays, camera PiP, playback quality, and WYSIWYG compositing.
+---
+
+import Link from '@docusaurus/Link';
+
+# Preview canvas
+
+The center **Canvas** tab is a GPU preview. It composites video, camera, annotations, click/cursor overlays, transitions, and grades — the same path export uses.
+
+## Size and background
+
+**Preferences → General** (new projects) and **Preferences → Project** (open document):
+
+| Setting | Values |
+|---|---|
+| Canvas size | Original (match recording), 1280×720, 1920×1080, 2560×1440, 3840×2160, or custom **W 128–7680 × H 96–4320** |
+| Background color | Project color behind letterboxing |
+| FPS | Default 60. Presets 24, 25, 29.97, 30, 48, 50, 59.94, 60, 120; custom 1–120 |
+| Image duration | 0.1–3600 s (default 5) for stills |
+| Ken Burns on stills | Project toggle |
+
+## Safe area
+
+Transport toggle and <kbd>'</kbd> for the title/action pair. Overlays (not exported): title-safe, action-safe, 9:16, 1:1.
+
+## Camera layer
+
+Live camera from a take: PiP **Circle** (default), **Rounded Rect**, **Square**, **Full Frame**. Inspector on the camera clip.
+
+## Playback vs export
+
+Playback quality **Auto / Proxy / Full**. Playing can skip grade/effects for realtime; **pause** to see full quality. Export always reads original media.
+
+A quality badge on the canvas tells you when effects are skipped.
+
+## Align
+
+Align / distribute selected clips lives on Inspector **Actions** next to **Reset Transform**: left / center / right / top / middle / bottom, to the selection or the canvas. Two or more clips align; distribute needs three. Transform handles snap to center and edges.
+
+## Quick view
+
+Clicking a media file in Explorer shows a quick view on the canvas (audio / video / image). Editable text opens **Screenplay** instead.
+
+## Next
+
+<Link to="/knoxstudio/canvas/transforms">Transforms and keyframes</Link> · <Link to="/knoxstudio/canvas/annotations">Annotations</Link>

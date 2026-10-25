@@ -1,0 +1,42 @@
+---
+title: Video sequences
+sidebar_label: Video sequences
+description: Continuity-aware multi-shot runs — progress, pause, retry, Send to Timeline, and continuity switches.
+---
+
+import Link from '@docusaurus/Link';
+
+# Video sequences
+
+SI Agent header film icon → **Video Sequences**. Empty: “Video sequences will appear here when you generate multi-shot scenes.”
+
+Sections: **Active Sequences**, **Recent Sequences**.
+
+## Statuses
+
+Sequence: Draft, Active, Completed, Paused, Partially Completed, Cancelled.  
+Shot: Pending, Blocked, Generating, Completed, Failed, Skipped.
+
+## Actions
+
+**Create manual sequence**, **Pause generation**, **Resume generation**, **Delete sequence**, **Retry failed shots**, **Delete all failed shots**, **Cancel remaining shots**, **Duplicate sequence**, **Send to Timeline**, **Import to Timeline**, **Add Shot** / **Edit Shot**.
+
+Cards show **With continuity**, **Environment-enhanced prompt**, **Entry frame chained from previous shot**, **Sequence progress**, **Exit frame**, duration / resolution / ratio.
+
+Desktop alerts: Preferences **Desktop alerts** — “Show notifications when sequences, exports, and generations complete”.
+
+## Continuity switches
+
+**SI Agent Configuration → Video continuity**:
+
+| Switch | Meaning |
+|---|---|
+| **Frame chaining** | Last frame → next first frame |
+| **Sequential mode** | One shot at a time vs parallel |
+| **Vision analysis** | Analyze completed frames (falls back to heuristics if off) |
+| **Environment sync** | Keep the setting consistent |
+| **Motion continuity** | e.g. “Continue from: hero running left” |
+
+## Next
+
+<Link to="/knoxstudio/production/director">Director</Link> · <Link to="/knoxstudio/settings/agent-config">Agent configuration</Link>

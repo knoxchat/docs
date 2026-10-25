@@ -1,0 +1,52 @@
+---
+title: Editor Agent
+sidebar_label: Editor Agent
+description: 用自然语言剪时间线——切、裁、看、上字幕、重新生成——破坏性批次用确认卡片。
+---
+
+import Link from '@docusaurus/Link';
+
+# Editor Agent
+
+坞 **Editor**。空状态：「让 SI 编辑时间线——视频、音频和图像。切、裁、分割、移动、变速、混音、放置媒体。它可以看、可以听，再决定怎么做。」
+
+它认识的轨道：视频、音频、摄像头、注释、调整、字幕。
+
+**确认** 模式下的破坏性批次显示 **确认编辑**，带 **应用** / **丢弃**。
+
+## 你可以怎么问
+
+工具支持的例子：
+
+- 「去掉静音。」（`analyze_timeline` silence + 剪切）
+- 「每个场景切换都切一刀。」
+- 「切到她说……的地方。」（`transcribe_clip`）
+- 「给这段上字幕。」
+- 「放慢。」（用当前选择）
+
+## 工具分组
+
+| 组 | 例子 |
+|---|---|
+| 查看 | `read_timeline`、`set_playhead`、`move_playhead`、`watch_clip`（1–24 帧，默认 3）、`analyze_timeline`（`scenes` / `silence` / `both`） |
+| 语音 | `transcribe_clip`、`caption_clip`、`align_clip`、`caption_align_clip` |
+| 音频 | `isolate_clip`、`change_voice_clip`、`voices` |
+| 剪切 | `split_clip`、`trim_clip`、`delete_clip`、`move_clip`、`set_clip_speed`、`set_clip_property` |
+| 转场 | `add_transition`、`remove_transition` |
+| 剪贴板 | `duplicate_clip`、`copy_clip`、`cut_clip`、`paste_clip` |
+| 画面 | `detach_audio`、`add_freeze_frame`、`set_clip_locked`、`select_clips` |
+| 结构 | `ripple_delete_range`、`insert_space`、`group_clips`、`ungroup_clips` |
+| 轨道 | `add_track`、`remove_track`、`move_track`、`rename_track`、`set_track_property` |
+| 帧 | `extract_frame`、`extract_key_frames` |
+| 媒体 | `insert_media`（路径、@ 名或 Explorer 文件名） |
+| SI | `regenerate_clip`、`generate_variation`、`extend_clip` |
+| 标题 | `add_text`、`add_captions`、注释模板 |
+| 标记 | `add_marker`、`remove_marker` |
+| 效果 / 运动 | `apply_effect`、`add_keyframe_preset`、`zoom_to_region`、关键帧 |
+| 导出对话框 | `export_range`（`whole` / `in_out` / `selection` / `markers`）—— **不编码** |
+
+STT、分离、变声、强制对齐和视觉都需要登录后 Knox-Studio 对应能力。
+
+## 下一步
+
+<Link to="/knoxstudio/agent/confirm">确认与自动</Link> · <Link to="/knoxstudio/timeline/clips">片段</Link>

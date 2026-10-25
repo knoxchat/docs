@@ -1,0 +1,43 @@
+---
+title: Edit modes and tools
+sidebar_label: Edit modes and tools
+description: Normal, Ripple, Insert, and Overwrite — plus Select, Blade, Slip, and Magnetic tools.
+---
+
+import Link from '@docusaurus/Link';
+
+# Edit modes and tools
+
+<kbd>Tab</kbd> cycles edit modes. The timeline toolbar chip shows the current mode.
+
+## Edit modes
+
+| Mode | What happens |
+|---|---|
+| **Normal** | Free overlap / crossfade. Gaps stay until you close them. |
+| **Ripple** | Delete and move close or open gaps on that track. |
+| **Insert** | Placing a clip pushes later clips right. |
+| **Overwrite** | A drop blades / trims clips underneath. |
+
+<kbd>⌘</kbd>-drag is overwrite even in other modes. <kbd>⌥</kbd>-drag copies (including onto a **new track**). <kbd>⌥</kbd>-drop replaces. <kbd>⇧</kbd>-drag constrains to time or track.
+
+## Tools
+
+| Tool | Key | Behavior |
+|---|---|---|
+| **Select** | <kbd>V</kbd> | Move, trim edges, marquee |
+| **Blade** | <kbd>B</kbd> | Click to split |
+| **Slip** | <kbd>Y</kbd> | Drag the body to change media offset without moving the clip edges |
+| **Magnetic** | <kbd>A</kbd> | After a move, close the hole on the dragged track |
+
+<kbd>Z</kbd> is zoom-to-region (not a fourth edit mode) — drag a rectangle on the canvas; in / hold / out live on Inspector **Actions**.
+
+## Selection
+
+Click, Shift-click for a range, Cmd-click, or marquee. Empty **gaps** are selectable — delete a gap or ripple it closed. <kbd>⌘A</kbd> select all clips. Context menu: select all on track.
+
+<kbd>Esc</kbd> clears the selection.
+
+## Next
+
+<Link to="/knoxstudio/timeline/clips">Clip operations</Link> · <Link to="/knoxstudio/settings/shortcuts">Shortcuts</Link>

@@ -1,0 +1,20 @@
+---
+title: 变体
+sidebar_label: 变体
+description: 为同一片段生成多个 SI 镜头，并排比较，点「使用」选中赢家。
+---
+
+import Link from '@docusaurus/Link';
+
+# 变体
+
+右键 **生成的** 片段 → **生成变体**。对话框 **生成变体**。
+
+- **比较变体** — 带 **首帧缩略图** 的格子
+- **生成新变体**
+- **使用** 选中一条
+- 提示：「右键生成的片段，选择「生成变体」开始比较。」
+
+只对 **生成的** 片段生效（`~/.knoxmedia` 里的 SI 输出），不是导入的摄像头素材。底层是 SQLite 里按提示索引的生成记录。Editor 工具 `generate_variation` / `regenerate_clip` / `extend_clip` 走同一条路。<kbd>⌘⇧G</kbd> 重新生成所选片段。
+
+没有单独的生成历史窗口——变体就是那个浏览器。

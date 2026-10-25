@@ -1,0 +1,59 @@
+---
+title: Troubleshooting
+sidebar_label: Troubleshooting
+description: Sign-in, permissions, missing media, FFmpeg, Voice Director echo, export verify, and where logs live.
+---
+
+import Link from '@docusaurus/Link';
+
+# Troubleshooting
+
+## Sign-in
+
+- Another app bound **8732** → quit it, or the dialog shows port-in-use.
+- Timeout / denied / state mismatch → **Cancel**, retry **Sign in with KnoxStudio**.
+- Offline or TLS intercept → <Link to="/knoxstudio/safety/network">Network</Link>.
+- Sign-out revokes the minted key when online. If you signed out offline, revoke **KnoxStudio Desktop** at [knoxstudio.ai/keys](https://knoxstudio.ai/keys).
+
+## Capture
+
+- Black screen / no displays: enable **Screen Recording** for KnoxStudio, **quit and reopen**.
+- No mic / camera: System Settings → Privacy, then **Preferences → Devices → Refresh Devices**.
+- No system audio: macOS 13+, Screen & System Audio Recording.
+- Missing FFmpeg on Devices: record and export are blocked until the bundled binary is present.
+
+## Timeline / export
+
+- **Missing media** badge on the transport opens the relink dialog. Per file: **Relink**, **Skip** (dialog stays open), or skip remaining and close. Relinking one file also matches other missing clips with the **same name in that folder**. Export will not run until files are linked or skipped.
+- Verify failed after export: ffprobe duration or streams did not match — try Software encoder or a different format.
+- Cannot export into the project package — pick another folder.
+- Audio-only export needs clips that actually have audio.
+
+## Voice Director
+
+- Click the mic to retry on **Voice error**.
+- Echo: enable Headphones; echo gating is on by default.
+- Confirm is skipped during a live call — hang up if you need approval cards.
+
+## Screenplay
+
+- Literary / Fountain scenes flattening on reorder was fixed in 1.7.3 — update if you still see it.
+- PDF export: use HTML + Print → Save as PDF.
+
+## Logs and recovery
+
+**Help → Debug Console** (<kbd>⌘⇧D</kbd>), **Error Log**. Enable **Save crash reports locally** in Accessibility prefs if Error Log is empty.
+
+Startup dialogs:
+
+| Dialog | Buttons | What happens |
+|---|---|---|
+| **Crash recovery** | Restore / View report / Ignore | Restore reopens the last project, using an autosave snapshot when one exists |
+| **Unfinished recording** | Recover / Discard | Recover places the orphan take on the timeline; Discard deletes leftover files |
+| **Autosave picker** | Snapshot list | If a project will not open, pick one of the last **5** snapshots under `~/.knoxmedia/projects/autosave/` |
+
+<kbd>⌘⌥F</kbd> toggles the FPS overlay (Help).
+
+## Next
+
+<Link to="/knoxstudio/record/permissions">Permissions</Link> · <Link to="/knoxstudio/settings/data">Data</Link> · <Link to="/knoxstudio/safety/limitations">Limitations</Link>

@@ -1,0 +1,75 @@
+---
+id: index
+slug: /
+title: What is KnoxStudio
+sidebar_label: What is KnoxStudio
+description: KnoxStudio is a native macOS SI studio — talk or type, then record, generate, write, edit on a real timeline, and export.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# What is KnoxStudio
+
+**KnoxStudio** is a native SI studio for macOS. You talk to it by text or realtime voice. Record your screen, generate video, images, music, and speech, write documents and screenplays, edit on a real timeline, and export what you made — all inside one fast app.
+
+It is not only a video editor. The same SI Agent can compose a score, draft a brief from a dropped PDF, generate a still, continue a scene, or cut the timeline. **Voice Director** is that same agent, spoken.
+
+This guide is for **using** KnoxStudio — from first launch through every studio surface. It is not the Knox.Chat HTTP API reference (that stays under [Docs](/) and [API Reference](/1.0.0/api-reference)), and it is not the [KnoxCoder](/knoxcoder) editor guide.
+
+## The pieces
+
+| Name | What it is |
+|---|---|
+| **KnoxStudio** | The macOS app (`KnoxStudio.app`). Recorder, NLE, canvas, Explorer, writers' room, and SI Agent. |
+| **SI Agent** | The builtin studio agent. Manager (generate), Writer (documents), Editor (timeline), plus Director, Storyboard, Character Roles, and Voice Director. |
+| **Knox.Chat API** | A separate cloud API. This app calls `https://api.knoxstudio.ai` after sign-in (stale `api.knox.chat` hosts rewrite on load). HTTP routes live in the Docs tab, not here. |
+| **KnoxCoder** | A separate desktop code editor with a builtin coding agent. Documented in the [KnoxCoder](/knoxcoder) tab. |
+
+KnoxStudio **uses** Knox.Chat after you <Link to="/knoxstudio/sign-in">Sign in with KnoxStudio</Link>. That does not make this tab the API docs.
+
+## What you can do
+
+On a typical session you:
+
+1. Open a `.knoxstudio` project, or start from Record / Import / Talk to SI.
+2. Capture a display, window, camera, microphone, and system audio — each on its own track.
+3. Ask the SI Agent to generate video, images, music, speech, or a document. Results land in `~/.knoxmedia` and on the timeline.
+4. Cut on a real non-linear timeline: trim, split, ripple, insert, overwrite, annotate, mix.
+5. Write a screenplay in the same window, send it to Director Mode, and place a continuity-aware sequence.
+6. Export MP4, HEVC, ProRes, WebM, GIF, or audio-only.
+
+You stay in charge. **Confirm** or **Auto** decides when generations and destructive edits run.
+
+## Data on this computer
+
+| Store | What lives there |
+|---|---|
+| **`.knoxstudio` packages** | The project you save: timeline, clips, markers, canvas, nests. Double-click in Finder to reopen. |
+| **`~/.knoxmedia`** | Generated media, documents, screenplays, roles, chat SQLite, `config.yaml`, `defaults.yaml`. Mode `0700`. |
+| **macOS Keychain** | The minted KnoxStudio Desktop API token and OAuth refresh token. Never logged. |
+
+Recording, editing, writing, and export work **offline**. SI runs only after you sign in and send work out. Map: <Link to="/knoxstudio/settings/data">Data on disk</Link>.
+
+## Locales, license, platforms
+
+- UI languages: **English** and **Simplified Chinese** only.
+- Platform: **macOS 13.0 or later**, Apple Silicon or Intel (Universal Binary).
+- Updates: a GitHub Release is a **forced** update — the app checks on launch and about every hour, downloads the signed DMG, and relaunches. <Link to="/knoxstudio/settings/updates">Updates</Link>.
+
+## What is not in 1.7
+
+Call these out so the rest of the guide stays honest:
+
+- **No coding agent.** Writer treats source as text until a specialist ships.
+- **No Windows or Linux app.** KnoxStudio is macOS-only. KnoxCoder covers those platforms for coding.
+- **No user-facing credits meter.** Usage is billed on the KnoxStudio account; this app does not show a cost ledger.
+- **No in-app focus mode.** Cmd+Enter sends chat. Hide Explorer, the timeline, or the right panel from **View** if you want a quieter writing surface.
+- **No direct PDF export** of screenplays. Export HTML and use Print → Save as PDF.
+- **No paste-an-API-key** in SI Agent Configuration. Sign in with KnoxStudio is the only way to connect.
+
+## Next
+
+1. <Link to="/knoxstudio/install">Install KnoxStudio</Link> from GitHub Releases.
+2. <Link to="/knoxstudio/first-project">Make a first project</Link> — record, import, or talk.
+3. <Link to="/knoxstudio/sign-in">Sign in</Link> when you want SI generation, Voice Director, or captions.

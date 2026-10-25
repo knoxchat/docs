@@ -1,0 +1,52 @@
+---
+title: Manager
+sidebar_label: Manager
+description: 默认 SI Agent——把请求路由到生成、资料库、时间线放置和 Editor，而不改写你的提示。
+---
+
+import Link from '@docusaurus/Link';
+
+# Manager
+
+Manager 是默认 **SI Agent**。它是透传编排器： **不得** 改写你的提示。它把请求路由到工具。视频 / 图像 / 音频默认值来自 `~/.knoxmedia/defaults.yaml`——Agent 被指示永远不要问时长、分辨率或比例。
+
+## 典型一轮
+
+1. <Link to="/knoxstudio/sign-in">登录</Link>。
+2. 打字、点芯片、拖文件，或 `@` 一个目标。
+3. 发送。流式时 **停止生成（Esc）**。
+4. 结果落到 `~/.knoxmedia/{video,image,audio}/` 和时间线。**视频是异步的**（**已提交到生成队列**）；图像和音频是同步的。
+
+## 工具
+
+| 组 | 工具 |
+|---|---|
+| 资料库 | `library_search`、`library_read`、`library_write`、`library_remove` |
+| 存储 | `memory_read`、`memory_search` |
+| 计划 | `plan_generation`（每条内容 **>15 秒**） |
+| 生成 | `generate_video`、`generate_image`、`generate_audio` |
+| 音频 | `isolate_audio`、`change_voice`、`force_align`、`list_audio_isolation`、`delete_audio_isolation`、`voices` |
+| 上下文 | `get_role_context`、`get_scene_context`、`get_scene_environment`、`set_scene_environment`、`set_scene_reference_image`、`get_timeline_context` |
+| 放置 / 剪辑 | `timeline_place`、`editor_instruct` |
+| 澄清 | `ask_user` |
+| Director（该模式打开时） | `director_*` 连贯性与生成助手 |
+
+## 视频路由（自动）
+
+| 你附上 | 路由 |
+|---|---|
+| 只有文本 | 文生视频 |
+| `first_frame` / 一张图 | 图生视频 |
+| 参考视频 / 音频或很多图 | 参考生视频 |
+
+上限：参考视频最多 **3** 条，合计 ≤ **15 秒**；参考音频每条 2–15 秒，最多 3 条，合计 ≤ 15 秒。图像默认 1920×1080，可被 16 整除。GPT Image 2 根据参考图在生成和对编辑之间切换。
+
+## Manager 不会做的事
+
+- 它自己不写文档——`library_read` / `library_write`，或交给 **Writer**。
+- 已有片段的字幕 / 转写走 **Editor**（`editor_instruct`），不是 `generate_video`。
+- 编程以后再说。把源码当文本。
+
+## 下一步
+
+<Link to="/knoxstudio/agent/writer">Writer</Link> · <Link to="/knoxstudio/agent/editor">Editor</Link> · <Link to="/knoxstudio/production/director">Director</Link>

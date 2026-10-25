@@ -1,0 +1,24 @@
+---
+title: 分离、变声、分轨
+sidebar_label: 分离、变声、分轨
+description: 从片段菜单或 Editor Agent 做人声分离、变声、分轨和强制对齐。
+---
+
+import Link from '@docusaurus/Link';
+
+# 分离、变声、分轨
+
+<Link to="/knoxstudio/sign-in">登录</Link> 后右键音频或视频片段。Editor Agent 把同样的任务暴露成工具。
+
+| 动作 | 做什么 |
+|---|---|
+| **人声分离** | 从混音里抽出说话 |
+| **变声** | Voice Changer 到某个 `voice_id`（角色 / 已选 / 默认） |
+| **分轨** | 把混音拆成声部 |
+| **强制对齐** | 把转写对上音频（也用于字幕） |
+
+Manager 可以对库文件调用 `isolate_audio`、`change_voice`、`force_align`、`list_audio_isolation`、`delete_audio_isolation`、`voices`。Editor 包的是所选 **片段**。
+
+分离历史可以列出和删除。这些任务会把 **音频**（或抽出的窗口）送到 KnoxChat。<Link to="/knoxstudio/safety/privacy">隐私</Link>。
+
+强制对齐：文件最大 3 GB，音频 100 毫秒–10 小时，转写 ≤ 675,000 字符。客户端设置 `enable_logging=false`。

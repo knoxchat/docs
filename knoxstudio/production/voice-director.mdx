@@ -1,0 +1,63 @@
+---
+title: Voice Director
+sidebar_label: Voice Director
+description: Realtime speech-to-speech with the same studio tools as text — orb HUD, companions, spoken commands, barge-in, hang up.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# Voice Director
+
+The mic on the composer starts KnoxChat realtime (`gpt-realtime-2.1` on the wire; the product routes through Knox-Studio). The panel title becomes **Voice Director**. Needs microphone permission and a <Link to="/knoxstudio/sign-in">signed-in</Link> key.
+
+## States
+
+**Connecting…**, **Ready — start speaking**, **Listening…**, **Thinking…**, **Speaking…**, **Voice error — click the mic to retry**, **Held**, **Muted for echo**.
+
+## Controls
+
+**Interrupt**, **Hold microphone** / **Resume microphone**, **Hang up**, **Open circular HUD** / **Return to editor (keep talking)**, **Choose microphone and speakers**.
+
+Preferences: **Voice Director: Headphones**, **Barge-in**. Speaker echo is gated so the agent does not answer itself; barge-in still uplinks uncorrelated speech.
+
+## Circular HUD
+
+Frameless orb on the desktop. The circle button next to the composer mic opens it and can minimize the editor. Hang-up restores the editor. **Return to editor** keeps the call in the in-panel Voice Director.
+
+Companions are independent windows: **Explorer**, **Inspector**, **Timeline**, **Canvas**, **Screenplay**, **Voice Director conversation**. Closing chat does **not** hang up. HUD Escape: peek → chat → hang up.
+
+Wells on the orb: Roles, Screenplay, Director, pause, Storyboard, Writer, Editor; headphones, conversation, Return to editor, hang-up. Live caption chip on the orb.
+
+Spoken `set_studio_mode` has **more** authority than the text Manager. Spoken `@` is `target_item`. Always-on generate / library / timeline tools; specialist tools after a mode switch.
+
+Voice generation **bypasses Confirm** while the call is live.
+
+## What you can say
+
+Speak the action. Do not wait to click icons — Voice Director is supposed to call tools.
+
+| You say | What runs |
+|---|---|
+| “Open director” / “break this into shots” | Director mode, then analyze |
+| “Write the script” / “open screenplay” | Writer |
+| “Editor” / “trim this” / “make it louder” | Clip edits from **any** mode — no switch required for concrete edits |
+| “Storyboard this” | Storyboard pipeline |
+| “Use Pablo” / “character roles” | Roles |
+| “Back to chat” | Manager |
+| “Generate a video / image / music / voiceover / SFX” | Generate tools; results land on the timeline |
+| “Play / pause / skip / loop / record” | Transport |
+| “Show the timeline / Explorer / Inspector / canvas” | Companion HUD windows (several can stay open) |
+| “Hide the conversation” | Closes chat, **does not** hang up |
+| “Export in to out” | Encodes, not only the export dialog |
+| “Caption this take” | Captions / transcribe the targeted clip |
+| “Crop the right side” / “fill the frame” | Clip transform |
+| “Start recording” / “what sources are on” | Recording setup + status |
+
+Spoken `@` / “this clip” / “the interview” attaches a target first. A file in `~/.knoxmedia` that is **not** on the timeline (`@313.md`) is a library search, not a path question.
+
+Theme and language change **only** if you ask. Opening a companion must not hide the others.
+
+## Next
+
+<Link to="/knoxstudio/agent/confirm">Confirm and Auto</Link> · <Link to="/knoxstudio/workspace">Workspace</Link>

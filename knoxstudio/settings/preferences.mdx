@@ -1,0 +1,49 @@
+---
+title: Preferences
+sidebar_label: Preferences
+description: General, Accessibility, Project, Recording, and Devices — every control on the five tabs.
+---
+
+import Link from '@docusaurus/Link';
+
+# Preferences
+
+<kbd>⌘,</kbd>. Five tabs. Footer: **Reset**, **Close**, **Save**. SI account is **not** here — use <Link to="/knoxstudio/settings/agent-config">SI Agent Configuration</Link>.
+
+## General
+
+- Theme: Dark / Light
+- Language: English / Chinese
+- Show welcome on launch
+- SI Chat: **Enter to send** (off = ⌘Enter)
+- Voice Director: Headphones, Barge-in
+- **Desktop alerts** (sequences, exports, generations)
+- **Project defaults:** canvas size (Original / 720p / 1080p / 1440p / 4K / custom), FPS, import at playhead
+- **Export defaults:** format, FPS
+- **Updates:** auto-check; current version; Check / Update to…
+
+## Accessibility
+
+- **Reduce motion** — follows System Settings; force on in-app
+- **Increase Contrast** — follows System Settings → Accessibility → Display; thickens timeline chips. Not a third theme. Force on in-app.
+- **Save crash reports locally** — needed for Error Log / crash recovery
+
+## Project (open document)
+
+Resolution, custom W×H, **background color**, FPS, image duration (0.1–3600 s, default 5), Ken Burns stills, annotation duration (default 5), playback quality Auto / Proxy / Full, render cache on/off + size + Clear.
+
+**Generate proxies** — save the project first. Writes lighter files into the package `proxies/` for large / 4K media so **Proxy** playback is smooth. Export still uses originals. Relink missing media before generating. “No large or 4K media needs proxy generation” if nothing qualifies.
+
+**Consolidate media** — copies linked files into the package `media/` so the project can travel. Relink missing files first. Notice: “Consolidated media into the project bundle.”
+
+Right-click the title-bar Preferences control to jump to this tab.
+
+## Recording
+
+Screen, mic, system audio, camera, countdown, countdown seconds (1–60), FPS, cursor, clicks, click effect, left/right colors, radius, duration. <Link to="/knoxstudio/record/screen">Recording</Link>.
+
+## Devices
+
+Permissions chips, FFmpeg bundled vs system vs missing, screen + window picker, mic, system audio, camera preview, **Refresh Devices**.
+
+Layout, HUD frames, Inspector section open/closed, timeline zoom, and last conversation id persist in app preferences without a dedicated control on these tabs.

@@ -1,0 +1,45 @@
+---
+title: Export formats
+sidebar_label: Formats
+description: MP4 H.264 and HEVC, ProRes, WebM, GIF, MP3, WAV — range, captions, chapters, and post-export verification.
+---
+
+import Link from '@docusaurus/Link';
+
+# Export formats
+
+<kbd>⌘E</kbd> or **Export** on the transport. Progress shows ETA. Desktop notification when it finishes. The app **verifies** the file: exists, non-zero size, ffprobe duration within 0.5 s, expected video/audio streams, resolution.
+
+## Formats
+
+| Format | Best for |
+|---|---|
+| **MP4 (H.264)** | Universal sharing and upload |
+| **MP4 (H.265 / HEVC)** | Smaller files at high quality |
+| **ProRes (MOV)** | Masters and further editing (422 LT / 422 HQ / 4444 via quality) |
+| **WebM (VP9)** | Web delivery |
+| **Animated GIF** | Short loops. Camera and overlay tracks are **flattened** into the GIF. |
+| **MP3** | Audio-only |
+| **WAV** | Lossless audio-only |
+
+## Range
+
+Whole project · **In to Out** · Selection · Marker to Marker.
+
+## Captions and chapters
+
+Captions: **Burn in** (default) or sidecar `.srt`. Optional **YouTube chapters** writes `{stem}_chapters.txt` from markers.
+
+Color: SDR Rec.709.
+
+## Gates
+
+- **Missing media** blocks export — relink first.
+- Audio-only requires clips with audio.
+- Cannot export **over** project media (do not write into the `.knoxstudio` package).
+
+Filenames follow the project name.
+
+## Next
+
+<Link to="/knoxstudio/export/presets">Presets and quality</Link> · <Link to="/knoxstudio/timeline/markers">Markers</Link>

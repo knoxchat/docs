@@ -1,0 +1,60 @@
+---
+title: Transforms and keyframes
+sidebar_label: Transforms
+description: Position, scale, crop, blend, follow, auto-key, the graph editor, motion presets, and which properties can be keyed.
+---
+
+import Link from '@docusaurus/Link';
+
+# Transforms and keyframes
+
+Every visual clip has a transform. Drag on the canvas or edit values in Inspector **Actions**. Align / Distribute and **Reset Transform** live on the same tab.
+
+## Picture stack (Actions)
+
+| Control | What it does |
+|---|---|
+| **Follow** | Stick this layer to another clip’s position (label, PiP, callout). **None** clears it. Your X/Y is then an offset from the parent. |
+| **Fit** | Contain (default), Cover, Stretch, None. |
+| **Crop** | Left / Top / Right / Bottom as a normalized source window. Drag the **inner handles** on the canvas, or **Reset Crop**. |
+| **Anchor** | Rotation and scale orbit this origin (center is 50%). <kbd>⌥</kbd>-drag the crosshair on the canvas to move it without shifting the clip. **Reset Anchor**. |
+| **Position X/Y, Scale, Rotation** | Canvas handles or sliders. |
+| **Blend** | Non-camera clips: Normal, Multiply, Screen, Overlay, Add, Darken, Lighten. |
+| **Opacity** | 0–100%, keyable. |
+| **Speed** | 0.1–8× presets and slider. Reverse and freeze are on the same tab — <Link to="/knoxstudio/timeline/clips">Clips</Link>. |
+| **Motion blur** | Export uses FFmpeg `tmix`. Preview shows cheap ghost trails. |
+
+Camera clips hide Blend (they use PiP shape instead) and hide Crop unless the camera is Full Frame.
+
+## Auto-key and keyframes
+
+**Auto-key** (Actions → Keyframes): when on, canvas and Inspector changes write a key at the playhead. When off, a change writes a key only if that property is already keyed.
+
+Keyframe properties: Position X/Y, Scale, Rotation, Opacity, Speed, Volume, Exposure, Brightness, Contrast, Gamma, Highlights, Shadows, Saturation, Vibrance, Temperature, Hue, Blur Radius, Vignette Amount.
+
+<kbd>⇧G</kbd> opens the **graph editor**. Copy / Paste / Reverse / Clear apply to selected diamonds (**Copy Keys**, **Reverse**). A motion path draws on the canvas when Position X/Y are keyed.
+
+**Speed ramp:** key Speed over time. Audio follows the **average** speed of the ramp (approximate).
+
+Annotation-only keys: TextReveal, TextHighlight, StrokeTrim — <Link to="/knoxstudio/canvas/annotations">Annotations</Link>.
+
+## Zoom to region
+
+<kbd>Z</kbd>, then drag a rectangle on the canvas. The clip animates scale and position to fill the frame (in / hold / out durations sit next to click auto-zoom on Actions). Cancel Zoom on the same tab.
+
+## Motion presets
+
+Ken Burns, Pop In, Fade Up, Slide from Left / Right / Bottom, Drift, Punch In. Duration 0.1–4 s. The Editor agent can apply the same names via `add_keyframe_preset`.
+
+## Fit
+
+| Mode | Result |
+|---|---|
+| **Contain** | Fit inside; letterbox or pillarbox the rest. Default. |
+| **Cover** | Fill the canvas; crop overflow. |
+| **Stretch** | Fill, ignoring aspect ratio. |
+| **None** | Native size: 1 source pixel = 1 canvas pixel. |
+
+## Next
+
+<Link to="/knoxstudio/canvas/filters">Filters</Link> · <Link to="/knoxstudio/timeline/clips">Clips</Link>

@@ -1,0 +1,64 @@
+---
+title: Clips
+sidebar_label: Clips
+description: Trim, split, speed, freeze, detach audio, group, lock, color, and the clip context menu.
+---
+
+import Link from '@docusaurus/Link';
+
+# Clips
+
+Clips live on tracks. Inspector **Clip** and **Actions (Video)** edit the selection. Most operations are also on the clip context menu.
+
+## Trim and split
+
+| Keys | Action |
+|---|---|
+| Drag an edge | Trim |
+| <kbd>T</kbd> | Split at the playhead |
+| <kbd>W</kbd> | Trim front to the playhead |
+| <kbd>E</kbd> | Trim end to the playhead |
+| <kbd>Delete</kbd> | Delete |
+| <kbd>⇧Delete</kbd> | Ripple delete |
+| <kbd>⌘Delete</kbd> | Ripple delete **In to Out** |
+
+## Clipboard
+
+<kbd>⌘C</kbd> / <kbd>⌘X</kbd> / <kbd>⌘V</kbd> (paste at playhead) / <kbd>⌘D</kbd> duplicate. If keyframe diamonds are selected, copy/cut applies to those keyframes instead.
+
+## Speed, reverse, freeze
+
+Inspector **Actions**: speed **0.1–8×**, reverse, freeze frame. <kbd>⌘⇧F</kbd> freeze (default **2 s**, inspector 0.5–30 s). Slow-mo quality: **Duplicate / Blend / Optical**. Motion blur uses FFmpeg `tmix` on export.
+
+## Detach, rotate, lock, color
+
+- **Detach audio** on video clips that have audio — picture and sound become independent.
+- <kbd>⌘]</kbd> / <kbd>⌘[</kbd> rotate 90°.
+- <kbd>⌘⌥L</kbd> lock / unlock.
+- Clip colors: Green, Blue, Orange, Purple, Red.
+
+## Group and compound
+
+<kbd>⌘G</kbd> / <kbd>⌘U</kbd> group / ungroup. <kbd>⌘⌥G</kbd> **compound clip** (a nest). <kbd>⌘↑</kbd> leave the nest. <Link to="/knoxstudio/timeline/nests">Nested clips</Link>.
+
+## Color clip and Image Gen
+
+Gap / clip menu **Add Color Clip** inserts a fill (Black / White or a color picker) with no media file. Duration follows the project still default.
+
+Timeline toolbar **Image Gen** merges **selected stills** into one generated image (needs <Link to="/knoxstudio/sign-in">sign-in</Link>). Voice Director `set_timeline` can fire the same control.
+
+## Context extras (often SI)
+
+Right-click a clip: move to playhead, close gap / close all gaps, insert media / color clip / text / caption, extract frame / first / last / key frames, reveal in Finder, relink, **regenerate** (<kbd>⌘⇧G</kbd>), **variation**, extend, auto-caption, isolate audio, change voice, separate stems, score clip.
+
+Right-click a **gap** to add Annotation / Adjustment / Caption tracks, insert media, or insert a color clip.
+
+Regenerate / variation / captions / isolate need sign-in.
+
+## Fit modes
+
+Contain (default), Cover, Stretch, None — how the media fills the canvas frame.
+
+## Next
+
+<Link to="/knoxstudio/timeline/transitions">Transitions</Link> · <Link to="/knoxstudio/canvas/transforms">Transforms</Link>

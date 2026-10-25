@@ -1,0 +1,47 @@
+---
+title: 隐私
+sidebar_label: 隐私
+description: 本地优先的工作室——什么留在 Mac，登录并生成时什么会离开，钥匙串，以及 0700 媒体。
+---
+
+import Link from '@docusaurus/Link';
+
+# 隐私
+
+KnoxStudio **本地优先**。录制、NLE、导出和本地写作 **不需要** 账号。只有 <Link to="/knoxstudio/sign-in">登录</Link> 并把工作送出去时才会跑 SI。
+
+地图：<Link to="/knoxstudio/settings/data">磁盘上的数据</Link>。网络表：<Link to="/knoxstudio/safety/network">网络</Link>。
+
+## 留在 Mac 上的
+
+- `.knoxstudio` 项目、时间线、录制、Explorer 树
+- `~/.knoxmedia`（0700）：媒体、文档、剧本、角色 YAML、对话 SQLite、生成记录、自动保存
+- 剧本 `.bak` 备份、修订标记 diff
+- 钥匙串密钥
+- PDF/Office 原件 + 转换后的 Markdown
+- 布局、主题、语言、键盘快捷键
+- 若打开 **在本机保存崩溃报告**，崩溃报告也留在本地
+
+## 会离开机器的
+
+只有你用 SI（或更新 / OAuth）时：
+
+| 动作 | 送出什么 |
+|---|---|
+| 对话（Manager / Writer / Editor / Director / Storyboard） | 提示、@ 内联文本（≤64 KB）、工具结果 |
+| 标题自动命名 | 第一轮用户 + 助手片段 |
+| 视频 / 图像生成 | 提示 + 参考图/视频/音频 + 角色参考（每角色 ≤3）+ 可选首/末帧 |
+| 角色上 **上传到云** | 参考图文件作为云资源 |
+| TTS / 音乐 / 音效 | 文本 / 提示（音乐可以附视频） |
+| 分离 / 变声 / 强制对齐 / STT | 音频（或抽出的窗口） |
+| `watch_clip` / Director 视觉 | 采样帧 |
+| Voice Director | 实时麦克风音频 + 工具 JSON；语音输出 |
+| 音色库 | 已认证目录 API |
+| OAuth | 浏览器同意；签发的密钥存本机 |
+| 自动更新 | GitHub `latest.json` 和 DMG |
+
+强制对齐的 `enable_logging=false` 是 Agent 工具标志（该 API 企业零保留），不是偏好设置开关。
+
+## 下一步
+
+<Link to="/knoxstudio/safety/network">网络</Link> · <Link to="/knoxstudio/safety/limitations">限制</Link>

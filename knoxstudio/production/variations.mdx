@@ -1,0 +1,20 @@
+---
+title: Variations
+sidebar_label: Variations
+description: Generate multiple SI takes of a clip, compare them, and Use the one that wins.
+---
+
+import Link from '@docusaurus/Link';
+
+# Variations
+
+Right-click a **generated** clip → **Generate Variation**. Dialog **Generation Variations**.
+
+- **Compare Variations** — a grid of takes with **first-frame thumbs**
+- **Generate New Variation**
+- **Use** to pick a take
+- Hint: “Right-click a generated clip and choose "Generate Variation" to start comparing.”
+
+Works on **generated** clips (SI output in `~/.knoxmedia`), not on imported camera takes. Backed by generation records in SQLite, keyed by prompt. Editor tools `generate_variation` / `regenerate_clip` / `extend_clip` open the same path. <kbd>⌘⇧G</kbd> regenerates the selected clip.
+
+There is no separate generation-history window — Variations is the browser.

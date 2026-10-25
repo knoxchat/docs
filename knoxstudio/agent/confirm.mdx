@@ -1,0 +1,29 @@
+---
+title: Confirm and Auto
+sidebar_label: Confirm and Auto
+description: Lightning Auto sends generations immediately; shield Confirm shows Approve/Cancel and Editor Apply/Discard cards.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# Confirm and Auto
+
+Composer well: lightning = **Auto** (“Auto mode: send directly to generation”), shield = **Confirm** (“Confirm mode: review before sending”). **Default is Auto**.
+
+## What Confirm holds
+
+| Surface | Card |
+|---|---|
+| Video jobs | **Needs approval** / **Ready to send:** with **Approve** / **Cancel**. Composer locked until then. Esc cancels. |
+| Editor destructive batches | **Confirm edits** / **Apply** / **Discard** |
+
+Voice sessions **skip** generation confirm while Connected / Listening / Speaking.
+
+There is **no** separate “hold-for-approval if you edit mid-run” mode beyond Confirm + `EditConfirm` cards.
+
+Stay in **Confirm** when you do not want surprise generations or timeline deletes.
+
+## Next
+
+<Link to="/knoxstudio/agent/editor">Editor</Link> · <Link to="/knoxstudio/safety/limitations">Limitations</Link>

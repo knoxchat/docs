@@ -1,0 +1,31 @@
+---
+title: Writer
+sidebar_label: Writer
+description: 在 ~/.knoxmedia 下读、写、改 Markdown 和剧本——不生成媒体。
+---
+
+import Link from '@docusaurus/Link';
+
+# Writer
+
+坞 **Writer**。空状态：「让 SI 读、写或修改工作区里的文档和剧本。拖入的 PDF 和 Office 文件会变成 Agent 能用的 Markdown。」
+
+提示：**让写作者读、写或修改文档和剧本...** 视偏好用 Cmd+Enter 或 Enter。
+
+## 沙箱
+
+只有 `~/.knoxmedia`。路径相对 knoxmedia（`docs/brief.md`、`screenplay/act1.md`）或相对剧本（`act1.md`）。禁止 `..`，禁止绝对路径。
+
+## 工具
+
+`list_files`、`read_file`（上限 **200,000** 字节）、`write_file`（整文件覆盖）、`create_file`、`delete_file`（废纸篓，Explorer 可撤销）、`move_file`、`reveal_in_tree`、`expand_path`、`get_tree_selection`、`search_files`。
+
+Writer **不能** 生成视频、图像或音频。编程专家以后再说——把源码当文本。
+
+## 过时的报错文案
+
+你可能仍看到「未配置剧本编辑器模型。在 SI 配置 → Editor 模型里添加一个。」当前配置对话框是 **单页**（没有 Editor 模型标签）。登录后聊天 LLM 是 `knox/knox-studio`。
+
+## 下一步
+
+<Link to="/knoxstudio/write/documents">文档</Link> · <Link to="/knoxstudio/write/screenplay">剧本</Link>

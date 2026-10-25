@@ -1,0 +1,31 @@
+---
+title: 更新
+sidebar_label: 更新
+description: 强制 GitHub Release 更新——启动加每小时检查，SHA-256 和 Developer ID，然后重新启动。
+---
+
+import Link from '@docusaurus/Link';
+
+# 更新
+
+KnoxStudio **1.7.3+** 把 GitHub Release 当成 **强制** 更新。「跳过此版本」已取消。
+
+## 会发生什么
+
+1. **每次启动** 以及自动检查打开时大约 **每小时** 检查一次（默认开）。
+2. 源：`https://github.com/knoxchat/knoxstudio/releases/latest/download/latest.json`，回退 Releases API。
+3. 下载已公证 **DMG**。
+4. 校验 **SHA-256** 和 **Developer ID**。
+5. 原地替换 `KnoxStudio.app` 并重新启动。
+
+录制或导出 **先完成**。未保存的工作仍会询问保存。
+
+## 界面
+
+**帮助 → 检查更新**、偏好设置 → 通用一行、标题栏 **更新失败** 芯片、带说明 / 进度 / 校验 / 重启的更新对话框。
+
+当前版本来自应用包（关于）。把应用放在 `/Applications`，原地替换才能成功。
+
+## 下一步
+
+<Link to="/knoxstudio/install">安装</Link> · <Link to="/knoxstudio/reference/whats-new">新内容</Link>

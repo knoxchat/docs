@@ -1,0 +1,43 @@
+---
+title: Presets and quality
+sidebar_label: Presets and quality
+description: Builtin social and tutorial presets, resolution, bitrate cap, encoder, and user-saved presets.
+---
+
+import Link from '@docusaurus/Link';
+
+# Presets and quality
+
+## Builtin presets
+
+Screen Tutorial 1080p · Course Master 4K · Web Preview 720p · TikTok / Reels 9:16 · YouTube 1080p · YouTube 4K · Square 1080 · Twitter / X 16:9 · Animated GIF Small · Audio MP3 320 kbps · Audio WAV.
+
+A social canvas hint appears when the project size matches a vertical or square preset. You can **save your own** presets.
+
+## Resolution
+
+640×480, 1280×720, 1920×1080, 3840×2160, 25 / 50 / 75 / 100% of source, Custom. Even dimensions (codecs require it).
+
+## Bitrate and quality
+
+Bitrate is a **cap**. Quality is the main knob.
+
+| Bitrate preset | Approx |
+|---|---|
+| Auto | Derived from resolution |
+| Low | 2 Mbps |
+| Medium | 5 Mbps |
+| High | 8 Mbps |
+| Ultra | 15 Mbps |
+| Lossless | 30 Mbps |
+| Custom | |
+
+**Quality:** Fastest / Normal / Slowest — maps to VideoToolbox q, x264/x265 CRF, or ProRes 422 LT / 422 HQ / 4444.
+
+**Encoder:** Auto (VideoToolbox on macOS) / Hardware / Software.
+
+Preferences → General holds **export defaults** (format, FPS) for new export dialogs.
+
+## Next
+
+<Link to="/knoxstudio/export/formats">Formats</Link> · <Link to="/knoxstudio/settings/preferences">Preferences</Link>

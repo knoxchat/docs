@@ -1,0 +1,76 @@
+---
+title: First project
+sidebar_label: First project
+description: Open KnoxStudio, make a short recording or import a file, trim it on the timeline, and export a 1080p MP4.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# First project
+
+This page is a first session on a real Mac. If KnoxStudio is not installed yet, start with <Link to="/knoxstudio/install">Install</Link>. SI generation is optional here — recording and export work without an account.
+
+## 1. Start a project
+
+**File → New** (<kbd>⌘N</kbd>), or **New** on the welcome card. The window title is an unsaved project until you **Save** (<kbd>⌘S</kbd>) as a `.knoxstudio` package.
+
+Pin recents on the welcome card if you will reopen them. Missing files show a missing-file label — relink later from the timeline badge.
+
+## 2. Put media on the timeline
+
+Pick one:
+
+### Record a take
+
+1. Open **File → Recording Setup** (or the Recording setup button on the transport).
+2. Check permission chips, pick a display or window, turn on microphone if you will talk. Watch **This take will include**. System audio needs macOS 13+.
+3. Click **Start Recording** in that dialog (or **Record** on the transport after setup). A countdown ring appears (default 3 seconds; <kbd>Esc</kbd> cancels).
+4. Stop. Screen, camera, mic, and system audio land on **separate tracks**.
+
+Details: <Link to="/knoxstudio/record/screen">Screen recording</Link>.
+
+### Import a file
+
+Drag a video, audio, or image onto the window, or **Add Media** on the transport. Placement follows the timeline toolbar: **@Head** (playhead) or **@Start**.
+
+| Kind | Extensions |
+|---|---|
+| Video | mp4, mov, m4v, avi, mkv, wmv, webm, flv, ts, mts, m2ts |
+| Audio | mp3, aac, wav, m4a, ogg, flac |
+| Image | png, jpg, jpeg, gif, bmp, webp, tiff, tif |
+
+Documents (PDF, Word, and friends) go to Explorer as Markdown, not onto the timeline. <Link to="/knoxstudio/write/documents">Documents</Link>.
+
+### Talk to SI
+
+Needs <Link to="/knoxstudio/sign-in">sign-in</Link>. Type **Generate a video:** in the SI Agent, or tap the empty-state chip. The job lands in `~/.knoxmedia/video/` and on the timeline when it finishes.
+
+## 3. Play and trim
+
+- <kbd>Space</kbd> play / pause. <kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> shuttle.
+- Drag a clip edge to trim. <kbd>T</kbd> splits at the playhead. <kbd>W</kbd> / <kbd>E</kbd> trim front / end to the playhead.
+- <kbd>Tab</kbd> cycles **Normal / Ripple / Insert / Overwrite**. Ripple closes gaps when you delete.
+
+Stay in **Select** (<kbd>V</kbd>) for this first cut. Full tool list: <Link to="/knoxstudio/timeline/edit-modes">Edit modes and tools</Link>.
+
+## 4. Export
+
+1. <kbd>⌘E</kbd> or **Export** on the transport.
+2. Pick builtin **Screen Tutorial 1080p** (H.264, 1920×1080) or leave Whole project / MP4 H.264.
+3. Choose a folder that is **not** inside the `.knoxstudio` package.
+4. Wait for progress + ETA. The app verifies the file exists, has a duration, and has the expected streams.
+
+Missing media blocks export — relink first. Details: <Link to="/knoxstudio/export/formats">Export formats</Link>.
+
+## 5. Save
+
+<kbd>⌘S</kbd>. The package includes `project.json` (compressed when large), `media/`, and related folders. Autosave keeps the last **5** snapshots under `~/.knoxmedia/projects/autosave/`.
+
+Press <kbd>?</kbd> anytime for the shortcut overlay.
+
+## Next
+
+- <Link to="/knoxstudio/workspace">Workspace</Link> — panels, HUDs, Inspector tabs.
+- <Link to="/knoxstudio/sign-in">Sign in</Link> — Manager, Writer, Editor, Voice Director.
+- <Link to="/knoxstudio/agent/chat-ui">SI Agent chat</Link> — type, @, Confirm / Auto.

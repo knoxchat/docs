@@ -1,0 +1,47 @@
+---
+title: Explorer
+sidebar_label: Explorer
+description: ~/.knoxmedia 树——新建文件、搜索、废纸篓，以及媒体和文档如何打开。
+---
+
+import Link from '@docusaurus/Link';
+
+# Explorer
+
+左侧栏是 **Explorer**（不再叫「媒体库」）。这是 KnoxStudio 的媒体空间：`~/.knoxmedia`（创建时权限 `0700`）。
+
+## 根文件夹
+
+`video`、`audio`、`image`、`docs`、`screenplay`、`storyboard`、`roles`、`database`、`config`、`chat`、`continuity`、`projects/autosave`。
+
+标题：**新建文件**、**新建文件夹**、**全部折叠**、**刷新**、**在访达中显示**、**在窗口中打开**。搜索：**搜索文件...**。空：**还没有文件**。
+
+## 打开行为
+
+| 点击 | 打开 |
+|---|---|
+| 音频 / 视频 / 图像 | 画布 **快速预览**；拖到时间线放置 |
+| screenplay/docs 下的 `.md` `.markdown` `.fountain` `.txt` | **剧本** 标签 |
+| knoxmedia 下任意 `.json` `.yaml` `.yml` | 剧本标签 |
+
+用时间线 **@Head** 把媒体放到播放头，或 **@Start** 放到开头。
+
+拖进窗口或点 **添加媒体** 导入。视频：mp4、mov、m4v、avi、mkv、wmv、webm、flv、ts、mts、m2ts。音频：mp3、aac、wav、m4a、ogg、flac。图像：png、jpg、jpeg、gif、bmp、webp、tiff。Office/PDF 进 <Link to="/knoxstudio/write/documents">文档</Link>，不上时间线。
+
+## 树操作
+
+打开、重命名、复制、钉住 / 取消、剪切 / 复制 / 粘贴、**移到废纸篓**、**永久删除**、在访达中显示、用默认应用打开、在终端中打开、在文件夹中查找、显示隐藏文件。排序：混合 / 目录优先 / 文件优先。拖放开关。自动揭示活动文件。
+
+废纸篓在 Explorer 里可撤销。Writer 的 `delete_file` 也走废纸篓。
+
+## 给 Agent 的搜索
+
+对整个 `~/.knoxmedia` 做 BM25 排序，外加可选的内容 ripgrep。`@` 提及、语音 `target_item`，以及 Manager/Writer 工具都能解析不在时间线上的库文件。提及必须比第二名高出 **80** 分，否则视为 **歧义**。
+
+## 树快捷键（树聚焦时）
+
+新建文件 <kbd>⌘N</kbd>，新建文件夹 <kbd>⌘⇧N</kbd> / <kbd>⌥⌘N</kbd>，重命名 F2 / Enter，预览空格，废纸篓 Backspace，永久删除 <kbd>⌘⇧⌫</kbd>，隐藏文件 <kbd>⌘⇧.</kbd>，揭示 <kbd>⌥⌘R</kbd>。完整表：<Link to="/knoxstudio/settings/shortcuts">快捷键</Link>。
+
+## 下一步
+
+<Link to="/knoxstudio/write/documents">文档</Link> · <Link to="/knoxstudio/agent/mentions">提及</Link>

@@ -1,0 +1,60 @@
+---
+title: 登录
+sidebar_label: 登录
+description: 用 OAuth 连接 KnoxStudio，把签发的密钥放进钥匙串，让实时目录填好视频、图像、音频和视觉能力。
+---
+
+import Link from '@docusaurus/Link';
+
+# 用 KnoxStudio 登录
+
+录制、时间线剪辑和本地写作 **不需要** 账号。要 SI 生成、字幕、人声分离、Voice Director、Director Mode、Storyboard 或音色库时再登录。
+
+1.7 **没有** 粘贴 API 密钥的输入框。 **用 KnoxStudio 登录** 是唯一连接方式。
+
+## 在哪里登录
+
+打开 **SI 配置**：
+
+- 菜单栏 **KnoxStudio → SI 配置…**
+- SI Agent 标题栏的 **齿轮**
+- 不在偏好设置里。偏好设置没有默认值 / 账号页。
+
+对话框副标题是 **账号、生成与执行默认值**。只有一页。
+
+## 登录流程
+
+1. 点 **用 KnoxStudio 登录**。
+2. 应用打开浏览器 `https://knoxstudio.ai/oauth2/authorize`（OAuth2 + PKCE，客户端 `knox_studio_desktop`）。
+3. 你允许访问后，应用在 **回环** `http://127.0.0.1:8732/callback` 上监听。这个端口必须空闲；别的应用占用 8732 会导致登录失败。
+4. KnoxStudio 签发名为 **KnoxStudio Desktop** 的隐藏 API 令牌，存进 **macOS 钥匙串**（`knoxchat_api_key`、`knoxchat_oauth_refresh`）。账号元数据（用户 id、用户名、token id）写在应用配置里——从不存原始密钥。
+5. 对话框显示 **已连接为 @username**。
+
+请求的范围：`user:read user:email tokens:read tokens:write usage:read`。
+
+浏览器一直不回来：你离线了、**8732** 被占，或代理在截断到 `knoxstudio.ai` / `api.knoxstudio.ai` 的 TLS。在等待行点取消再试。
+
+## 登录之后能做什么
+
+登录成功后，实时 KnoxChat 目录会填好视频、图像、音频、音色和视觉。对话和专家角色使用 **`knox/knox-studio`**。Knox 为每次请求选路：文生视频、图生视频、音乐、TTS、音效、分离、变声、对齐、实时语音、视觉。Manager、Writer、Editor 是这个工作室模型上的不同 **角色**——作曲栏里不用再选聊天模型。
+
+生成默认值（时长、分辨率、比例、水印、音频格式）在同一个对话框。Agent 被指示 **不要** 再问你这些问题；在这里改。<Link to="/knoxstudio/settings/agent-config">SI 配置</Link>。
+
+## 退出登录
+
+同一行 **退出登录**。KnoxStudio 丢掉这台 Mac 上的钥匙串，**自行撤销** 铸出的 KnoxStudio Desktop 密钥，并在有网时对刷新令牌 **POST** `/api/oauth2/revoke`。若撤销失败（离线），本机密钥仍然没了——请到 [knoxstudio.ai/keys](https://knoxstudio.ai/keys) 自己撤销残留密钥。
+
+## 和 KnoxCoder 的差别
+
+| | KnoxStudio（本应用） | KnoxCoder |
+|---|---|---|
+| OAuth 回环 | **8732** | **8733** |
+| 令牌名 | KnoxStudio Desktop | KnoxStudio（编辑器） |
+| 密钥存放 | macOS 钥匙串 | SecretStorage + `~/.knoxcoder/auth.json` |
+| 主目录 | `~/.knoxmedia` | `~/.knoxcoder` |
+
+登录一个产品不会把密钥拷到另一个。两个都可以用同一个 KnoxStudio **账号**。
+
+## 下一步
+
+<Link to="/knoxstudio/agent/chat-ui">对话界面</Link> · <Link to="/knoxstudio/settings/agent-config">Agent 配置</Link> · <Link to="/knoxstudio/safety/network">网络</Link>

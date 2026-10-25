@@ -1,0 +1,76 @@
+---
+title: 第一个项目
+sidebar_label: 第一个项目
+description: 打开 KnoxStudio，录一小段或导入文件，在时间线上裁一下，导出 1080p MP4。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# 第一个项目
+
+这是一次在真机 Mac 上的第一轮。若还没安装，先看 <Link to="/knoxstudio/install">安装</Link>。这里的 SI 生成是可选的——录制和导出不需要账号。
+
+## 1. 开始一个项目
+
+**文件 → 新建**（<kbd>⌘N</kbd>），或欢迎卡上的 **新建**。在你 **保存**（<kbd>⌘S</kbd>）成 `.knoxstudio` 包之前，窗口标题是未保存项目。
+
+欢迎卡上可以钉住最近项目。缺失文件会标出来——稍后从时间线徽章重新链接。
+
+## 2. 把媒体放到时间线
+
+选一种：
+
+### 录一条
+
+1. 打开 **文件 → 录制设置**（或传输条上的录制设置）。
+2. 看权限芯片，选显示器或窗口，要说话就打开麦克风。看一眼 **本次将包含**。系统音频需要 macOS 13+。
+3. 在对话框里点 **开始录制**（或设置完成后按传输条 **录制**）。倒计时环出现（默认 3 秒；<kbd>Esc</kbd> 取消）。
+4. 停止。屏幕、摄像头、麦克风和系统音频落到 **各自轨道**。
+
+详见 <Link to="/knoxstudio/record/screen">屏幕录制</Link>。
+
+### 导入文件
+
+把视频、音频或图像拖进窗口，或用传输条 **添加媒体**。放置位置跟时间线工具栏：**@Head**（播放头）或 **@Start**。
+
+| 种类 | 扩展名 |
+|---|---|
+| 视频 | mp4, mov, m4v, avi, mkv, wmv, webm, flv, ts, mts, m2ts |
+| 音频 | mp3, aac, wav, m4a, ogg, flac |
+| 图像 | png, jpg, jpeg, gif, bmp, webp, tiff, tif |
+
+文档（PDF、Word 等）进 Explorer 变成 Markdown，不上时间线。<Link to="/knoxstudio/write/documents">文档</Link>。
+
+### 对 SI 说话
+
+需要 <Link to="/knoxstudio/sign-in">登录</Link>。在 SI Agent 里输入 **Generate a video:**，或点空状态芯片。任务完成后落到 `~/.knoxmedia/video/` 和时间线。
+
+## 3. 播放和裁切
+
+- <kbd>Space</kbd> 播放 / 暂停。<kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> 穿梭。
+- 拖片段边缘裁切。<kbd>T</kbd> 在播放头分割。<kbd>W</kbd> / <kbd>E</kbd> 把前 / 后裁到播放头。
+- <kbd>Tab</kbd> 循环 **正常 / 波纹 / 插入 / 覆盖**。波纹在删除时合上空隙。
+
+第一次剪片用 **选择**（<kbd>V</kbd>）即可。完整工具：<Link to="/knoxstudio/timeline/edit-modes">编辑模式与工具</Link>。
+
+## 4. 导出
+
+1. <kbd>⌘E</kbd> 或传输条 **导出**。
+2. 选内置 **Screen Tutorial 1080p**（H.264，1920×1080），或保持整段项目 / MP4 H.264。
+3. 选一个 **不在** `.knoxstudio` 包里的文件夹。
+4. 等进度和 ETA。应用会校验文件存在、有时长、有预期的流。
+
+缺失媒体会拦住导出——先重新链接。详见 <Link to="/knoxstudio/export/formats">导出格式</Link>。
+
+## 5. 保存
+
+<kbd>⌘S</kbd>。包里有 `project.json`（大了会压缩）、`media/` 等相关文件夹。自动保存在 `~/.knoxmedia/projects/autosave/` 保留最近 **5** 份快照。
+
+随时按 <kbd>?</kbd> 打开快捷键浮层。
+
+## 下一步
+
+- <Link to="/knoxstudio/workspace">工作区</Link>——面板、HUD、检查器标签。
+- <Link to="/knoxstudio/sign-in">登录</Link>——Manager、Writer、Editor、Voice Director。
+- <Link to="/knoxstudio/agent/chat-ui">SI Agent 对话</Link>——输入、@、确认 / 自动。

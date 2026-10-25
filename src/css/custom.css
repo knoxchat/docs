@@ -522,6 +522,54 @@ html[data-theme='dark'] .sidebar-quickstart > .menu__link:hover {
   border-left-color: #6b7280 !important;
 }
 
+.sidebar-category--ks-get-started > .menu__list {
+  border-left-color: #159994 !important;
+}
+
+.sidebar-category--ks-record > .menu__list {
+  border-left-color: #ef4444 !important;
+}
+
+.sidebar-category--ks-timeline > .menu__list {
+  border-left-color: #3b82f6 !important;
+}
+
+.sidebar-category--ks-canvas > .menu__list {
+  border-left-color: #a855f7 !important;
+}
+
+.sidebar-category--ks-audio > .menu__list {
+  border-left-color: #f59e0b !important;
+}
+
+.sidebar-category--ks-write > .menu__list {
+  border-left-color: #10b981 !important;
+}
+
+.sidebar-category--ks-agent > .menu__list {
+  border-left-color: #0d9488 !important;
+}
+
+.sidebar-category--ks-production > .menu__list {
+  border-left-color: #ec4899 !important;
+}
+
+.sidebar-category--ks-export > .menu__list {
+  border-left-color: #6366f1 !important;
+}
+
+.sidebar-category--ks-settings > .menu__list {
+  border-left-color: #3b82f6 !important;
+}
+
+.sidebar-category--ks-safety > .menu__list {
+  border-left-color: #ef4444 !important;
+}
+
+.sidebar-category--ks-reference > .menu__list {
+  border-left-color: #6b7280 !important;
+}
+
 /* Category items — refined spacing */
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category .menu__list .menu__link {
   font-size: 0.85rem;
@@ -840,7 +888,129 @@ html[data-theme='dark'] .theme-doc-sidebar-menu > .theme-doc-sidebar-item-catego
   text-align: center;
 }
 
-/* Four navbar tabs (Docs · API Reference · Blog · KnoxCoder) + locale + KnoxStudio. */
+/* KnoxStudio labeled chrome (One Dark). Reuses kc-anatomy tokens. */
+.ks-studio {
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.ks-studio-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.65rem;
+  background: #21252b;
+  border-bottom: 1px solid #333843;
+  font-size: 0.72rem;
+}
+
+.ks-studio-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.ks-studio-explorer {
+  width: 22%;
+  min-width: 7.5rem;
+  background: #21252b;
+  border-right: 1px solid #333843;
+  padding: 0.5rem 0.55rem;
+  font-size: 0.72rem;
+}
+
+.ks-studio-center {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ks-studio-canvas {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e2228;
+  color: #7f848e;
+  font-size: 0.78rem;
+}
+
+.ks-studio-agent {
+  width: 26%;
+  min-width: 8.5rem;
+  background: #22262d;
+  border-left: 1px solid #333843;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.72rem;
+}
+
+.ks-studio-timeline {
+  border-top: 1px solid #333843;
+  background: #21252b;
+  padding: 0.4rem 0.55rem 0.55rem;
+  font-size: 0.7rem;
+}
+
+.ks-lane {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.28rem;
+}
+
+.ks-lane-id {
+  width: 1.4rem;
+  color: #56b6c2;
+  font-weight: 600;
+}
+
+.ks-lane-bar {
+  flex: 1;
+  height: 0.7rem;
+  border-radius: 3px;
+  background: #333843;
+}
+
+.ks-lane-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: #159994;
+}
+
+.ks-orb {
+  width: 8.5rem;
+  height: 8.5rem;
+  margin: 1.1rem auto 0.7rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3a5a6a, #1a2430 62%, #111820);
+  border: 3px solid #8aa0b0;
+  box-shadow: 0 0 0 1px #56b6c2 inset, 0 8px 22px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d8dee9;
+  font-size: 0.72rem;
+  text-align: center;
+  padding: 0.6rem;
+}
+
+@media screen and (max-width: 720px) {
+  .ks-studio-body {
+    flex-wrap: wrap;
+  }
+
+  .ks-studio-explorer,
+  .ks-studio-agent {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Five navbar tabs (Docs · API · Blog · KnoxStudio · KnoxCoder) + locale. */
 @media screen and (min-width: 997px) and (max-width: 1280px) {
   .navbar__item {
     padding: var(--ifm-navbar-item-padding-vertical) 0.5rem;

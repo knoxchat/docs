@@ -1,0 +1,27 @@
+---
+title: Documents
+sidebar_label: Documents
+description: Drop PDF, Word, PowerPoint, Excel, or CSV — KnoxStudio converts to Markdown the Writer can read.
+---
+
+import Link from '@docusaurus/Link';
+
+# Documents
+
+Drop a PDF, Word, PowerPoint, Excel, or CSV on the SI Agent composer or into Explorer. KnoxStudio copies the original and converts with **anydoc** to `~/.knoxmedia/docs/{stem}-{id}.md` with an HTML comment `<!-- Source: filename -->`. Status: **Converting {name}…**.
+
+Already-text files (Markdown, Fountain, txt, JSON, YAML, HTML, …) are copied **without** conversion.
+
+Inlined text to the model is capped at **64,000** bytes.
+
+## Timeline vs library
+
+Video / audio / image drags go to the **timeline**. Office/PDF conversion is a **library** path. Do not expect a PDF to appear as a video clip.
+
+## Writer sandbox
+
+The Writer agent may only touch `~/.knoxmedia`. Paths are knoxmedia-relative (`docs/brief.md`) or screenplay-relative (`act1.md`). No `..`, no absolute paths. <Link to="/knoxstudio/agent/writer">Writer</Link>.
+
+## Next
+
+<Link to="/knoxstudio/write/screenplay">Screenplay</Link> · <Link to="/knoxstudio/agent/writer">Writer agent</Link>

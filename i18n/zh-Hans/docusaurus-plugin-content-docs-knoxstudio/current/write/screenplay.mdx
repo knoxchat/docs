@@ -1,0 +1,55 @@
+---
+title: 剧本编辑器
+sidebar_label: 剧本编辑器
+description: 编辑、阅读、大纲模式，Fountain 和 Knox 方言、模板、角色芯片，以及发送到 Director。
+---
+
+import Link from '@docusaurus/Link';
+
+# 剧本编辑器
+
+中央标签 **剧本**。从 Explorer 打开文件或 **新建剧本**。上次打开的文档启动时会恢复。一旦有文档打开，就会出现画布 / 剧本标签条。
+
+## 方言
+
+Knox `[NAME]`、Fountain `INT.` / `EXT.` 场次行，以及文学体 `**NAME**` / `>` 对白都能解析。大纲、角色、Director、查找和导出共用这套解析。
+
+欢迎文案：「Knox [NAME]、Fountain INT./EXT.，以及文学体 **NAME** / > 对白都能解析。」
+
+## 模式
+
+剧本里 <kbd>⌘1</kbd> / <kbd>⌘2</kbd> / <kbd>⌘3</kbd>（NLE 聚焦时这些键是检查器 / Agent / 角色——看焦点）。
+
+| 模式 | 你得到什么 |
+|---|---|
+| **编辑** | 带 One Dark Pro 高亮的 Markdown，以及 `[CHAR]`、Fountain 提示和转场的薄叠加 |
+| **阅读** | 场次卡片、**角色：** 芯片、**添加到时间线**、**全部生成**、背景图 |
+| **大纲** | 重排场次、**循环状态**（草稿、进行中、完成、需审阅） |
+
+**分栏（编辑 \| 阅读）**。**软换行**、**行号**（<kbd>⌘L</kbd>）、**场次缩略图**（<kbd>⌘B</kbd>）。
+
+阅读模式 **角色：** 芯片：点击激活 / 停用角色。缺失 →「没有……的角色」/ 在角色里创建一个。
+
+## 模板
+
+新建剧本模板（剧本偏好）：**长片**（Untitled Feature、INT. APARTMENT、EXT. STREET）、**短片**、**剧集**（Teaser + Act One）。
+
+## 写作辅助
+
+工具栏：**导入文件** / **打开文件夹**、查找 / 替换（<kbd>⌘F</kbd>，F3 / Shift+F3）、跳到场次（<kbd>⌘G</kbd>）、上一 / 下一场（<kbd>⌘↑</kbd> / <kbd>⌘↓</kbd>）。
+
+侧栏（1.7.3）：**角色**、**关系**、**评论**。点补全列表即可插入到光标处。自动完成覆盖角色、地点和场次标题。方言感知解析与大纲、Director、查找和导出共用。
+
+还有：**角色名生成器**、**统计**（字数、页数约 250 词/页、时长、对白对动作）、**修订标记**（相对打开时快照的 diff——不是 git 历史）、**保存时保留本地 .bak**、自动保存间隔、**应用场次编号**、**开始 25 分钟番茄钟**、**把选区发给 Agent**、提示面板。
+
+<kbd>⌘W</kbd> 关闭标签。剧本聚焦时 <kbd>⌘N</kbd> 新建文件。
+
+## 送到制作
+
+**发送到 Director Mode**（状态：**Director Mode：正在分析剧本**）或从 Director **分析打开的剧本**。<Link to="/knoxstudio/production/director">Director</Link>。
+
+1.7 **没有** 专注模式 / F11。想安静页面请从 **显示** 隐藏 Explorer 和右侧栏。
+
+## 下一步
+
+<Link to="/knoxstudio/write/export">导出剧本</Link> · <Link to="/knoxstudio/production/roles">角色</Link>

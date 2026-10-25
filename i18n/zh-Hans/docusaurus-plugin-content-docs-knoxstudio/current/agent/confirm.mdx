@@ -1,0 +1,29 @@
+---
+title: 确认与自动
+sidebar_label: 确认与自动
+description: 闪电自动立刻发送生成；盾牌确认显示批准/取消，以及 Editor 的应用/丢弃卡片。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# 确认与自动
+
+作曲栏井：闪电 = **自动**（「自动模式：直接发送生成」），盾牌 = **确认**（「确认模式：发送前先审」）。**默认是自动**。
+
+## 确认会拦住什么
+
+| 表面 | 卡片 |
+|---|---|
+| 视频任务 | **需要批准** / **准备发送：** 带 **批准** / **取消**。作曲栏在此之前锁定。Esc 取消。 |
+| Editor 破坏性批次 | **确认编辑** / **应用** / **丢弃** |
+
+语音会话在已连接 / 正在听 / 正在说时 **跳过** 生成确认。
+
+除了确认 + `EditConfirm` 卡片，没有单独的「中途编辑就拿住」模式。
+
+不想突然生成或删时间线时，留在 **确认**。
+
+## 下一步
+
+<Link to="/knoxstudio/agent/editor">Editor</Link> · <Link to="/knoxstudio/safety/limitations">限制</Link>

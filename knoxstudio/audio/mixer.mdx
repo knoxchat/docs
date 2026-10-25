@@ -1,0 +1,41 @@
+---
+title: Mixer
+sidebar_label: Mixer
+description: Waveforms, per-clip and per-track volume, pan, fades, EQ, compressor, ducking, and overlap mix modes.
+---
+
+import Link from '@docusaurus/Link';
+
+# Mixer
+
+Waveforms draw on audio clips. Inspector **Audio** is the mixer.
+
+## Track strip
+
+For each mixer-eligible track: mute, solo (<kbd>S</kbd> on the timeline), volume **0–200%** (scroll the header), pan **−100…+100**, live peak / RMS meters.
+
+## Per clip
+
+Volume (keyframable), pan (clip + track combined), fade in / out, mute. **Detach audio** on a video clip if you need independent picture and sound.
+
+## Processing
+
+| Tool | Notes |
+|---|---|
+| **Loudness normalize** | Applied on the **export** path |
+| **Ducking** | Amount, attack ms, release ms (defaults 0.65 / 50 / 250) |
+| **Noise reduction** | Export path |
+| **3-band EQ** + high-pass | **Voice** preset and Reset |
+| **Compressor** + limiter | |
+
+## Overlap mix
+
+When clips overlap: **Crossfade**, **Equal Power** (default), **Full Mix**, **Hard Cut**.
+
+## Audio-only export
+
+MP3 (128 / 192 / 256 / 320 kbps) and WAV (PCM lossless). Builtin presets **Audio MP3 320 kbps** and **Audio WAV**. The project must contain clips with audio. <Link to="/knoxstudio/export/formats">Export</Link>.
+
+## Next
+
+<Link to="/knoxstudio/audio/generate">Generate audio</Link> · <Link to="/knoxstudio/audio/process">Isolate, voice, stems</Link>

@@ -1,0 +1,45 @@
+---
+title: 导出格式
+sidebar_label: 格式
+description: MP4 H.264 和 HEVC、ProRes、WebM、GIF、MP3、WAV——范围、字幕、章节，以及导出后校验。
+---
+
+import Link from '@docusaurus/Link';
+
+# 导出格式
+
+<kbd>⌘E</kbd> 或传输条 **导出**。进度显示 ETA。完成后桌面通知。应用会 **校验** 文件：存在、非空、ffprobe 时长在 0.5 秒内、预期的视频/音频流、分辨率。
+
+## 格式
+
+| 格式 | 适合 |
+|---|---|
+| **MP4（H.264）** | 通用分享和上传 |
+| **MP4（H.265 / HEVC）** | 更小文件、高质量 |
+| **ProRes（MOV）** | 母带和继续剪辑（质量对应 422 LT / 422 HQ / 4444） |
+| **WebM（VP9）** | 网页分发 |
+| **动态 GIF** | 短循环。摄像头和叠加轨会 **压平** 进 GIF。 |
+| **MP3** | 纯音频 |
+| **WAV** | 无损纯音频 |
+
+## 范围
+
+整段项目 · **入出点** · 选区 · 标记到标记。
+
+## 字幕和章节
+
+字幕：**烧录**（默认）或侧车 `.srt`。可选 **YouTube 章节** 从标记写出 `{stem}_chapters.txt`。
+
+色彩：SDR Rec.709。
+
+## 门槛
+
+- **缺失媒体** 会拦住导出——先重新链接。
+- 纯音频需要带音频的片段。
+- 不能导出 **覆盖** 项目媒体（不要写进 `.knoxstudio` 包）。
+
+文件名跟随项目名。
+
+## 下一步
+
+<Link to="/knoxstudio/export/presets">预设与质量</Link> · <Link to="/knoxstudio/timeline/markers">标记</Link>

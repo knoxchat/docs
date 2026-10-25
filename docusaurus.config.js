@@ -127,6 +127,13 @@ const config = {
           { to: '/blog', label: 'Blog', position: 'left' },
           {
             type: 'docSidebar',
+            docsPluginId: 'knoxstudio',
+            sidebarId: 'knoxstudioSidebar',
+            position: 'left',
+            label: 'KnoxStudio',
+          },
+          {
+            type: 'docSidebar',
             docsPluginId: 'knoxcoder',
             sidebarId: 'knoxcoderSidebar',
             position: 'left',
@@ -146,7 +153,7 @@ const config = {
           {
             href: 'https://knoxstudio.ai',
             position: 'right',
-            label: 'KnoxStudio'
+            label: 'knoxstudio.ai',
           }
         ]
       },
@@ -209,7 +216,7 @@ const config = {
       /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions & Record<string, unknown>} */
       ({
         indexPages: true,
-        docsRouteBasePath: ['/', 'knoxcoder'],
+        docsRouteBasePath: ['/', 'knoxcoder', 'knoxstudio'],
         blogRouteBasePath: '/blog',
         hashed: true,
         language: ['en', 'zh'],
@@ -224,6 +231,19 @@ const config = {
     '@docusaurus/theme-mermaid'
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'knoxstudio',
+        path: 'knoxstudio',
+        routeBasePath: 'knoxstudio',
+        sidebarPath: './sidebarsKnoxstudio.js',
+        remarkPlugins: [remarkMath],
+        rehypePlugins: [rehypeKatex],
+        sidebarCollapsible: true,
+        sidebarCollapsed: false,
+      },
+    ],
     [
       '@docusaurus/plugin-content-docs',
       {

@@ -1,0 +1,34 @@
+---
+title: 字幕
+sidebar_label: 字幕
+description: 字幕轨、SRT/VTT 导入导出、烧录对侧车，以及用 Scribe 自动字幕。
+---
+
+import Link from '@docusaurus/Link';
+
+# 字幕
+
+字幕 cue 在 **字幕** 轨上（前缀 CC）。默认不允许重叠。
+
+## 添加字幕轨
+
+1. 在时间线 **空隙**（或轨道标题）上右键 → **添加字幕轨**。
+2. 在片段或空隙上右键 → **插入字幕** / 从检查器 **注释** 在播放头添加。
+3. 点 CC 轨道上的一条 cue，改文字、入出点，以及胶囊样式（颜色、大小、位置）。
+
+字幕是一种 **轨道种类**，不是数字注释工具。形状和标题仍在注释（N）轨。<Link to="/knoxstudio/canvas/annotations">注释</Link>。
+
+## 导入和自动字幕
+
+- 从空隙 / 片段菜单导入 **SRT** 或 **VTT**。同样可以导出 cue 列表。
+- 片段右键 **自动字幕** 使用 KnoxChat **Scribe**——需要 <Link to="/knoxstudio/sign-in">登录</Link>。Editor Agent 的 `caption_clip` / `transcribe_clip` 是同一条路。
+
+强制对齐（`caption_align_clip` / `align_clip`）可以把逐字稿对准音频。文件最大 3 GB，音频 100 ms–10 h，逐字稿 ≤ 675,000 字符。工具发送 `enable_logging=false`（该 API 零保留）。
+
+## 导出
+
+导出对话框 **字幕**：**烧录**（默认）或侧车 `.srt`。<Link to="/knoxstudio/export/formats">格式</Link>。
+
+## 下一步
+
+<Link to="/knoxstudio/audio/process">处理音频</Link> · <Link to="/knoxstudio/agent/editor">Editor Agent</Link>

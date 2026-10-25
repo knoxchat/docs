@@ -1,0 +1,58 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.knoxstudioSidebar.category.Get started": {
+    "message": "开始使用",
+    "description": "The label for category Get started in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.doc.What is KnoxStudio": {
+    "message": "KnoxStudio 是什么",
+    "description": "The label for the doc item What is KnoxStudio in sidebar knoxstudioSidebar, when used as a category"
+  },
+  "sidebar.knoxstudioSidebar.category.Record": {
+    "message": "录制",
+    "description": "The label for category Record in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Timeline": {
+    "message": "时间线",
+    "description": "The label for category Timeline in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Canvas": {
+    "message": "画布",
+    "description": "The label for category Canvas in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Audio": {
+    "message": "音频",
+    "description": "The label for category Audio in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Write": {
+    "message": "写作",
+    "description": "The label for category Write in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.SI Agent": {
+    "message": "SI Agent",
+    "description": "The label for category SI Agent in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Production": {
+    "message": "制作",
+    "description": "The label for category Production in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Export": {
+    "message": "导出",
+    "description": "The label for category Export in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Settings": {
+    "message": "设置",
+    "description": "The label for category Settings in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Privacy and safety": {
+    "message": "隐私与安全",
+    "description": "The label for category Privacy and safety in sidebar knoxstudioSidebar"
+  },
+  "sidebar.knoxstudioSidebar.category.Reference": {
+    "message": "参考",
+    "description": "The label for category Reference in sidebar knoxstudioSidebar"
+  }
+}

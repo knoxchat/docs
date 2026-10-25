@@ -1,0 +1,75 @@
+---
+id: index
+slug: /
+title: KnoxStudio 是什么
+sidebar_label: KnoxStudio 是什么
+description: KnoxStudio 是 macOS 原生 SI 工作室——用语音或文字，录制、生成、写作、在真实时间线上剪辑并导出。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# KnoxStudio 是什么
+
+**KnoxStudio** 是面向 macOS 的原生 SI 工作室。你可以用文字或实时语音和它说话。录屏，生成视频、图像、音乐和语音，写文档和剧本，在真实时间线上剪辑，再导出成品——都在同一个很快的应用里。
+
+它不只是视频剪辑器。同一个 SI Agent 可以谱曲、从拖入的 PDF 起草简报、生成静帧、续写一场戏，或直接改时间线。**Voice Director** 就是这个 Agent 的语音形态。
+
+本指南讲如何 **使用** KnoxStudio——从第一次启动到每一块工作室界面。这里不是 Knox.Chat HTTP API 参考（API 仍在 [文档](/) 和 [API 参考](/1.0.0/api-reference)），也不是 [KnoxCoder](/knoxcoder) 编辑器指南。
+
+## 三块东西不要混
+
+| 名称 | 是什么 |
+|---|---|
+| **KnoxStudio** | macOS 应用（`KnoxStudio.app`）。录制、NLE、画布、Explorer、写作间、SI Agent。 |
+| **SI Agent** | 内置工作室 Agent。Manager（生成）、Writer（文档）、Editor（时间线），以及 Director、Storyboard、角色、Voice Director。 |
+| **Knox.Chat API** | 单独的云 API。本应用登录后调用 `https://api.knoxstudio.ai`（过期的 `api.knox.chat` 主机会在加载时改写）。HTTP 路由在「文档」标签，不在这里。 |
+| **KnoxCoder** | 另一款带内置编程 Agent 的桌面代码编辑器。见 [KnoxCoder](/knoxcoder) 标签。 |
+
+KnoxStudio 在你 <Link to="/knoxstudio/sign-in">用 KnoxStudio 登录</Link> 之后会 **调用** Knox.Chat。这并不会把本标签变成 API 文档。
+
+## 你能做什么
+
+一轮典型工作流：
+
+1. 打开 `.knoxstudio` 项目，或从录制 / 导入 / 对 SI 说话开始。
+2. 采集显示器、窗口、摄像头、麦克风和系统音频——各自一条轨道。
+3. 让 SI Agent 生成视频、图像、音乐、语音或文档。结果落到 `~/.knoxmedia` 和时间线上。
+4. 在真实非线性时间线上剪：裁切、分割、波纹、插入、覆盖、注释、混音。
+5. 在同一个窗口写剧本，发给 Director Mode，放下带连贯性的镜头序列。
+6. 导出 MP4、HEVC、ProRes、WebM、GIF 或纯音频。
+
+你始终做主。**确认** 或 **自动** 决定生成和破坏性编辑何时执行。
+
+## 本机数据
+
+| 位置 | 里面有什么 |
+|---|---|
+| **`.knoxstudio` 包** | 你保存的项目：时间线、片段、标记、画布、嵌套。在访达里双击即可重开。 |
+| **`~/.knoxmedia`** | 生成的媒体、文档、剧本、角色、对话 SQLite、`config.yaml`、`defaults.yaml`。权限 `0700`。 |
+| **macOS 钥匙串** | 签发的 KnoxStudio Desktop API 令牌和 OAuth 刷新令牌。从不写入日志。 |
+
+录制、剪辑、写作和导出可以 **离线**。只有登录并把工作送出去时才会跑 SI。地图：<Link to="/knoxstudio/settings/data">磁盘上的数据</Link>。
+
+## 语言、许可、平台
+
+- 界面语言：**英文** 和 **简体中文**。
+- 平台：**macOS 13.0 或更高**，Apple Silicon 或 Intel（通用二进制）。
+- 更新：GitHub Release 是 **强制** 更新——启动时和大约每小时检查一次，下载已签名 DMG 并重新启动。<Link to="/knoxstudio/settings/updates">更新</Link>。
+
+## 1.7 里没有的东西
+
+先说清楚，后面的页面才诚实：
+
+- **没有编程 Agent。** Writer 把源码当文本，直到专门角色上线。
+- **没有 Windows / Linux 应用。** KnoxStudio 只做 macOS。编程编辑器请看 KnoxCoder。
+- **没有用量仪表盘。** 用量记在 KnoxStudio 账号上；本应用不显示费用账本。
+- **没有应用内专注模式。** ⌘Enter 发送对话。想安静写作请用 **显示** 菜单隐藏 Explorer、时间线或右侧栏。
+- **剧本不能直接导出 PDF。** 导出 HTML，再用 打印 → 存储为 PDF。
+- **SI 配置里不能粘贴 API 密钥。** 只能用 KnoxStudio 登录。
+
+## 下一步
+
+1. 从 GitHub Releases <Link to="/knoxstudio/install">安装 KnoxStudio</Link>。
+2. <Link to="/knoxstudio/first-project">做第一个项目</Link>——录一段、导入，或开口。
+3. 需要生成、Voice Director 或字幕时再 <Link to="/knoxstudio/sign-in">登录</Link>。

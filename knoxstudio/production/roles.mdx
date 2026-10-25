@@ -1,0 +1,43 @@
+---
+title: Character Roles
+sidebar_label: Character Roles
+description: Named cast with reference images, voice, Lead vs Supporting, Active/Inactive, and Upload to Cloud.
+---
+
+import Link from '@docusaurus/Link';
+
+# Character Roles
+
+Dock **Character Roles**. “Manage character roles for consistent generation.” YAML manifests in `~/.knoxmedia/roles/` (the path is shown in the UI).
+
+<kbd>⌘3</kbd> toggles Roles (when the NLE is focused).
+
+## Add a role
+
+Composer: **Name a character to add...** Enter / Cmd+Enter, or **Add Role**. Search: **Search roles**. Empty: **No character roles yet**.
+
+Per role: first / last name, description, aliases, tags, notes, gender, age, ethnicity, hair, **Default outfit**, **Traits**, **Style hints**, **Negative prompts**, **Color**, **Voice ID**.
+
+## Lead vs Supporting
+
+Click to toggle. **Lead** drives the first frame (image-to-video). **Supporting** is reference-only. Default is Supporting.
+
+**Active** / **Inactive**. Active roles appear in the Manager composer context bar (up to two names + `+N`).
+
+## References
+
+**+ Ref Image**, **+ Ref Video**. Click = **Primary avatar**, right-click = category / remove. Categories: Face, FullBody, Outfit, Expression, Pose, Environment, Other. Cap **3** images sent per role. Warning: **No reference image — weak visual signal.**
+
+**Upload to Cloud** uploads refs via KnoxChat `upload_media` / `create_asset`. Notices: “Uploading N reference image(s)…”, “N asset(s) uploaded and ready for generation.” Fails without sign-in.
+
+## Voice
+
+Paste a `voice_id` or **Browse Voice Library** — **My voices**, **Library**, **Collections**, **Search**. Needs <Link to="/knoxstudio/sign-in">sign-in</Link>. Leftover UI copy may still say “add a KnoxChat key”; there is no paste-key field in 1.7. Fallback public ids: Jarnathan, Rachel, Adam, Sarah, Antoni, Lily.
+
+## Delete
+
+**Delete this character role?** Screenplay Read-mode chips create a role if the name is missing.
+
+## Next
+
+<Link to="/knoxstudio/production/sequences">Video sequences</Link> · <Link to="/knoxstudio/audio/generate">Generate audio</Link>

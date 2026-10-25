@@ -1,0 +1,50 @@
+---
+title: Annotations
+sidebar_label: Annotations
+description: Rectangle through numbered step, blur and spotlight, templates, title animations, and annotation timing.
+---
+
+import Link from '@docusaurus/Link';
+
+# Annotations
+
+Draw on the canvas. Tools use digit keys while the canvas is focused. Annotations live on **Annotation** tracks (prefix N).
+
+## Tools
+
+| Key | Tool |
+|---|---|
+| <kbd>V</kbd> | Select |
+| <kbd>1</kbd> | Rectangle |
+| <kbd>2</kbd> | Ellipse |
+| <kbd>3</kbd> | Arrow |
+| <kbd>4</kbd> | Line |
+| <kbd>5</kbd> | Text |
+| <kbd>6</kbd> | Freehand |
+| <kbd>7</kbd> | Highlight |
+| <kbd>8</kbd> | Callout |
+| <kbd>9</kbd> | Numbered step |
+| <kbd>0</kbd> | Blur region (mosaic) |
+| <kbd>⇧0</kbd> | Spotlight (dim outside) |
+
+Arrow keys nudge; Shift nudges 5×. **Caption** is a Caption-track kind, not a digit tool — <Link to="/knoxstudio/canvas/captions">Captions</Link>.
+
+## Templates
+
+Callout, Lower Third (auto Slide Left), Intro Title (auto Fade), Keyboard Hint, Step Badge. Inspector and the Editor tool `add_annotation_template`.
+
+## Style
+
+Fill, stroke, opacity, thickness, shadow, outline, corner radius. Text: horizontal / vertical align, bold / italic / underline, proportional vs monospace, system font name, line height, letter spacing, outline width, shadow offset / blur, plate. Font size 12–240. Blur block size. Callout tail.
+
+## Title animations
+
+Fade, Slide Left / Right / Up, Type On, Highlight On, Draw On.
+
+## Timing
+
+Default annotation duration is a project setting (default **5 s**). Fade in / out. Keyframes: Position X/Y, Scale, Rotation, Opacity, TextReveal, TextHighlight, StrokeTrim.
+
+## Next
+
+<Link to="/knoxstudio/canvas/captions">Captions</Link> · <Link to="/knoxstudio/agent/editor">Editor agent</Link>

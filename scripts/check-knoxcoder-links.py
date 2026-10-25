@@ -34,6 +34,7 @@ KNOWN_SITE = {
     "/1.0.0/api-reference",
     "/blog",
     "/music",
+    "/knoxstudio",
 }
 
 errors: list[str] = []

@@ -1,0 +1,38 @@
+---
+title: 生成音频
+sidebar_label: 生成音频
+description: 从 SI Agent 生成音乐、TTS 和音效——格式、时长上限，以及文件落在哪里。
+---
+
+import Link from '@docusaurus/Link';
+
+# 生成音频
+
+问 **SI Agent**（Manager）或用空状态 **生成音乐**。需要 <Link to="/knoxstudio/sign-in">登录</Link>。图像 / 音频生成是 **同步** 的；视频会进队列。
+
+## 种类
+
+| 种类 | 说明 |
+|---|---|
+| **音乐** | KnoxChat Music，最长 **5 分钟**。可以附一段视频做视频配乐。 |
+| **TTS** | 文本转语音。音色来自角色、已选音色，或公开默认 **Jarnathan**。 |
+| **音效** | 0.5–30 秒 |
+
+默认值（格式 MP3 / WAV / Opus，采样率 16 / 24 / 44.1 / 48 kHz）在 <Link to="/knoxstudio/settings/agent-config">SI 配置</Link> → 音频生成。Agent 不会再问你这些问题。
+
+## 音色选择顺序（TTS 和变声）
+
+1. 显式 `voice_id`
+2. 角色音色
+3. 账号已选音色（`/v1/knox-studio/selected-voice`）
+4. 公开默认 Jarnathan（`c6SfcYrb2t09NHXiT80T`）。旧项目里 Rachel 的 id 仍然可用。
+
+从 **角色** → **浏览音色库**（我的音色、曲库、合集、搜索）。
+
+## 文件去哪
+
+`~/.knoxmedia/audio/`，若 Agent 放置则会到时间线。右键所选片段 **为片段配乐**。
+
+## 下一步
+
+<Link to="/knoxstudio/audio/process">处理</Link> · <Link to="/knoxstudio/agent/manager">Manager</Link> · <Link to="/knoxstudio/production/roles">角色</Link>

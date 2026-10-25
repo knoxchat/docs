@@ -1,0 +1,67 @@
+---
+title: Screen recording
+sidebar_label: Screen recording
+description: Recording Setup preflight, capture a display or window to its own timeline track, countdown, FPS, and recovery for orphan takes.
+---
+
+import Link from '@docusaurus/Link';
+
+# Screen recording
+
+KnoxStudio records with native macOS capture. What you see in the countdown and preview is what you get on the timeline and on export.
+
+## Recording Setup (preflight)
+
+**File → Recording Setup** or the setup button on the transport opens a one-screen preflight — not a prefs table. Intro: “Confirm sources and permissions. Record then runs the countdown, or starts immediately if countdown is off.”
+
+1. **Permission chips** for Screen Recording, plus Microphone / Camera when those sources are on. Request here, or **Open Settings**. Screen Recording often needs a **quit and reopen** after you grant it.
+2. **Sources** — toggles for screen, microphone, system audio, and camera. Screen has a display / window picker. Mic and system audio show **live meters**.
+3. **This take will include** — window or display name, microphone, camera, and FPS so you can catch a silent take before you start.
+4. **Start Recording** — runs the countdown (or starts immediately if countdown is off). **Cancel** closes the dialog without capturing.
+
+The transport **Record** button opens the same preflight if setup is not confirmed. Blockers disable Start: capture engine still starting, **FFmpeg missing**, screen capture off, or Screen Recording not permitted.
+
+First-run Screen Recording is a **separate** system dialog (**Later** / **Open Settings** / **Grant Permission**), not this preflight.
+
+## What you configure
+
+| Control | Default | Notes |
+|---|---|---|
+| Screen | on | Pick a **display**, or a **window** vs the entire display |
+| FPS | 60 | Same presets as the project (24–120) or custom 1–120 |
+| Countdown | on, 3 s | 1–60 seconds, or off so Record starts immediately. Same values live under <Link to="/knoxstudio/settings/preferences">Preferences → Recording</Link> |
+| Show cursor | on | Stored as a path on the clip |
+| Highlight clicks | on | <Link to="/knoxstudio/record/cursor-clicks">Cursor and click effects</Link> |
+
+Microphone, system audio, and camera are independent sources — see <Link to="/knoxstudio/record/camera-audio">Camera and audio</Link>.
+
+## Record and stop
+
+1. **Start Recording** in the preflight, or **Record** on the transport after setup. The countdown is a dimmed ring: **Get ready**, remaining seconds, <kbd>Esc</kbd> to cancel.
+2. Work in the captured display or window.
+3. Stop from the transport. The take **finalizes** (spinner) then lands on the timeline.
+
+**Take layout**
+
+| Source | Track |
+|---|---|
+| Screen `.mov` | Video |
+| Camera (optional) | Camera, offset for lip-sync |
+| Microphone | Audio (own file) |
+| System audio | Audio (own file) |
+
+Cursor path and click events are stored **on the clip**, not burned in until export / preview composite. You can restyle them later.
+
+## Recovery
+
+If the app quits mid-take, the **unfinished recording** dialog offers **Recover** (place on the timeline) or **Discard** (delete leftover files). Silent system-audio warnings appear when loopback is unavailable.
+
+Startup also runs a health check. Crash recovery is a separate dialog for unsaved projects. <Link to="/knoxstudio/reference/troubleshooting">Troubleshooting</Link>.
+
+## Devices
+
+**Preferences → Devices** shows Screen / Camera permission chips, FFmpeg bundled vs system vs missing, display and window counts, and **Refresh Devices**. Missing FFmpeg blocks record and export.
+
+## Next
+
+<Link to="/knoxstudio/record/camera-audio">Camera and audio</Link> · <Link to="/knoxstudio/record/permissions">Permissions</Link> · <Link to="/knoxstudio/timeline/overview">Timeline</Link>

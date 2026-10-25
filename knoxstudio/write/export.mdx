@@ -1,0 +1,24 @@
+---
+title: Export scripts
+sidebar_label: Export scripts
+description: HTML, Final Draft FDX, Knox-normalized Markdown, and print preview — PDF via Print → Save as PDF.
+---
+
+import Link from '@docusaurus/Link';
+
+# Export scripts
+
+From Screenplay, open the **Export** picker (toolbar or <kbd>⌘⇧E</kbd> for HTML). Choose one format:
+
+| Action | Shortcut |
+|---|---|
+| **Export to HTML** | <kbd>⌘⇧E</kbd> |
+| **Export Final Draft (FDX)** | listed on the shortcuts overlay (menu) |
+| **Export Markdown (Knox-normalized copy)** | picker — Knox `[NAME]` cues, not a byte-for-byte original |
+| **Print Preview** | <kbd>⌘P</kbd> |
+
+Files write to `~/.knoxmedia/screenplay/exports/`. Print preview is HTML in a window — it is not a layout-perfect page proof.
+
+**PDF:** “PDF export isn't supported directly — exported a print-ready HTML file instead. Open it and choose Print → Save as PDF.”
+
+Dialect-aware parse means Fountain and literary scripts keep scene order on export. A flatten bug on reorder was fixed in 1.7.3.

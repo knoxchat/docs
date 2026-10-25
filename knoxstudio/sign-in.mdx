@@ -1,0 +1,60 @@
+---
+title: Sign in
+sidebar_label: Sign in
+description: Connect KnoxStudio with OAuth, store the minted key in the Keychain, and let the live catalog fill video, image, audio, and vision.
+---
+
+import Link from '@docusaurus/Link';
+
+# Sign in with KnoxStudio
+
+Recording, timeline editing, and local writing work **without** an account. Sign in when you want SI generation, captions, isolation, Voice Director, Director Mode, Storyboard, or the voice library.
+
+There is **no** paste-an-API-key field in 1.7. **Sign in with KnoxStudio** is the only way to connect.
+
+## Where to sign in
+
+Open **SI Agent Configuration** from:
+
+- **KnoxStudio → SI Agent Config…** in the menu bar
+- The **gear** on the SI Agent header
+- Not Preferences. Preferences has no Defaults / account tab.
+
+The dialog subtitle is **Account, generation, and execution defaults**. One pane.
+
+## Sign-in flow
+
+1. Click **Sign in with KnoxStudio**.
+2. The app opens the browser at `https://knoxstudio.ai/oauth2/authorize` (OAuth2 + PKCE, client `knox_studio_desktop`).
+3. After you allow access, the app listens on **loopback** `http://127.0.0.1:8732/callback`. Leave that port free; another app on 8732 fails sign-in.
+4. KnoxStudio mints a hidden API token named **KnoxStudio Desktop** and stores it in the **macOS Keychain** (`knoxchat_api_key`, `knoxchat_oauth_refresh`). Account metadata (user id, username, token id) is saved in app config — never the raw key.
+5. The dialog shows **Connected as @username**.
+
+Scopes requested: `user:read user:email tokens:read tokens:write usage:read`.
+
+If the browser never returns: you are offline, **8732** is taken, or a proxy is intercepting TLS to `knoxstudio.ai` / `api.knoxstudio.ai`. Cancel from the waiting row and retry.
+
+## What sign-in unlocks
+
+After a successful login, the live KnoxChat catalog fills video, image, audio, voice, and vision. Chat and specialists use **`knox/knox-studio`**. Knox routes each request: text-to-video, image-to-video, music, TTS, SFX, isolation, voice conversion, alignment, realtime voice, and vision. Manager, Writer, and Editor stay separate **roles** on that one studio model — you do not pick a chat model in the composer.
+
+Generation defaults (duration, resolution, ratio, watermark, audio format) live in the same dialog. The agent is instructed **not** to ask you those questions; change them here. <Link to="/knoxstudio/settings/agent-config">SI Agent Configuration</Link>.
+
+## Sign out
+
+**Sign out** in the same account row. KnoxStudio drops the Keychain secrets on this Mac, **self-revokes** the minted KnoxStudio Desktop key, and **POST**s `/api/oauth2/revoke` for the refresh token when the network is up. If revoke fails (offline), the secrets are still gone locally — revoke leftover keys yourself at [knoxstudio.ai/keys](https://knoxstudio.ai/keys).
+
+## KnoxCoder vs this app
+
+| | KnoxStudio (this app) | KnoxCoder |
+|---|---|---|
+| OAuth loopback | **8732** | **8733** |
+| Token name | KnoxStudio Desktop | KnoxStudio (editor) |
+| Secret store | macOS Keychain | SecretStorage + `~/.knoxcoder/auth.json` |
+| Home | `~/.knoxmedia` | `~/.knoxcoder` |
+
+Signing into one product does not copy the key into the other. You can use the same KnoxStudio **account** in both.
+
+## Next
+
+<Link to="/knoxstudio/agent/chat-ui">Chat UI</Link> · <Link to="/knoxstudio/settings/agent-config">Agent configuration</Link> · <Link to="/knoxstudio/safety/network">Network</Link>

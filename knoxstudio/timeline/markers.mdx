@@ -1,0 +1,33 @@
+---
+title: Markers and In/Out
+sidebar_label: Markers and In/Out
+description: Colored markers, chapter export, In and Out points, and ripple-delete of a range.
+---
+
+import Link from '@docusaurus/Link';
+
+# Markers and In/Out
+
+## Markers
+
+<kbd>M</kbd> adds a marker at the playhead. Colors: Red, Green, Blue, Yellow, Orange. <kbd>⌘←</kbd> / <kbd>⌘→</kbd> previous / next. Context menu: copy chapters, delete.
+
+On export, optional **YouTube chapters** writes `{stem}_chapters.txt` from markers. <Link to="/knoxstudio/export/formats">Export</Link>.
+
+The Editor agent can add and remove markers by name/time.
+
+## In and Out
+
+<kbd>I</kbd> / <kbd>O</kbd> set In and Out. They drive:
+
+- Ripple delete In to Out (<kbd>⌘Delete</kbd>)
+- Export range **In to Out**
+- Editor tool `export_range` with `in_out` (opens the export dialog; does not encode by itself)
+
+## Close gaps
+
+Select a gap and delete, or **Close gap** / **Close all gaps** from the timeline context menu. Ripple mode closes holes as you work.
+
+## Next
+
+<Link to="/knoxstudio/export/formats">Export range</Link> · <Link to="/knoxstudio/timeline/overview">Timeline</Link>

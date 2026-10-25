@@ -1,0 +1,43 @@
+---
+title: 已知限制
+sidebar_label: 已知限制
+description: KnoxStudio 1.7 的诚实缺口——没有编程 Agent、没有 Windows 应用、没有额度界面、没有专注模式、没有 PDF 导出。
+---
+
+import Link from '@docusaurus/Link';
+
+# 已知限制
+
+KnoxStudio **1.7.3** 的诚实缺口。另见 <Link to="/knoxstudio/reference/troubleshooting">故障排除</Link>。
+
+## 本版没有
+
+| 缺口 | 说明 |
+|---|---|
+| **编程 Agent** | 明确以后再说。Writer 把源码当文本 |
+| **Windows / Linux 应用** | 只做 macOS 13+。那些平台上的编程编辑器用 [KnoxCoder](/knoxcoder) |
+| **粘贴 API 密钥** | 1.7.0 已移除。只能用 KnoxStudio 登录 |
+| **专注模式（F11 / Cmd+Enter）** | 旧说明里有；**未实现**。⌘Enter 发送对话 |
+| **面向用户的额度 / 费用** | 只有 SQLite 列；记在账号上 |
+| **生成历史窗口** | 变体对话框 + 内部 SQLite |
+| **剧本直接导出 PDF** | HTML + 打印 → 存储为 PDF |
+| **SI 配置模型标签** | 单页：账号 + 默认值 |
+| **续写场景 / 写分镜表芯片** | 只有文案；不在空网格里 |
+| **Wave 滤镜** | 目录里有；不能应用 |
+| 更多语言 | **只有英文和中文** |
+
+## 采集
+
+系统音频需要 macOS 13+。在系统设置里打开屏幕录制后，经常需要 **重新启动** 应用。
+
+## Director
+
+需要已登录目录里的 **视觉** 能力。分镜表里的空镜头会跳过。
+
+## 确认
+
+Voice Director 在通话进行中 **绕过** 确认。作曲栏默认是 **自动**。
+
+## 更新
+
+GitHub Release **强制**。不能跳过版本。录制/导出先完成；未保存仍会询问。

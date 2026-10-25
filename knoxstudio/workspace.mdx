@@ -1,0 +1,72 @@
+---
+title: Workspace
+sidebar_label: Workspace
+description: Explorer, Canvas, Screenplay, Inspector, SI Agent, timeline, transport, and companion HUD windows.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# Workspace
+
+The main window is a native studio, not a browser tab. Layout sizes, zoom, Inspector tab, and last central view persist in app preferences.
+
+## Panels
+
+| Panel | Default | Range | Toggle |
+|---|---|---|---|
+| **Explorer** (left) | file tree of `~/.knoxmedia` | 180–720 px | View → Left sidebar, title-bar button |
+| **Canvas / Screenplay** (center) | remaining space | — | title-bar tabs, <kbd>⌘4</kbd> Screenplay |
+| **Inspector** (right) | 275 px | 250–380 | <kbd>⌘1</kbd> |
+| **SI Agent** (right) | 360 px | min 320, max 50% of window | <kbd>⌘2</kbd> |
+| **Transport + timeline** (bottom) | timeline 200 px | 106–600 | View → Bottom panel |
+
+Inspector and Agent share the right column — you show one or the other. <kbd>⌘3</kbd> opens **Character Roles** in the agent dock.
+
+## Title bar
+
+Left: Explorer toggle, **Canvas** / **Screenplay** tabs, pop-out HUD for the current central view. Center: window title. Right: failed-update chip (when a check failed), theme, language (EN / 中), bottom panel, Agent, Inspector, Preferences (right-click the Preferences control opens the **Project** tab).
+
+## Transport
+
+Above the timeline:
+
+Undo / Redo (tooltip shows step count and ~MB) · New / Save / Open · Skip start · Rewind 1s · Play / Pause · Fast-forward 1s · Skip end · Loop · Playback quality · Safe-area · **Record** · Recording setup · live capture indicators (mic / system audio / camera) · Add Media · Missing media badge · Export.
+
+## Timeline toolbar
+
+Edit-mode chip (<kbd>Tab</kbd>) · Leave nest · Tool chip (Select / Blade / Slip / Magnetic) · Snap · Graph editor · Import @Head vs @Start · Image gen (merge selected stills) · playhead timecode · zoom − / slider / + · missing-media chip · track count + duration · pop-out Timeline HUD.
+
+## Inspector tabs
+
+Last tab is persisted.
+
+| Tab | Use |
+|---|---|
+| **Clip** | Name, color, lock |
+| **Audio** | Mixer, per-clip volume / pan / fades, EQ, ducking |
+| **Actions (Video)** | Speed, reverse, freeze, slow-mo, motion blur, **crop, blend, follow, auto-key, align**, motion presets |
+| **Filters** | Grade, blur, sharpen, vignette, LUT, curves, mask, chroma key, grain, effect stack |
+| **Annotate** | Tool, style, timing, templates |
+
+## Menus
+
+**KnoxStudio** · **File** (New / Open / Open Recent / Save / Save As / Recording Setup / Project Settings / Export) · **Edit** · **View** (sidebars, Inspector, Agent, Canvas, Screenplay, Theme, Language, Keyboard Shortcuts) · **Playback** · **Window** · **Help** (Shortcuts, Debug Console, Error Log, Check for Updates). Dock menu: New, Open, Open Recent.
+
+## Companion HUDs
+
+Floating glass windows: Chat, Explorer, Inspector, Timeline, Canvas, Screenplay. Plus a separate **Voice Director** orb. While the orb is up, companions stay open together and bind the same NLE shortcuts as the editor. <Link to="/knoxstudio/production/voice-director">Voice Director</Link>.
+
+## Empty states
+
+- **Welcome card:** New, Open, recents (pin / unpin), Record, Import, talk to SI.
+- **Canvas empty:** Record / Add Media.
+- **Screenplay welcome:** Open from Explorer or **New Screenplay**.
+
+## Playback quality
+
+Dropdown: **Auto / Proxy / Full**. Export always uses original media. Playing can skip grade/effects for realtime; pause for full quality.
+
+## Next
+
+<Link to="/knoxstudio/record/screen">Record</Link> · <Link to="/knoxstudio/timeline/overview">Timeline</Link> · <Link to="/knoxstudio/write/explorer">Explorer</Link>

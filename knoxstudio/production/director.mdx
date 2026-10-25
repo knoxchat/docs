@@ -1,0 +1,41 @@
+---
+title: Director Mode
+sidebar_label: Director Mode
+description: Analyze a prompt or screenplay into a shot list, generate with last-frame continuity, then place the sequence.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# Director Mode
+
+Dock **Director**. Hand it a prompt or a full screenplay and it plans the production.
+
+## Intro steps (in the UI)
+
+1. “Describe your scene, story, or paste a screenplay.”
+2. “Press **Analyze** — the SI director plans scenes, shots, framing, and timing.”
+3. “Review and edit the shot list, then start the pipeline — clips are generated, chained, and placed on the timeline.”
+
+Tip: attach an image or clip with `@` to seed the opening shot.
+
+## Workflow
+
+1. Type a prompt, or **Analyze Open Screenplay** / screenplay **Send to Director Mode**.
+2. **Analyze** → **Analysis Complete**. Status: **Analyzing...**
+3. Edit **Shot List**: **Add Shot**, **Remove shot**, move up/down, prompt, duration. “Empty shots are skipped during generation.”
+4. **Start Pipeline**. Status: **Generating...** / **Awaiting confirmation**.
+5. Per shot: **Regenerate**, **Accept Anyway**, **Retry**, **Skip Shot**. Dialogue shots show **dialogue**.
+6. **Add to Timeline**. **Pipeline Complete** / **Pipeline Failed** / **Regeneration Required**. **Reset** to start over. **Cancel** / **Cancelling…**
+
+Metrics: **Estimated Output**, **Duration**, **Scenes**, **Shots**, **Clips**.
+
+## Continuity
+
+The pipeline is last-frame driven: shot N’s last frame becomes shot N+1’s first frame. Tune **Frame chaining**, sequential mode, vision analysis, environment sync, and motion continuity in <Link to="/knoxstudio/settings/agent-config">SI Agent Configuration</Link> → Video continuity.
+
+After <Link to="/knoxstudio/sign-in">sign-in</Link>, Knox-Studio supplies vision — you do **not** add a Vision model in SI Agent Configuration (that tab is gone). Leftover UI copy may still say “Add a Vision model.” If the signed-in catalog has no vision capability, Director cannot keep clips visually continuous.
+
+## Next
+
+<Link to="/knoxstudio/production/sequences">Video sequences</Link> · <Link to="/knoxstudio/write/screenplay">Screenplay</Link>

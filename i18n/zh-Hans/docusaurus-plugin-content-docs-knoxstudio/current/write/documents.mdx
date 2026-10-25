@@ -1,0 +1,27 @@
+---
+title: 文档
+sidebar_label: 文档
+description: 拖入 PDF、Word、PowerPoint、Excel 或 CSV——KnoxStudio 转成 Writer 能读的 Markdown。
+---
+
+import Link from '@docusaurus/Link';
+
+# 文档
+
+把 PDF、Word、PowerPoint、Excel 或 CSV 拖到 SI Agent 作曲栏或 Explorer。KnoxStudio 复制原件，用 **anydoc** 转到 `~/.knoxmedia/docs/{stem}-{id}.md`，并带 HTML 注释 `<!-- Source: filename -->`。状态：**正在转换 {name}…**。
+
+已经是文本的文件（Markdown、Fountain、txt、JSON、YAML、HTML 等）**不转换**，只复制。
+
+内联给模型的文本上限 **64,000** 字节。
+
+## 时间线对资料库
+
+视频 / 音频 / 图像拖放进 **时间线**。Office/PDF 转换是 **资料库** 路径。不要指望 PDF 变成视频片段。
+
+## Writer 沙箱
+
+Writer Agent 只能碰 `~/.knoxmedia`。路径相对 knoxmedia（`docs/brief.md`）或相对剧本（`act1.md`）。禁止 `..`，禁止绝对路径。<Link to="/knoxstudio/agent/writer">Writer</Link>。
+
+## 下一步
+
+<Link to="/knoxstudio/write/screenplay">剧本</Link> · <Link to="/knoxstudio/agent/writer">Writer Agent</Link>

@@ -1,0 +1,47 @@
+---
+title: Privacy
+sidebar_label: Privacy
+description: Local-first studio — what stays on the Mac, what leaves when you sign in and generate, Keychain, and 0700 media.
+---
+
+import Link from '@docusaurus/Link';
+
+# Privacy
+
+KnoxStudio is **local-first**. Recording, NLE, export, and local writing do **not** need an account. SI runs only after you <Link to="/knoxstudio/sign-in">sign in</Link> and send work out.
+
+Map: <Link to="/knoxstudio/settings/data">Data on disk</Link>. Network table: <Link to="/knoxstudio/safety/network">Network</Link>.
+
+## What stays on the Mac
+
+- `.knoxstudio` projects, timeline, recordings, Explorer tree
+- `~/.knoxmedia` (0700): media, docs, screenplays, roles YAML, chat SQLite, generation records, autosave
+- Screenplay `.bak` backups, revision-mark diffs
+- Keychain secrets
+- PDF/Office originals + converted Markdown
+- Layout, theme, language, keyboard shortcuts
+- Crash reports if you enabled **Save crash reports locally**
+
+## What leaves the machine
+
+Only when you use SI (or updates / OAuth):
+
+| Action | What is sent |
+|---|---|
+| Chat (Manager / Writer / Editor / Director / Storyboard) | Prompts, @-inlined text (≤64 KB), tool results |
+| Title auto-name | First user + assistant snippet |
+| Video / image gen | Prompt + reference images/video/audio + role refs (≤3 / role) + optional first/last frames |
+| **Upload to Cloud** on a role | Reference image files as cloud assets |
+| TTS / music / SFX | Text / prompt (music can attach a video) |
+| Isolation / Voice Changer / Forced Alignment / STT | Audio (or extracted clip window) |
+| `watch_clip` / Director vision | Sampled frames |
+| Voice Director | Realtime microphone audio + tool JSON; speech out |
+| Voice Library | Authenticated catalog APIs |
+| OAuth | Browser consent; minted key stored locally |
+| Auto-update | GitHub `latest.json` and the DMG |
+
+Forced Alignment `enable_logging=false` is an agent tool flag (enterprise zero-retention on that API), not a Preferences switch.
+
+## Next
+
+<Link to="/knoxstudio/safety/network">Network</Link> · <Link to="/knoxstudio/safety/limitations">Limitations</Link>

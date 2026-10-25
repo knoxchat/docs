@@ -1,0 +1,47 @@
+---
+title: Explorer
+sidebar_label: Explorer
+description: The ~/.knoxmedia tree — new files, search, trash, and how media vs documents open.
+---
+
+import Link from '@docusaurus/Link';
+
+# Explorer
+
+The left sidebar is **Explorer** (not “Media Library”). It is the KnoxStudio media space: `~/.knoxmedia` (created mode `0700`).
+
+## Root folders
+
+`video`, `audio`, `image`, `docs`, `screenplay`, `storyboard`, `roles`, `database`, `config`, `chat`, `continuity`, `projects/autosave`.
+
+Header: **New File**, **New Folder**, **Collapse All**, **Refresh**, **Reveal in Finder**, **Open in window**. Search: **Search files...**. Empty: **No files yet**.
+
+## Open behavior
+
+| Click | Opens |
+|---|---|
+| Audio / video / image | Canvas **quick view**; drag to the timeline to place |
+| `.md` `.markdown` `.fountain` `.txt` under screenplay/docs | **Screenplay** tab |
+| `.json` `.yaml` `.yml` anywhere under knoxmedia | Screenplay tab |
+
+Place media at the playhead with timeline **@Head**, or at the start with **@Start**.
+
+Import by dragging onto the window or **Add Media**. Video: mp4, mov, m4v, avi, mkv, wmv, webm, flv, ts, mts, m2ts. Audio: mp3, aac, wav, m4a, ogg, flac. Image: png, jpg, jpeg, gif, bmp, webp, tiff. Office/PDF go to <Link to="/knoxstudio/write/documents">Documents</Link>, not the timeline.
+
+## Tree actions
+
+Open, Rename, Duplicate, Pin / Unpin, Cut / Copy / Paste, **Move to Trash**, **Delete Permanently**, Reveal in Finder, Open in Default App, Open in Terminal, Find in Folder, Show Hidden Files. Sort: mixed / dirs-first / files-first. Drag-and-drop toggle. Auto-Reveal Active File.
+
+Trash is undoable in Explorer. Writer `delete_file` uses Trash too.
+
+## Search for the agent
+
+BM25 ranking plus optional content ripgrep over `~/.knoxmedia`. `@` mentions, Voice `target_item`, and Manager/Writer tools resolve library files that are not on the timeline. A mention must win by a score gap of **80** vs the runner-up or it is treated as ambiguous.
+
+## Tree shortcuts (when the tree is focused)
+
+New file <kbd>⌘N</kbd>, new folder <kbd>⌘⇧N</kbd> / <kbd>⌥⌘N</kbd>, rename F2 / Enter, preview Space, trash Backspace, permanent delete <kbd>⌘⇧⌫</kbd>, hidden files <kbd>⌘⇧.</kbd>, reveal <kbd>⌥⌘R</kbd>. Full table: <Link to="/knoxstudio/settings/shortcuts">Shortcuts</Link>.
+
+## Next
+
+<Link to="/knoxstudio/write/documents">Documents</Link> · <Link to="/knoxstudio/agent/mentions">Mentions</Link>

@@ -1,0 +1,40 @@
+---
+title: 权限
+sidebar_label: 权限
+description: 屏幕录制、麦克风、摄像头和系统音频——何时询问，以及之后在哪里打开。
+---
+
+import Link from '@docusaurus/Link';
+
+# 权限
+
+macOS 在采集或语音功能第一次需要访问时才询问——不是一启动就问。**偏好设置 → 设备** 显示屏幕和摄像头芯片，以及 **刷新设备**。
+
+## KnoxStudio 会要什么
+
+| 区域 | 系统设置 | 何时 |
+|---|---|---|
+| **屏幕录制** | 隐私与安全性 → 屏幕录制 | 第一次屏幕采集 / 录制设置 |
+| **麦克风** | 隐私与安全性 → 麦克风 | 录制里的麦，或 Voice Director |
+| **摄像头** | 隐私与安全性 → 摄像头 | 录制里的摄像头 |
+| **系统音频** | 隐私与安全性 → 屏幕与系统音频录制 | 系统音频回路（macOS 13+） |
+
+应用带了用途说明（`NSScreenCaptureUsageDescription`、`NSMicrophoneUsageDescription`、`NSCameraUsageDescription`）。系统音频和屏幕采集共用那个面板。
+
+`Info.plist` 也声明了 `NSSpeechRecognitionUsageDescription`（「文本框里的听写」）。**1.7 不会弹出语音识别权限。** Voice Director 是走麦克风的 Knox 实时语音对语音——不是 macOS 听写。除非后续版本接上 kit 识别器，系统设置里不会出现这个应用的语音识别开关。
+
+## 某个源不见了
+
+1. 打开 **系统设置 → 隐私与安全性**，给 KnoxStudio 打开对应类别。
+2. **完全退出再打开** KnoxStudio。屏幕录制尤其经常需要重启一次。
+3. **偏好设置 → 设备 → 刷新设备**。
+
+录制和导出还需要 **FFmpeg**（捆绑）。设备页显示捆绑 / 系统 / 缺失。
+
+## 不需要权限的事
+
+打开项目、剪时间线、在剧本里写、导出已经导入的媒体。SI 功能需要 <Link to="/knoxstudio/sign-in">已登录账号</Link>，那不是 macOS TCC 权限。
+
+## 下一步
+
+<Link to="/knoxstudio/record/screen">屏幕录制</Link> · <Link to="/knoxstudio/safety/privacy">隐私</Link>

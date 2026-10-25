@@ -1,0 +1,31 @@
+---
+title: Updates
+sidebar_label: Updates
+description: Forced GitHub Release updates — launch plus hourly check, SHA-256 and Developer ID, then relaunch.
+---
+
+import Link from '@docusaurus/Link';
+
+# Updates
+
+KnoxStudio **1.7.3+** treats a GitHub Release as a **forced** update. Skip Version is gone.
+
+## What happens
+
+1. Check on **every launch** and about **every hour** when auto-check is on (default on).
+2. Feed: `https://github.com/knoxchat/knoxstudio/releases/latest/download/latest.json`, fallback the Releases API.
+3. Download the notarized **DMG**.
+4. Verify **SHA-256** and **Developer ID**.
+5. Replace `KnoxStudio.app` in place and relaunch.
+
+Recording or export **finishes first**. Unsaved work still asks to save.
+
+## UI
+
+**Help → Check for Updates**, Preferences → General row, title-bar **failed-update** chip, update dialog with notes / progress / verifying / restart.
+
+Current version comes from the app bundle (About). Keep the app in `/Applications` so replace-in-place works.
+
+## Next
+
+<Link to="/knoxstudio/install">Install</Link> · <Link to="/knoxstudio/reference/whats-new">What's new</Link>

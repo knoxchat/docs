@@ -1,0 +1,56 @@
+---
+title: Install
+sidebar_label: Install
+description: Download KnoxStudio for macOS, open the signed DMG, grant permissions when you record or talk, and confirm the version.
+---
+
+import Link from '@docusaurus/Link';
+
+# Install KnoxStudio
+
+Download a **desktop build** from GitHub Releases. The SI Agent is inside the app. You do not install a plugin, and you should not search the Mac App Store for a different Knox.
+
+**Current series:** 1.7.x · [Latest release](https://github.com/knoxchat/knoxstudio/releases/latest)
+
+The asset is a signed, notarized Universal Binary:
+
+| Asset | Use |
+|---|---|
+| `KnoxStudio-<version>.dmg` | Apple Silicon and Intel. Open the disk image and drag **KnoxStudio** to Applications. |
+
+**DMG is the only first-install format.** Gatekeeper should open the app without extra steps. If macOS says the app is from an unidentified developer, download the DMG from the GitHub Release page again — do not copy a zip from chat.
+
+Confirm **KnoxStudio → About** shows KnoxStudio and a `1.7.x` product version.
+
+## System requirements
+
+| | |
+|---|---|
+| **Platform** | macOS 13.0 Ventura or later |
+| **Hardware** | Apple Silicon or Intel |
+| **Disk** | Room for the app plus your `.knoxstudio` packages and `~/.knoxmedia` |
+| **FFmpeg** | Bundled with the app. System FFmpeg is used only if the bundle is missing. Record and export need a working FFmpeg — check **Preferences → Devices** |
+| **Network** | Only for sign-in, SI generation, Voice Director, voice library, and updates |
+
+## First launch
+
+1. Open **KnoxStudio** from Applications (or Spotlight).
+2. Optional: **Preferences** (<kbd>⌘,</kbd>) → **General** for theme (Dark / Light) and language (English / Chinese).
+3. Grant **Screen Recording**, **Camera**, and **Microphone** when macOS asks — that happens the first time you record or open Voice Director, not at launch. Details: <Link to="/knoxstudio/record/permissions">Permissions</Link>.
+4. Pick how to begin on the welcome card: **New**, **Open**, a recent project, **Record**, **Import**, or **Talk to SI**.
+
+Projects save as `.knoxstudio` packages. Double-click a project in Finder to reopen it.
+
+## Gatekeeper and moving the app
+
+Keep KnoxStudio in `/Applications`. Auto-update replaces that `.app` in place. If you run it from Downloads or a DMG, updates and file association can fail.
+
+## Verify the download
+
+GitHub Releases attach `latest.json` (the update feed) and the DMG. The in-app updater checks **SHA-256** and **Developer ID** before replacing the app. For a first install, prefer the Release page over a forwarded file.
+
+## After install
+
+- <Link to="/knoxstudio/first-project">First project</Link> — record a short take, import a file, or ask the agent.
+- <Link to="/knoxstudio/sign-in">Sign in with KnoxStudio</Link> when you want generation, captions, Voice Director, or Director Mode.
+- <Link to="/knoxstudio/settings/updates">Updates</Link> — releases are mandatory; Skip Version is gone.

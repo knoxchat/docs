@@ -1,0 +1,38 @@
+---
+title: Generate audio
+sidebar_label: Generate audio
+description: Music, TTS, and sound effects from the SI Agent — formats, duration caps, and where files land.
+---
+
+import Link from '@docusaurus/Link';
+
+# Generate audio
+
+Ask the **SI Agent** (Manager) or use empty-state **Generate music**. Needs <Link to="/knoxstudio/sign-in">sign-in</Link>. Image/audio generations are **synchronous**; video is queued.
+
+## Kinds
+
+| Kind | Notes |
+|---|---|
+| **Music** | KnoxChat Music, up to **5 minutes**. Can attach a video for video-to-music. |
+| **TTS** | Text to speech. Voice from the role, the selected voice, or the public default **Jarnathan**. |
+| **SFX** | 0.5–30 s |
+
+Defaults (format MP3 / WAV / Opus, sample rate 16 / 24 / 44.1 / 48 kHz) live in <Link to="/knoxstudio/settings/agent-config">SI Agent Configuration</Link> → Audio generation. The agent does not ask you those questions.
+
+## Voice pick order (TTS and Voice Changer)
+
+1. Explicit `voice_id`
+2. Role voice
+3. Account selected voice (`/v1/knox-studio/selected-voice`)
+4. Public default Jarnathan (`c6SfcYrb2t09NHXiT80T`). Rachel's id still works for older projects.
+
+Browse voices from **Character Roles** → **Browse Voice Library** (My voices, Library, Collections, search).
+
+## Where files go
+
+`~/.knoxmedia/audio/`, then onto the timeline if the agent places them. Score a selected clip from the context menu (**Score clip**).
+
+## Next
+
+<Link to="/knoxstudio/audio/process">Process</Link> · <Link to="/knoxstudio/agent/manager">Manager</Link> · <Link to="/knoxstudio/production/roles">Character Roles</Link>

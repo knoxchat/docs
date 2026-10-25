@@ -1,0 +1,34 @@
+---
+title: 提及与附件
+sidebar_label: 提及
+description: 输入 @ 选片段、文件、角色、标记、轨道、卡片或文档——拖文件、粘贴图像，内联上限 64 KB。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# 提及与附件
+
+在作曲栏输入 `@`。页脚提示：**引用**。
+
+## 目标
+
+| 种类 | 接受后做什么 |
+|---|---|
+| **clip** | 选中该片段 |
+| **file** | Explorer / `~/.knoxmedia` |
+| **role** | 激活该角色 |
+| **marker** | 跳转 |
+| **track** | 选中该轨道 |
+| **card** | 生成任务 |
+| **doc** | 资料库文档 |
+
+文件提及必须比第二名 BM25 高出 **80** 分，否则视为 **歧义**。
+
+## 拖放和粘贴
+
+把文件拖到作曲栏：可转换的文档导入 `docs/` 再 `@` 那个 `.md`。**从剪贴板粘贴图像**。**拖文件以附加**。
+
+内联给模型的文本上限 **64,000** 字节。
+
+Voice Director 里口头 `@` 是 `target_item`——同一套解析。<Link to="/knoxstudio/production/voice-director">Voice Director</Link>。

@@ -1,0 +1,34 @@
+---
+title: Mentions and attachments
+sidebar_label: Mentions
+description: Type @ for clip, file, role, marker, track, card, or doc — drop files, paste images, 64 KB inline cap.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# Mentions and attachments
+
+Type `@` in the composer. Footer hint: **reference**.
+
+## Targets
+
+| Kind | What accepting it does |
+|---|---|
+| **clip** | Selects that clip |
+| **file** | Explorer / `~/.knoxmedia` |
+| **role** | Activates the Character Role |
+| **marker** | Seeks |
+| **track** | Selects the track |
+| **card** | Generation job |
+| **doc** | Library document |
+
+A file mention must win BM25 by a score gap of **80** vs the runner-up or it is **ambiguous**.
+
+## Drops and paste
+
+Drop files on the composer: convertible docs import to `docs/` then `@` the `.md`. **Paste image from clipboard**. **Drop files to attach**.
+
+Text inlined to the model is capped at **64,000** bytes.
+
+Spoken `@` in Voice Director is `target_item` — same resolver. <Link to="/knoxstudio/production/voice-director">Voice Director</Link>.

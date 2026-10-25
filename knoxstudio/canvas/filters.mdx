@@ -1,0 +1,43 @@
+---
+title: Filters
+sidebar_label: Filters
+description: Color grade, blur, sharpen, vignette, 3D LUT, curves, mask, chroma key, grain, the effect stack, and adjustment tracks.
+---
+
+import Link from '@docusaurus/Link';
+
+# Filters
+
+Inspector **Filters** tab. Apply to the selected clip. The Editor agent `apply_effect` / `set_effect_param` / `reorder_effect` uses the same names.
+
+## Applyable effects
+
+| Effect | Notes |
+|---|---|
+| **Color Grade** | Exposure, brightness, contrast, gamma, highlights, shadows, saturation, vibrance, temperature, hue. Preset chips **B&W / Warm / Cool**. The same grade keys also exist as clip keyframes |
+| **Gaussian Blur** | |
+| **Sharpen** | |
+| **Vignette** | |
+| **3D LUT** | **Choose .cube** copies into the project `luts/` folder; Amount slider. “No LUT file” until you pick one |
+| **Curves** | Master / R / G / B; shadow / mid / highlight |
+| **Mask** | Ellipse / Rectangle / Freehand; invert and feather |
+| **Chroma Key** | Green or blue; similarity and blend |
+| **Grain** | |
+
+**Wave** appears in the catalog but is **not applyable** (`is_available` is false). Do not expect it to render.
+
+## Effect stack
+
+Search, add, **bypass** (eye), reorder, insert a gap. Bypass keeps the effect in the stack without rendering it. The Editor agent reorders with the same names.
+
+## Adjustment tracks
+
+Track kind **Adjustment** (prefix G) grades video **below** it and has no media of its own. Add one from a timeline gap / context menu (**Add Adjustment track**).
+
+## Playback
+
+Heavy grades may skip during realtime play when quality is Auto/Proxy. Pause or set **Full** to judge the look. Export is always full quality.
+
+## Next
+
+<Link to="/knoxstudio/canvas/captions">Captions</Link> · <Link to="/knoxstudio/canvas/transforms">Transforms</Link>

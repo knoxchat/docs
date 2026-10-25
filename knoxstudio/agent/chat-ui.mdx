@@ -1,0 +1,59 @@
+---
+title: Chat UI
+sidebar_label: Chat UI
+description: SI Agent panel, studio mode dock, composer, bubbles, job cards, and Voice Director header swap.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# Chat UI
+
+The right panel is titled **SI Agent** while idle, **Voice Director** during a voice session, **Chat history** in history view.
+
+Empty Manager copy: **SI Studio Agent** — “Generate video, images, music, or documents — or edit the timeline. Type or speak.” Composer hint: **Ask anything — generate, edit, or write…**
+
+## Studio modes
+
+Dock on the composer (`src` labels):
+
+| Dock | Mode |
+|---|---|
+| user | **Character Roles** |
+| script | **Canvas / Screenplay** (toggles the central tab — not a specialist) |
+| megaphone | **Director** |
+| grid | **Storyboard** |
+| pencil | **Writer** |
+| scissors | **Editor** |
+
+Toggling the active specialist again is **Back to chat** (Manager). Active Character Roles still light the Roles well when you are not in Roles mode.
+
+Header: **New conversation**, **View video sequences**, **Chat history**, **SI Agent Configuration**, **Open in window**.
+
+## Send
+
+Enter to send is a Preferences switch (off = <kbd>⌘Enter</kbd>). <kbd>⇧Enter</kbd> newline. <kbd>Esc</kbd> **Stop generating**. <kbd>⌘K</kbd> focuses chat. <kbd>⌘G</kbd> generate from input. <kbd>⌘⇧V</kbd> Voice Director.
+
+While Confirm is waiting, the composer locks: “Approve or cancel before sending another message. Esc to cancel.”
+
+## Bubbles
+
+Copy, Quote, Edit message, Delete turn, Copy markdown, Pin / Unpin, Open larger view, View image, Open on canvas, Reveal in timeline, Copy prompt, Show more/less.
+
+**Reasoning** / **Thought for Ns** / **Copy reasoning**. Tool rows: **Called**, **Arguments**, **Result**.
+
+Job cards: Pending, Generating, Completed, Failed, Placed, Missing, Cancelled, Expired. **Stop**, **Retry**. **Placed at**, **Generated in**.
+
+**↓ New content** / **↓ N new**. **Search this conversation** (<kbd>⌘F</kbd>). **Select messages** (<kbd>⌘⇧A</kbd>). **Export conversation** (Save as Markdown / Plain Text, Copy as…, **Skip system notices**).
+
+Agent questions: **Agent Question** — “Click an option or press 1–9. You can also type an answer.”
+
+## Empty-state chips (Manager)
+
+Generate video · Generate image · Generate music · Write a document · Edit last clip · Explain selection.
+
+**Continue scene** and **Write a shot list** exist as strings but are **not** in the empty grid in 1.7.
+
+## Next
+
+<Link to="/knoxstudio/agent/manager">Manager</Link> · <Link to="/knoxstudio/agent/mentions">Mentions</Link> · <Link to="/knoxstudio/agent/confirm">Confirm and Auto</Link>

@@ -1,0 +1,33 @@
+---
+title: 标记与入出点
+sidebar_label: 标记与入出点
+description: 彩色标记、章节导出、入点和出点，以及波纹删除一段范围。
+---
+
+import Link from '@docusaurus/Link';
+
+# 标记与入出点
+
+## 标记
+
+<kbd>M</kbd> 在播放头加标记。颜色：红、绿、蓝、黄、橙。<kbd>⌘←</kbd> / <kbd>⌘→</kbd> 上一个 / 下一个。右键：复制章节、删除。
+
+导出时可选 **YouTube 章节**，从标记写出 `{stem}_chapters.txt`。<Link to="/knoxstudio/export/formats">导出</Link>。
+
+Editor Agent 可以按名称 / 时间添加和删除标记。
+
+## 入点和出点
+
+<kbd>I</kbd> / <kbd>O</kbd> 设置入 / 出。它们驱动：
+
+- 波纹删除入出点之间（<kbd>⌘Delete</kbd>）
+- 导出范围 **入出点**
+- Editor 工具 `export_range` 的 `in_out`（只打开导出对话框，自己不编码）
+
+## 合上空隙
+
+选中空隙再删除，或时间线右键 **合上空隙** / **合上所有空隙**。波纹模式会在工作时合上洞。
+
+## 下一步
+
+<Link to="/knoxstudio/export/formats">导出范围</Link> · <Link to="/knoxstudio/timeline/overview">时间线</Link>

@@ -1,0 +1,56 @@
+---
+title: 安装
+sidebar_label: 安装
+description: 下载 macOS 版 KnoxStudio，打开已签名 DMG，在录制或通话时授予权限，并确认版本号。
+---
+
+import Link from '@docusaurus/Link';
+
+# 安装 KnoxStudio
+
+从 GitHub Releases 下载 **桌面构建**。SI Agent 已经在应用里。不用再装插件，也不要去 Mac App Store 搜另一个 Knox。
+
+**当前系列：** 1.7.x · [最新发布](https://github.com/knoxchat/knoxstudio/releases/latest)
+
+资源是已签名、已公证的通用二进制：
+
+| 资源 | 用途 |
+|---|---|
+| `KnoxStudio-<version>.dmg` | Apple Silicon 和 Intel。打开磁盘映像，把 **KnoxStudio** 拖到「应用程序」。 |
+
+**首次安装只用 DMG。** Gatekeeper 应能直接打开。若系统提示来自身份不明的开发者，请重新从 GitHub Release 页下载 DMG——不要用聊天里转发的 zip。
+
+在 **KnoxStudio → 关于** 确认显示 KnoxStudio 和 `1.7.x` 产品版本。
+
+## 系统要求
+
+| | |
+|---|---|
+| **平台** | macOS 13.0 Ventura 或更高 |
+| **硬件** | Apple Silicon 或 Intel |
+| **磁盘** | 应用本身，外加 `.knoxstudio` 包和 `~/.knoxmedia` 的空间 |
+| **FFmpeg** | 随应用捆绑。只有捆绑缺失时才用系统 FFmpeg。录制和导出都需要可用的 FFmpeg——看 **偏好设置 → 设备** |
+| **网络** | 仅用于登录、SI 生成、Voice Director、音色库和更新 |
+
+## 第一次启动
+
+1. 从「应用程序」（或 Spotlight）打开 **KnoxStudio**。
+2. 可选： **偏好设置**（<kbd>⌘,</kbd>）→ **通用** 选主题（深色 / 浅色）和语言（英文 / 中文）。
+3. 第一次录制或打开 Voice Director 时，macOS 会要 **屏幕录制**、**摄像头**、**麦克风**——不是一启动就问。详见 <Link to="/knoxstudio/record/permissions">权限</Link>。
+4. 欢迎卡上选择：**新建**、**打开**、最近项目、**录制**、**导入**，或 **对 SI 说话**。
+
+项目保存为 `.knoxstudio` 包。在访达中双击即可重开。
+
+## Gatekeeper 和移动应用
+
+把 KnoxStudio 放在 `/Applications`。自动更新会原地替换这个 `.app`。若从「下载」或 DMG 里直接跑，更新和文件关联可能失败。
+
+## 校验下载
+
+GitHub Release 附带 `latest.json`（更新源）和 DMG。应用内更新器在替换前检查 **SHA-256** 和 **Developer ID**。首次安装请从 Release 页下载，不要用转发文件。
+
+## 装好之后
+
+- <Link to="/knoxstudio/first-project">第一个项目</Link>——录一小段、导入文件，或问 Agent。
+- 需要生成、字幕、Voice Director 或 Director Mode 时 <Link to="/knoxstudio/sign-in">用 KnoxStudio 登录</Link>。
+- <Link to="/knoxstudio/settings/updates">更新</Link>——版本强制；「跳过此版本」已取消。

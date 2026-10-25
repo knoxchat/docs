@@ -1,0 +1,47 @@
+---
+title: Camera and audio
+sidebar_label: Camera and audio
+description: Microphone, system audio loopback, and camera PiP as separate timeline tracks from one recording take.
+---
+
+import Link from '@docusaurus/Link';
+
+# Camera and audio
+
+Each capture source is its own file and timeline track. Mute, trim, or delete one without touching the others.
+
+## Microphone
+
+- On / off in **Recording setup**.
+- Device or **System Default (Auto Detect)**.
+- Needs **Microphone** permission. Usage string is set in the app; macOS prompts on first use.
+
+After the take, the mic clip is a normal audio clip: volume, pan, fades, EQ, ducking. <Link to="/knoxstudio/audio/mixer">Mixer</Link>.
+
+## System audio
+
+- On / off. UI notes **macOS 13+**.
+- Loopback of what the Mac plays (browser, other apps).
+- Permission lives under **Privacy & Security → Screen & System Audio Recording** (same Screen Capture pane as screen recording).
+
+If loopback is unavailable, recording still proceeds; a silent system-audio warning appears.
+
+## Camera
+
+- On / off. Device or **Default**.
+- Circular **live preview** in Recording setup.
+- Lands on a **Camera** track. Inspector: PiP shape **Circle** (default), **Rounded Rect**, **Square**, or **Full Frame**. Offset is stored so picture and voice stay in sync.
+
+## Live indicators
+
+While a session is armed or rolling, the transport shows mic / system audio / camera indicators so you can see what will be captured.
+
+## After the take
+
+Detach is not needed — sources already arrived separate. If you import a muxed file later, **Detach audio** on the clip context menu splits picture and sound.
+
+Process a captured clip with isolate, change voice, or stems after you <Link to="/knoxstudio/sign-in">sign in</Link>. <Link to="/knoxstudio/audio/process">Process audio</Link>.
+
+## Next
+
+<Link to="/knoxstudio/record/cursor-clicks">Cursor and click effects</Link> · <Link to="/knoxstudio/record/permissions">Permissions</Link>

@@ -1,0 +1,45 @@
+---
+title: SI Agent Configuration
+sidebar_label: SI Agent Configuration
+description: One pane — KnoxStudio account, video and audio generation defaults, execution, and video continuity.
+---
+
+import Link from '@docusaurus/Link';
+
+# SI Agent Configuration
+
+Menu **KnoxStudio → SI Agent Config…** or the agent gear. Title **SI Agent Configuration**, subtitle **Account, generation, and execution defaults**.
+
+**One pane.** Older Manager / Editor / Sub-Models tab strings still exist in translations but are **not rendered**. Sign in with KnoxStudio is the only way to connect — paste-an-API-key was removed in 1.7.0.
+
+## Account
+
+<Link to="/knoxstudio/sign-in">Sign in with KnoxStudio</Link>. Connected as @username. **Sign out** drops Keychain secrets and **revokes** the minted key on the server when you are online.
+
+Hint copy may still mention a KnoxChat key; the button is OAuth. There is no paste-key field.
+
+## Video generation
+
+Duration (Auto or catalog lengths), resolution, aspect ratio, **include audio**, **watermark**, **last frame**.
+
+The Manager is instructed not to ask you these; change them here. Stored in `~/.knoxmedia/defaults.yaml`.
+
+## Audio generation
+
+Format **MP3 / WAV / Opus**. Sample rate 16000 / 24000 / 44100 / 48000 Hz.
+
+## Execution
+
+Parallel jobs, tool rounds, timeout, **reasoning effort** Off / Low / Medium / High.
+
+## Video continuity
+
+| Switch | Default role |
+|---|---|
+| **Frame chaining** | Last frame → next first frame |
+| **Sequential mode** | One shot at a time vs parallel |
+| **Vision analysis** | Analyze completed frames; heuristics if off |
+| **Environment sync** | Keep setting consistent |
+| **Motion continuity** | Inject “Continue from: …” into prompts |
+
+Footer shows the config path. <Link to="/knoxstudio/production/sequences">Video sequences</Link>.

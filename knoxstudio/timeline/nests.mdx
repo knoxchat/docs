@@ -1,0 +1,27 @@
+---
+title: Nested clips
+sidebar_label: Nested clips
+description: Compound clips, open nest, leave nest, and how nests are stored in the project package.
+---
+
+import Link from '@docusaurus/Link';
+
+# Nested clips
+
+A **compound clip** is a nest: several clips edited as one on the parent sequence.
+
+## Make and leave a nest
+
+1. Select clips. <kbd>⌘⌥G</kbd> **New compound clip**.
+2. **Open nest** from the context menu (or double-click the compound) to edit inside. The window title shows the nest name. If the nest cache is still building, Open nest waits with a pending hint.
+3. <kbd>⌘↑</kbd> **Parent sequence** / leave nest. The timeline toolbar **Leave nest** chip does the same.
+
+You can **export a nest** the same way as the parent (range = the nested sequence). Ordinary **Group** (<kbd>⌘G</kbd>) keeps clips on the parent tracks and moves them together. Compound puts them in a nested sequence.
+
+## On disk
+
+Nests live under `nests/` inside the `.knoxstudio` package. Saving the parent project writes nested sequences too. <Link to="/knoxstudio/settings/data">Data on disk</Link>.
+
+## Limits
+
+Treat a nest as a sub-sequence, not a live link to another project file. Relink missing media inside the nest the same way as on the parent.

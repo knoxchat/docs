@@ -1,0 +1,62 @@
+---
+title: Timeline overview
+sidebar_label: Timeline overview
+description: Video, audio, camera, annotation, adjustment, and caption tracks — headers, height, mute, solo, lock, and reorder.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxstudio/UiAnatomy';
+
+# Timeline overview
+
+KnoxStudio is a true non-linear editor. The bottom panel is transport + timeline. Pop it out as a Timeline HUD if you want it on a second display.
+
+## Track kinds
+
+| Kind | Lane prefix | Notes |
+|---|---|---|
+| **Video** | V | Picture |
+| **Audio** | A | Mic, system audio, music, VO |
+| **Camera** | C | PiP or full-frame from a take |
+| **Annotation** | N | Overlay shapes and titles; no media file |
+| **Adjustment** | G | Grades video below; no media |
+| **Caption** | CC | Caption cues; overlap off by default |
+
+Per track: visible (eye), **locked**, **muted**, **solo**, volume (scroll on the header), pan, allow-overlap, height 36–160 px (default 58). Double-click to rename. Drag **track headers** to reorder; drag the header edge to resize height. <kbd>⌘⇧T</kbd> add video track, <kbd>⌘⌥T</kbd> add audio track, <kbd>⌘⌥↑</kbd> / <kbd>⌘⌥↓</kbd> move, <kbd>⌘⇧⌫</kbd> delete the selected track. <kbd>S</kbd> solos.
+
+Shift / Option modify add-track from the context menu. Gap / context menu also adds **Annotation / Adjustment / Caption** tracks.
+
+## Drag to a new track
+
+Drag a clip **above, between, or below** existing lanes until the insertion bar says **Drop to create new track**. The clip lands on a new lane of the matching kind. The list auto-scrolls when you drag near the edges.
+
+<kbd>⌥</kbd>-drag copies onto another lane **or** a new track. Empty lanes are removed after the last clip leaves.
+
+## Zoom and fit
+
+| Keys | Action |
+|---|---|
+| <kbd>=</kbd> / <kbd>-</kbd> | Zoom in / out |
+| <kbd>⇧Z</kbd> | Fit the sequence |
+| <kbd>⌥Z</kbd> | Fit the selection |
+| <kbd>Z</kbd> | Zoom-to-region tool |
+| Ctrl+scroll | Zoom |
+| Slider | 0.1–20 |
+
+## Snapping
+
+<kbd>N</kbd> toggles snap. Edges snap to other clips, **markers**, and the **playhead**. Threshold is 0.1 s.
+
+## Playback
+
+<kbd>Space</kbd> play / pause. <kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd> shuttle reverse / pause / play (tap 2× / 4× / 8×). Home / End, arrow keys step a frame (arrows yield to annotation nudge when an annotation is selected). <kbd>⇧L</kbd> loop. Transport ±1 s buttons have no overlay key.
+
+Playback quality **Auto / Proxy / Full** is on the transport. Export always uses original files.
+
+## Undo
+
+<kbd>⌘Z</kbd> / <kbd>⌘⇧Z</kbd>. The transport tooltip shows history steps and an approximate MB; a memory warning appears if the stack is large.
+
+## Next
+
+<Link to="/knoxstudio/timeline/edit-modes">Edit modes and tools</Link> · <Link to="/knoxstudio/timeline/clips">Clips</Link>

@@ -1,0 +1,53 @@
+---
+title: FAQ
+sidebar_label: FAQ
+description: Where is my data, why no API key field, 8732 vs 8733, missing media, credits, and KnoxCoder.
+---
+
+import Link from '@docusaurus/Link';
+
+# FAQ
+
+## Where is my data?
+
+Projects: `.knoxstudio` packages. Generated media, chat, roles: `~/.knoxmedia`. Secrets: Keychain. <Link to="/knoxstudio/settings/data">Data on disk</Link>.
+
+## Why is there no API key box?
+
+Removed in 1.7.0. Use <Link to="/knoxstudio/sign-in">Sign in with KnoxStudio</Link>.
+
+## Sign-in never returns from the browser
+
+Port **8732** must be free. You must be online. Proxies must not intercept `knoxstudio.ai` / `api.knoxstudio.ai`. KnoxCoder uses **8733** — different product.
+
+## Do I need an account to edit?
+
+No. Record, timeline, write, export work offline. Sign in for SI generation, captions, Voice Director, Director, Storyboard, voice library.
+
+## Export says missing media
+
+Click the transport **Missing media** badge. Relink a file (same-name clips in that folder follow), **Skip** one, or skip remaining. Missing media **blocks** export until you relink or skip.
+
+## Does Sign out revoke the cloud key?
+
+Yes, when you are online. Secrets leave the Keychain either way. Offline sign-out: revoke **KnoxStudio Desktop** at [knoxstudio.ai/keys](https://knoxstudio.ai/keys).
+
+## Where is the cost meter?
+
+There is none in the app. Usage is billed on your KnoxStudio account.
+
+## Can I skip an update?
+
+No. Releases are mandatory. Finish recording/export; save if prompted; the app installs and relaunches.
+
+## Is this KnoxCoder?
+
+No. [KnoxCoder](/knoxcoder) is a code editor. This tab is the macOS SI studio. Compare: <Link to="/knoxstudio/reference/compare">Compare</Link>.
+
+## Can I run it on Windows?
+
+Not this app. macOS 13+ only.
+
+## Focus mode / F11?
+
+Not shipped. Hide panels from **View**. ⌘Enter sends chat.
