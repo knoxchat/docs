@@ -1,0 +1,61 @@
+---
+title: Team bundles
+sidebar_label: Team bundles
+description: Export and import AGENTS.md, rules, skills, custom agents, and hooks as a knox-team-bundle JSON file — hooks skipped unless you allow them.
+---
+
+import Link from '@docusaurus/Link';
+
+# Team bundles
+
+A **team bundle** is a versioned JSON file (`format: knox-team-bundle`, version 1) so another checkout can load the same project instructions. Commands: **Knox: Export Team Bundle** and **Knox: Import Team Bundle**. Open a folder first.
+
+This is **not** a cloud registry, **not** Memory Brain, and **not** checkpoints. Nothing is uploaded.
+
+## What is included
+
+| Included | Path |
+|---|---|
+| Rules | `.knoxrules` |
+| Instructions | `AGENTS.md`, `.knoxcoder/AGENTS.md` |
+| Hooks | `.knoxcoder/hooks.json` |
+| Custom agents | `.knoxcoder/agents/*.md` |
+| Skills | `skills/**` |
+
+## What is never included
+
+- `.knoxcoder/config.yaml` (can hold provider settings)
+- Credentials, `auth.json`, SecretStorage
+- Memory Brain / recipes database
+- Checkpoints and session transcripts
+- Secrets (export **refuses** a file that looks like it contains a secret)
+- Binaries (`\0` in the file)
+- Files over **256 KB**
+- More than **200** files (further files are skipped)
+- `node_modules` / `.git` while walking `skills/`
+
+Skipped files are counted in the export toast (`N skipped`).
+
+Recipes travel with an explicit **checkpoint share bundle**, not this file. Imported recipes always start as **candidates** — see <Link to="/knoxcoder/memory/recipes">Recipes</Link> and <Link to="/knoxcoder/checkpoints/share">Share and import</Link>.
+
+## Export
+
+1. **Knox: Export Team Bundle**
+2. Save `knox-team-bundle.json` (default name in the folder)
+3. Commit it, or send the file. Text is redacted the same way as other Knox exports.
+
+## Import
+
+1. **Knox: Import Team Bundle**
+2. Pick the JSON file
+3. Choose:
+   - **Dry run (preview only)** — writes nothing
+   - **Import (keep existing files)** — default; existing paths stay
+   - **Import and overwrite** — replaces allowed paths
+4. If the bundle contains hooks, a **modal** asks **Allow hooks** or **Skip hooks**. Skip is the safe default. Hooks are shell commands from the repo.
+
+Import only writes **allowed relative paths**. Anything that would escape the target directory is rejected.
+
+## Next
+
+<Link to="/knoxcoder/customize/hooks">Hooks</Link> · <Link to="/knoxcoder/customize/agents-md">AGENTS.md and rules</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link>

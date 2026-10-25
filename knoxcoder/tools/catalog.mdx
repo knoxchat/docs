@@ -1,0 +1,47 @@
+---
+title: Tool catalog
+sidebar_label: Tool catalog
+description: Core versus deferred versus systems versus composite tools — knoxchat.deferTools, builtin_tool_search, and what is not in 2.2.
+---
+
+import Link from '@docusaurus/Link';
+
+# Tool catalog
+
+Knox Agent calls **tools** (read a file, run a command, search, …). You see them as cards in the sidebar. <Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> still apply to every call.
+
+`knoxchat.deferTools` (default **on**) sends a **small core set** every turn. The rest load when the model calls `builtin_tool_search` (name or keyword). Permissions apply to the loaded tool itself. Turn deferral off only if you want every schema on every round (more tokens).
+
+Nothing is deferred when that would save fewer than two tools. User-defined (non-`builtin_`) tools are never deferred.
+
+## Core (always sent, default profile)
+
+Read / open file, create / edit / write / `apply_patch`, shell + `await_shell`, list dir, glob, repo map, exact search, plan, ask_user, task, skill, git **status** and **diff**.
+
+`builtin_lsp` joins core on **classified** workspaces (node / python / go / cargo / editor / cmake) and on **systems**. Unknown trees keep LSP deferred.
+
+## Deferred (via `builtin_tool_search`)
+
+Memory, git log / blame / commit / bisect, workspace checkpoint, search_web, fetch_url, view_diff, enhanced_search, generate_tests, lsp (when not promoted), build, pty, qemu, debug, kconfig, maintainers.
+
+## Systems extras (core when the profile is systems)
+
+`builtin_build`, `pty_start` / `pty_send` / `pty_read`, `qemu`, `debug`, `kconfig`, `maintainers`. See <Link to="/knoxcoder/tools/systems">Systems</Link>.
+
+## Composite (off)
+
+`composite_*` tools stay **off the catalog and off tool-search** unless `knoxchat.enableCompositeTools` is on. Honest about what they are: <Link to="/knoxcoder/tools/composite">Composite tools</Link>.
+
+## Not in 2.2
+
+**MCP servers** inside KnoxCoder. There is no MCP tool host in this editor. Do not install marketplace Knox to “add MCP.”
+
+Old names `builtin_memory_*` still route to `builtin_memory`.
+
+## Tools overlay
+
+Composer **Tools** (wrench): disable a group, set a tool to ask / allow / off, edit path & command policy. **Ask on write** / **YOLO** presets. Deny always wins.
+
+## Next
+
+<Link to="/knoxcoder/tools/files">Files and search</Link> · <Link to="/knoxcoder/tools/terminal-git">Terminal and git</Link> · <Link to="/knoxcoder/agent/permissions">Permission modes</Link>

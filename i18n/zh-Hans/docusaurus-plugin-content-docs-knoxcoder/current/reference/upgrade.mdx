@@ -1,0 +1,49 @@
+---
+title: 升级
+sidebar_label: 升级
+description: 升级 KnoxCoder — 保留 ~/.knoxcoder、Windows SmartScreen、Linux beta 包排序，以及自 1.138 以来的行为变化。
+---
+
+import Link from '@docusaurus/Link';
+
+# 升级
+
+适用于从 `1.138.x`、`2.0.0-beta`、`2.0.x` 和 `2.1.x` 升到 **2.2.2**。从 2.0.x 和 2.1.x 起 **没有数据迁移**：直接使用你的 `~/.knoxcoder`。
+
+从 GitHub Releases 安装新构建（校验和在 `SHA256SUMS`）。自动更新读取 `latest-<platform>-<arch>.json`。
+
+## 你的数据
+
+全部留在 `~/.knoxcoder`：
+
+- **会话** — 文件带上 `schemaVersion: 1`。旧文件改写前会拷一份到 `<file>.v<N>.bak`。`sessions.json` 仍是裸数组（降级仍能读）。
+- **Memory Brain** — `PRAGMA user_version`。未版本化的数据库迁移前拷到 `backups/`（保留最新 3 份）。损坏 → `*.corrupt-<ts>` 并重建。
+- **检查点** — 索引改写前备份一次（`index.json.v<N>.bak`）。
+- **`config.yaml`** — 升级从不改写。GUI 编辑会留一份一次性的 `config.yaml.vpre-edit.bak`。
+
+回滚：安装上一版本，并还原你需要的 `.bak` 文件。
+
+**不会** 从市场版 `~/.knox` 迁移。
+
+## Windows
+
+安装包可能未签名。SmartScreen 显示「未知发布者」。**更多信息 → 仍要运行**。
+
+## Linux 包
+
+`2.0.0~beta` 排序在 `2.0.0` **之前**，因此 `apt` / `rpm` 会从 beta 原地升级。
+
+## 自 1.138 以来的行为（若你跳过了 2.0）
+
+- 新 clone → **Ask**；Knox 用过的文件夹 → **Auto**（2.2 启发式）。破坏性 shell 在所有模式下拒绝，除非加入允许列表。
+- `knoxchat.sharedLoop` 和 `knoxchat.sandbox` 是已弃用的 **空操作**。
+- 默认延迟工具（`knoxchat.deferTools`）。
+- 无界面 `@knoxchat/cli`（`knox run`）在 2.0+ **没有**。
+- 已移除：`knox.analyzeTask`、`knoxchat.analyzeTask`、`knox.structuredSolve`、`knox.performTaskAnalysis`。
+- 没有 `KNOX_API_KEY`。用 OAuth 或自带密钥登录。Live eval 在 Knox OAuth 之后手动跑。
+
+2.1.1：编辑器宿主 VS Code 1.141.0（Electron 43.7.7），不含 Copilot 或 Azure Pipelines。
+
+## 下一步
+
+<Link to="/knoxcoder/reference/whats-new">更新说明</Link> · <Link to="/knoxcoder/install">安装</Link> · <Link to="/knoxcoder/settings/data">磁盘上的数据</Link>

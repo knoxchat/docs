@@ -1,0 +1,67 @@
+---
+title: Skills
+sidebar_label: Skills
+description: Knox 可加载的 SKILL.md — 位置、frontmatter、glob、内置 rust/内核/QEMU skills，以及 /skills。
+---
+
+import Link from '@docusaurus/Link';
+
+# Skills
+
+**Skill** 是一个含 `SKILL.md` 的文件夹：简短 frontmatter 加上 markdown 正文，Agent 可用 `builtin_skill` 加载。Skills 是某个领域的额外说明（Rust 门禁、内核构建、团队 review 清单）。它们 **不会** 增加工具，也不会绕过 <Link to="/knoxcoder/agent/permissions">权限</Link>。
+
+Skills **不会** 塞进每一轮提示。Knox 可能提示匹配的 skill 名称；正文在 Agent 调用 `builtin_skill` 时才加载。输入 `/skills` 可查看已加载项以及扫描了哪些目录。
+
+## `SKILL.md` 格式
+
+```markdown
+---
+name: rust-review
+description: Review a Rust diff for ownership, clippy, and missing tests. Use when reviewing .rs files or cargo check output.
+globs: ["**/*.rs", "Cargo.toml"]
+---
+
+1. 用文字重述所有权图。
+2. 优先 `builtin_build`，不要用 shell cargo。
+3. 除非用户要求，否则不要 `cargo clean`。
+```
+
+必填：`name`、`description`。可选：`globs`、`paths` 或 `applyTo`（匹配方式与 <Link to="/knoxcoder/customize/agents-md">规则</Link> 相同）。带 glob 的 skill **只在打开匹配文件时才会被提供**。
+
+正文可以包含 `@./relative/file` 引用和 `` !`shell` `` 片段。扫描时会跟随符号链接。
+
+## Knox 在哪里找
+
+项目（工作区，向仓库根向上走）：
+
+| 位置 | 说明 |
+|---|---|
+| `skills/` 或 `skill/` | Knox 原生项目 skills |
+| `.claude/skills/` | Claude Code 兼容 |
+| `.agents/skills/` | 共享 agent 兼容 |
+| `.opencode/skill/` 和 `.opencode/skills/` | OpenCode 兼容 |
+
+本机：
+
+| 位置 | 说明 |
+|---|---|
+| `~/.knoxcoder/skills/` | 用户 skills（Knox 原生） |
+| `~/.claude/skills/`、`~/.agents/skills/`、`~/.opencode/skill(s)/` | 同样的兼容目录，全局 |
+
+**内置**（随 Knox 附带）：`rust`、`linux-kernel`、`qemu`、`gdb`、`kbuild`。**同名的项目 skill 会覆盖** 内置或全局 skill。
+
+跳过目录：`node_modules`、`.git`、`__pycache__`、`.venv`。
+
+2.2 **没有远程 skill 注册表**。把文件放到磁盘上。`config.yaml` 的 `uses: owner/package` 是 `~/.knoxcoder/registry/` 下的 **本地** YAML 引用，不是 skill 下载 — 见 <Link to="/knoxcoder/customize/config-yaml">Prompts 与 config.yaml</Link>。
+
+## 怎么用
+
+1. 在仓库放 `skills/my-skill/SKILL.md`（或 `~/.knoxcoder/skills/my-skill/SKILL.md`）。
+2. `/skills` — 确认出现。
+3. 让 Knox 做匹配的工作，或在对话里提到该 skill。Agent 需要正文时会调用 `builtin_skill`。
+
+至少 **三次干净重放** 的已验证 <Link to="/knoxcoder/memory/recipes">recipes</Link> 可以 **存成 skill**（Recipes 标签 → Save as project / global skill）。已有 skill 不会被覆盖。
+
+## 下一步
+
+<Link to="/knoxcoder/customize/agents-md">AGENTS.md 与规则</Link> · <Link to="/knoxcoder/customize/custom-agents">自定义 Agent</Link> · <Link to="/knoxcoder/customize/config-yaml">Prompts 与 config.yaml</Link>

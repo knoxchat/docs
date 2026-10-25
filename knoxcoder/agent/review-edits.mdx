@@ -1,0 +1,57 @@
+---
+title: Review edits
+sidebar_label: Review edits
+description: Hold the agent's file writes in memory, then diff, apply, or discard each file. Shell still runs on the real disk.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Review edits
+
+**Review edits** is a chip on the composer mode popover, next to Ask / Edits / Auto and <Link to="/knoxcoder/agent/plan">Plan</Link>. It is **not** a fourth permission mode.
+
+Hint when you turn it on: *Hold the agent's file edits for your review; nothing is written to disk until you apply them (shell commands still run on disk).*
+
+Use it when you want to see every file the agent would change **before** those bytes hit the tree.
+
+## What is held
+
+While the chip is on, agent **file** tools (`edit_file`, `write_file`, `apply_patch`, create, delete, …) write into an in-memory staging area for this session instead of disk.
+
+- Later **reads** of those same files see the staged content, so a second edit of the same path works.
+- Each file is **new**, **edit**, or **delete**, with `+N` / `−N`.
+- A side-by-side **Diff** (before | after) opens as virtual documents. **Open in editor** jumps to the path.
+
+The panel lists pending files with **Apply** / **Discard** per file, plus **Apply all** / **Discard all**.
+
+**Apply all** takes a **checkpoint first**, then writes. Hint: *Write the held edits to disk (a checkpoint is taken first).* **Discard all** drops the held edits without writing.
+
+## Shell still hits disk
+
+Terminal, tests, builds, PTY, and QEMU run against the **on-disk** tree. They do **not** see staged files. Knox injects a notice:
+
+> Note: N edit(s) are staged for review and NOT on disk yet (…). This command ran against the on-disk files, so its result does not include them.
+
+Apply the files you care about before you trust a test or `make` result.
+
+## Turning it off
+
+You cannot leave Review edits while files are still pending. The chip hint: *Stop holding edits (apply or discard the pending ones first).* The product error is **Apply or discard the staged edits first**.
+
+The last on/off choice is remembered for new sessions (`~/.knoxcoder/review/pref.json`). Staged files for a session persist under `~/.knoxcoder/review/` so closing the window does not drop an unfinished review.
+
+## Review vs Plan vs Cmd+I
+
+| Surface | Role |
+|---|---|
+| **Review edits** | Agent *did* produce file writes; you apply or discard them |
+| <Link to="/knoxcoder/agent/plan">Plan</Link> | Agent may **not** write until **Execute plan** |
+| <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link> | You asked for an in-editor natural-language edit; Accept / Reject the vertical diff |
+| Ask / Edits / Auto | Who auto-approves the *tool call*. Review still stages the file result |
+
+They combine: Plan + Review is explore, then execute, then apply. Auto + Review still stages files; Auto only skips the permission card.
+
+## Next
+
+<Link to="/knoxcoder/agent/inline-edit">Inline edit (Cmd+I)</Link> · <Link to="/knoxcoder/agent/permissions">Permission modes</Link> · <Link to="/knoxcoder/agent/plan">Plan mode</Link>

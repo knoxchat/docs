@@ -1,0 +1,44 @@
+---
+title: Privacy
+sidebar_label: Privacy
+description: Local-first KnoxCoder — no Knox telemetry, what is redacted, checkpoints are byte-exact, and sessions stay on this machine.
+---
+
+import Link from '@docusaurus/Link';
+
+# Privacy
+
+Knox is **local-first**. Data lives under `~/.knoxcoder` (override `KNOX_GLOBAL_DIR`): config, sessions, Memory Brain sqlite, checkpoints, credentials, job logs. Map: <Link to="/knoxcoder/settings/data">Data on disk</Link>.
+
+Knox sends **no telemetry**, and none is planned (no opt-in usage stats). The VS Code crash reporter is disabled. Issue reports go to [github.com/knoxchat/knoxcoder/issues](https://github.com/knoxchat/knoxcoder/issues) (not Microsoft).
+
+## What leaves the machine
+
+Only what you configured:
+
+- **Model provider** — prompts, tool results, images you attach
+- **Jev** (default on) — user message and tool **previews**, never file contents — <Link to="/knoxcoder/tools/web-jev">Web and Jev</Link>
+- **`builtin_fetch_url` / search_web** — if the agent calls them
+- **OAuth** — if you sign in
+- **Auto-update / Open VSX** — if you use those surfaces
+
+Network table: <Link to="/knoxcoder/settings/network">Network and offline</Link>.
+
+## What stays local
+
+| Store | Notes |
+|---|---|
+| Memory Brain | Local sqlite. Off switches on the <Link to="/knoxcoder/memory/brain">Memory Brain</Link> page. Export / wipe from the palette |
+| Recipes | Local sqlite, text redacted, file bytes in checkpoint blobs. Shared only by an explicit checkpoint bundle |
+| Checkpoints | **Byte-exact, not redacted** |
+| Session files | **User messages at rest are not redacted**; **tool output is** |
+| Session share links | `knoxcoder://vscode.knox/session/import?path=` points at a **local** Markdown file. Knox does not upload transcripts |
+| `auth.json` | Knox OAuth session, mode `0600`. Editor uses SecretStorage. No `KNOX_API_KEY`, no `.env` API key in 2.2 |
+
+## Redaction
+
+Tool results, logs, prompt logs, Memory Brain writes, exported Markdown, and team bundles run through secret redaction (AWS/GCP/GitHub/Stripe/JWT/PEM/`KEY=value` / bearer headers, and similar). Checkpoints cannot, or restore would be wrong.
+
+## Next
+
+<Link to="/knoxcoder/safety/threat-model">Threat model</Link> · <Link to="/knoxcoder/settings/network">Network</Link> · <Link to="/knoxcoder/settings/data">Data on disk</Link>

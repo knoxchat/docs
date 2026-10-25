@@ -1,0 +1,61 @@
+---
+title: 键盘快捷键
+sidebar_label: 键盘快捷键
+description: KnoxCoder 2.2 来自 package.json 的快捷键 — Mac 与 Windows/Linux 两列。
+---
+
+import Link from '@docusaurus/Link';
+
+# 键盘快捷键
+
+来自 Knox **2.2.2** 的 `contributes.keybindings`。在 **键盘快捷方式** 里重映射（搜索 `knoxchat` 或 `knox.`）。Shift+Tab 切换权限模式由 composer 处理，不在此表。
+
+## 对话与行内编辑
+
+| 动作 | Mac | Windows / Linux |
+|---|---|---|
+| 加入上下文并清空 / 聚焦对话 | ⌘L | Ctrl+L |
+| 加入上下文 | ⌘⇧L | Ctrl+Shift+L |
+| 编辑代码（Cmd+I） | ⌘I | Ctrl+I |
+| 编辑且不清空 | ⌘⇧I | Ctrl+Shift+I |
+| 退出编辑 | Esc（编辑器聚焦且处于编辑模式） | Esc |
+| 从对话应用代码 | ⌥A | Alt+A |
+| 调试终端 | ⌘⇧R | Ctrl+Shift+R |
+| 循环权限模式 | Shift+Tab | Shift+Tab |
+| 取消生成 | ⌘⌫（界面所示） | Ctrl+Backspace |
+
+## Diff
+
+| 动作 | Mac | Windows / Linux | 何时 |
+|---|---|---|---|
+| 接受 diff | ⌘⇧Enter | Ctrl+Shift+Enter | Knox diff 可见 |
+| 拒绝 diff | ⌘⇧⌫ | Ctrl+Shift+Backspace | Knox diff 可见 |
+| 拒绝 diff | ⌘Z | Ctrl+Z | Knox diff 可见（与编辑器撤销同一组合） |
+| 接受纵向 diff 块 | ⌥⌘Y | Alt+Ctrl+Y | |
+| 拒绝纵向 diff 块 | ⌥⌘N | Alt+Ctrl+N | |
+| 接受影子预览 | ⇧⌥⌘S | Ctrl+Shift+Alt+S | 影子 diff 可见 |
+| 拒绝影子预览 | ⇧⌥⌘⌫ | Ctrl+Shift+Alt+Backspace | 影子 diff 可见 |
+
+## 助手撤销与检查点
+
+| 动作 | Mac | Windows / Linux | 何时 |
+|---|---|---|---|
+| 撤销上次助手操作 | ⇧⌥⌘Z | Ctrl+Shift+Alt+Z | Agent 模式，可撤销 |
+| 重做上次助手操作 | ⇧⌥⌘Y | Ctrl+Shift+Alt+Y | Agent 模式，可重做 |
+| 创建检查点 | ⌥⌘S | Ctrl+Alt+S | |
+| 撤销检查点 | ⌥⌘Z | Ctrl+Alt+Z | |
+| 重做检查点 | ⌥⌘Y | Ctrl+Alt+Y | |
+| 列出 / 显示检查点 | ⌥⌘H | Ctrl+Alt+H | |
+| 文件历史（检查点） | ⇧⌥⌘H | Ctrl+Alt+Shift+H | |
+
+普通编辑器缓冲区里的 ⌘Z 是 **编辑器** 撤销。检查点撤销是上面的 Alt 组合。见 <Link to="/knoxcoder/checkpoints/restore">还原与撤销</Link>。
+
+## 其它
+
+| 动作 | Mac | Windows / Linux |
+|---|---|---|
+| 切换助手模式 | ⇧⌥⌘A | Ctrl+Shift+Alt+A |
+
+## 下一步
+
+<Link to="/knoxcoder/settings/commands">命令面板</Link> · <Link to="/knoxcoder/agent/inline-edit">行内编辑</Link> · <Link to="/knoxcoder/settings/reference">设置参考</Link>

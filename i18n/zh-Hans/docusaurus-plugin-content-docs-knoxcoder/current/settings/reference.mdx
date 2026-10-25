@@ -1,0 +1,96 @@
+---
+title: 设置参考
+sidebar_label: 设置参考
+description: Knox 设置分组 — Agent、记忆、recipes、网络、检查点、编辑辅助。已弃用的 sandbox 和 sharedLoop 会被忽略。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 设置参考
+
+打开 **Knox: Open Knox Settings** 可看到分组选择器（编辑器辅助、agent、验证、记忆、网络、检查点），然后进入过滤后的设置界面。对话齿轮是 **Knox: Settings**（模型和 Agent 旋钮 — **不含** recipe 旋钮）。ID 仍是 `knoxchat.*` / `knox.*`，旧的 `settings.json` 和快捷键继续有效。
+
+下列值对应 KnoxCoder **2.2.2** 的 `package.json`。在设置里搜索 `@id:knoxchat`。
+
+## Agent
+
+| 设置 | 默认 | 效果 |
+|---|---|---|
+| `knoxchat.agentProfile` | `default` | `default` / `systems` / `rust` / `auto` — <Link to="/knoxcoder/agent/profiles">profiles</Link> |
+| `knoxchat.permissionDefault` | 未设置 | 覆盖新会话启发式（`auto` / `ask` / `edits`） |
+| `knoxchat.trustedGitRemotes` | `[]` | 让新会话保持 Auto 的远程 URL 子串 |
+| `knoxchat.fallbackModel` | `""` | 反复瞬时流失败后改用的模型 **标题** |
+| `knoxchat.deferTools` | `true` | 核心目录 + `builtin_tool_search` |
+| `knoxchat.enableCompositeTools` | `false` | 暴露 `composite_*` |
+| `knoxchat.enablePostEditVerification` | `true` | 变更类工具后的 LSP 修复；在 systems/rust 或设置了 `verifyCommand` 时忽略 |
+| `knoxchat.verifyCommand` | `""` | 编译 oracle |
+| `knoxchat.verifyMode` | `diagnostics` | `diagnostics` / `command` / `off` |
+| `knoxchat.verifyMaxIterations` | `8` | 相同编译错误的熔断（1–20） |
+| `knoxchat.compatInstructions` | `[]` | `cursor` 和/或 `copilot` 额外说明文件 |
+| `knoxchat.jev.enabled` | `true` | Jev / System One |
+| `knoxchat.jev.showStatusBar` | `true` | 状态栏 + 日志 |
+
+## 记忆与 recipes
+
+| 设置 | 默认 | 效果 |
+|---|---|---|
+| `knoxchat.memoryBrain.enabled` | `true` | 全局 Memory Brain |
+| `knoxchat.memoryBrain.workspaceEnabled` | `true` | 本文件夹 |
+| `knoxchat.memoryBrain.maxBytes` | `268435456` | sqlite + WAL 上限（256 MB）。`0` 关闭。`KNOX_BRAIN_MAX_BYTES` 覆盖 |
+| `knoxchat.recipes.enabled` | `false` | 捕获已验证的改文件工作 |
+| `knoxchat.recipes.autoReplay` | `off` | `off` / `ask` / `exact` |
+| `knoxchat.selfImprove.enabled` | `false` | 本地提案；不会发布 |
+
+Recipe 开关在 **Memory → Settings**，不在对话齿轮。
+
+## 网络
+
+| 设置 | 默认 | 效果 |
+|---|---|---|
+| `knoxchat.networkMode` | `allow` | `builtin_fetch_url`：`allow` / `deny` / `allowlist`。`KNOX_NETWORK_MODE` 覆盖 |
+| `knoxchat.networkAllowlist` | `[]` | allowlist 模式下的主机。`KNOX_NETWORK_ALLOWLIST` 逗号分隔 |
+
+**不会** 拦截模型 HTTP。<Link to="/knoxcoder/settings/network">网络与离线</Link>。
+
+## 编辑辅助
+
+| 设置 | 默认 | 效果 |
+|---|---|---|
+| `knoxchat.showInlineTip` | `true` | 快捷键提示（⌘L / ⌘I） |
+| `knoxchat.enableInlineCompletions` | `false` | 幽灵文本补全。2.2 **请保持关闭** — 没有 FIM 模型。辅助是 <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link>、从对话 Apply、先审查再编辑 |
+| `knoxchat.inlineCompletionModel` | `""` | 除非打开幽灵文本，否则不用 |
+| `knoxchat.editAssist.codeLens` | `true` | 空文件、桩、TODO、错误上的 CodeLens — 与 Cmd+I 同一路径 |
+| `knoxchat.editAssist.nextEdit` | `true` | Accept 之后提供一处相关的可审查编辑；打字时从不运行 |
+| `knoxchat.enableShadowPreview` | `false` | 应用对话编辑前的并排影子 diff |
+| `knoxchat.shadowPreviewLargeFiles` | `false` | 允许对超过 4000 行的文件做影子预览 |
+| `knoxchat.disableQuickFix` | `false` | 禁用 quick fix |
+| `knoxchat.enableQuickActions` | `false` | 额外 quick actions |
+
+## 检查点（节选）
+
+| 设置 | 默认 | 效果 |
+|---|---|---|
+| `knox.checkpoints.maxCheckpoints` | `1000` | 引擎保留（+ pin） |
+| `knox.checkpoints.maxFileSizeBytes` | `5242880` | 每文件 5 MB |
+| `knox.checkpoints.maxStorageBytes` | `1000000000` | 1 GB |
+| `knox.checkpoints.enableAutoCheckpoints` | `true` | 改了文件的 AI 轮次之后 |
+| `knox.checkpoints.auto.enabled` | `true` | 按时间 / 文件数阈值自动 |
+| `knox.checkpoints.encryptAtRest` | `false` | AES-GCM blob；密钥在 Secret Storage |
+| `knox.checkpoints.smart.maxCheckpoints` | `50` | **忽略**（已弃用） |
+
+完整检查点键：搜索 `@id:knox.checkpoints`，或 <Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link> 的 Configuration 标签。
+
+## 已弃用的空操作（忽略）
+
+| 设置 | 为何仍出现在设置里 |
+|---|---|
+| `knoxchat.sandbox` | 2.0 移除了 OS 沙箱。Shell 使用命令守卫 + 询问 |
+| `knoxchat.sharedLoop` | Agent 对话始终走共享循环 |
+| `knox.checkpoints.smart.maxCheckpoints` | Smart 创建使用 `knox.checkpoints.maxCheckpoints` |
+
+旧的 `settings.json` 仍能加载。改这些没有效果。
+
+## 下一步
+
+<Link to="/knoxcoder/settings/shortcuts">键盘快捷键</Link> · <Link to="/knoxcoder/settings/commands">命令面板</Link> · <Link to="/knoxcoder/settings/network">网络与离线</Link>

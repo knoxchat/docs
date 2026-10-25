@@ -1,0 +1,44 @@
+---
+title: 隐私
+sidebar_label: 隐私
+description: 本地优先的 KnoxCoder — 没有 Knox 遥测、什么会脱敏、检查点是字节级精确，会话留在本机。
+---
+
+import Link from '@docusaurus/Link';
+
+# 隐私
+
+Knox 是 **本地优先**。数据在 `~/.knoxcoder`（可用 `KNOX_GLOBAL_DIR` 覆盖）：配置、会话、Memory Brain sqlite、检查点、凭据、任务日志。目录图：<Link to="/knoxcoder/settings/data">磁盘上的数据</Link>。
+
+Knox **不发送遥测**，也没有计划（没有可选的使用统计）。VS Code 崩溃报告器已关闭。问题请报到 [github.com/knoxchat/knoxcoder/issues](https://github.com/knoxchat/knoxcoder/issues)（不是 Microsoft）。
+
+## 什么会离开本机
+
+只有你配置过的：
+
+- **模型供应商** — 提示、工具结果、你附加的图片
+- **Jev**（默认开）— 用户消息和工具 **预览**，从无文件内容 — <Link to="/knoxcoder/tools/web-jev">Web 与 Jev</Link>
+- **`builtin_fetch_url` / search_web** — 若 Agent 调用它们
+- **OAuth** — 若你登录
+- **自动更新 / Open VSX** — 若你使用这些界面
+
+网络表：<Link to="/knoxcoder/settings/network">网络与离线</Link>。
+
+## 什么留在本地
+
+| 存储 | 说明 |
+|---|---|
+| Memory Brain | 本地 sqlite。关闭开关见 <Link to="/knoxcoder/memory/brain">Memory Brain</Link>。命令面板可导出 / 清空 |
+| Recipes | 本地 sqlite，文本已脱敏，文件字节在检查点 blob。只有显式检查点包才会分享 |
+| 检查点 | **字节级精确，不做脱敏** |
+| 会话文件 | **静态的用户消息不脱敏**；**工具输出会脱敏** |
+| 会话分享链接 | `knoxcoder://vscode.knox/session/import?path=` 指向 **本地** Markdown。Knox 不会上传记录 |
+| `auth.json` | Knox OAuth 会话，权限 `0600`。编辑器使用 SecretStorage。2.2 没有 `KNOX_API_KEY`，也没有 `.env` API 密钥 |
+
+## 脱敏
+
+工具结果、日志、提示日志、Memory Brain 写入、导出的 Markdown 和团队包会经过机密脱敏（AWS/GCP/GitHub/Stripe/JWT/PEM/`KEY=value` / bearer 头等）。检查点不能脱敏，否则还原会错。
+
+## 下一步
+
+<Link to="/knoxcoder/safety/threat-model">威胁模型</Link> · <Link to="/knoxcoder/settings/network">网络</Link> · <Link to="/knoxcoder/settings/data">磁盘上的数据</Link>

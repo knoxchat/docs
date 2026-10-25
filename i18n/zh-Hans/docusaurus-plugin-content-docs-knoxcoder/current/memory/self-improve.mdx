@@ -1,0 +1,45 @@
+---
+title: 自我改进
+sidebar_label: 自我改进
+description: 默认关闭。在本机分析记忆和检查点历史，提出修复和 issue 草稿 — 不会自动发到任何地方。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# 自我改进
+
+`knoxchat.selfImprove.enabled` **默认关闭**。打开后（通常也要打开 <Link to="/knoxcoder/memory/recipes">recipes</Link>），记忆的休眠周期会在 **本机** 回顾记录到的失败。
+
+<KcShot
+  src="/img/knoxcoder/memory-settings.png"
+  alt="Memory Settings 中 Let Knox review its own history 开关"
+  caption="自我改进对应 Memory → Settings 里的 Let Knox review its own history。默认关闭。不会自动发到任何地方。"
+/>
+
+它可能：
+
+- 对出现 **3 次及以上** 的失败存一条 `error_fix` 记忆
+- 隔离失败的 recipes
+- 合并重复 recipes
+- 提出记忆修复、skills，以及 **本地 issue 草稿**
+
+**提案需要你批准。** 不会自动发到 GitHub、Knox.Chat 或任何地方。
+
+这 **不是** 云端微调，**不是** embeddings，也 **不是** 无人值守改仓库。
+
+## 在哪打开
+
+**Memory → Settings**，与 recipes 同一张卡片（`knoxchat.selfImprove.enabled`）。Agent Settings 不列出它。
+
+## 它不是什么
+
+- 不是 MCP
+- 不是定时 Agent（2.2 **没有**）
+- 不是内部的 `npm run mc:self-improve` 贡献者报告（那留在 Knox 仓库的工程文档里）
+
+评估提案时，若不想无人值守改文件，请留在 <Link to="/knoxcoder/agent/permissions">Ask 或 Edits</Link>。
+
+## 下一步
+
+<Link to="/knoxcoder/memory/recipes">Recipes</Link> · <Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/safety/privacy">隐私</Link>

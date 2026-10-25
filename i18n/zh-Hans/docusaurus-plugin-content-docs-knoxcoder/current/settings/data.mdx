@@ -1,0 +1,54 @@
+---
+title: 磁盘上的数据
+sidebar_label: 磁盘上的数据
+description: ~/.knoxcoder 目录图 — 配置、会话、brain.sqlite、检查点、skills、日志、任务。KNOX_GLOBAL_DIR。不是 ~/.knox。
+---
+
+import Link from '@docusaurus/Link';
+
+# 磁盘上的数据
+
+Knox 的全局状态在 **`~/.knoxcoder`**。用 `KNOX_GLOBAL_DIR` 覆盖整个路径。Windows：`C:\Users\<you>\.knoxcoder`。
+
+这 **不是** `~/.knox`。市场版 Knox（`knoxchat.knoxchat`）占用 `~/.knox`。KnoxCoder **从不迁移** 该文件夹。
+
+## 目录图
+
+| 路径 | 内容 |
+|---|---|
+| `config.yaml` | 模型、供应商、可选 `hooks:` / `context:` |
+| `config.yaml.vpre-edit.bak` | GUI 编辑配置时的一次性备份 |
+| `auth.json` | Knox OAuth 会话，权限 `0600`（编辑器也用 SecretStorage） |
+| `sessions/` | 对话记录（`schemaVersion: 1`）。改写前旧文件拷到 `<file>.v<N>.bak` |
+| `sessions.json` | 会话索引（裸数组；降级仍能读） |
+| `brain.sqlite`（+ WAL） | Memory Brain、图谱、recipes。`PRAGMA user_version`；损坏 → `*.corrupt-<ts>` |
+| `backups/` | 迁移前最新 3 份 Brain 备份 |
+| 检查点存储 | 字节级快照；改写前有 `index.json.v<N>.bak` |
+| `skills/` | 用户 skills |
+| `prompts/` | 用户斜杠 prompts |
+| `agents/` | 用户自定义 Agent |
+| `registry/owner/` | 仅本地 `uses:` YAML |
+| `rules/` / `.knoxrules` | 用户规则 |
+| `.knoxignore` | 全局检查点 / 扫描忽略 |
+| `hooks/` 审计日志 | Hook 运行记录 |
+| 日志、任务输出 | 调试和后台任务 |
+
+项目副本在仓库里：`.knoxcoder/`、`AGENTS.md`、`skills/`、`.knoxignore`。见 <Link to="/knoxcoder/workspace">打开文件夹</Link>。
+
+## 哪里会脱敏
+
+| 数据 | 是否脱敏 |
+|---|---|
+| 写入记录的工具输出、日志、Memory Brain 写入、导出的 Markdown、团队包 | 是 |
+| 检查点 | **否**（字节级精确） |
+| 你输入的对话消息，静态存在会话文件里 | 否（导出会脱敏） |
+
+## 清空 / 导出
+
+- **Knox: Export Memory Brain** / **Wipe Memory Brain**
+- 只有在你打算丢掉会话、记忆、检查点和登录时，才删除 `~/.knoxcoder`
+- 升级会保留该目录；见 <Link to="/knoxcoder/reference/upgrade">升级</Link>
+
+## 下一步
+
+<Link to="/knoxcoder/safety/privacy">隐私</Link> · <Link to="/knoxcoder/workspace">打开文件夹</Link> · <Link to="/knoxcoder/settings/network">网络与离线</Link>

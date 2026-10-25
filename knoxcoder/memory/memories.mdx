@@ -1,0 +1,57 @@
+---
+title: Memories tab
+sidebar_label: Memories tab
+description: Create, edit, pin, and mark memories not relevant — Remember from the composer, auto-extract, and why a row was injected last turn.
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Memories tab
+
+**Knox: View Memory** → **Memories**. This is the list of stored facts, preferences, and decisions.
+
+<KcShot
+  src="/img/knoxcoder/memories.png"
+  alt="Memories tab listing stored facts with Create, filters, and pin controls"
+  caption="Memories tab: search, filters, Create, pin. Overview also shows why a row was injected last turn."
+/>
+
+## Manual write (no model)
+
+These store a **fact**, **preference**, or **decision** with **no model or tool call**:
+
+| Control | Where |
+|---|---|
+| **Remember** | Composer (stores without sending a chat turn) |
+| **Create** / **Edit** | Memories tab |
+| **Not relevant** | Memories tab — marks a row mismatched so it is less likely to inject |
+
+Pin / unpin from the row (or via `builtin_memory` `pin` / `unpin`). Pinned items survive pruning better than unpinned episodic turns.
+
+## Auto extract from chat
+
+You do **not** have to say “we decided”. A turn that **states a preference or decision** can land on this tab.
+
+Short prefs (`always use bun`) and messages that start with `remember …` skip the filler gates. Small talk still stores nothing.
+
+Extracted text is redacted before sqlite write.
+
+## Why it was injected
+
+After a turn, rows that were added to the prompt show **injected last turn** (often with a reason, e.g. `injected last turn · lexical: jwt`). Overview has the same hint.
+
+That label is **lexical match**, not “the model remembered you.” If the wrong row injected, **Not relevant** or edit the text.
+
+## Categories
+
+Remember / Create use: **fact**, **preference**, **decision**.
+
+## Filter and sort
+
+The list can filter by query, pinned, and date groups (today / earlier). Search is the same lexical engine as inject — type tokens that appear in the memory, or a synonym the groups cover.
+
+## Next
+
+<Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/memory/sessions">Sessions as context</Link> · <Link to="/knoxcoder/memory/graph">Knowledge graph</Link>

@@ -1,0 +1,49 @@
+---
+title: Upgrade
+sidebar_label: Upgrade
+description: Upgrading KnoxCoder — ~/.knoxcoder is kept, Windows SmartScreen, Linux beta package sort, and behavior changes since 1.138.
+---
+
+import Link from '@docusaurus/Link';
+
+# Upgrade
+
+Applies to upgrades from `1.138.x`, `2.0.0-beta`, `2.0.x`, and `2.1.x` into **2.2.2**. From 2.0.x and 2.1.x there are **no data migrations**: your `~/.knoxcoder` is used as is.
+
+Install the new build from GitHub Releases (checksums in `SHA256SUMS`). Auto-update reads `latest-<platform>-<arch>.json`.
+
+## Your data
+
+Everything stays in `~/.knoxcoder`:
+
+- **Sessions** — files gain `schemaVersion: 1`. An older file is copied once to `<file>.v<N>.bak` before rewrite. `sessions.json` stays a bare array (downgrade still reads it).
+- **Memory Brain** — `PRAGMA user_version`. Unversioned DB copied to `backups/` (newest 3) before migrate. Corrupt → `*.corrupt-<ts>` and recreated.
+- **Checkpoints** — index backed up once (`index.json.v<N>.bak`) before rewrite.
+- **`config.yaml`** — never rewritten on upgrade. GUI edit keeps a one-time `config.yaml.vpre-edit.bak`.
+
+To roll back: install the previous version and restore the `.bak` files you need.
+
+There is **no** migration from marketplace `~/.knox`.
+
+## Windows
+
+Installers may be unsigned. SmartScreen shows “unknown publisher”. **More info → Run anyway**.
+
+## Linux packages
+
+`2.0.0~beta` sorts **before** `2.0.0`, so `apt` / `rpm` upgrade from the beta in place.
+
+## Behavior since 1.138 (if you skipped 2.0)
+
+- Fresh clone → **Ask**; folders Knox already used → **Auto** (2.2 heuristic). Destructive shell denied in every mode unless allowlisted.
+- `knoxchat.sharedLoop` and `knoxchat.sandbox` are deprecated **no-ops**.
+- Tools deferred by default (`knoxchat.deferTools`).
+- Headless `@knoxchat/cli` (`knox run`) is **not** in 2.0+.
+- Removed: `knox.analyzeTask`, `knoxchat.analyzeTask`, `knox.structuredSolve`, `knox.performTaskAnalysis`.
+- No `KNOX_API_KEY`. Sign in with OAuth or BYO keys. Live eval is manual after Knox OAuth.
+
+2.1.1: editor host VS Code 1.141.0 (Electron 43.7.7), without Copilot or Azure Pipelines.
+
+## Next
+
+<Link to="/knoxcoder/reference/whats-new">What’s new</Link> · <Link to="/knoxcoder/install">Install</Link> · <Link to="/knoxcoder/settings/data">Data on disk</Link>

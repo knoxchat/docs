@@ -1,0 +1,44 @@
+---
+title: 终端与 git
+sidebar_label: 终端与 git
+description: Shell、await_shell、PTY 和 git 工具 — 命令守卫、无仓库立即失败，以及权限模式。
+---
+
+import Link from '@docusaurus/Link';
+
+# 终端与 git
+
+## Shell
+
+| 工具 | 作用 |
+|---|---|
+| `builtin_run_terminal_command` | 在 **主** 文件夹跑命令（多根：当前活动文件所在文件夹） |
+| `builtin_await_shell` | 等待一条已后台的命令 |
+
+流式 **终端卡片** 最多显示 **五行**；更长输出在卡片内滚动。
+
+**Ask** 和 **Edits** 会对 shell 提问。**Auto** 自动批准已启用的 shell 工具。破坏性模式在 **所有模式** 下都被拒绝，除非你在 Path & command policy 里允许该命令。详情：<Link to="/knoxcoder/safety/command-guard">权限与命令守卫</Link>。
+
+2.0+ **没有 OS 沙箱**（`knoxchat.sandbox` 是已弃用的空操作）。守卫解析 shell 结构；它不是完整黑名单。不信任的树请留在 Ask/Edits。
+
+后台 Agent：编辑在 worktree 里自动应用；**除非 Auto，否则拒绝 shell**。
+
+## PTY
+
+`builtin_pty_start` / `pty_send` / `pty_read` 是 **systems 核心**（内核 / QEMU 串口）。普通应用对话需要时经 tool-search 加载。Plan 模式在 Execute plan 之前 **拒绝** PTY。
+
+## Git
+
+核心：`builtin_git_status`、`builtin_git_diff`。
+
+延迟：`builtin_git_log`、`git_blame`、`git_commit`、`git_bisect`。
+
+**没有 git 仓库：** 这些工具 **立即失败**（不会 20 秒 HEAD 轮询，也不会堆栈看起来像崩溃）。对话和文件工具仍可用。检查点 **不需要** git。
+
+`/commit`、`/pr`、`/changelog` 从 composer 使用 git diff/log — <Link to="/knoxcoder/agent/slash">斜杠命令</Link>。
+
+不要让 Knox 执行 `git push --force`、`reset --hard` 或 `clean -fd`；除非你允许该命令，否则守卫会拦截。
+
+## 下一步
+
+<Link to="/knoxcoder/tools/catalog">工具目录</Link> · <Link to="/knoxcoder/safety/command-guard">命令守卫</Link> · <Link to="/knoxcoder/tools/lsp-build">LSP、构建、验证</Link>

@@ -1,0 +1,64 @@
+---
+title: 检查点如何工作
+sidebar_label: 检查点如何工作
+description: 不依赖 git、本地、字节级快照 — 每轮 Agent 一个带标签的还原点、.knoxignore 和大小上限。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# 检查点如何工作
+
+一轮对话改文件之前，Knox 会打 **检查点**：一份之后能还原的工作区快照。检查点 **不是 git**。不需要仓库。存在 `~/.knoxcoder` 下（多根窗口里按文件夹分开）。
+
+<KcShot
+  src="/img/knoxcoder/checkpoints-list.png"
+  alt="Checkpoint Graph 的 Checkpoints 列表，每条有 Pin、Restore、Delete"
+  caption="每轮 Agent 一个带标签的还原点。检查点不依赖 git，并且是字节级精确的。"
+/>
+
+<KcShot
+  src="/img/knoxcoder/checkpoint-snapshots.png"
+  alt="Checkpoint Details 的 File Snapshots 标签列出捕获的文件"
+  caption="File Snapshots：那一轮捕获的字节级树。磁盘上已有的机密文件会原样拷贝。"
+/>
+
+它们是 **字节级精确** 的，**不做脱敏**。这是有意的：还原必须还原出原始文件。机密文件（`.env*`、密钥）未经批准不会被 **Agent 读取**，但磁盘上已有文件的检查点就是一份拷贝。保持 `~/.knoxcoder` 仅用户可访问。可选的 `knox.checkpoints.encryptAtRest` 用 AES-GCM 加密 blob（密钥在系统钥匙串 / Secret Storage）；清单仍列出路径。
+
+## 每轮 Agent 一个带标签的点
+
+有风险操作前的快照会成为 **该轮** 的检查点。你在 <Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link> 和搜索里看到短标签（例如 `Add JWT middleware · 3 files in src/auth`）。该轮进行时，按文件数阈值的自动检查点会被 **跳过**。
+
+每轮检查点会记录触发它的请求（请求已脱敏）。
+
+对 Agent 打的快照，优先用 **Knox: Undo Last Assistant Operation** / 检查点还原，而不是 `git reset`。
+
+## 捕获什么
+
+- 工作区文件，受 `.knoxignore` 约束（仓库 + `~/.knoxcoder/.knoxignore`）
+- 嵌套 `.knoxignore` 会被遵守
+- 二进制可以快照（`knox.checkpoints.captureBinaryFiles`，默认开）
+- 超过 **5 MB**（`knox.checkpoints.maxFileSizeBytes`）的文件会跳过并记录 `too_large`
+- 未改文件用 SHA-256 对照当前索引，因此不会看起来是脏的
+
+**Knox: Create global .knoxignore** 会生成一份用户忽略文件。除非你在那里取消忽略，机密默认仍被忽略。
+
+## 上限
+
+| 设置 | 默认 |
+|---|---|
+| `knox.checkpoints.maxCheckpoints` | **1000**（加上 pin）。最旧的未固定项先走。 |
+| `knox.checkpoints.maxFileSizeBytes` | 5 MB |
+| `knox.checkpoints.maxStorageBytes` | 1 GB |
+| `knox.checkpoints.maxFilesPerCheckpoint` | 10 000 — **警告**，从不静默丢文件（截断会让还原不完整） |
+| `knox.checkpoints.retentionDays` | 7（配合自动清理） |
+
+`knox.checkpoints.smart.maxCheckpoints` **被忽略**（已弃用）。Smart 创建使用上面的引擎上限。
+
+打开界面：标题栏图谱、**Knox: View Checkpoints**，或 **Knox: Open Checkpoint Graph**。
+
+Agent 工具是 `builtin_workspace_checkpoint`（`list` / `create` / `create_branch` / `diff` / `preview_restore` / `pin` / `restore` / `delete`）。还原和删除 **总会询问**。记忆回滚是单独的复选框（`rewind_memory`，默认关）。
+
+## 下一步
+
+<Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link> · <Link to="/knoxcoder/checkpoints/restore">还原与撤销</Link> · <Link to="/knoxcoder/safety/privacy">隐私</Link>

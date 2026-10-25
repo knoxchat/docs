@@ -1,0 +1,46 @@
+---
+title: Checkpoint Graph
+sidebar_label: Checkpoint Graph
+description: Graph, list, timeline, analysis, share, configuration, and dashboard tabs for Knox workspace checkpoints.
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Checkpoint Graph
+
+Title-bar graph icon, **Knox: View Checkpoint Graph**, or **Knox: View Checkpoints**. This is a **native** pane (same family as chat and Memory), not a webview.
+
+<KcShot
+  src="/img/knoxcoder/checkpoint-analysis.png"
+  alt="Checkpoint Graph Analysis tab with impact chips and suggested groups"
+  caption="Analysis tab: impact and scope from the manifest and diff. Not an LLM summary."
+/>
+
+Tabs:
+
+| Tab | For |
+|---|---|
+| **Graph** | Engine lines as a commit-style graph. Working tree row, find, Cmd/Ctrl+H jumps to HEAD without opening it. Labels and original request are searchable. |
+| **Checkpoints** | List with pin, restore, delete |
+| **Timeline** | Time-ordered view; can fork a <Link to="/knoxcoder/checkpoints/branches">branch</Link> from a node |
+| **Analysis** | Impact / scope chips for a picked snapshot (affected files and layers) |
+| **Share** | Export / import bundles — <Link to="/knoxcoder/checkpoints/share">Share and import</Link> |
+| **Configuration** | Caps, ignore, auto — or **Knox: Open Knox Settings** → checkpoints group |
+| **Dashboard** | Counts, storage, AI session metrics (including recipe reuse estimates when recipes are on) |
+
+Arrow keys move between checkpoint tabs (accessibility). Skip-to-composer and landmarks apply on this chrome too.
+
+## Graph habits
+
+- Each node is a **labeled restore point**, not a git commit
+- Lanes are <Link to="/knoxcoder/checkpoints/branches">checkpoint branches</Link> (engine lines)
+- Source chips on a <Link to="/knoxcoder/memory/recipes">recipe</Link> open that node here
+- Right-click a row for restore / branch / pin (menu stays on screen)
+
+Need git history instead? Use the Source Control view. Checkpoints do not replace `git log`.
+
+## Next
+
+<Link to="/knoxcoder/checkpoints/overview">How checkpoints work</Link> · <Link to="/knoxcoder/checkpoints/restore">Restore and undo</Link> · <Link to="/knoxcoder/checkpoints/branches">Branches</Link>

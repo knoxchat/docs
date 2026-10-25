@@ -1,0 +1,54 @@
+---
+title: Data on disk
+sidebar_label: Data on disk
+description: Map of ~/.knoxcoder — config, sessions, brain.sqlite, checkpoints, skills, logs, jobs. KNOX_GLOBAL_DIR. Not ~/.knox.
+---
+
+import Link from '@docusaurus/Link';
+
+# Data on disk
+
+Global Knox state is **`~/.knoxcoder`**. Override the whole path with `KNOX_GLOBAL_DIR`. On Windows: `C:\Users\<you>\.knoxcoder`.
+
+This is **not** `~/.knox`. Marketplace Knox (`knoxchat.knoxchat`) owns `~/.knox`. KnoxCoder **never migrates** that folder.
+
+## Directory map
+
+| Path | Contents |
+|---|---|
+| `config.yaml` | Models, providers, optional `hooks:` / `context:` |
+| `config.yaml.vpre-edit.bak` | One-time backup when the GUI edits config |
+| `auth.json` | Knox OAuth session, mode `0600` (editor also uses SecretStorage) |
+| `sessions/` | Chat transcripts (`schemaVersion: 1`). Older files copied to `<file>.v<N>.bak` before rewrite |
+| `sessions.json` | Session index (bare array; downgrade still reads it) |
+| `brain.sqlite` (+ WAL) | Memory Brain, graph, recipes. `PRAGMA user_version`; corrupt → `*.corrupt-<ts>` |
+| `backups/` | Newest 3 Brain backups before migrate |
+| checkpoints store | Byte-exact snapshots; `index.json.v<N>.bak` before rewrite |
+| `skills/` | User skills |
+| `prompts/` | User slash prompts |
+| `agents/` | User custom agents |
+| `registry/owner/` | Local `uses:` YAML only |
+| `rules/` / `.knoxrules` | User rules |
+| `.knoxignore` | Global checkpoint / scan ignore |
+| `hooks/` audit log | Hook runs |
+| logs, job output | Debug and background jobs |
+
+Project copies live in the repo: `.knoxcoder/`, `AGENTS.md`, `skills/`, `.knoxignore`. See <Link to="/knoxcoder/workspace">Open a folder</Link>.
+
+## What is redacted where
+
+| Data | Redacted? |
+|---|---|
+| Tool output in the transcript, logs, Memory Brain writes, exported Markdown, team bundles | yes |
+| Checkpoints | **no** (byte-exact) |
+| Chat messages you typed, at rest in the session file | no (export redacts) |
+
+## Wipe / export
+
+- **Knox: Export Memory Brain** / **Wipe Memory Brain**
+- Delete `~/.knoxcoder` only if you intend to lose sessions, memory, checkpoints, and login
+- Upgrades keep this directory; see <Link to="/knoxcoder/reference/upgrade">Upgrade</Link>
+
+## Next
+
+<Link to="/knoxcoder/safety/privacy">Privacy</Link> · <Link to="/knoxcoder/workspace">Open a folder</Link> · <Link to="/knoxcoder/settings/network">Network and offline</Link>

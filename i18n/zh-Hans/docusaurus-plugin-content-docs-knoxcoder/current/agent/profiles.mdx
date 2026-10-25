@@ -1,0 +1,84 @@
+---
+title: Agent 配置
+sidebar_label: Agent 配置
+description: default、systems、rust 和 auto — doom-loop、编辑后校验、工作区卡片，以及 auto 如何从文件夹检测。
+---
+
+import Link from '@docusaurus/Link';
+
+# Agent 配置
+
+`knoxchat.agentProfile` 决定 Agent 循环在 **被允许跑起来之后** 的行为：对反复工具调用有多执着，以及改完用什么检查。它 **不** 替代 <Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> 或 <Link to="/knoxcoder/agent/plan">Plan</Link>。
+
+设置：**default** | **systems** | **rust** | **auto**（默认：`default`）。在 **Knox: Open Knox Settings** 或 `settings.json` 里改。
+
+GUI 对话的工具回合仍 **不限步**。用 **Cancel** 停止。后台任务和 `/autonomous` 有上限（40 / rust 60 / systems 80，绝对上限 200）。细节见 <Link to="/knoxcoder/agent/background">后台 Agent</Link>。
+
+解析后的配置是 `systems` 或 `rust` 时，<Link to="/knoxcoder/agent/chat-ui">Agent 计量条</Link> 会显示对应芯片。
+
+## 每种配置做什么
+
+| 设置 | Doom-loop 阈值 | 编辑后检查 |
+|---|---|---|
+| **default** | 3 次相同 / 失败调用 | LSP 诊断（`knoxchat.enablePostEditVerification`） |
+| **rust** | 4 | `cargo check --workspace --all-targets` |
+| **systems** | 5 | `make`（kernel / QEMU） |
+| **auto** | （解析后） | kernel/QEMU 树用 systems，**根目录** `Cargo.toml` 用 rust，否则 default |
+
+doom-loop 芯片提供 **Change strategy**（注入一行说明，让模型换策略）。任何运行都可用 Cancel 停掉。
+
+`systems` / `rust` **忽略** `knoxchat.enablePostEditVerification`（编译 oracle 优先）。非空的 `knoxchat.verifyCommand` 也会跳过 LSP 并选用 command 模式。
+
+## `auto` 看什么
+
+`auto` 列出 **工作区根**（不是嵌套文件夹）并分类，先匹配的生效：
+
+1. **kernel** — `Kconfig`（或 `Kconfig.*`）加上 `arch/`、`Makefile` 或 `Kbuild`
+2. **qemu** — `meson.build` 加上 `target/`、`accel/` 或 `hw/`
+3. **cargo** — 根目录 `Cargo.toml`（嵌套的 `rust/Cargo.toml` **不算**，所以 rust-for-linux 仍是 systems）
+4. 否则 **default**（应用树）
+
+同时有根目录 `Cargo.toml` 的 kernel/QEMU 树仍是 **systems**。显式的 `systems` / `rust` / `default` 不会被改掉。Jev 打开时可以对 `auto` 做确认；该覆盖仍不会压过显式设置。
+
+光有 `Makefile` / `CMakeLists.txt` **不够** 当成 systems（应用仓库常常也有这些）。
+
+## 工作区卡片
+
+在已分类的树上，提交时 Knox 会注入一份短的 **Codebase Card**（不会倾倒 `.config` 或 lockfile）：
+
+| 种类 | 检测依据 |
+|---|---|
+| kernel / qemu | Kconfig + arch，或 meson + target/accel/hw |
+| cargo | 根目录 `Cargo.toml` |
+| editor | 本 KnoxCoder / VS Code 分支（`src/` + `extensions/` + `product.json` / gulp） |
+| node | `package.json` |
+| python | `pyproject.toml`、`pytest.ini`、`requirements.txt`、`setup.py` / `setup.cfg` |
+| go | `go.mod` |
+| cmake | `CMakeLists.txt` |
+
+多项都匹配时的顺序：kernel > qemu > cargo > editor > node > python > go > cmake。本编辑器分支优先于光秃秃的 Node `package.json`。
+
+这些不用手贴。规则和 `AGENTS.md` 的 token 成本仍看 `/instructions`。
+
+## 构建仍红时
+
+若校验命令（或产品路径上的 `make` / `cargo test` / `npm test`）仍是 **红** 的，Knox 会 **hold**，而不是把这一轮当成已经完成，并继续尝试修复。上一条助手消息上可能出现 hold 芯片。
+
+- 相同的编译器错误签名：`knoxchat.verifyMaxIterations`（默认 **8**）会跳过后续自动构建。
+- 额外的无工具 “oracle still red” 回合上限 **8**；同一诊断连续 **3** 次则停掉该循环。
+
+不想要编辑后 oracle 时，把 `knoxchat.verifyMode` 设为 `off`。`diagnostics` 是 LSP；`command` 是 `knoxchat.verifyCommand`（例如 `make -j8`、`cargo check --workspace --all-targets`）。非空的 verify 命令会选用 `command`。
+
+## 设置摘要
+
+| 设置 | 作用 |
+|---|---|
+| `knoxchat.agentProfile` | `default` / `systems` / `rust` / `auto` |
+| `knoxchat.enablePostEditVerification` | 变更类工具后的 LSP 检查 + 尝试修复（systems/rust 或设置了 verifyCommand 时忽略） |
+| `knoxchat.verifyCommand` | 编译 oracle；空 = default 上用 LSP |
+| `knoxchat.verifyMode` | `diagnostics` / `command` / `off` |
+| `knoxchat.verifyMaxIterations` | 相同编译器错误的断路器（1–20，默认 8） |
+
+## 接下来
+
+<Link to="/knoxcoder/agent/background">后台 Agent</Link> · <Link to="/knoxcoder/agent/permissions">权限模式</Link> · <Link to="/knoxcoder/agent/inline-edit">行内编辑（Cmd+I）</Link>

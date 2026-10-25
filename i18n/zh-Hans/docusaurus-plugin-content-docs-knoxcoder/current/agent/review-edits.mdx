@@ -1,0 +1,57 @@
+---
+title: 审阅编辑
+sidebar_label: 审阅编辑
+description: 把 Agent 的文件写入先留在内存，再逐个 diff、应用或丢弃。Shell 仍在真实磁盘上跑。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 审阅编辑
+
+**Review edits**（界面芯片文案；中文 UI 为 **审阅编辑**）在输入框模式弹出菜单里，和 Ask / Edits / Auto 以及 <Link to="/knoxcoder/agent/plan">Plan</Link> 在一起。它 **不是** 第四种权限模式。
+
+打开时的提示：*Hold the agent's file edits for your review; nothing is written to disk until you apply them (shell commands still run on disk).*
+
+想在字节落到树上 **之前** 看清 Agent 会改哪些文件时用它。
+
+## 会暂存什么
+
+芯片打开时，Agent 的 **文件** 工具（`edit_file`、`write_file`、`apply_patch`、创建、删除等）写入本会话的内存暂存区，而不是磁盘。
+
+- 之后对这些路径的 **读取** 看到的是暂存内容，所以同一文件可以再改一次。
+- 每个文件是 **new**、**edit** 或 **delete**，带 `+N` / `−N`。
+- 并排 **Diff**（before | after）以虚拟文档打开。**Open in editor** 跳到该路径。
+
+面板列出待处理文件，每个有 **Apply** / **Discard**，另有 **Apply all** / **Discard all**。
+
+**Apply all** 会 **先打检查点** 再写盘。提示：*Write the held edits to disk (a checkpoint is taken first).* **Discard all** 丢掉暂存、不写盘。
+
+## Shell 仍打磁盘
+
+终端、测试、构建、PTY、QEMU 对着 **磁盘上** 的树跑。它们 **看不到** 暂存文件。Knox 会注入说明：
+
+> Note: N edit(s) are staged for review and NOT on disk yet (…). This command ran against the on-disk files, so its result does not include them.
+
+在信任测试或 `make` 结果之前，先应用你关心的文件。
+
+## 关掉它
+
+还有待处理文件时不能离开 Review edits。芯片提示：*Stop holding edits (apply or discard the pending ones first).* 产品报错是 **Apply or discard the staged edits first**。
+
+上次开/关会记住，给新会话用（`~/.knoxcoder/review/pref.json`）。会话的暂存文件在 `~/.knoxcoder/review/`，关窗口不会丢掉未完成的审阅。
+
+## Review vs Plan vs Cmd+I
+
+| 表面 | 角色 |
+|---|---|
+| **Review edits** | Agent *已经* 产出文件写入；你来应用或丢弃 |
+| <Link to="/knoxcoder/agent/plan">Plan</Link> | 在 **Execute plan** 之前 Agent **不能** 写 |
+| <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link> | 你在编辑器里用自然语言改当前文件；Accept / Reject 纵向 diff |
+| Ask / Edits / Auto | 谁自动批准 *工具调用*。Review 仍然暂存文件结果 |
+
+可以组合：Plan + Review 是先探索、再执行、再应用。Auto + Review 仍会暂存文件；Auto 只是跳过权限卡片。
+
+## 接下来
+
+<Link to="/knoxcoder/agent/inline-edit">行内编辑（Cmd+I）</Link> · <Link to="/knoxcoder/agent/permissions">权限模式</Link> · <Link to="/knoxcoder/agent/plan">Plan 模式</Link>

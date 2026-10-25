@@ -1,0 +1,107 @@
+---
+title: AGENTS.md and rules
+sidebar_label: AGENTS.md and rules
+description: Project instructions Knox loads every turn — AGENTS.md, CLAUDE.md, .knoxrules, nested files, applyTo globs, and token warnings.
+---
+
+import Link from '@docusaurus/Link';
+
+# AGENTS.md and rules
+
+Knox reads project instruction files on every chat turn and appends them to the system context. They are **prompt text**, not extra capabilities: <Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> and the command guard still apply to whatever they ask for.
+
+Start a repo with `/init` in the composer. That writes a starter `AGENTS.md` from the tree. It **refuses to overwrite** unless you type `/init --force`.
+
+`/instructions` lists everything loaded, **in order**, with token cost. Warnings fire if a **single file is over 2000 tokens** or **always-on instruction text is over 6000**. Trim the always-on file, or move details into a glob-scoped <Link to="/knoxcoder/customize/skills">skill</Link>.
+
+## Files Knox loads
+
+From **every** workspace folder (all roots in a multi-root window):
+
+| File | Role |
+|---|---|
+| `AGENTS.md` | Project instructions (Codex / Agents-style) |
+| `.knoxcoder/AGENTS.md` | Same, under the Knox project folder |
+| `CLAUDE.md` | Compat |
+| `.knoxrules` | Knox-specific rules (wins over generic agent files at the same level) |
+
+Plus, walking **up from the open file** to that folder’s root, nested `AGENTS.md` closer to the file.
+
+Global (this machine):
+
+| Path | Role |
+|---|---|
+| `~/.knoxcoder/.knoxrules` | User-level rules |
+| `~/.knoxcoder/rules/*` | Extra user rule files |
+
+Never put these under **`.knox/`**. That name belongs to marketplace Knox (`knoxchat.knoxchat`). KnoxCoder uses **`.knoxcoder/`** and **`~/.knoxcoder`**.
+
+Folder-level `{subdir}/.knoxrules` is **not** scanned. Nested **`AGENTS.md`** is.
+
+## Load order (later wins on the same concern)
+
+1. `~/.knoxcoder/.knoxrules` and `~/.knoxcoder/rules/*`
+2. `{workspace}/CLAUDE.md`
+3. `{workspace}/AGENTS.md`
+4. `{workspace}/.knoxcoder/AGENTS.md`
+5. `{workspace}/.knoxrules`
+6. Nested `{subdir}/AGENTS.md` closer to the open file
+
+In a multi-root window, nested `AGENTS.md` is resolved from the **open file’s folder**, not by copying the same relative path onto every root. Each root’s own `AGENTS.md` / `.knoxrules` still load.
+
+## `applyTo` globs
+
+YAML frontmatter `applyTo` (or a markdown `applyTo:` list) limits a rule to matching **open / current** file paths. Missing `applyTo`, or `**`, means always on. With no open files, only universal rules match.
+
+```markdown
+---
+applyTo:
+  - "**/*.rs"
+  - "crates/**"
+---
+
+Prefer `builtin_build` over shell `cargo`. Never `cargo clean` unless asked.
+```
+
+Skills use the same glob idea (`globs` / `paths` / `applyTo` in `SKILL.md`).
+
+## Policy blocks (`always` / `ask` / `never`)
+
+A rule can also carry path/command policy, merged into the agent policy (deny still wins):
+
+```markdown
+---
+never:
+  - "rm -rf *"
+  - "git push --force"
+ask:
+  - ".env*"
+always:
+  - "src/**"
+---
+```
+
+Markdown bullets (`- never: rm -rf *`) work too. This is **not** a substitute for staying in Ask on an untrusted clone.
+
+## Opt-in extras (off unless you set them)
+
+`knoxchat.compatInstructions` is an array. They sit **below** `AGENTS.md`:
+
+| Value | Files |
+|---|---|
+| `cursor` | `.cursor/rules`, `.cursorrules` |
+| `copilot` | `.github/copilot-instructions.md` |
+
+Override: `KNOX_COMPAT_INSTRUCTIONS=cursor,copilot`. Enabling this does **not** install Copilot or Cursor.
+
+## Template variables
+
+Instruction text may use `{os}`, `{arch}`, `{home}` (replaced when the file is loaded).
+
+## Skills are not dumped here
+
+Matched <Link to="/knoxcoder/customize/skills">skills</Link> are **not** auto-injected as full bodies. The agent loads a skill with `builtin_skill` when it needs it. `/instructions` still lists them.
+
+## Next
+
+<Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/customize/hooks">Hooks</Link> · <Link to="/knoxcoder/workspace">Open a folder</Link> · <Link to="/knoxcoder/agent/slash">Slash commands</Link>

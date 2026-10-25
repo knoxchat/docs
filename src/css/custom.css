@@ -486,6 +486,42 @@ html[data-theme='dark'] .sidebar-quickstart > .menu__link:hover {
   border-left-color: #6b7280 !important;
 }
 
+.sidebar-category--kc-get-started > .menu__list {
+  border-left-color: #159994 !important;
+}
+
+.sidebar-category--kc-agent > .menu__list {
+  border-left-color: #0d9488 !important;
+}
+
+.sidebar-category--kc-customize > .menu__list {
+  border-left-color: #10b981 !important;
+}
+
+.sidebar-category--kc-memory > .menu__list {
+  border-left-color: #ec4899 !important;
+}
+
+.sidebar-category--kc-checkpoints > .menu__list {
+  border-left-color: #a855f7 !important;
+}
+
+.sidebar-category--kc-tools > .menu__list {
+  border-left-color: #f59e0b !important;
+}
+
+.sidebar-category--kc-settings > .menu__list {
+  border-left-color: #3b82f6 !important;
+}
+
+.sidebar-category--kc-safety > .menu__list {
+  border-left-color: #ef4444 !important;
+}
+
+.sidebar-category--kc-reference > .menu__list {
+  border-left-color: #6b7280 !important;
+}
+
 /* Category items — refined spacing */
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category .menu__list .menu__link {
   font-size: 0.85rem;
@@ -532,4 +568,303 @@ html[data-theme='dark'] .theme-doc-sidebar-menu > .theme-doc-sidebar-item-catego
 
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category .menu__list-item-collapsible:hover .menu__caret::before {
   opacity: 0.8;
+}
+
+/* KnoxCoder labeled chrome (One Dark). Stay product-dark even on a light docs theme. */
+.kc-anatomy {
+  margin: 1.25rem 0 1.75rem;
+}
+
+.kc-anatomy figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-700);
+  text-align: center;
+}
+
+.kc-anatomy-frame {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: #abb2bf;
+  background: #282c34;
+  border: 1px solid #333843;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.kc-anatomy-frame--wide {
+  max-width: 100%;
+}
+
+.kc-anatomy-app {
+  display: flex;
+  min-height: 220px;
+}
+
+.kc-anatomy-activity {
+  width: 2.4rem;
+  background: #21252b;
+  border-right: 1px solid #333843;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.7rem;
+}
+
+.kc-anatomy-knox-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.35rem;
+  background: #159994;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kc-anatomy-pane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.kc-anatomy-titlebar,
+.kc-anatomy-bar,
+.kc-anatomy-sendrow,
+.kc-anatomy-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  padding: 0.4rem 0.65rem;
+  border-bottom: 1px solid #333843;
+}
+
+.kc-anatomy-statusbar {
+  border-bottom: 0;
+  border-top: 1px solid #333843;
+  background: #21252b;
+  font-size: 0.72rem;
+}
+
+.kc-anatomy-composer {
+  border-top: 1px solid #333843;
+  background: #22262d;
+}
+
+.kc-anatomy-composer .kc-anatomy-bar {
+  border-bottom: 1px solid #333843;
+}
+
+.kc-anatomy-transcript {
+  flex: 1;
+  padding: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 7rem;
+}
+
+.kc-anatomy-empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.kc-anatomy-muted {
+  color: #7f848e;
+}
+
+.kc-anatomy-cyan {
+  color: #56b6c2;
+}
+
+.kc-anatomy-grow {
+  margin-left: auto;
+}
+
+.kc-anatomy-model,
+.kc-anatomy-send {
+  color: #61afef;
+  font-weight: 600;
+}
+
+.kc-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #333843;
+  color: #abb2bf;
+  white-space: nowrap;
+}
+
+.kc-chip--on {
+  border-color: #56b6c2;
+  color: #56b6c2;
+  background: rgba(86, 182, 194, 0.12);
+}
+
+.kc-anatomy-input {
+  margin: 0.45rem 0.65rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #333843;
+  border-radius: 6px;
+  color: #636d83;
+  font-style: italic;
+}
+
+.kc-anatomy-notice {
+  margin: 0.45rem 0.65rem 0;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #d19a66;
+  color: #d19a66;
+  background: rgba(209, 154, 102, 0.08);
+}
+
+.kc-anatomy-card,
+.kc-anatomy-panel,
+.kc-anatomy-list,
+.kc-anatomy-editor {
+  margin: 0.5rem 0.65rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #333843;
+  border-radius: 6px;
+  background: #22262d;
+}
+
+.kc-anatomy-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.kc-anatomy-list-h {
+  color: #7f848e;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.35rem;
+}
+
+.kc-anatomy-meter {
+  padding: 0.35rem 0.65rem;
+  color: #56b6c2;
+  border-bottom: 1px solid #333843;
+  font-size: 0.72rem;
+}
+
+.kc-anatomy-term pre,
+.kc-anatomy-graph,
+.kc-anatomy-editor pre {
+  margin: 0.35rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  color: #abb2bf;
+}
+
+.kc-diff-add {
+  color: #98c379 !important;
+}
+
+.kc-diff-del {
+  color: #e06c75 !important;
+}
+
+.kc-anatomy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  margin: 0.5rem 0.65rem 0.7rem;
+}
+
+.kc-anatomy-grid > div {
+  border: 1px solid #333843;
+  border-radius: 6px;
+  padding: 0.55rem 0.4rem;
+  text-align: center;
+  background: #22262d;
+}
+
+.kc-anatomy-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.5rem 0.65rem;
+  color: #abb2bf;
+}
+
+.kc-anatomy-check input {
+  accent-color: #56b6c2;
+}
+
+.kc-anatomy-inline {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.kc-anatomy-panel ol {
+  margin: 0.35rem 0 0 1.1rem;
+  padding: 0;
+}
+
+@media screen and (max-width: 720px) {
+  .kc-anatomy-inline,
+  .kc-anatomy-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kc-shot {
+  margin: 1.25rem 0 1.75rem;
+}
+
+.kc-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.kc-shot figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-700);
+  text-align: center;
+}
+
+/* Four navbar tabs (Docs · API Reference · Blog · KnoxCoder) + locale + KnoxStudio. */
+@media screen and (min-width: 997px) and (max-width: 1280px) {
+  .navbar__item {
+    padding: var(--ifm-navbar-item-padding-vertical) 0.5rem;
+  }
+
+  .navbar__search-input {
+    width: 9.5rem;
+  }
+
+  .navbar__title {
+    margin-right: 0.35rem;
+  }
+}
+
+@media screen and (max-width: 996px) {
+  .navbar__search-input {
+    width: min(14rem, 46vw);
+  }
+
+  .navbar-sidebar .menu__link {
+    overflow-wrap: anywhere;
+  }
+}
+
+.theme-doc-sidebar-container .menu__link {
+  overflow-wrap: anywhere;
 }

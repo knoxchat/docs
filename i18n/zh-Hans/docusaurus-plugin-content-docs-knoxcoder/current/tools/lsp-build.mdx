@@ -1,0 +1,44 @@
+---
+title: LSP、构建、验证
+sidebar_label: LSP、构建、验证
+description: 已分类工作区上的 builtin_lsp、builtin_build、verifyCommand、oracle-hold，以及 Rust 门禁。
+---
+
+import Link from '@docusaurus/Link';
+
+# LSP、构建、验证
+
+Knox 改完文件后可以 **检查** 结果：LSP 诊断、编译命令，或语言门禁（`cargo` / `make`）。
+
+## `builtin_lsp`
+
+在已分类工作区提升为 **核心**：node、python、go、cargo、editor（本 KnoxCoder / VS Code fork）、cmake，以及 **systems**。未知树上仍在 `builtin_tool_search` 后面。
+
+需要编辑器里可用的语言扩展（例如 Rust 用 rust-analyzer）。空结果会说明 — 对 Rust，优先 `builtin_build`（`cargo check`），不要编造 API。
+
+## `builtin_build`
+
+默认 profile 下延迟；**systems 上为核心**。动作包括 check / test / clippy / fmt / doc / gate（随语言变化）。
+
+在 **Cargo** 仓库里，`action=gate` 在存在时运行 `scripts/pre-commit.sh`，否则用内联 cargo 链。`action=gate_init` 可以把附带脚本装进 **你的** 项目。除非 **你** 运行 `scripts/pre-commit.sh --install-hook`，否则 **不会** 安装 git hook。除非你要求，否则不要 `cargo clean` / `publish` / `login`。
+
+`knoxchat.agentProfile` 为 **rust** 时，用 `cargo check --workspace --all-targets` 作为编辑后 oracle。**systems** 用 `make`。详情：<Link to="/knoxcoder/agent/profiles">Agent profiles</Link>。
+
+## 验证设置
+
+| 设置 | 效果 |
+|---|---|
+| `knoxchat.enablePostEditVerification` | 变更类工具之后，LSP 检查 + 尝试修复。在 systems/rust 上或设置了 `verifyCommand` 时 **忽略**。 |
+| `knoxchat.verifyCommand` | 编译 oracle（`make -j8`、`cargo check --workspace --all-targets` 等）。非空即进入 command 模式。 |
+| `knoxchat.verifyMode` | `diagnostics` / `command` / `off` |
+| `knoxchat.verifyMaxIterations` | 相同编译错误签名达到该次数后跳过后续自动构建（默认 **8**，1–20） |
+
+## Oracle-hold
+
+若验证命令（或产品路径上的 `make` / `cargo test` / `npm test`）仍是 **红** 的，Knox **暂停结束** 并继续修。额外的无工具「仍红」轮次上限 **8**；连续 **3** 次相同诊断会停掉该循环。
+
+不想要编辑后 oracle，把 `verifyMode` 设为 `off`。
+
+## 下一步
+
+<Link to="/knoxcoder/agent/profiles">Agent profiles</Link> · <Link to="/knoxcoder/tools/systems">Systems</Link> · <Link to="/knoxcoder/tools/catalog">工具目录</Link>

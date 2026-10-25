@@ -1,0 +1,46 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.knoxcoderSidebar.category.Get started": {
+    "message": "开始使用",
+    "description": "The label for category Get started in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.doc.What is KnoxCoder": {
+    "message": "KnoxCoder 是什么",
+    "description": "The label for the doc item What is KnoxCoder in sidebar knoxcoderSidebar, when used as a category"
+  },
+  "sidebar.knoxcoderSidebar.category.Knox Agent": {
+    "message": "Knox Agent",
+    "description": "The label for category Knox Agent in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.category.Rules, skills, hooks": {
+    "message": "规则、Skills、Hooks",
+    "description": "The label for category Rules, skills, hooks in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.category.Memory": {
+    "message": "记忆",
+    "description": "The label for category Memory in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.category.Checkpoints": {
+    "message": "检查点",
+    "description": "The label for category Checkpoints in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.category.Tools": {
+    "message": "工具",
+    "description": "The label for category Tools in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.category.Settings and shortcuts": {
+    "message": "设置与快捷键",
+    "description": "The label for category Settings and shortcuts in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.category.Privacy and safety": {
+    "message": "隐私与安全",
+    "description": "The label for category Privacy and safety in sidebar knoxcoderSidebar"
+  },
+  "sidebar.knoxcoderSidebar.category.Reference": {
+    "message": "参考",
+    "description": "The label for category Reference in sidebar knoxcoderSidebar"
+  }
+}

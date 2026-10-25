@@ -1,0 +1,119 @@
+---
+title: 第一次对话
+sidebar_label: 第一次对话
+description: 打开 Knox、选择模型，先发一轮只读问题，再做一个小修改——包括全新克隆上的 Ask 模式。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 第一次对话
+
+这是在真实文件夹里的第一轮会话。若还没安装 KnoxCoder，先看 <Link to="/knoxcoder/install">安装</Link>。若输入框没有模型，先看 <Link to="/knoxcoder/models">登录与模型</Link>。
+
+## 1. 打开文件夹
+
+**文件 → 打开文件夹…**（或工作区）。Knox Agent 把 **当前活动编辑器文件** 所在文件夹当作主根：shell、git、构建和相对路径都在那里跑。搜索、glob、`AGENTS.md`、hooks、自定义 Agent 仍覆盖多根工作区里的所有文件夹。
+
+没有文件夹的窗口也能聊天，但 Agent 没有被允许修改的树。打开你真正要改的项目。
+
+细节见 <Link to="/knoxcoder/workspace">打开文件夹</Link>。
+
+## 2. 打开 Knox
+
+- 点活动栏里的 **Knox** 图标，或
+- <kbd>⌘L</kbd> / <kbd>Ctrl+L</kbd> — 聚焦对话，把当前选区加入上下文并清空输入框
+- <kbd>⌘⇧L</kbd> / <kbd>Ctrl+Shift+L</kbd> — 加入上下文但不清空
+
+面板是原生侧边栏：上面是记录，下面是输入框，权限条在输入框上。
+
+## 3. 选择模型
+
+用输入框上的 **模型选择器**。KnoxStudio 或 OpenRouter OAuth 之后，目录来自该账号。自备密钥则只看到你加过的模型。
+
+可选：设置 `knoxchat.fallbackModel`（是模型 **标题**，不是 id），在反复出现瞬时流失败（429、5xx、网络）后换第二个模型。留空表示永不切换。
+
+## 4. 看权限条
+
+新会话会选一种模式：
+
+| 模式 | 读取 | 改文件 | Shell |
+|---|---|---|---|
+| **Ask** | 自动 | 先问你 | 先问你 |
+| **Edits** | 自动 | 自动 | 先问你 |
+| **Auto** | 自动 | 自动 | 自动 |
+
+- Knox **已经用过** 的文件夹，或 git remote 在 `knoxchat.trustedGitRemotes` 里的，新会话从 **Auto** 开始。
+- **全新克隆**（该文件夹没有过 Knox 会话，remote 也未加入白名单）从 **Ask** 开始，权限条上有一行提示。
+- `knoxchat.permissionDefault`（`auto` / `ask` / `edits`）覆盖上述启发式。你为该文件夹保存过的模式仍然优先。
+
+在权限条上切换 Ask / Edits / Auto，或按 **Shift+Tab**。完整表格见 <Link to="/knoxcoder/agent/permissions">权限模式</Link>。
+
+**Plan** 是输入框上另一个开关，不是第四种权限。Plan 里 Knox 只能读、搜索、问你、写清单。写入、shell、PTY、QEMU 会回复 “leave Plan mode to execute。” **Execute plan** 在 **同一会话** 切回 Agent。执行时仍遵守 Ask / Edits / Auto。细节见 <Link to="/knoxcoder/agent/plan">Plan 模式</Link>。
+
+破坏性命令（`git push --force`、`git reset --hard`、`git clean -fd`、`chmod -R`、裸设备写入、`curl | sh`、`find -delete` 等）在 **所有** 模式下都会被拦住，除非你在 Agent 策略里允许该命令。
+
+不信任的仓库请留在 **Ask** 或 **Edits**。
+
+## 5. 先发只读问题
+
+试一个不需要写入的问题：
+
+```text
+这个仓库构建的是什么？入口在哪？
+```
+
+你应该看到：
+
+- 已分类项目上的 **Turn Context**（打开的文件、git 状态、诊断）
+- 读取和搜索的工具卡片
+- 正常的助手回复
+
+输入框上的 `NN%` 是上下文占用。大约 **75%** 时 Knox 会压缩历史。
+
+**Connection problem, retrying (n/4)** 表示瞬时流失败。失败两次后，若设置了 `knoxchat.fallbackModel` 会改用它。限流 / 密钥无效 / 找不到模型会弹出 **Retry** 和 **Open settings**。
+
+## 6. 再做一个小修改
+
+切到 **Edits**（若已信任该文件夹也可保持 Auto）。只要求一处小改动：
+
+```text
+在 main 函数上方加一行注释说明它做什么。不要改行为。
+```
+
+预期：
+
+1. 改文件前有一个 **检查点**（不依赖 git；之后用 **Knox: View Checkpoints** 还原）。
+2. 出现编辑工具卡片。流式文件卡片会显示 CheckPoint 的 `+N` / `−N` 行数。
+3. 若模式弹出菜单里开了 **Review edits**，文件修改先留在内存，直到你逐个应用或丢弃。**Shell 仍然打真实磁盘**，不是暂存树。细节见 <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link>。
+4. 发生写入后，可能会跑诊断或你的校验命令（应用树用 LSP；systems / Rust 配置用 `make` / `cargo check`）。配置表见 <Link to="/knoxcoder/agent/profiles">Agent 配置</Link>。
+
+若想在编辑器里改当前选区而不是侧边栏，按 <kbd>⌘I</kbd> / <kbd>Ctrl+I</kbd>。2.2 里幽灵文字行内补全是 **关** 的（没有 FIM 模型）。细节见 <Link to="/knoxcoder/agent/inline-edit">行内编辑（Cmd+I）</Link>。
+
+## 7. 停止、撤销、下一会话
+
+- 输入框上的 **Cancel**（macOS 上界面显示 <kbd>⌘⌫</kbd>）停止当前生成。
+- **Knox: Undo Last Assistant Operation** 还原上次编辑前的检查点。
+- **Knox: New Conversation** 开新会话。历史在 **Knox: View History**。
+
+第一天的对话不需要 recipes、hooks 或自定义 Agent。那些之后再讲。
+
+## 第一天常用命令
+
+| 命令面板 | 作用 |
+|---|---|
+| **Knox: Open Knox Settings** | 分组搜索 `knoxchat.*` |
+| **Knox: Settings** | Agent 设置层（模型、Agent 开关） |
+| **Knox: View Memory** | Memory Brain |
+| **Knox: View Checkpoints** | 还原 / Checkpoint Graph |
+| **Knox: Show Jev Log** | 套件判定（从不发送文件内容） |
+
+在输入框输入 `/instructions` 可查看加载了哪些 `AGENTS.md` / 规则 / skills 以及占用多少 token。仓库还没有 `AGENTS.md` 时，`/init` 会写一份（覆盖需 `--force`）。
+
+## 接下来
+
+- 选择器是空的就去 <Link to="/knoxcoder/models">登录与模型</Link>
+- <Link to="/knoxcoder/workspace">文件夹里有什么、`~/.knoxcoder` 里有什么</Link>
+- <Link to="/knoxcoder/agent/chat-ui">对话界面</Link> · <Link to="/knoxcoder/agent/composer">输入框</Link> · <Link to="/knoxcoder/agent/slash">斜杠命令</Link>
+- <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link> · <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link> · <Link to="/knoxcoder/agent/profiles">Agent 配置</Link>
+- <Link to="/knoxcoder/agent/mentions">提及</Link> · <Link to="/knoxcoder/agent/background">后台 Agent</Link> · <Link to="/knoxcoder/agent/troubleshooting">排查</Link>

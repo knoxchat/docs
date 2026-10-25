@@ -1,0 +1,69 @@
+---
+title: Custom agents
+sidebar_label: Custom agents
+description: Define subagents in .knoxcoder/agents — frontmatter, tools allowlist, readonly, worktree isolation, and max 8 children.
+---
+
+import Link from '@docusaurus/Link';
+
+# Custom agents
+
+A **custom agent** is a markdown file Knox can spawn as a **child** of the main chat (`builtin_task` `agent="name"`). Children get a fresh context, a bounded step cap, and (when they write) an isolated git worktree whose patch is merged back.
+
+They cannot **widen** what the parent is allowed to do. A `tools:` list only **narrows** the base profile. Hostile text in a cloned `agents/*.md` is still prompt text — tool policy still applies.
+
+## Where files live
+
+| Path | Scope |
+|---|---|
+| `.knoxcoder/agents/*.md` | This workspace (every root in a multi-root window) |
+| `~/.knoxcoder/agents/*.md` | This machine |
+
+**First definition of a name wins** (workspace, then global). Do not use `.knox/agents` or `~/.knox`.
+
+**Knox: Create Custom Agent** asks for a short identifier and writes a template to `.knoxcoder/agents` in the **primary** folder. **Knox: List Custom Agents** opens an existing file.
+
+## Frontmatter
+
+```markdown
+---
+name: reviewer
+description: Reviews diffs for risk
+readonly: true
+tools: [builtin_read_file, builtin_exact_search]
+model: my-fast-model
+---
+You review code changes. Be concise. Flag bugs, security issues, and missing tests.
+```
+
+| Field | Required | Meaning |
+|---|---|---|
+| `name` | yes (or taken from the filename) | Letters, numbers, `_` `-`; max 48; must match `^[a-zA-Z0-9][a-zA-Z0-9_-]{0,47}$` |
+| `description` | no | Shown in **List Custom Agents** |
+| `tools` | no | Allowlist of tool names. Omit = everything the **base profile** already allows |
+| `readonly` | no | `true` = read-only child |
+| `model` | no | Preferred **model title** (hint; ignored if unresolved) |
+
+The body after `---` is the child’s system prompt. An empty body does not parse.
+
+## How the parent calls them
+
+The main agent uses `builtin_task`:
+
+- `agent="reviewer"` — your custom type
+- `profile=` — builtin: **explore** (default, read-only), **review**, **general** (full tools except nested task / ask_user), **rust-review**, **rust-borrowck**, **rust-architect** (design first; no code until `builtin_plan`)
+- `children=[...]` — up to **8** in parallel (`concurrency` default 3, cap 8)
+- `explores=[{prompt, path}]` — up to **3** disjoint read-only searches
+- `isolate: true` — git worktree even for a single child
+
+Child step caps: explore/review default **12**, general **20**, cap **40**; on a systems profile, explore **40**, general **80**, cap **200**.
+
+## Worktree isolation
+
+When more than one child writes (or `isolate` is on), writers run in **isolated git worktrees**. Patches merge back **in turn**. Overlaps show as a merge **CONFLICT**; the patch stays on disk rather than a half-applied tree. Merge cannot escape: `..`, absolute, and symlinked entries are rejected.
+
+Same middleware as the parent: permission mode, command guard, redaction.
+
+## Next
+
+<Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/agent/background">Background agents</Link> · <Link to="/knoxcoder/customize/team-bundles">Team bundles</Link>

@@ -1,0 +1,75 @@
+---
+title: Command palette
+sidebar_label: Command palette
+description: User-facing Knox commands — chat, memory, checkpoints, team bundles, hooks, background agents, and diffs.
+---
+
+import Link from '@docusaurus/Link';
+
+# Command palette
+
+Type **Knox:** in the Command Palette. Category is **Knox** or **Knox Checkpoints**. This list is the user-facing set from 2.2.2; skip enablement-only internals.
+
+## Chat and models
+
+| Title | Typical use |
+|---|---|
+| **Knox: Settings** | Models overlay (gear) |
+| **Knox: Open Knox Settings** | Grouped settings picker |
+| **Knox: New Conversation** | Fresh session |
+| **Knox: View History** | Sessions overlay |
+| **Knox: Add as Context and Clear Chat** | ⌘L / Ctrl+L |
+| **Knox: Add as Context** | ⌘⇧L |
+| **Knox: Generate Code** | Cmd+I |
+| **Knox: Apply Code from Chat** | ⌥A / Alt+A |
+| **Knox: Import Session Transcript** | Restore a `/share` Markdown file |
+| **Knox: Copy Session Share Link** | Local `knoxcoder://` URI |
+| **Knox: Show Jev Log** | What Jev sent (never file contents) |
+| **Knox: View Logs** | Knox logs |
+| **Knox: Show Hooks Log** | Hook audit |
+
+## Memory
+
+| Title | Typical use |
+|---|---|
+| **Knox: View Memory** | Memory Brain editor |
+| **Knox: Export Memory Brain** | Export sqlite contents |
+| **Knox: Wipe Memory Brain** | Delete local Brain (asks) |
+
+## Agent extras
+
+| Title | Typical use |
+|---|---|
+| **Knox: Create Custom Agent** | Template in `.knoxcoder/agents` |
+| **Knox: List Custom Agents** | Open a definition |
+| **Knox: Export Team Bundle** / **Import Team Bundle** | <Link to="/knoxcoder/customize/team-bundles">Team bundles</Link> |
+| **Knox: Test Hook** | Run one hook event |
+| **Knox: Background Agents: Start** / **List** / **Merge** / **Discard** | Jobs panel |
+
+## Checkpoints
+
+| Title | Typical use |
+|---|---|
+| **Knox: View Checkpoints** | Restore UI |
+| **Knox: View Checkpoint Graph** | Graph pane |
+| **Knox: Create Checkpoint** | Manual snapshot |
+| **Knox: Restore Checkpoint** | Dialog |
+| **Knox: Undo Checkpoint** / **Redo Checkpoint** | Auto undo stack |
+| **Knox: Show Undo History** | List |
+| **Knox: Create / Switch / Merge / Delete Checkpoint Branch** | Engine lines, not git |
+| **Knox: Export / Share / Import Checkpoints** | Local bundles |
+| **Knox: Show Inline Diff** / **Hide Inline Diff** | Gutter vs a checkpoint |
+| **Knox: Create global .knoxignore** | User ignore file |
+| **Knox: Toggle Auto Checkpoints** | |
+| **Knox: Clean Up Old Checkpoints** | |
+| **Knox: Health Check** / **Run Recovery** | Store health |
+
+## Diffs and assist
+
+Accept / Reject Diff, vertical-diff blocks, batch accept/reject, shadow preview accept/reject, suggestions, comments / docstring / fix / optimize / grammar, Code Issues, debug-session helpers, rename / extract / move.
+
+Editor-focused items appear when you have a selection or a visible Knox diff.
+
+## Next
+
+<Link to="/knoxcoder/settings/shortcuts">Keyboard shortcuts</Link> · <Link to="/knoxcoder/settings/reference">Settings reference</Link> · <Link to="/knoxcoder/agent/chat-ui">Chat UI</Link>

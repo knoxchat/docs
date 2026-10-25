@@ -1,0 +1,57 @@
+---
+title: FAQ
+sidebar_label: FAQ
+description: Where is my data, why Ask mode on a fresh clone, why no recipe, can I use Copilot, SSH, MCP, embeddings, and ~/.knox.
+---
+
+import Link from '@docusaurus/Link';
+
+# FAQ
+
+## Where is my data?
+
+`~/.knoxcoder` (or `KNOX_GLOBAL_DIR`). Not `~/.knox`. Details: <Link to="/knoxcoder/settings/data">Data on disk</Link> and <Link to="/knoxcoder/safety/privacy">Privacy</Link>.
+
+## Why did a fresh clone start in Ask mode?
+
+No prior Knox sessions for that folder, and the git remote is not in `knoxchat.trustedGitRemotes`. **Keep Ask** on untrusted trees. Auto can edit the repo. <Link to="/knoxcoder/agent/permissions">Permission modes</Link>.
+
+## Why is there no recipe after I asked twice?
+
+Recipes need a **mutating** turn **and** a **passing check**. Repeating a question is not enough. Feature is **off** until `knoxchat.recipes.enabled`. <Link to="/knoxcoder/memory/recipes">Recipes</Link>.
+
+## Can I use Copilot / Cursor accounts?
+
+No. Different products. Opt-in `knoxchat.compatInstructions` can **read** `.github/copilot-instructions.md` or `.cursor/rules` as extra **text**. It does not sign you into Copilot.
+
+## Does KnoxCoder support SSH / WSL / Dev Containers?
+
+**Not** for the Knox host in 2.2. Open the tree on the machine where the app runs. <Link to="/knoxcoder/safety/limitations">Limitations</Link>.
+
+## Is there MCP? Embeddings? `knox run`?
+
+**No** MCP in the editor, **no** vector memory, **no** headless CLI in 2.2. Memory is lexical sqlite. <Link to="/knoxcoder/memory/brain">Memory Brain</Link>.
+
+## Should I install `knoxchat.knoxchat`?
+
+**No.** It is blocked inside KnoxCoder. That VSIX is for vanilla VS Code and uses `~/.knox`.
+
+## How do I go offline?
+
+Local model + Jev off + `networkMode: deny` + disable auto-update. Model HTTP still uses your provider. <Link to="/knoxcoder/settings/network">Network</Link>.
+
+## Cmd+I vs ghost-text?
+
+Ghost-text is **off**. In-editor assist is <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link>, Apply from chat, and CodeLens.
+
+## How do I restore files Knox changed?
+
+<Link to="/knoxcoder/checkpoints/restore">Restore and undo</Link> — not `git reset` for agent snapshots.
+
+## English and Chinese only?
+
+Yes, by design.
+
+## Next
+
+<Link to="/knoxcoder/reference/glossary">Glossary</Link> · <Link to="/knoxcoder/reference/compare">Compare</Link> · <Link to="/knoxcoder/agent/troubleshooting">Troubleshooting</Link>

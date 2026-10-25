@@ -1,0 +1,88 @@
+---
+title: Inline edit (Cmd+I)
+sidebar_label: Inline edit (Cmd+I)
+description: Edit the current file with natural language — Cmd+I, CodeLens, Accept/Reject diffs, optional next related edit. Ghost-text stays off.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Inline edit (Cmd+I)
+
+<kbd>⌘I</kbd> / <kbd>Ctrl+I</kbd> edits **this file in the editor**, not a long agent turn in the sidebar. Type what you want in the Knox composer (the Send button reads **Edit**), and Knox streams a **reviewable vertical diff**. Accept or reject it. No fill-in-the-middle / ghost-text model is used.
+
+Command palette: **Knox: Generate Code**. Keybinding title: *Edit code with natural language*.
+
+This is the 2.2 in-editor assist path. Ghost-text inline completions stay **off** (`knoxchat.enableInlineCompletions`, default false). Copilot-style next-edit-while-you-type is not planned.
+
+## Keys
+
+| Action | macOS | Windows / Linux |
+|---|---|---|
+| Edit selection (or stub/TODO under the cursor) | <kbd>⌘I</kbd> | <kbd>Ctrl+I</kbd> |
+| Enter edit mode without clearing the composer | <kbd>⌘⇧I</kbd> | <kbd>Ctrl+Shift+I</kbd> |
+| Exit edit mode | <kbd>Esc</kbd> (editor focused) | <kbd>Esc</kbd> |
+| Accept the diff | <kbd>⌘⇧Enter</kbd> | <kbd>Ctrl+Shift+Enter</kbd> |
+| Reject the diff | <kbd>⌘⇧⌫</kbd> (or <kbd>⌘Z</kbd> while the diff is visible) | <kbd>Ctrl+Shift+Backspace</kbd> |
+| Accept one vertical-diff block | <kbd>⌥⌘Y</kbd> | <kbd>Alt+Ctrl+Y</kbd> |
+| Reject one vertical-diff block | <kbd>⌥⌘N</kbd> | <kbd>Alt+Ctrl+N</kbd> |
+| Apply a code block from the last chat reply | <kbd>⌥A</kbd> | <kbd>Alt+A</kbd> |
+
+<kbd>⌘I</kbd> starts a **fresh edit session** (the current chat is saved and cleared) and focuses the composer. With a selection, that range is the edit target. With **no selection**, Knox scopes to the stub, TODO/FIXME, or empty-file target under the cursor — the same ranges CodeLens uses.
+
+<kbd>⌘⇧I</kbd> enters edit mode **without** clearing the composer. Composer focus waits about **two seconds** so you can finish what you were typing in the editor.
+
+**Knox: New Conversation** while editing rejects the pending diff and leaves edit mode.
+
+If `knoxchat.showInlineTip` is on (default), the editor can show a one-line tip for ⌘L / ⌘I.
+
+## CodeLens (same path as Cmd+I)
+
+With `knoxchat.editAssist.codeLens` (default **on**), Knox puts a CodeLens on:
+
+| Lens | When |
+|---|---|
+| **Knox: Generate this file** | The file is empty |
+| **Knox: Implement** | A stub function |
+| **Knox: Do this TODO** | `TODO` / `FIXME` comments (not already inside a stub) |
+| **Knox: Fix this error** | Error diagnostics (up to 5 per file) |
+
+Each lens runs the **same** reviewable edit as Cmd+I. No completion model. Files over ~400k characters skip CodeLens. Set `knoxchat.editAssist.codeLens` to false to hide the lenses.
+
+Checkpoint inline-diff CodeLens (`knox.checkpoints.inlineDiff.showCodeLens`) is a different control — it labels checkpoint diffs, not assist.
+
+## After you Accept
+
+If `knoxchat.editAssist.nextEdit` is on (default), Knox may ask:
+
+> Knox: look for one related edit in this file?
+
+**Show one edit** / **No thanks**. That follow-up runs **once**, as another reviewable diff, and **never while you type**.
+
+## Apply from chat and shadow preview
+
+**Knox: Apply Code from Chat** (<kbd>⌥A</kbd> / Alt+A) takes the next code block of the latest reply and applies it in the editor (vertical diff). That is not Cmd+I.
+
+**Shadow preview** (`knoxchat.enableShadowPreview`, default **off**): before applying a chat edit to an existing non-empty file, Knox can open a side-by-side *Original ↔ Proposed* diff. **Accept** continues the normal vertical-diff apply; **Reject** discards. Files over **4000 lines** skip shadow unless `knoxchat.shadowPreviewLargeFiles` is on.
+
+Leave shadow off unless you want that extra prompt. Large C files stay on the vertical diff / `apply_patch` preview.
+
+## Review edits is different
+
+<Link to="/knoxcoder/agent/review-edits">Review edits</Link> stages **agent tool** writes in memory. Cmd+I is you asking for a change in the current editor. You can use both in one session; they do not replace each other.
+
+Sidebar chat with tools is still <Link to="/knoxcoder/agent/chat-ui">Chat UI</Link> + <Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link>.
+
+## Settings recap
+
+| Setting | Default | Effect |
+|---|---|---|
+| `knoxchat.editAssist.codeLens` | on | CodeLens on empty files, stubs, TODOs, errors |
+| `knoxchat.editAssist.nextEdit` | on | One related-edit offer after Accept |
+| `knoxchat.showInlineTip` | on | Shortcut tip in the editor |
+| `knoxchat.enableInlineCompletions` | **off** | Ghost-text; not a 2.2 product surface |
+| `knoxchat.enableShadowPreview` | **off** | Side-by-side before apply to a non-empty file |
+
+## Next
+
+<Link to="/knoxcoder/agent/profiles">Agent profiles</Link> · <Link to="/knoxcoder/agent/review-edits">Review edits</Link> · <Link to="/knoxcoder/first-chat">First chat</Link>

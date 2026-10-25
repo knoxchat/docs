@@ -1,0 +1,58 @@
+---
+title: Web 与 Jev
+sidebar_label: Web 与 Jev
+description: builtin_fetch_url 的 SSRF 防护、search_web、networkMode，以及 Jev（System One）实际发送的内容。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Web 与 Jev
+
+## `builtin_fetch_url`
+
+对 **公开** URL 做 HTTP GET，返回可读 Markdown。遵循 `knoxchat.networkMode`：
+
+| 模式 | 效果 |
+|---|---|
+| `allow`（默认） | 公网主机守卫：私网 / 回环 / 链路本地 / CGNAT 被拦截，除非 `KNOX_FETCH_URL_ALLOW_PRIVATE=1` |
+| `deny` | 阻止 fetch_url |
+| `allowlist` | 仅 `knoxchat.networkAllowlist`（精确或 `*.suffix`）。`KNOX_NETWORK_ALLOWLIST` 逗号分隔覆盖 |
+
+另外：仅 http/https、URL 中不能带凭据、重定向逐跳再验证（最多 5 跳）、时间和大小上限（正文 2 MB、15 秒、输出 60k 字符）。环境变量：`KNOX_NETWORK_MODE`。
+
+**已知限制：** 连接前会查 DNS，因此检查与连接之间的 DNS 重绑定仍可能发生。若查询字符串携带数据，仍可能泄漏到 **公网** URL。敏感工作请留在 Ask/Edits，并优先 `deny` / `allowlist`。
+
+## `builtin_search_web`
+
+延迟搜索。结果是不信任的文本（与文件同样的混淆代理限制）。抓取 / 搜索文本在进入时会脱敏。
+
+## Jev（System One）
+
+`knoxchat.jev.enabled`（默认 **开**）向一个小型 harness 询问路由、skill 提示、段落/工具门、引用检查，以及 `auto` profile 确认。
+
+| 所选模型 | 端点 |
+|---|---|
+| KnoxStudio | `https://api.knoxstudio.ai/v1/systemone` |
+| OpenRouter | `https://openrouter.ai/api/v1/systemone`（`typesafe/jev-1.14`） |
+
+**发送：** 用户消息、短轮次摘要、工具 **名称** 和参数 **预览**、截断的助手文本。**从不发送文件内容。**
+
+<KcShot
+  src="/img/knoxcoder/chat-streaming.png"
+  alt="KnoxCoder 状态栏右侧的 Jev"
+  caption="状态栏里的 Jev（右下）。它从不接收文件内容。"
+/>
+
+每次调用有延迟预算（门 800 ms，其它 2 s）和熔断（**3** 次失败 → 关闭 **5 分钟**）。失败开放：Jev 挂了对话仍能跑。YAML 的 `jev.enabled` 覆盖该设置。
+
+状态栏：`knoxchat.jev.showStatusBar`。日志：**Knox: Show Jev Log**。关闭：`knoxchat.jev.enabled: false`。
+
+## 接近离线
+
+模型 HTTP 始终走向 **你的** 供应商。组合 `networkMode: deny`、关掉 Jev、本地模型，并禁用自动更新。没有进程级防火墙。完整表格：<Link to="/knoxcoder/settings/network">网络与离线</Link>。
+
+## 下一步
+
+<Link to="/knoxcoder/settings/network">网络与离线</Link> · <Link to="/knoxcoder/models">登录与模型</Link> · <Link to="/knoxcoder/safety/privacy">隐私</Link>

@@ -1,0 +1,47 @@
+---
+title: 工具目录
+sidebar_label: 工具目录
+description: 核心、延迟、systems 与 composite 工具 — knoxchat.deferTools、builtin_tool_search，以及 2.2 没有的东西。
+---
+
+import Link from '@docusaurus/Link';
+
+# 工具目录
+
+Knox Agent 会调用 **工具**（读文件、跑命令、搜索等）。你在侧栏看到卡片。<Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> 对每一次调用仍然生效。
+
+`knoxchat.deferTools`（默认 **开**）每轮只发送 **一小套核心工具**。其余在模型调用 `builtin_tool_search`（名称或关键词）时加载。权限作用在被加载的工具本身。只有在你想每轮都带上全部 schema（更多 token）时才关掉延迟。
+
+少节省不到两个工具时不会延迟。用户定义（非 `builtin_`）的工具从不延迟。
+
+## 核心（默认 profile 每轮都发）
+
+读 / 打开文件、创建 / 编辑 / 写入 / `apply_patch`、shell + `await_shell`、列目录、glob、仓库地图、精确搜索、plan、ask_user、task、skill、git **status** 和 **diff**。
+
+`builtin_lsp` 在 **已分类** 工作区（node / python / go / cargo / editor / cmake）以及 **systems** 上进入核心。未知树里 LSP 仍延迟。
+
+## 延迟（经 `builtin_tool_search`）
+
+记忆、git log / blame / commit / bisect、工作区检查点、search_web、fetch_url、view_diff、enhanced_search、generate_tests、lsp（未提升时）、build、pty、qemu、debug、kconfig、maintainers。
+
+## Systems 额外（profile 为 systems 时进核心）
+
+`builtin_build`、`pty_start` / `pty_send` / `pty_read`、`qemu`、`debug`、`kconfig`、`maintainers`。见 <Link to="/knoxcoder/tools/systems">Systems</Link>。
+
+## Composite（默认关）
+
+除非打开 `knoxchat.enableCompositeTools`，否则 `composite_*` **不在目录、也不在 tool-search 里**。它们实际是什么：<Link to="/knoxcoder/tools/composite">Composite 工具</Link>。
+
+## 2.2 没有
+
+KnoxCoder **内没有 MCP 服务器**。这个编辑器没有 MCP 工具宿主。不要为了「加 MCP」去装市场版 Knox。
+
+旧名 `builtin_memory_*` 仍会路由到 `builtin_memory`。
+
+## 工具浮层
+
+Composer 的 **Tools**（扳手）：禁用一组、把某工具设为 ask / allow / off、编辑路径和命令策略。**Ask on write** / **YOLO** 预设。Deny 始终胜出。
+
+## 下一步
+
+<Link to="/knoxcoder/tools/files">文件与搜索</Link> · <Link to="/knoxcoder/tools/terminal-git">终端与 git</Link> · <Link to="/knoxcoder/agent/permissions">权限模式</Link>

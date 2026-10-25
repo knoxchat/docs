@@ -1,0 +1,31 @@
+---
+title: 检查点分支
+sidebar_label: 分支
+description: Checkpoint Graph 上的引擎线 — create_branch 分出一条快照线。这些不是 git 分支。
+---
+
+import Link from '@docusaurus/Link';
+
+# 检查点分支
+
+检查点 **分支** 是 <Link to="/knoxcoder/checkpoints/graph">图谱</Link> 上的一条 **引擎线**：一组命名的快照分叉。它 **不是** `git branch`。创建它不会碰到 git refs、远程，或工作区的 git HEAD。
+
+## 创建一条线
+
+- 图谱 / 时间线：从节点分叉
+- 命令面板：**Knox: Create Checkpoint Branch**、**Switch**、**Merge**、**Delete**
+- Agent 工具：`builtin_workspace_checkpoint` 的 `create_branch`，带 `name`（可选 `checkpoint_id`；默认最新）。`list` 显示 `label=` 和 `branch=`
+
+分支上的还原和删除 **仍会询问**。
+
+想比较「Knox 走路径 A」和主检查点线、又不建 git 分支时用它。Recipe adapt 可能在应用前分出 `what-if/*` 线，方便和模型写的结果对比。
+
+## 合并 / 切换 / 删除
+
+这些操作的是 **检查点元数据和 blob**，不是 git。合并检查点分支 **不会** 跑 `git merge`。
+
+若还需要给 PR 用的 git 分支，文件满意后请自己在源代码管理里创建。
+
+## 下一步
+
+<Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link> · <Link to="/knoxcoder/checkpoints/restore">还原与撤销</Link> · <Link to="/knoxcoder/agent/plan">Plan 模式</Link>

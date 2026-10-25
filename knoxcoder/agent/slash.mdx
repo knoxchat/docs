@@ -1,0 +1,71 @@
+---
+title: Slash commands
+sidebar_label: Slash commands
+description: Builtin /commands in the Knox composer — autonomous, share, commit, review, init, instructions, hooks, skills, and custom prompts.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Slash commands
+
+Type `/` in the <Link to="/knoxcoder/agent/composer">composer</Link> to open the slash list. Sections: **Bookmarked**, **Recent**, **Commands** (builtin), **Prompts** (your files). Bookmark a command from the list. Arrow keys move, <kbd>Enter</kbd> / <kbd>Tab</kbd> insert a chip, <kbd>Esc</kbd> closes.
+
+Custom prompts live in `.knoxcoder/prompts` (project) and `~/.knoxcoder/prompts` (user). They show under **Prompts**, not Commands.
+
+## Builtin catalog (2.2)
+
+| Command | What it does |
+|---|---|
+| `/autonomous` | Unattended multi-step loop. Type `/autonomous` then the goal. Capped steps (default 40 / rust 60 / systems 80, abs 200). GUI chat without this command stays unlimited. |
+| `/issue` | Draft a GitHub issue from your text. Needs `repositoryUrl` in config. |
+| `/share` | Export this session to Markdown (secrets redacted) and print a **local** `knoxcoder://…/session/import?path=` URI. Nothing is uploaded. **Knox: Import Session Transcript** / **Knox: Copy Session Share Link** do the same from the palette. |
+| `/cmd` | Generate **one** shell command from a description (`/cmd list rust tests`). Warns if the line looks dangerous (`rm -rf`, `sudo`, …). Does not run it. |
+| `/http` | POST `{ input }` to a URL from the command’s `params.url` (configure the slash command). Not a general browser. |
+| `/commit` | Commit message from `git diff`. `/commit --conventional` uses Conventional Commits. No staged changes → “No changes detected.” |
+| `/review` | Review the last user message / code with a fellow-engineer prompt (readability, smells, speed, memory). |
+| `/pr` | PR description from `git diff BASE...HEAD`. Default base `main`. Override: `/pr --base=develop`. |
+| `/changelog` | Changelog from `git log`. `/changelog --since=v2.2.0` or `--count=50` (max 200). |
+| `/skills` | List loaded skills and the directories scanned. |
+| `/init` | Write a starter `AGENTS.md` from the repo. Refuses to overwrite unless `/init --force`. |
+| `/instructions` | Loaded rules, nested `AGENTS.md`, skills — **order, token cost, warnings** (file &gt; 2000 tokens, always-on text &gt; 6000). |
+| `/hooks` | Active hook events and the last 30 audit-log lines. Empty: how to add `.knoxcoder/hooks.json`. |
+
+`/autonomous` is registered so it appears in the picker; the loop itself runs in the GUI stream, not in the leftover slash `run` body.
+
+## `/share` in practice
+
+1. `/share`
+2. Knox writes `YYYYMMDDTHHMMSS_session.md` under `~/.knoxcoder` (or `params.outputDir`)
+3. Opens the file
+4. Prints a `knoxcoder://vscode.knox/session/import?path=` link
+
+That URI opens the file in Knox on **this machine**. It is not a Knox.Chat cloud share.
+
+## `/init` and `/instructions`
+
+Use these on a new repo before a long agent session:
+
+```text
+/init
+/instructions
+```
+
+If `/instructions` warns that always-on text is over 6000 tokens, trim `AGENTS.md` or move details into a glob-scoped skill.
+
+## Prompt files as extra commands
+
+A Markdown prompt file with frontmatter becomes `/your-name`. Create one from the Prompts overlay (**Add Prompt**) or drop a file in `.knoxcoder/prompts`. The command name is what you type after `/`.
+
+## Not slash commands
+
+These are composer **toggles** or palette commands, not `/` entries:
+
+- Plan / Execute plan — <Link to="/knoxcoder/agent/plan">Plan mode</Link>
+- Run in background — Jobs panel
+- Remember — Memory Brain, no model
+- **Knox: New Conversation**, **Knox: View History**
+
+## Next
+
+<Link to="/knoxcoder/customize/agents-md">AGENTS.md and rules</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/customize/hooks">Hooks</Link>

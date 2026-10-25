@@ -1,0 +1,35 @@
+---
+title: Share and import
+sidebar_label: Share and import
+description: Local checkpoint bundles — export, share, import. Included recipes start as candidates and are never auto-replayed until verified here.
+---
+
+import Link from '@docusaurus/Link';
+
+# Share and import
+
+Checkpoint **share** writes a **local** bundle (files + metadata). Nothing is uploaded. Commands:
+
+| Command | Role |
+|---|---|
+| **Knox: Export Checkpoints** | Write a bundle to disk |
+| **Knox: Share Checkpoints** | Share flow (same local files; Graph **Share** tab) |
+| **Knox: Import Checkpoints** | Read a bundle into this folder’s store |
+
+Use the Graph **Share** tab for the same actions.
+
+## Recipes in a bundle
+
+Sharing can ask whether to include your **verified** recipes (**command-free** ones only). File bytes stay in checkpoint blobs; recipe text is redacted.
+
+**Imported recipes start as `candidate`.** They are never replayed until verified **on this machine**. Cross-project recipe ids from the UI are refused.
+
+This is separate from a <Link to="/knoxcoder/customize/team-bundles">team bundle</Link> (`AGENTS.md`, skills, hooks). Team bundles do **not** include checkpoints or Memory Brain.
+
+## Session share is different
+
+`/share` exports a **chat transcript** (Markdown, secrets redacted) and a `knoxcoder://…/session/import?path=` URI that opens that **file on this machine**. **Knox: Import Session Transcript** / **Knox: Copy Session Share Link**. Not a checkpoint bundle.
+
+## Next
+
+<Link to="/knoxcoder/checkpoints/overview">How checkpoints work</Link> · <Link to="/knoxcoder/memory/recipes">Recipes</Link> · <Link to="/knoxcoder/customize/team-bundles">Team bundles</Link>

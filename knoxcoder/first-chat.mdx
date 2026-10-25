@@ -1,0 +1,119 @@
+---
+title: First chat
+sidebar_label: First chat
+description: Open Knox, pick a model, and run a safe first turn — then a small edit — including Ask mode on a fresh clone.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# First chat
+
+This page is a first session in a real folder. If KnoxCoder is not installed yet, start with <Link to="/knoxcoder/install">Install</Link>. If the composer has no model, start with <Link to="/knoxcoder/models">Sign in and models</Link>.
+
+## 1. Open a folder
+
+**File → Open Folder…** (or a workspace). Knox Agent treats the folder of the **active editor file** as the primary root: shell, git, builds, and relative paths. Search, glob, `AGENTS.md`, hooks, and custom agents still cover every folder in a multi-root workspace.
+
+A window with no folder can chat, but the agent has nothing it is allowed to change. Open the project you mean.
+
+Details: <Link to="/knoxcoder/workspace">Open a folder</Link>.
+
+## 2. Open Knox
+
+- Click the **Knox** icon in the Activity Bar, or
+- <kbd>⌘L</kbd> / <kbd>Ctrl+L</kbd> — focus chat, add the current selection as context, and clear the composer
+- <kbd>⌘⇧L</kbd> / <kbd>Ctrl+Shift+L</kbd> — add as context without clearing
+
+The pane is a native sidebar: transcript on top, composer at the bottom, permission bar on the composer.
+
+## 3. Pick a model
+
+Use the **model picker** on the composer. After KnoxStudio or OpenRouter OAuth, the catalog fills from that account. After a BYO key, you see the models you added.
+
+Optional: set `knoxchat.fallbackModel` (a **model title**, not an id) so a second model takes over after repeated transient stream failures (429, 5xx, network). Empty means never switch.
+
+## 4. Read the permission bar
+
+New sessions pick a mode:
+
+| Mode | Reads | File edits | Shell |
+|---|---|---|---|
+| **Ask** | automatic | asks you | asks you |
+| **Edits** | automatic | automatic | asks you |
+| **Auto** | automatic | automatic | automatic |
+
+- Folders Knox has **already used**, or whose git remote is listed in `knoxchat.trustedGitRemotes`, start in **Auto**.
+- A **fresh clone** (no prior Knox sessions, remote not allowlisted) starts in **Ask**, with a one-line notice on the permission bar.
+- `knoxchat.permissionDefault` (`auto` / `ask` / `edits`) overrides that heuristic. A mode you saved for the folder still wins.
+
+Cycle Ask / Edits / Auto on the permission bar, or **Shift+Tab**. Full tables: <Link to="/knoxcoder/agent/permissions">Permission modes</Link>.
+
+**Plan** is a separate composer toggle, not a fourth permission. In Plan, Knox may only read, search, ask you questions, and write a checklist. Writes, shell, PTY, and QEMU reply “leave Plan mode to execute.” **Execute plan** switches back to Agent on the **same session**. Ask / Edits / Auto still apply at execute time. Details: <Link to="/knoxcoder/agent/plan">Plan mode</Link>.
+
+Destructive commands (`git push --force`, `git reset --hard`, `git clean -fd`, `chmod -R`, raw device writes, `curl | sh`, `find -delete`, …) are blocked in **every** mode unless you allow that command in the agent policy.
+
+Stay in **Ask** or **Edits** on a repo you do not trust.
+
+## 5. Send a read-only question
+
+Try something that does not need writes:
+
+```text
+What does this repo build, and where is the entrypoint?
+```
+
+You should see:
+
+- a **Turn Context** strip (open files, git status, diagnostics) on classified projects
+- tool cards for reads and searches
+- a normal assistant reply
+
+If the composer shows `NN%`, that is context use. Knox compacts the history around **75%**.
+
+**Connection problem, retrying (n/4)** means a transient stream failure. After two failures Knox tries `knoxchat.fallbackModel` if set. Rate limit / bad key / model not found opens a dialog with **Retry** and **Open settings**.
+
+## 6. Then a small edit
+
+Switch to **Edits** (or keep Auto if you already trust the folder). Ask for one tight change:
+
+```text
+Add a one-line comment above the main function explaining what it does. Do not change behavior.
+```
+
+Expect:
+
+1. A **checkpoint** before files change (git-independent; restore later from **Knox: View Checkpoints**).
+2. An edit tool card. Streaming file cards show CheckPoint `+N` / `−N` line counts.
+3. If **Review edits** is on in the mode popover, file edits stay in memory until you apply or discard each file. **Shell still hits the real disk**, not the staged tree. Details: <Link to="/knoxcoder/agent/review-edits">Review edits</Link>.
+4. After a mutating turn, diagnostics or your verify command may run (LSP on app trees; `make` / `cargo check` on systems and Rust profiles). Profile table: <Link to="/knoxcoder/agent/profiles">Agent profiles</Link>.
+
+To edit the selection in the editor instead of the sidebar, press <kbd>⌘I</kbd> / <kbd>Ctrl+I</kbd>. Ghost-text inline completion is **off** in 2.2 (no fill-in-the-middle model). Details: <Link to="/knoxcoder/agent/inline-edit">Inline edit (Cmd+I)</Link>.
+
+## 7. Stop, undo, next session
+
+- **Cancel** on the composer (or the shortcut shown in the UI, <kbd>⌘⌫</kbd> on macOS) stops the current generation.
+- **Knox: Undo Last Assistant Operation** restores the checkpoint from before the last edit.
+- **Knox: New Conversation** starts a session. History is **Knox: View History**.
+
+Nothing in this first chat requires recipes, hooks, or custom agents. Those come later.
+
+## Useful first-day commands
+
+| Command palette | What it does |
+|---|---|
+| **Knox: Open Knox Settings** | Grouped search for `knoxchat.*` |
+| **Knox: Settings** | Agent settings overlay (models, agent knobs) |
+| **Knox: View Memory** | Memory Brain |
+| **Knox: View Checkpoints** | Restore / Checkpoint Graph |
+| **Knox: Show Jev Log** | Harness judgments (never file contents) |
+
+Type `/instructions` in the composer to see which `AGENTS.md` / rules / skills loaded and how many tokens they cost. `/init` writes a starter `AGENTS.md` if the repo has none (`--force` to replace).
+
+## Next
+
+- <Link to="/knoxcoder/models">Sign in and models</Link> if the picker is empty
+- <Link to="/knoxcoder/workspace">What lives in the folder vs `~/.knoxcoder`</Link>
+- <Link to="/knoxcoder/agent/chat-ui">Chat UI</Link> · <Link to="/knoxcoder/agent/composer">Composer</Link> · <Link to="/knoxcoder/agent/slash">Slash commands</Link>
+- <Link to="/knoxcoder/agent/review-edits">Review edits</Link> · <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link> · <Link to="/knoxcoder/agent/profiles">Agent profiles</Link>
+- <Link to="/knoxcoder/agent/mentions">Mentions</Link> · <Link to="/knoxcoder/agent/background">Background agents</Link> · <Link to="/knoxcoder/agent/troubleshooting">Troubleshooting</Link>

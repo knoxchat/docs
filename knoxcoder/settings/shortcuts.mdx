@@ -1,0 +1,61 @@
+---
+title: Keyboard shortcuts
+sidebar_label: Keyboard shortcuts
+description: KnoxCoder 2.2 keybindings from package.json — Mac and Windows/Linux columns.
+---
+
+import Link from '@docusaurus/Link';
+
+# Keyboard shortcuts
+
+From `contributes.keybindings` in Knox **2.2.2**. Remap in **Keyboard Shortcuts** (search `knoxchat` or `knox.`). Shift+Tab for permission mode is handled in the composer, not this table.
+
+## Chat and inline edit
+
+| Action | Mac | Windows / Linux |
+|---|---|---|
+| Add as context and clear / focus chat | ⌘L | Ctrl+L |
+| Add as context | ⌘⇧L | Ctrl+Shift+L |
+| Edit code (Cmd+I) | ⌘I | Ctrl+I |
+| Edit without clear | ⌘⇧I | Ctrl+Shift+I |
+| Exit edit | Esc (editor focused, in edit mode) | Esc |
+| Apply code from chat | ⌥A | Alt+A |
+| Debug terminal | ⌘⇧R | Ctrl+Shift+R |
+| Cycle permission mode | Shift+Tab | Shift+Tab |
+| Cancel generation | ⌘⌫ (as shown in UI) | Ctrl+Backspace |
+
+## Diffs
+
+| Action | Mac | Windows / Linux | When |
+|---|---|---|---|
+| Accept diff | ⌘⇧Enter | Ctrl+Shift+Enter | Knox diff visible |
+| Reject diff | ⌘⇧⌫ | Ctrl+Shift+Backspace | Knox diff visible |
+| Reject diff | ⌘Z | Ctrl+Z | Knox diff visible (same chord as editor undo) |
+| Accept vertical-diff block | ⌥⌘Y | Alt+Ctrl+Y | |
+| Reject vertical-diff block | ⌥⌘N | Alt+Ctrl+N | |
+| Accept shadow preview | ⇧⌥⌘S | Ctrl+Shift+Alt+S | Shadow diff visible |
+| Reject shadow preview | ⇧⌥⌘⌫ | Ctrl+Shift+Alt+Backspace | Shadow diff visible |
+
+## Assistant undo and checkpoints
+
+| Action | Mac | Windows / Linux | When |
+|---|---|---|---|
+| Undo last assistant operation | ⇧⌥⌘Z | Ctrl+Shift+Alt+Z | Agent mode, can undo |
+| Redo last assistant operation | ⇧⌥⌘Y | Ctrl+Shift+Alt+Y | Agent mode, can redo |
+| Create checkpoint | ⌥⌘S | Ctrl+Alt+S | |
+| Undo checkpoint | ⌥⌘Z | Ctrl+Alt+Z | |
+| Redo checkpoint | ⌥⌘Y | Ctrl+Alt+Y | |
+| List / show checkpoints | ⌥⌘H | Ctrl+Alt+H | |
+| File history (checkpoint) | ⇧⌥⌘H | Ctrl+Alt+Shift+H | |
+
+⌘Z in a normal editor buffer is **editor** undo. Checkpoint undo is the Alt chords above. See <Link to="/knoxcoder/checkpoints/restore">Restore and undo</Link>.
+
+## Other
+
+| Action | Mac | Windows / Linux |
+|---|---|---|
+| Toggle assistant mode | ⇧⌥⌘A | Ctrl+Shift+Alt+A |
+
+## Next
+
+<Link to="/knoxcoder/settings/commands">Command palette</Link> · <Link to="/knoxcoder/agent/inline-edit">Inline edit</Link> · <Link to="/knoxcoder/settings/reference">Settings reference</Link>

@@ -1,0 +1,80 @@
+---
+title: 打开文件夹
+sidebar_label: 打开文件夹
+description: Knox 如何选择主根目录、~/.knoxcoder 与仓库里各有什么，以及多根工作区如何工作。
+---
+
+import Link from '@docusaurus/Link';
+
+# 打开文件夹
+
+Knox Agent 是 **工作区** Agent。用 **文件 → 打开文件夹…**（或带文件夹的 `.code-workspace`）打开项目。没有文件夹时，工具没有可读写的树。
+
+## 主根目录
+
+**单文件夹** 窗口里，那个文件夹就是根。
+
+**多根** 工作区里，**当前活动编辑器文件** 所在文件夹是主根。Shell、git、构建和相对路径在那里执行。搜索、glob、说明文件、hooks、自定义 Agent 仍覆盖 **所有** 根。嵌套的 `.knoxignore` 会被遵守。检查点 **按文件夹** 存储。
+
+若在同一窗口来回跳两个仓库，让 Auto 跑 shell 之前先看焦点在哪个文件。
+
+## 文件在两个地方
+
+### 本机 — `~/.knoxcoder`
+
+全局 Knox 状态（用 `KNOX_GLOBAL_DIR` 覆盖整个路径）：
+
+| 路径 | 内容 |
+|---|---|
+| `config.yaml` | 模型、供应商、部分 Agent 配置 |
+| `auth.json` | Knox OAuth 会话，权限 `0600` |
+| `sessions/` | 对话记录 |
+| Memory Brain sqlite | 事实、图谱、recipes（若开启） |
+| checkpoints | 字节级快照，不是 git |
+| `skills/`、prompts、日志、任务输出 | 用户级附加 |
+
+这个目录 **不是** `~/.knox`。市场版 Knox（`knoxchat.knoxchat`）占用 `~/.knox`。KnoxCoder 从不迁移该文件夹。需要的话请自行拷贝。
+
+Windows：`C:\Users\<you>\.knoxcoder`。
+
+### 仓库里 — `.knoxcoder/` 等
+
+这些是可以提交的项目文件：
+
+| 路径 | 作用 |
+|---|---|
+| `AGENTS.md` | 项目说明（还有 `.knoxcoder/AGENTS.md`、离打开文件更近的嵌套 `AGENTS.md`、`CLAUDE.md`、`.knoxrules`） |
+| `.knoxcoder/hooks.json` | 生命周期 hooks |
+| `.knoxcoder/agents/*.md` | 自定义子 Agent |
+| `.knoxcoder/prompts` | 额外斜杠命令 |
+| `skills/` 或 `skill/` | 项目 skills（`SKILL.md`） |
+| `.knoxignore` | 检查点 / 扫描忽略（仓库内 + `~/.knoxcoder` 下的全局一份） |
+| `.knoxcoder/config.yaml` | 可选的项目配置 |
+
+KnoxCoder 项目里永远不要建 **`.knox/`**。那个名字属于市场扩展。
+
+输入 `/instructions` 可按顺序列出已加载内容及 token 消耗。单个文件超过 **2000** token，或始终加载的说明合计超过 **6000**，会告警。`/init` 会写一份起始 `AGENTS.md`（覆盖需 `--force`）。
+
+可选、默认关闭：`knoxchat.compatInstructions` = `cursor`（`.cursor/rules`、`.cursorrules`）和/或 `copilot`（`.github/copilot-instructions.md`）。它们排在 `AGENTS.md` **下面**。
+
+## Git remote 与第一次会话模式
+
+**全新克隆**（该文件夹没有过 Knox 会话，remote 也不在 `knoxchat.trustedGitRemotes`）时，权限条从 **Ask** 开始。Knox 用过该文件夹之后，或 remote 子串已加入白名单，新会话从 **Auto** 开始。`knoxchat.permissionDefault` 覆盖启发式；为该文件夹保存过的模式仍然优先。
+
+Ask / Edits / Auto 见 <Link to="/knoxcoder/first-chat">第一次对话</Link>。
+
+## Knox 不会当作工作区的情况
+
+- **Remote SSH、WSL、开发容器** — 2.2 不支持 Knox 宿主。请在 KnoxCoder 运行的那台机器上打开文件。
+- **只有虚拟文档 / 未命名文件** — 若要编辑、检查点和 git 工具，请打开文件夹。
+- **没有 git 仓库** — 对话和文件工具仍可用。Git 工具（`builtin_git_status`、commit 等）会立刻失败而不是挂起。检查点 **不需要** git。
+
+## 在这个窗口禁用 Knox
+
+扩展视图 → **Knox** → **禁用**。不能卸载。禁用后侧边栏和命令消失；`~/.knoxcoder` 仍在磁盘上。
+
+只想在 **这个文件夹** 关掉 Memory Brain：把工作区设置 `knoxchat.memoryBrain.workspaceEnabled` 设为 false。全局开关是 `knoxchat.memoryBrain.enabled`（或 `KNOX_BRAIN_ENABLED=0`）。
+
+## 接下来
+
+<Link to="/knoxcoder/first-chat">第一次对话</Link> · <Link to="/knoxcoder/customize/agents-md">AGENTS.md 与规则</Link> · <Link to="/knoxcoder/memory/brain">Memory Brain</Link>

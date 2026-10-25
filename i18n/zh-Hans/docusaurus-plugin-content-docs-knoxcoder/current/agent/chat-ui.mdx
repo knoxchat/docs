@@ -1,0 +1,104 @@
+---
+title: 对话界面
+sidebar_label: 对话界面
+description: 原生 Knox Agent 侧边栏的结构：记录、工具卡片、计量条、覆盖层，以及标题栏的 Memory 与 Checkpoint 按钮。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 对话界面
+
+Knox Agent 是 **原生工作台面板**，不是 webview。从活动栏 Knox 图标打开，或按 <kbd>⌘L</kbd> / <kbd>Ctrl+L</kbd>。没有 Chat 与 Agent 两个标签：Jev（若开启）按轮次决定路由，你始终在同一条记录里。
+
+<KcShot
+  src="/img/knoxcoder/chat-streaming.png"
+  alt="Knox Agent 侧边栏一轮进行中：文件编辑卡片、Thinking 芯片、终端卡片、Edits 权限条、状态栏 Jev"
+  caption="原生侧边栏中的流式一轮（One Dark）。工具卡片、Thinking 芯片、权限条为 Edits，状态栏有 Jev。"
+/>
+
+本页讲布局。怎么输入见 <Link to="/knoxcoder/agent/composer">输入框与上下文</Link>。工具如何批准见 <Link to="/knoxcoder/agent/permissions">权限模式</Link>。
+
+## 区域
+
+侧边栏从上到下：
+
+| 区域 | 你会看到 |
+|---|---|
+| **记录** | 你的消息、Knox 回复、思考条、工具卡片。地标名：Chat transcript。**Skip to composer** 可跳过长日志。 |
+| **Agent 计量条** | 一轮进行中：当前动作（Thinking、Read、Search、Edit、Shell、Git、Task、Ask、Reply）、步数、粗略 token 估计。Thinking 和 Loading 在 **这里**，不在输入框工具栏。 |
+| **面板** | 任务计划预览、后台 **Jobs**、git diff、排队消息、压缩横幅、注入的记忆。 |
+| **输入框** | 权限条、Plan、Run in background、模型选择器、编辑器、Send / Cancel。地标：Message composer。 |
+
+独立的 **Memory** 和 **Checkpoint Graph** 窗口会替换这段对话界面（没有输入框）。从 **标题栏**（自定义布局左侧的大脑和图标）打开，或用 **Knox: View Memory** / **Knox: Open Checkpoint Graph**。
+
+只有打开 **Show Session Tabs** **并且** 有不止一个标签时，才会出现会话标签。单会话会隐藏标签条。
+
+## 记录
+
+- **你的消息** 可以点悬浮的已发送提示来编辑，即使回复还在流式输出。
+- **流式回复** 可以选中复制。第一次向上滚轮后 **自动滚动暂停**，进行中的一轮不会把视图拽走。
+- **Thinking** 收成一条紧凑芯片，工具卡片保持可见。若模型暴露了推理过程，可以展开。
+- **工具卡片** 只占一行标题。文件编辑显示 CheckPoint `+N` / `−N`。终端卡片最多 **五行**（其余可滚动）。卡片上有复制命令。
+- **Ask-user** 卡片是有名字的问题：Approve / Deny，或分步表单（Next / Previous、自由文本）。
+- **权限卡片**（单次工具）：**Approve**、**Always**（本会话余下）、**Deny**。
+- 失败的工具显示 **Tool call failed**（以及重试次数）。正在运行的卡片上的 **Cancel** 会停掉该工具和本次生成。
+
+2.2 没有空对话上的 “Try” 示例芯片。
+
+## Agent 计量条
+
+一轮进行中，计量条显示 Knox **当前** 在做什么，以及读取 / 搜索 / 编辑 / 测试的累计次数。
+
+| 芯片 | 含义 |
+|---|---|
+| `N steps` | 本轮工具回合。GUI 默认不限步；用 **Cancel** 停止。后台 / `/autonomous` 有上限。 |
+| `systems` / `rust` | 解析后的 <Link to="/knoxcoder/agent/profiles">Agent 配置</Link>（systems / rust），且不是应用默认配置时出现。 |
+| `~N tok` | 来自提示日志的估计（字符数 ÷ 4），除非提供商回报了用量。 |
+| `jev …` | 上次 Jev 路由（以及可选的 skill 提示）。从不包含文件内容。 |
+| Doom loop | 反复相同或失败的调用。**Change strategy** 会注入一行说明，让模型换策略。 |
+
+流式输出时 **Cancel current generation** 是 <kbd>⌘⌫</kbd> / Ctrl+Backspace（输入框提示：Cancel current generation）。
+
+## 覆盖层（齿轮 / lump 工具栏）
+
+lump 工具栏把覆盖层打开在记录 **之上**，不是第二个窗口：
+
+| 覆盖层 | 图标 | 用途 |
+|---|---|---|
+| Models | cpu | 目录、KnoxStudio / OpenRouter 登录、Add Model |
+| Rules | square-pen | 已加载的指令文件 |
+| Prompts | scroll-text | 自定义斜杠提示 |
+| Tools | wrench | 工具组、路径与命令策略 |
+| History | history | 会话 |
+| Settings | settings | Agent 开关（不是 Memory → Recipes） |
+
+覆盖层里的滚动在 GUI 重建后 **保持**。关掉即可回到对话。
+
+## 附加面板
+
+| 面板 | 何时出现 |
+|---|---|
+| **Task plan** | `builtin_plan` 有步骤。分数 `done/total`，离开 Plan 后有 **Execute plan**。 |
+| **Jobs** | 后台 Agent、长 shell、子 Agent。Merge / Discard / Kill / Clear finished。同时启动后台任务上限 **2**。细节见 <Link to="/knoxcoder/agent/background">后台 Agent</Link>。 |
+| **Queued messages** | 一轮进行中你又输入了内容。**Send now** 或 **Interrupt and send**。 |
+| **Compaction** | 历史被摘要（约 75% 上下文）。显示节省的 token。 |
+| **Review edits** | 模式弹出菜单里的芯片打开。暂存的文件、按文件 Apply / Discard。Shell 仍写真实磁盘。细节见 <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link>。 |
+
+## 标题栏（面板外）
+
+| 控件 | 命令 |
+|---|---|
+| Memory（大脑） | **Knox: View Memory** / 标题栏 Open Knox Memory |
+| Checkpoint Graph | **Knox: Open Checkpoint Graph** |
+| 语言地球仪 | 切换 Knox 对话 UI `en` / `zh` |
+| 主题 | 切换浅色 / 深色（对话调色板含 One Dark、Light+、高对比） |
+
+## 无障碍
+
+面板有地标、实时记录区域、有名字的权限 / jobs / checkpoint / recipe 界面，以及 **Skip to composer**。方向键在检查点标签间移动。内置调色板做过对比度检查；专门的 VoiceOver/NVDA 走查仍需人工。对话界面按 **One Dark** 调过。
+
+## 接下来
+
+<Link to="/knoxcoder/agent/composer">输入框与上下文</Link> · <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link> · <Link to="/knoxcoder/agent/profiles">Agent 配置</Link>

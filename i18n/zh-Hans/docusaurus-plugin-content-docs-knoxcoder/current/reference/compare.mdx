@@ -1,0 +1,43 @@
+---
+title: 对比
+sidebar_label: 对比
+description: KnoxCoder 内置 Agent 对比市场版 knoxchat.knoxchat、Knox.Chat API，以及更早的 KnoxCode 博客产品。
+---
+
+import Link from '@docusaurus/Link';
+
+# 对比
+
+四个常被混在一起的名字。只有第一行属于本标签。
+
+| 产品 | 是什么 | 数据目录 | 文档在哪 |
+|---|---|---|---|
+| **KnoxCoder + Knox Agent** | 带内置 `vscode.knox` 的桌面编辑器 | `~/.knoxcoder` | **本标签**（`/knoxcoder`） |
+| **市场版 Knox**（`knoxchat.knoxchat`） | 给 **原版 VS Code** 的 VSIX | `~/.knox` | 不在这里。在 KnoxCoder **内被拦截** — 不要在这个应用里安装 |
+| **Knox.Chat API** | `api.knox.chat` 上的 HTTP API | 云端 | Docs / API Reference 标签 |
+| **KnoxCode** | 部分博文里提到的更早/单独 Agent | — | **错误产品。** 不要把那些文章抄进本指南 |
+
+## 内置 vs 市场 VSIX
+
+| | KnoxCoder 内置 | 市场 VSIX |
+|---|---|---|
+| 安装 | 随应用附带 | Open VSX / VSIX |
+| Id | `vscode.knox` | `knoxchat.knoxchat` |
+| 主目录 | `~/.knoxcoder` | `~/.knox` |
+| 对话界面 | 原生工作台窗格 | 不是这个编辑器 |
+| 2.2 里的 MCP | **无** | 此处不讨论 |
+| 卸载 | 不能；只能 **禁用** | 卸载 VSIX |
+
+不会自动把 `~/.knox` 拷进 `~/.knoxcoder`。
+
+## KnoxCoder vs Knox.Chat API
+
+登录后 KnoxCoder 可以把 KnoxStudio / Knox.Chat 当作 **模型供应商** 来 **调用**。这不会让编辑器变成 API。多模态生成、Knox-MS **云** 记忆和 OpenAPI 在 **Docs** 下 — 另一个产品，而且 Knox-MS 可能谈论向量。KnoxCoder 的 Memory Brain 从不这样做。
+
+## 给扩展作者
+
+其它扩展不应把 `vscode.knox` 当成可驱动的公开 API。本指南面向 **使用编辑器的人**。
+
+## 下一步
+
+<Link to="/knoxcoder">KnoxCoder 是什么</Link> · <Link to="/knoxcoder/install">安装</Link> · <Link to="/knoxcoder/models">登录与模型</Link>

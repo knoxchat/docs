@@ -1,0 +1,95 @@
+---
+title: Recipes
+sidebar_label: Recipes
+description: 实验性：复用已验证的改文件工作 — 在变绿的写入轮次后捕获，Preview / Replay / Verify，以及为何同一句话发两次不够。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Recipes
+
+实验性，**默认关闭**。在 **Memory → Settings** 打开 **Remember verified work**（`knoxchat.recipes.enabled`）。Agent Settings（对话齿轮）**不列出** recipe 旋钮。
+
+<KcShot
+  src="/img/knoxcoder/memory-settings.png"
+  alt="Memory Settings 里 Remember verified work 与自我改进开关"
+  caption="recipe 和自我改进旋钮在 Memory → Settings。对话齿轮的 Settings 不列出它们。"
+/>
+
+**同一条对话发两次不会生成 recipe。** Recipes 记录的是 *已验证的改文件工作*，然后再重放。提问、review、或只读文件的一轮，Recipes 标签会停在 **0**。
+
+## 1. 打开功能
+
+| 控件 | 设置 | 选什么 |
+|---|---|---|
+| Remember verified work | `knoxchat.recipes.enabled` | 开 |
+| Reuse a recipe on a repeat task | `knoxchat.recipes.autoReplay` | **Ask** 先预览；**Automatic**（`exact`）不调模型直接应用；**Off** 只注入提示 |
+| Let Knox review its own history | `knoxchat.selfImprove.enabled` | 可选 — <Link to="/knoxcoder/memory/self-improve">自我改进</Link> |
+
+它们是真正的 VS Code 设置，所以 `settings.json` 会同步。
+
+## 2. 跑一个能被保存的任务
+
+让 Knox **改这个项目里的代码**。一轮只有在 **全部** 满足时才会保存：
+
+1. Knox 确实写入或打了补丁（`builtin_edit_file`、`builtin_write_file`、`builtin_apply_patch` 等）。
+2. 之后 **检查通过**：LSP 诊断（“no diagnostics”）、构建或测试。若验证被跳过（C/asm 没有 `knoxchat.verifyCommand`、rust-analyzer 未就绪，或 `knoxchat.verifyMode` 关闭），什么都不会保存。
+3. 该轮有检查点，diff 非空，且文件看起来不像机密。
+
+典型的第一条 recipe：「给 package.json 加 lint 脚本」或「修好 Foo.test.ts 里失败的测试」，然后等到编辑落地 **并且** 检查变绿。
+
+那一轮之后，对话可能弹出可关闭的 toast（已存为 candidate，或跳过原因），并带 Memory → Recipes 链接。打开 **Memory → Recipes**。若你已经停在该标签，请刷新。
+
+## 3. Candidate → Verified
+
+**Candidate 不会被重放**。变成 **Verified** 的条件：
+
+- 你接受了结果，或
+- **同一任务**（同一意图）第二次检查通过。
+
+自动复用只看已验证的 recipes。标签上的 **Verify** 可接受已经带通过检查的 candidate。
+
+## 4. 再发一次同样的任务
+
+| `knoxchat.recipes.autoReplay` | 会发生什么 |
+|---|---|
+| `exact` | **不调模型** 应用已存文件，在对话里告诉你，并提供 **Undo**。检查再跑一遍；失败则恢复重放前检查点，再交给模型继续。 |
+| `ask` | 预览卡片（Apply / Skip）。按 Apply 之前什么都不变。 |
+| `off` | Recipe 只作为例子展示给模型。 |
+
+若目标文件自捕获后已改，Knox 不会盲目覆盖：干净的三路合并会应用；冲突则回退给模型。
+
+预览列表是即时的；Apply 会跑真正的工具和记录的检查，可能要几秒。
+
+## 什么情况看不到 recipe
+
+- 提问、解释、review，或任何没有改文件的一轮
+- 诊断 / 构建 / 测试失败或从未运行的编辑
+- 含机密、文件过多（超过 **50**），或没有检查点的一轮
+- 第一条 candidate 出现之前，再发一次完全相同的 **对话**
+
+## 安全
+
+- 先打重放前检查点。Undo 恢复它。**10 分钟** 内 Undo 计为 revert；该 recipe 会被 **隔离**，不再重放。
+- 写入和命令走正常工具路径：权限模式、命令守卫、`.knoxignore`、路径边界、Review edits。被 review 拦住的写入视为未应用并回滚。
+- 删除步骤、二进制文件，以及走网络或携带机密的命令永不重放。
+- 预算：**200** 条 recipes。休眠整理会清除超过 30/90 天的 retired / quarantined 行。
+- 导入的 recipes（检查点包）从 **candidate** 开始，在 **本机** 验证之前绝不会自动重放。
+
+## Recipes 标签上的动作
+
+**Preview** / **Replay**（已验证）· **Verify** · **Restore**（隔离 → candidate）· **Quarantine** · **Retire**（先询问；释放检查点数据）· 三次干净重放后 **Save as project/global skill**（从不覆盖已有 skill）。来源检查点芯片会在 <Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link> 上打开该快照。
+
+只列出本项目的 recipes（以及你提升到所有项目的那些）。
+
+Checkpoint Dashboard 的 **AI Sessions** 标签会估计节省的 token、避免的模型调用，以及错误复用率。token 数字只计输出，是估算（4 个字符 ≈ 1 token）。
+
+## 隐私
+
+仅本地 sqlite。文本已脱敏；文件字节留在检查点 blob。只有你分享包含它的检查点包时，recipe 才会离开本机。
+
+## 下一步
+
+<Link to="/knoxcoder/memory/self-improve">自我改进</Link> · <Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/checkpoints/overview">检查点</Link>

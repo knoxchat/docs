@@ -1,0 +1,82 @@
+---
+title: Memory Brain
+sidebar_label: Memory Brain
+description: 本地 sqlite 记忆 — 词法检索（FTS、BM25、trigram、同义词）、注入上限、关闭开关，以及它绝不是 embeddings。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# Memory Brain
+
+Memory Brain 把会话里的事实存在 **本机**，并在之后的轮次注入相关条目。用标题栏的大脑图标打开，或 **Knox: View Memory**。
+
+标签页：**Overview**、**Memories**、**Sessions**、**Graph**、**Recipes**、**Settings**。
+
+<KcShot
+  src="/img/knoxcoder/memory-overview.png"
+  alt="Memory Brain Overview 标签，统计卡片，侧边栏仍开着对话"
+  caption="Memory Brain Overview（One Dark）。本地 sqlite——词法检索，不是向量数据库。对话留在侧边栏。"
+/>
+
+<KcShot
+  src="/img/knoxcoder/memory-last-inject.png"
+  alt="Memory Overview 显示 Last inject 以及上一轮为何注入"
+  caption="Overview 可以显示 Last inject——例如 injected last turn、词法命中——不需要再调模型。"
+/>
+
+全部在 `~/.knoxcoder` 下的 sqlite（可用 `KNOX_GLOBAL_DIR` 覆盖）。**没有云记忆**、**没有 embeddings**、**没有向量数据库**、也 **没有对记忆做神经 / LLM 重排**。Docs 标签里的 Knox-MS 是 **另一个产品**。
+
+## 回忆怎么工作
+
+检索是 **本地词法**：
+
+- sqlite **FTS**（BM25）
+- **Trigram** 模糊重叠
+- **基于规则的同义词组**（最长匹配短语胜出）— 例如 invoice/tax → money，icon-only → a11y
+- **知识图谱** 游走相关实体
+- 中文：FTS 里重叠的 **CJK 双字**，让中文查询打到 sqlite，而不是向量索引
+
+Memories 行和 Overview 会显示某行 **上一轮为何被注入**，例如 `injected last turn · lexical: jwt`。
+
+这是普通打分，不是一次模型调用。
+
+## 存了什么
+
+- 你 **Remember**、**Create**，或对话抽取的事实、偏好和决定（说出偏好/决定即可，不必说 “we decided”）
+- 会话摘要（给 <Link to="/knoxcoder/memory/sessions">Use as context</Link> 用）
+- 图谱实体和边
+- 可选的 <Link to="/knoxcoder/memory/recipes">recipes</Link>（实验性，默认关）
+
+写入前会 **脱敏**（API 密钥、PEM、`KEY=value` 等）。闲聊仍然 **什么都不存**。
+
+Agent 工具 `builtin_memory` 只能 `store` / `recall` / `search` / `delete` / `build_context` / `pin` / `unpin`。管理动作（`heal`、`export`、`run_pipeline` 等）会 **报错且不执行**。导出 / 清空仍在命令面板。
+
+## 上限
+
+| 上限 | 默认 | 覆盖 |
+|---|---|---|
+| 每轮注入记忆 | **8000** token | `KNOX_MEMORY_INJECT_CAP` |
+| `brain.sqlite`（+ WAL） | **256 MB**（`268435456` 字节） | `knoxchat.memoryBrain.maxBytes` 或 `KNOX_BRAIN_MAX_BYTES`（`0` = 关闭该上限） |
+
+超出大小上限时，最旧的 **情节** 轮次会被修剪；整理过的事实会保留。打开时和每次整理周期都会执行。
+
+## 关闭开关
+
+| 开关 | 范围 |
+|---|---|
+| `knoxchat.memoryBrain.enabled` | 全局。关闭后跳过检索、自动整理和新写入。文件留在磁盘。 |
+| `knoxchat.memoryBrain.workspaceEnabled` | **本文件夹**（工作区设置） |
+| `KNOX_BRAIN_ENABLED=0` | 覆盖全局开关的进程环境变量 |
+
+命令面板：**Knox: Export Memory Brain** / **Knox: Wipe Memory Brain**。
+
+## Settings 标签
+
+产品旋钮（开关、范围、自动抽取、recipes、增强语义、注入上限）在 Memory 的 **Settings** 标签。λ / fusion / budget / compression / 模式乘数收在折叠的 **Expert retrieval** 里，可重置为默认。
+
+Recipe 开关 **不在** 对话齿轮（Agent Settings）上。请用 Memory → Settings。
+
+## 下一步
+
+<Link to="/knoxcoder/memory/memories">Memories 标签</Link> · <Link to="/knoxcoder/memory/sessions">会话作上下文</Link> · <Link to="/knoxcoder/safety/privacy">隐私</Link>

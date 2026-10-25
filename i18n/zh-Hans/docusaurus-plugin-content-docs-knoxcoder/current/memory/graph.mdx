@@ -1,0 +1,38 @@
+---
+title: 知识图谱
+sidebar_label: 知识图谱
+description: Memory Brain 里的本机实体图 — 在这台机器上探索相关概念，不是云端知识库。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# 知识图谱
+
+**Knox: View Memory** → **Graph** 画出 Memory Brain 从会话抽取的实体（文件、符号、概念）以及它们之间的边（`uses`、`depends_on`、`contains` 等）。
+
+<KcShot
+  src="/img/knoxcoder/memory-graph.png"
+  alt="Memory Graph 标签正在探索一个文件实体及相关边"
+  caption="Graph 标签：实体、边、Explore。全部在本机——没有托管知识库。"
+/>
+
+它是 **本地 sqlite**，与其它标签共用 `brain.sqlite`。不会上传。没有托管知识库，图谱也没有 embedding 索引。
+
+## 你可以做什么
+
+- 点击节点查看
+- 探索邻居（深度有上限；这不是整仓爬取）
+- 用来看 **Knox 已经关联了什么**，实体不对就去 <Link to="/knoxcoder/memory/memories">Memories</Link> 列表纠正
+
+图谱来自已存记忆和轮次抽取。空的 Brain → 空图。关掉 Memory Brain 会停止新写入；现有节点直到你清空才会消失。
+
+## 它不是什么
+
+- 不能替代仓库里的 <Link to="/knoxcoder/tools/files">search / glob</Link>
+- 不是 Knox-MS 向量记忆（Docs 标签）
+- 不会跨机器共享，除非你自己拷贝 `~/.knoxcoder`
+
+## 下一步
+
+<Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/memory/memories">Memories 标签</Link> · <Link to="/knoxcoder/memory/recipes">Recipes</Link>

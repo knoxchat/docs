@@ -1,0 +1,80 @@
+---
+title: Prompts and config.yaml
+sidebar_label: Prompts and config.yaml
+description: Custom slash prompts, config.yaml models and context providers, and local uses owner/package — remote registries are refused.
+---
+
+import Link from '@docusaurus/Link';
+
+# Prompts and config.yaml
+
+Two ways to customize Knox besides <Link to="/knoxcoder/customize/agents-md">AGENTS.md</Link> and <Link to="/knoxcoder/customize/skills">skills</Link>: **prompt files** (extra `/` commands) and **`config.yaml`** (models, providers, context, optional `uses:` includes).
+
+## Prompt files as slash commands
+
+Markdown files in:
+
+| Path | Scope |
+|---|---|
+| `.knoxcoder/prompts` | This project |
+| `~/.knoxcoder/prompts` | This machine |
+
+They appear under **Prompts** in the `/` picker, not under **Commands**. The command name is what you type after `/`. Create one from the Prompts overlay (**Add Prompt**) or drop a file in that folder.
+
+Prompt files are **only** applied when you invoke them as a slash command. They are not always-on instructions (use `AGENTS.md` for that).
+
+## `config.yaml`
+
+**Knox: Settings → Open Config File**, or edit:
+
+| Path | Role |
+|---|---|
+| `~/.knoxcoder/config.yaml` | User models, providers, some agent config, optional `hooks:` |
+| `.knoxcoder/config.yaml` | Optional project overlay |
+
+Editing from the GUI keeps a one-time `config.yaml.vpre-edit.bak`. Knox **never rewrites** the file on upgrade.
+
+A minimal local model (also covered on <Link to="/knoxcoder/models">Sign in and models</Link>):
+
+```yaml
+name: Knox
+version: "1.0.0"
+schema: v1
+models:
+  - name: Local Llama
+    provider: openai
+    model: llama3
+    apiBase: http://127.0.0.1:11434/v1
+    apiKey: ollama
+```
+
+`name` is the **title** in the composer and in `knoxchat.fallbackModel`.
+
+You can also declare `context:` providers, `prompts:`, `rules:`, and `hooks:` in YAML. Prefer `.knoxcoder/hooks.json` for project hooks so they are obvious in the repo.
+
+## `uses: owner/package` (local registry only)
+
+A block may say `uses: owner/package` (optionally `owner/package@version`). Knox loads YAML from **this machine**:
+
+```text
+~/.knoxcoder/registry/owner/package.yaml
+~/.knoxcoder/registry/owner/package@version.yaml
+```
+
+(`KNOX_GLOBAL_DIR` replaces `~/.knoxcoder`.) If the file is missing, that is an **error**, not a network call.
+
+**Remote registries are not supported** in 2.2. There is no package download, no scheduled agents, and no MCP servers inside KnoxCoder.
+
+Copy a YAML snippet into `registry/owner/` yourself, or inline the models in `config.yaml`.
+
+## What does not belong in `config.yaml`
+
+| Don’t | Why |
+|---|---|
+| `KNOX_API_KEY` | Not read in 2.2 — <Link to="/knoxcoder/models">OAuth or BYO key</Link> |
+| Marketplace `~/.knox` paths | Different product |
+| Embedding / vector memory settings | Memory Brain is local lexical retrieval |
+
+## Next
+
+<Link to="/knoxcoder/models">Sign in and models</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/settings/reference">Settings reference</Link>

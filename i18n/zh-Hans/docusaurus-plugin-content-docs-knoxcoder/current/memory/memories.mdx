@@ -1,0 +1,57 @@
+---
+title: Memories 标签
+sidebar_label: Memories 标签
+description: 创建、编辑、固定，以及把记忆标为不相关 — 从 composer Remember、自动抽取，以及上一轮为何注入某行。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Memories 标签
+
+**Knox: View Memory** → **Memories**。这里列出已存的事实、偏好和决定。
+
+<KcShot
+  src="/img/knoxcoder/memories.png"
+  alt="Memories 标签列出已存事实，带 Create、筛选和固定"
+  caption="Memories 标签：搜索、筛选、Create、固定。Overview 还会显示上一轮为何注入某行。"
+/>
+
+## 手动写入（不调模型）
+
+这些会写入一条 **事实**、**偏好** 或 **决定**，**不调用模型或工具**：
+
+| 控件 | 位置 |
+|---|---|
+| **Remember** | Composer（不发送一轮对话也能存储） |
+| **Create** / **Edit** | Memories 标签 |
+| **Not relevant** | Memories 标签 — 把一行标为不匹配，降低再注入的可能 |
+
+从该行 pin / unpin（或通过 `builtin_memory` 的 `pin` / `unpin`）。固定项比未固定的情节轮次更耐修剪。
+
+## 从对话自动抽取
+
+你 **不必** 说 “we decided”。一轮里 **说出偏好或决定**，就可以落到这个标签。
+
+短偏好（`always use bun`）和以 `remember …` 开头的消息会跳过闲聊门槛。寒暄仍然什么都不存。
+
+抽取的文本在写入 sqlite 前会脱敏。
+
+## 为何被注入
+
+一轮之后，被加入提示的行会显示 **injected last turn**（常带原因，例如 `injected last turn · lexical: jwt`）。Overview 有同样提示。
+
+那是 **词法匹配**，不是「模型记住了你」。若注入了错误的行，用 **Not relevant** 或编辑文本。
+
+## 类别
+
+Remember / Create 使用：**fact**、**preference**、**decision**。
+
+## 筛选和排序
+
+列表可按查询、是否固定、日期分组（今天 / 更早）筛选。搜索与注入用同一套词法引擎 — 输入记忆里出现的词，或同义词组覆盖的说法。
+
+## 下一步
+
+<Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/memory/sessions">会话作上下文</Link> · <Link to="/knoxcoder/memory/graph">知识图谱</Link>

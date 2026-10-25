@@ -1,0 +1,49 @@
+---
+title: Network and offline
+sidebar_label: Network and offline
+description: Every outbound call Knox makes, knoxchat.networkMode, Jev, auto-update, and how to get to an offline-ish setup.
+---
+
+import Link from '@docusaurus/Link';
+
+# Network and offline
+
+KnoxCoder does **not** send crash reports or usage telemetry to Microsoft. VS Code telemetry stays off (`enable-crash-reporter` forced false). Knox adds **no** anonymous stats.
+
+## Destinations
+
+| Destination | When | What is sent | Off switch |
+|---|---|---|---|
+| Your model provider (KnoxStudio, OpenRouter, OpenAI-compatible, Anthropic, Ollama, …) | Chat and agent turns | Prompts, tool results, images you attach | Do not configure a model / go offline |
+| Jev (`https://api.knoxstudio.ai/v1/systemone`, or OpenRouter `…/systemone` with `typesafe/jev-1.14`) | `knoxchat.jev.enabled` (default on) | User message, short summaries, tool name/arg **previews**, truncated assistant text. **Never file contents** | `knoxchat.jev.enabled: false` |
+| `builtin_fetch_url` | Agent calls the tool | HTTP GET of a public URL | `knoxchat.networkMode: deny` |
+| GitHub Releases | Auto-update | `latest-*.json` from `/releases/latest/download`; API `/releases/latest` if JSON missing | Disable updates in the editor |
+| Open VSX | Extension gallery | Marketplace queries | Do not open Extensions / empty gallery |
+| KnoxStudio / OpenRouter OAuth | Sign-in | Auth code + PKCE | Do not sign in; BYO key or local model |
+
+## `knoxchat.networkMode`
+
+Master switch for **`builtin_fetch_url` only** — not for the model HTTP itself.
+
+- `allow` (default) — public-host guard (private IPs blocked unless `KNOX_FETCH_URL_ALLOW_PRIVATE=1`)
+- `deny` — fetch_url blocked
+- `allowlist` — only `knoxchat.networkAllowlist` (or `KNOX_NETWORK_ALLOWLIST`)
+
+Env: `KNOX_NETWORK_MODE`, `KNOX_NETWORK_ALLOWLIST`.
+
+## Offline-ish
+
+There is **no** process-wide “no network except my model” firewall. Combine:
+
+1. Only a local `apiBase` model in `config.yaml`
+2. `knoxchat.jev.enabled: false`
+3. `knoxchat.networkMode: deny`
+4. Disable editor auto-update (no GitHub `latest-*.json` checks)
+
+Sign-in and Open VSX still want the network if you use them.
+
+More on fetch SSRF: <Link to="/knoxcoder/tools/web-jev">Web and Jev</Link>. Privacy: <Link to="/knoxcoder/safety/privacy">Privacy</Link>.
+
+## Next
+
+<Link to="/knoxcoder/tools/web-jev">Web and Jev</Link> · <Link to="/knoxcoder/models">Sign in and models</Link> · <Link to="/knoxcoder/settings/data">Data on disk</Link>

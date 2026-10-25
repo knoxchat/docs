@@ -1,0 +1,78 @@
+---
+title: 排查
+sidebar_label: 排查
+description: 连接重试、回退模型、doom-loop、上下文将满、hooks、没有 git 仓库、后台启动，以及 2.2 的限制。
+---
+
+import Link from '@docusaurus/Link';
+
+# 排查
+
+原生 Knox Agent 的短修复。设置：**Knox: Open Knox Settings**。覆盖层：**Knox: Settings**。Jev 日志（从不含文件内容）：**Knox: Show Jev Log**。
+
+## 流出错
+
+| 你看到 | 含义 |
+|---|---|
+| **Connection problem, retrying (n/4)** | 瞬时流失败。这一轮会重启。失败 **两次** 后，若 `knoxchat.fallbackModel` 是一个模型 **标题**，Knox 会改用它。留空表示永不切换。 |
+| 限流 / 密钥无效 / 找不到模型 | 对话框：**Retry** / **Open settings**。看选择器和 <Link to="/knoxcoder/models">登录与模型</Link>。 |
+| **Agent mode not supported with current model** | 该模型不能调工具。换一个能调的，或留在纯文本轮次。 |
+| 输入框是空的 / “No chat model is available” | 添加模型，或完成 KnoxStudio / OpenRouter 登录。后台启动也需要模型。 |
+
+## Agent 卡住或会话过大
+
+| 你看到 | 怎么做 |
+|---|---|
+| **Doom loop** / 反复相同工具 | **Change strategy** 会注入一行说明，让模型换策略。或 **Cancel**（<kbd>⌘⌫</kbd>）再改提示。阈值跟 <Link to="/knoxcoder/agent/profiles">配置</Link>（3 / rust 4 / systems 5）。 |
+| 输入框 `NN%`（**Context used**） | 大约 **75%** 时 Knox **压缩**。横幅会报告节省的 token。持久的 <Link to="/knoxcoder/agent/plan">任务计划</Link> 不会被抹掉。 |
+| **This chat is very large; older messages load as you scroll up.** | 向上滚看更早的轮次。会话难用时用 **Knox: New Conversation**。 |
+| Oracle / 校验仍红 | Knox 会 **hold** 并继续尝试。上限：额外 8 轮无工具、3 次相同诊断、相同编译器错误看 `knoxchat.verifyMaxIterations`（默认 8）。不想校验就把 `knoxchat.verifyMode` 设为 `off`。 |
+
+## 权限、Plan、Review
+
+| 你看到 | 怎么做 |
+|---|---|
+| 全新克隆 Ask 提示 | 没有过 Knox 会话的新文件夹。不信任的树请 **Keep Ask**。见 <Link to="/knoxcoder/agent/permissions">权限模式</Link>。 |
+| **leave Plan mode to execute** | 写入、shell、PTY、QEMU 在关掉 Plan 或 **Execute plan** 之前会被拒绝。 |
+| **Apply or discard the staged edits first** | <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link> 开着且还有待处理文件。先 Apply / Discard，再关芯片。 |
+| 破坏性命令被拦 | `git push --force`、`git reset --hard`、下载并执行等在所有模式下都会被拒绝，除非你在 Path & command policy 里允许该命令。编码脚本和 `make` 配方仍可能漏过 — 不信任的仓库请留在 Ask/Edits。 |
+| 密钥 / `~/.ssh` / 工作区外 | 硬路径拒绝；`.env*` / `*.pem` 即使 Auto 也 **先问**。 |
+
+## 文件夹、git、后台
+
+| 你看到 | 怎么做 |
+|---|---|
+| 能聊天但磁盘上没变化 | 打开项目 **文件夹**。没有文件夹的窗口不能应用 Agent 写入。见 <Link to="/knoxcoder/workspace">打开文件夹</Link>。 |
+| Git 工具：**not a git repository** | 该文件夹没有 `.git`。`@diff` / `@commit` / 后台 worktree 需要 git。检查点仍然可用（不依赖 git）。 |
+| **Open a folder to start a background agent.** | <Link to="/knoxcoder/agent/background">后台 Agent</Link> 需要工作区文件夹。 |
+| **At most 2 background jobs can run at once.** | 等待、Kill 或 Discard 一个正在跑的任务。 |
+| 后台任务合并冲突 | 合并已 **中止**。工作区未改；`knox/bg-…` 还在。自己修或 Discard。 |
+| 后台任务里 shell 没做事 | 权限是 **Edits**：除非 **Auto**，否则拒绝 shell。 |
+| 多根窗口里文件夹不对 | Shell、git、相对路径用的是 **当前活动编辑器文件** 所在文件夹。搜索 / `AGENTS.md` / hooks 仍覆盖所有根。 |
+
+## Hooks、指令、模型
+
+| 你看到 | 怎么做 |
+|---|---|
+| Hooks 从不跑 | 工作区文件夹里的 `.knoxcoder/hooks.json` 必须是合法 JSON。`/hooks` 和 **Knox: Show Hooks Log**。事件：`PreToolUse`、`PostToolUse`、`UserPromptSubmit`、`Stop`、`SessionStart`。 |
+| `/instructions` token 警告 | 某个文件 &gt; 2000 token，或始终加载的文本 &gt; 6000。精简 `AGENTS.md`，或把细节挪到按 glob 限定的 skill。 |
+| 没有 CodeLens / Cmd+I | `knoxchat.editAssist.codeLens`（默认开）。幽灵文字是 **关** 的 — 那不是故障。见 <Link to="/knoxcoder/agent/inline-edit">行内编辑</Link>。 |
+
+## 2.2 里没有的
+
+这些是故意没有的。不要在编辑器里找：
+
+- MCP 服务器
+- 无界面 CLI（`knox run` 已去掉）
+- Knox Agent 的远程 SSH、WSL、dev container
+- 幽灵文字 / 填空补全
+- Memory Brain 的向量嵌入
+- 远程 `uses:` 包仓库（只有本地 `~/.knoxcoder/registry/`）
+- 额外 UI 语言（只有英语和中文）
+- 在 KnoxCoder 里装 Knox 的商店 VSIX
+
+Windows 上未签名安装包触发 SmartScreen 是打包问题，不是 Agent。
+
+## 接下来
+
+<Link to="/knoxcoder/safety/limitations">已知限制</Link> · <Link to="/knoxcoder/settings/network">网络</Link> · <Link to="/knoxcoder/agent/background">后台 Agent</Link>

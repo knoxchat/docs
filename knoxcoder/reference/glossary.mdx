@@ -1,0 +1,35 @@
+---
+title: Glossary
+sidebar_label: Glossary
+description: Jev, Plan, Review edits, Memory Brain, recipe, checkpoint branch, deferred tools, and system extension — KnoxCoder 2.2 terms.
+---
+
+import Link from '@docusaurus/Link';
+
+# Glossary
+
+| Term | Meaning |
+|---|---|
+| **KnoxCoder** | The desktop editor app (`knoxcoder`). VS Code 1.141.0 fork. |
+| **Knox Agent** | Builtin **system extension** `vscode.knox` — cannot be uninstalled; can be disabled. Sidebar chat, tools, memory, checkpoints. |
+| **Knox.Chat API** | Separate HTTP API (`api.knox.chat`), documented under the Docs tab. |
+| **System extension** | Same class as Git: shipped in the app, not a marketplace VSIX. |
+| **Ask / Edits / Auto** | <Link to="/knoxcoder/agent/permissions">Permission modes</Link> for tools. **Ask mode** asks before writes and terminal (default on a fresh clone). Auto is YOLO. |
+| **Plan** | Composer **toggle**, not a fourth permission. Read/search/ask/`builtin_plan` until **Execute plan**. |
+| **Review edits** | File edits staged **in memory**; shell still hits the real disk. |
+| **Jev (System One)** | Routing/gates harness. Sends user message + tool previews, **never file contents**. |
+| **Memory Brain** | Local sqlite, **lexical** retrieval (FTS, BM25, trigrams, synonyms, graph). Not embeddings. |
+| **Recipe** | Experimental snapshot of **verified file-changing work**. Off by default. Same chat twice ≠ recipe. |
+| **Checkpoint** | Git-independent, byte-exact workspace snapshot. One labeled point per agent turn. |
+| **Checkpoint branch** | Engine line on the graph, **not** a git branch. |
+| **Deferred tools** | Extra tools loaded via `builtin_tool_search` when `knoxchat.deferTools` is on. |
+| **Skill** | Folder with `SKILL.md`. Loaded with `builtin_skill`, not dumped into every prompt. |
+| **Custom agent** | `.knoxcoder/agents/*.md` child for `builtin_task`. |
+| **Hook** | Shell command at a lifecycle event (`.knoxcoder/hooks.json`). Crash never blocks. |
+| **Team bundle** | Local JSON of rules/skills/agents/hooks. Hooks skipped unless allowed. |
+| **Primary root** | In multi-root, folder of the **active editor file**. |
+| **Oracle-hold** | After a red verify, Knox keeps trying instead of ending the turn. |
+
+## Next
+
+<Link to="/knoxcoder/reference/compare">Compare</Link> · <Link to="/knoxcoder/reference/faq">FAQ</Link> · <Link to="/knoxcoder">What is KnoxCoder</Link>

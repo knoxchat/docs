@@ -1,0 +1,57 @@
+---
+title: 威胁模型
+sidebar_label: 威胁模型
+description: Knox Agent 的混淆代理模型 — 不信任的仓库文本、Auto 允许什么、审查 diff，以及工具层仍拦不住的东西。
+---
+
+import Link from '@docusaurus/Link';
+
+# 威胁模型
+
+Knox Agent 在 **你的机器** 上跑工具。攻击者 **不控制** 你或模型供应商。攻击者控制 **Agent 读到的文本**，试图把模型变成 **混淆代理**：读机密、跑命令、写到项目外，或经网络泄漏数据。
+
+本页是 2.2 威胁模型的面向用户节选。不列源码路径。
+
+## 信任
+
+| 信任 | 不信任 |
+|---|---|
+| 你自己的提示 | 文件内容（克隆的仓库、依赖） |
+| 用户级配置（`~/.knoxcoder`） | 网页和搜索结果 |
+| 你明确 **批准** 的内容 | 工具输出（日志、测试、git 消息） |
+| | `AGENTS.md`、skills、自定义 Agent、hooks、团队包、子 Agent 输出 |
+
+每条不信任输入都可能变成模型可见文本。Knox **不会** 在散文里检测注入。它在工具层限制注入指令能 **做什么**。
+
+## Auto 允许什么（有意如此）
+
+**Auto** 自动批准已启用的工具。敌对仓库可以让 Agent **改项目自己的代码**。运行或提交前请审查 diff（<Link to="/knoxcoder/agent/review-edits">Review edits</Link>、<Link to="/knoxcoder/checkpoints/restore">检查点</Link>）。
+
+新 clone 从 **Ask** 开始。不信任的树请留在 Ask 或 Edits。把不信任仓库上的 Auto 当成 **一次性** 环境。
+
+## 始终生效的控制
+
+- 路径 / 命令策略；**deny 始终胜出**
+- 硬路径拒绝（`~/.ssh`、`~/.gnupg`）作用于词面 **和** 解析后的路径
+- 机密文件即使 Auto 也 **询问**
+- 工作区边界（解析符号链接）
+- 破坏性 / 下载并执行的命令守卫 — <Link to="/knoxcoder/safety/command-guard">命令守卫</Link>
+- 子 Agent 合并无法逃出两棵树
+- `builtin_fetch_url` 对每一跳重定向拦截私网范围
+- 工具输出和 Memory Brain 的机密脱敏
+- Knox 不会在 **未信任** 的 VS Code 工作区激活，因此仓库 hooks 不会在打开文件夹时运行
+- 团队包导入 **跳过 hooks**，除非你允许
+
+`AGENTS.md` / skills / 自定义 Agent 是提示词。自定义 Agent 的 `tools:` 只能 **收窄**，不能扩大。
+
+## 仍开放的漏洞（如实说）
+
+- 编码脚本、`make` recipes、比命令守卫更深的间接
+- fetch 上的 DNS 重绑定
+- 经查询字符串泄漏到 **公网** URL
+- 工具输出里的指令仍会到达模型
+- Recipe 重放是代码执行面（实验性，默认关）— 有缓解，但不是专项安全审计
+
+## 下一步
+
+<Link to="/knoxcoder/safety/command-guard">权限与命令守卫</Link> · <Link to="/knoxcoder/agent/permissions">权限模式</Link> · <Link to="/knoxcoder/safety/limitations">已知限制</Link>

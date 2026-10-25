@@ -1,0 +1,60 @@
+---
+title: Systems（内核 / QEMU / Rust）
+sidebar_label: Systems（内核 / QEMU / Rust）
+description: systems 和 rust profile 给谁用 — QEMU、kconfig、maintainers、PTY，以及 builtin_debug 与配置过的 @debugger mention。
+---
+
+import Link from '@docusaurus/Link';
+
+# Systems（内核 / QEMU / Rust）
+
+`knoxchat.agentProfile` 的 **systems** / **rust** / **auto** 改变 **循环**（doom-loop、编辑后 oracle）以及哪些工具在 **核心** 目录上。权限仍是 Ask / Edits / Auto。完整表：<Link to="/knoxcoder/agent/profiles">Agent profiles</Link>。
+
+本页面向在 KnoxCoder 里做 **Linux 内核、QEMU 或 Cargo 工作区** 的人。应用仓库应留在 **default**（或让 `auto` 选择）。
+
+## `auto` 怎么选
+
+在 **工作区根**（不是嵌套文件夹）上先匹配先得：
+
+1. **kernel** — `Kconfig` 加上 `arch/` / `Makefile` / `Kbuild`
+2. **qemu** — `meson.build` 加上 `target/` / `accel/` / `hw/`
+3. **cargo** — **根** `Cargo.toml`（嵌套的 `rust/Cargo.toml` 不算，所以 rust-for-linux 仍是 systems）
+4. 否则 **default**
+
+光有 `Makefile` / `CMakeLists.txt` **不够** 当成 systems。
+
+## Systems 核心工具
+
+解析后的 profile 为 systems 时，这些每轮都会发送（外加常规核心集）：
+
+| 工具 | 作用 |
+|---|---|
+| `builtin_build` | `make` / meson 向的构建助手 |
+| `builtin_pty_start` / `send` / `read` | 串口 / 交互 PTY |
+| `builtin_qemu` | 驱动 QEMU |
+| `builtin_debug` | DAP 会话（gdb / CodeLLDB / Native Debug） |
+| `builtin_kconfig` | Kconfig |
+| `builtin_maintainers` | 查 MAINTAINERS |
+
+Plan 模式在 **Execute plan** 之前拒绝写入、shell、**PTY** 和 **QEMU**。
+
+## 内置 skills
+
+附带的 `SKILL.md`：**linux-kernel**、**qemu**、**gdb**、**kbuild**、**rust**。同名项目 skill 会覆盖。`/skills` 会列出。见 <Link to="/knoxcoder/customize/skills">Skills</Link>。
+
+## `builtin_debug` vs `@debugger`
+
+| 表面 | 是什么 |
+|---|---|
+| `builtin_debug` | Agent 工具：通过编辑器的 **DAP** 适配器 launch / attach / breakpoint / step / backtrace。门控：systems profile **或** 已有调试会话。有会话时优先用它，不要现编 gdb 命令。 |
+| `@debugger` | Composer 的 **mention** 提供者。**不在** 默认安装里 — 在 `config.yaml` 的 `context:` 下添加。Cmd+I 模式会隐藏。 |
+
+`@debugger` 不能替代 `builtin_debug`。像在 VS Code 里一样配置 `launch.json`。
+
+## Rust 内循环
+
+在 Cargo 根上，附带的 **rust** skill 加上 `builtin_build`（`check` → `clippy` → `test` → `gate`）是预期循环。编造方法前先用 rust-analyzer hover。禁止写入 `~/.cargo/registry`。
+
+## 下一步
+
+<Link to="/knoxcoder/agent/profiles">Agent profiles</Link> · <Link to="/knoxcoder/tools/lsp-build">LSP、构建、验证</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link>

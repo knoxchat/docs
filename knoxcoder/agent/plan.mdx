@@ -1,0 +1,87 @@
+---
+title: Plan mode
+sidebar_label: Plan mode
+description: Read-only explore until Execute plan — what Plan allows, the builtin_plan checklist, and how Ask / Edits / Auto apply at execute time.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Plan mode
+
+**Plan** is a composer toggle **next to** Ask / Edits / Auto. It is **not** a fourth permission mode. Shift+Tab does not cycle Plan.
+
+Hint on the control: *Read-only explore and write a plan. Leave Plan mode to execute.*
+
+Use it when you want Knox to look around and write a checklist **before** it touches the tree.
+
+## What Plan may do
+
+Allowed:
+
+- Read, search, glob, repo map, list directories
+- `builtin_ask_user`
+- `builtin_plan` (create / add / complete / skip / list / …)
+- `builtin_tool_search` (to load more **read-only** tools)
+- `builtin_task` children that stay read-only: **explore**, **review** (and rust-review / rust-borrowck)
+
+Refused with **“leave Plan mode to execute”**:
+
+- File writes (`edit_file`, `write_file`, `apply_patch`, create file, …)
+- Shell, `await_shell`, PTY, QEMU, build
+- `builtin_task` with `profile: general` or `isolate: true` (those children write)
+
+Ask / Edits / Auto **do not** override that refusal while Plan is on. They apply again at **Execute plan**.
+
+## The plan checklist
+
+`builtin_plan` is the durable work order for this chat. It is re-injected every turn and **survives compaction**.
+
+Typical actions:
+
+| Action | Effect |
+|---|---|
+| `create` | New plan. If `steps` is omitted, Knox drafts concrete steps from your request. |
+| `add` / `update` / `complete` / `skip` | Edit the current work order. `complete` / `skip` without `step_id` target the current `[*]` step. |
+| `list` / `clear` | Show or drop the plan. |
+
+Repeating `{ action: complete }` is **not** treated as a doom loop.
+
+The **Task plan** panel shows `done/total`, **N remaining / M total**, and step status (Pending, In progress, Done, Skipped). Dismiss hides the peek; the plan still exists until cleared.
+
+This is for multi-step work — not a one-file typo fix.
+
+## Execute plan
+
+When steps remain, **Execute plan**:
+
+1. Turns **Plan off** on the **same session** (does not start a new chat).
+2. Submits a prompt like `Execute the approved plan. Remaining N: …`.
+3. Runs as a normal agent turn. **Ask / Edits / Auto** on the bar apply now.
+
+If remaining is already 0: toast **Nothing left to execute — remaining is 0.** and no submit.
+
+You can also turn Plan off yourself and type “go” — Execute plan is the product button so the remaining list is in the prompt.
+
+## Suggested flow
+
+1. Leave permissions on **Ask** or **Edits**.
+2. Turn **Plan** on.
+3. Ask for the feature or bug in one message.
+4. Watch the checklist and tool cards (reads/searches only).
+5. Edit the plan in chat if a step is wrong (`skip` / `add`).
+6. **Execute plan**. Stay in Ask if you still want a prompt before writes.
+
+## Plan vs `/autonomous` vs Review edits
+
+| Mechanism | Role |
+|---|---|
+| **Plan** | Read-only until you execute a checklist |
+| **`/autonomous`** | Unattended **writing** loop with a step cap |
+| <Link to="/knoxcoder/agent/review-edits">Review edits</Link> | Writes happen in memory until you Apply; not read-only |
+
+They combine: Plan + Ask is the cautious default. Plan + Auto still cannot write until Execute; after Execute, Auto will write without asking.
+
+## Next
+
+<Link to="/knoxcoder/agent/review-edits">Review edits</Link> · <Link to="/knoxcoder/agent/permissions">Permission modes</Link> · <Link to="/knoxcoder/agent/profiles">Agent profiles</Link>

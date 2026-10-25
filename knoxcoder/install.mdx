@@ -1,0 +1,121 @@
+---
+title: Install
+sidebar_label: Install
+description: Download KnoxCoder for macOS, Windows, and Linux. Verify checksums, handle Gatekeeper and SmartScreen, and turn on auto-update.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
+
+# Install KnoxCoder
+
+Download a **desktop build** from GitHub Releases. Knox Agent is inside the app. You do not install a VSIX, and you should not search Open VSX for Knox.
+
+**Current series:** 2.2.x · [Latest release](https://github.com/knoxchat/knoxcoder/releases/latest) · checksums in `SHA256SUMS` on the same page.
+
+Pick the asset that matches your OS and CPU. Names look like `KnoxCoder-<version>-<platform>-<arch>…`.
+
+<Tabs>
+<TabItem value="mac" label="macOS">
+
+Apple Silicon (`arm64`) and Intel (`x64`) are separate builds.
+
+| Asset | Use |
+|---|---|
+| `KnoxCoder-darwin-arm64.dmg` or `KnoxCoder-<version>-darwin-arm64.zip` | Apple Silicon |
+| `KnoxCoder-darwin-x64.dmg` or `KnoxCoder-<version>-darwin-x64.zip` | Intel |
+
+**DMG (preferred).** Open the disk image and drag **KnoxCoder** to Applications. macOS builds are signed, notarized, and stapled (`./build_dmg.sh` on the release machine). Gatekeeper should open the app without extra steps.
+
+**ZIP.** Unzip and move `KnoxCoder.app` to Applications. If macOS says the app is from an unidentified developer, the DMG is the better download.
+
+Confirm **Help → About** shows KnoxCoder and a `2.2.x` product version.
+
+</TabItem>
+<TabItem value="win" label="Windows">
+
+| Asset | Use |
+|---|---|
+| `KnoxCoder-<version>-win32-x64-user-setup.exe` | Per-user install (no admin). Default choice. |
+| `KnoxCoder-<version>-win32-x64-system-setup.exe` | All users (needs admin). |
+| `KnoxCoder-<version>-win32-x64.zip` | Portable unzip. |
+| `…-win32-arm64-…` | ARM64 Windows, same user/system split. |
+
+Windows verifies `sha256hash` from the update feed when you use **Download Update**. For a first install, compare the file to `SHA256SUMS` on the Release page.
+
+**SmartScreen.** Installers may be unsigned until a code-signing certificate ships. Windows then shows “Windows protected your PC” / unknown publisher. Choose **More info → Run anyway**. That is expected in 2.2, not a virus warning from Knox.
+
+After setup, pin KnoxCoder if you want, then open a folder — do not start by installing extensions named Knox.
+
+</TabItem>
+<TabItem value="linux" label="Linux">
+
+| Asset | Use |
+|---|---|
+| `KnoxCoder_<version>_amd64.deb` | Debian / Ubuntu x64 (`arm64` has its own deb). |
+| `KnoxCoder-<version>-*.rpm` | Fedora / RHEL-family. |
+| `KnoxCoder-<version>-linux-x64.tar.gz` | Unpack anywhere. `linux-arm64` too. |
+
+```bash
+# Debian / Ubuntu
+sudo apt install ./KnoxCoder_<version>_amd64.deb
+
+# RPM
+sudo rpm -Uvh KnoxCoder-<version>-*.rpm
+
+# tarball: unpack and put the `knoxcoder` binary on PATH
+tar -xf KnoxCoder-<version>-linux-x64.tar.gz
+```
+
+Debian versions sort `2.0.0~beta` before `2.0.0`, so a beta deb upgrades in place to stable.
+
+Wayland and X11 both work as they do for VS Code. Knox Agent is a node/Electron host with native sqlite / ripgrep / node-pty — it is **not** a browser tab.
+
+</TabItem>
+</Tabs>
+
+## Verify the download
+
+Every GitHub Release attaches `SHA256SUMS`. Check the file you downloaded:
+
+```bash
+# macOS / Linux
+shasum -a 256 KnoxCoder-*
+# compare the line to SHA256SUMS
+
+# Windows (PowerShell)
+Get-FileHash .\KnoxCoder-*-setup.exe -Algorithm SHA256
+```
+
+Auto-update uses the same hashes: the app fetches `latest-<platform>-<arch>.json` from `https://github.com/knoxchat/knoxcoder/releases/latest/download/` and, on Windows, checks `sha256hash` before applying.
+
+## First launch
+
+1. Open KnoxCoder. Knox is already in the Activity Bar (the Knox icon). You do not enable a preview flag.
+2. **Do not** install `knoxchat.knoxchat` from any marketplace. If a leftover copy exists, KnoxCoder disables it; the builtin `vscode.knox` wins.
+3. Open a folder (see <Link to="/knoxcoder/workspace">Open a folder</Link>). Chat without a folder has nowhere safe to edit.
+4. Sign in or add a model (<Link to="/knoxcoder/models">Sign in and models</Link>), then send a message (<Link to="/knoxcoder/first-chat">First chat</Link>).
+
+Global state is created under `~/.knoxcoder` on first use (`C:\Users\<you>\.knoxcoder` on Windows).
+
+## Auto-update
+
+Packaged builds poll GitHub Releases (no API token):
+
+`https://github.com/knoxchat/knoxcoder/releases/latest/download/latest-<platform>-<arch>[-<target>].json`
+
+The JSON `productVersion` is compared with **Help → About**. **Download Update** fetches that package URL, not the generic releases HTML page.
+
+Turn updates off in the editor if you need a pinned version. There is no separate Knox updater besides the editor’s update service.
+
+## What this install does not give you
+
+- **Remote SSH / WSL / Dev Containers** — the Knox host does not run on a remote file system in 2.2. Edit locally.
+- **Web** — `gulp vscode-web` skips Knox; activation refuses `UIKind.Web`.
+- **Headless CLI** — `knox run` is not in 2.2.
+- **Building from source** — not required for users. Contributors use the repo README.
+
+## Next
+
+<Link to="/knoxcoder/models">Sign in or add a model</Link>, then <Link to="/knoxcoder/first-chat">send the first chat</Link>.

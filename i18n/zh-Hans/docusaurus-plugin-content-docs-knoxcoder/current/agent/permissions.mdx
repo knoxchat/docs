@@ -1,0 +1,97 @@
+---
+title: 权限模式
+sidebar_label: 权限模式
+description: Ask 模式、Edits 和 Auto — 各自允许什么、全新克隆上的 Ask、Shift+Tab、Review edits，以及始终拒绝的命令。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 权限模式
+
+<Link to="/knoxcoder/agent/composer">输入框</Link> 上的权限条决定工具如何被批准。它 **不是** Chat 与 Agent（那个拆分已去掉；Jev 开启时负责路由）。三种 **权限模式**：**Ask 模式**、**Edits**、**Auto**。用 **Shift+Tab** 循环 **Ask → Edits → Auto → Ask**，或点控件。
+
+控件上的提示：
+
+| 模式 | 界面提示 | 读取 | 改文件 | Shell / PTY / QEMU |
+|---|---|---|---|---|
+| **Ask** | Ask before writes and terminal | 自动 | 先问 | 先问 |
+| **Edits** | Auto-approve file edits; ask for terminal | 自动 | 自动 | 先问 |
+| **Auto** | Auto-approve every enabled tool (YOLO, default) | 自动 | 自动 | 自动 |
+
+权限卡片上的 **Approve** 允许 **这次调用**。**Always** 在 **本会话余下** 自动批准该工具。**Deny** 拦截。
+
+## 新会话如何选模式
+
+1. 你为 **该文件夹已保存** 的模式优先。
+2. 否则若设置了 `knoxchat.permissionDefault`（`auto` / `ask` / `edits`）则用它。
+3. 否则若 Knox 以前用过该文件夹，或 git remote 子串在 `knoxchat.trustedGitRemotes` 里（例如 `github.com/torvalds/linux`），用 **Auto**。
+4. 否则在 **全新克隆**（没有过 Knox 会话，remote 也不在白名单）上用 **Ask**，并显示：
+
+   > Started in Ask: this folder looks like a new clone with no prior Knox sessions.
+
+   **Keep Ask** / **Use Auto**。
+
+Auto 打开且记录仍为空时，有 YOLO 提示：
+
+> Auto (YOLO) is on: Knox runs tools without asking. Switch to Ask if this repo is untrusted.
+
+**Keep Auto** / **Switch to Ask**。关掉的提示在该会话里保持关掉。
+
+不信任的仓库请留在 **Ask** 或 **Edits**。Auto 可以改项目；这是设计如此。
+
+## 始终拒绝（所有模式）
+
+破坏性和“下载并执行”类模式会被拦住，除非你在 Agent 策略里允许该 **命令**（Tools 覆盖层 → **Path & command policy**）：
+
+`git push --force`、`git reset --hard`、`git clean -fd`、`chmod -R`、裸设备写入、`curl | sh`、`find -delete` 等。
+
+策略文件：每行一条规则，`allow|ask|deny` + 模式。**Deny 永远优先。** 项目 `AGENTS.md` 里的 `always` / `ask` / `never` 块也会生效。
+
+另外始终：
+
+- 硬路径拒绝（`~/.ssh`、`~/.gnupg`、`**/.ssh/**`）同时作用于词法路径和解析后的路径
+- 密钥文件（`.env*`、`*.pem`、`id_*`）即使 Auto 也 **先问**
+- 工作区 **之外** 的路径先问或拒绝（符号链接会解析）
+- `builtin_fetch_url` 遵守 `knoxchat.networkMode`（allow / deny / allowlist）
+
+命令守卫也会拦一些一跳间接（`VAR=cmd; $VAR`、`eval "$VAR"`、“写脚本再跑”）。编码脚本、`make` 配方和更深的把戏仍可能漏过 — 不信任的树请用 Ask/Edits。
+
+## Review edits
+
+**Review edits**（模式弹出菜单里的芯片，不是第四种权限）：
+
+- 文件编辑先留在 **内存**，直到你对每个文件 **Apply** / **Discard**（或 Apply all / Discard all）。
+- Apply all 写盘前会打一个检查点。
+- **Shell 命令仍在真实磁盘上跑**，不是暂存树。
+
+关掉芯片前，先应用或丢弃待处理文件。完整页面：<Link to="/knoxcoder/agent/review-edits">审阅编辑</Link>。
+
+## Plan 是分开的
+
+**Plan** 是 Ask / Edits / Auto 旁边的输入框开关。它 **不** 改权限表。点 **Execute plan** 时，当时的 Ask / Edits / Auto 生效。细节：<Link to="/knoxcoder/agent/plan">Plan 模式</Link>。
+
+## Tools 覆盖层
+
+**Tools**（扳手）用来关掉一组工具、把某个工具设为 ask/allow/off，以及编辑路径与命令策略。
+
+- **Ask on write** 预设：读取自动；写入、终端、网页先问。
+- **YOLO** 预设：自动批准每个已启用工具（Knox 以前的默认）。
+
+只有打开 `knoxchat.enableCompositeTools`（默认关）时，目录里才会出现 composite_* 工具。
+
+## 后台任务
+
+**Run in background** / **Knox: Background Agents: Start**：编辑在 worktree 里自动应用；**除非 Auto，否则拒绝 shell**。在 **Jobs** 里 Merge / Discard。同时最多 2 个。完整页面：<Link to="/knoxcoder/agent/background">后台 Agent</Link>。
+
+## 设置摘要
+
+| 设置 | 效果 |
+|---|---|
+| `knoxchat.permissionDefault` | 覆盖启发式（`auto` / `ask` / `edits`） |
+| `knoxchat.trustedGitRemotes` | 新会话保持 Auto 的 remote URL 子串 |
+| `knoxchat.networkMode` | `builtin_fetch_url` 的 allow / deny / allowlist |
+
+## 接下来
+
+<Link to="/knoxcoder/agent/plan">Plan 模式</Link> · <Link to="/knoxcoder/first-chat">第一次对话</Link> · <Link to="/knoxcoder/agent/chat-ui">对话界面</Link>

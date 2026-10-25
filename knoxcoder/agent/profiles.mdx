@@ -1,0 +1,84 @@
+---
+title: Agent profiles
+sidebar_label: Agent profiles
+description: default, systems, rust, and auto — doom-loop, post-edit verify, workspace cards, and what auto detects from the folder.
+---
+
+import Link from '@docusaurus/Link';
+
+# Agent profiles
+
+`knoxchat.agentProfile` picks how the agent loop behaves **after** it is allowed to run: how stubborn it is with repeated tool calls, and what it runs to check an edit. It does **not** replace <Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> or <Link to="/knoxcoder/agent/plan">Plan</Link>.
+
+Setting: **default** | **systems** | **rust** | **auto** (default: `default`). Change it in **Knox: Open Knox Settings** or `settings.json`.
+
+GUI chat stays **unlimited** tool rounds. Stop with **Cancel**. Background jobs and `/autonomous` are capped (40 / rust 60 / systems 80, absolute 200). Details: <Link to="/knoxcoder/agent/background">Background agents</Link>.
+
+When the resolved profile is `systems` or `rust`, the <Link to="/knoxcoder/agent/chat-ui">agent meter</Link> shows that chip.
+
+## What each profile does
+
+| Setting | Doom-loop after | Post-edit check |
+|---|---|---|
+| **default** | 3 identical / failing calls | LSP diagnostics (`knoxchat.enablePostEditVerification`) |
+| **rust** | 4 | `cargo check --workspace --all-targets` |
+| **systems** | 5 | `make` (kernel / QEMU) |
+| **auto** | (resolved) | systems on kernel/QEMU trees, rust on a **root** `Cargo.toml`, otherwise default |
+
+A doom-loop chip offers **Change strategy** (one-line instruction to pick a different approach). Stop any run with Cancel.
+
+`systems` / `rust` **ignore** `knoxchat.enablePostEditVerification` (the compile oracle wins). A non-empty `knoxchat.verifyCommand` also skips LSP and selects command mode.
+
+## What `auto` looks at
+
+`auto` lists the **workspace root** (not nested folders) and classifies, first match wins:
+
+1. **kernel** — `Kconfig` (or `Kconfig.*`) plus `arch/`, `Makefile`, or `Kbuild`
+2. **qemu** — `meson.build` plus `target/`, `accel/`, or `hw/`
+3. **cargo** — root `Cargo.toml` (a nested `rust/Cargo.toml` does **not** count, so rust-for-linux stays systems)
+4. Otherwise **default** (app tree)
+
+A kernel/QEMU tree that also has a root `Cargo.toml` stays **systems**. Explicit `systems` / `rust` / `default` are never changed. With Jev on, `auto` can be confirmed; that overlay still does not override an explicit setting.
+
+Bare `Makefile` / `CMakeLists.txt` is **not** enough for systems (app repos often have those).
+
+## Workspace card
+
+On classified trees Knox injects a short **Codebase Card** on submit (not a dump of `.config` or lockfiles):
+
+| Kind | Detected from |
+|---|---|
+| kernel / qemu | Kconfig + arch, or meson + target/accel/hw |
+| cargo | root `Cargo.toml` |
+| editor | this KnoxCoder / VS Code fork (`src/` + `extensions/` + `product.json` / gulp) |
+| node | `package.json` |
+| python | `pyproject.toml`, `pytest.ini`, `requirements.txt`, `setup.py` / `setup.cfg` |
+| go | `go.mod` |
+| cmake | `CMakeLists.txt` |
+
+Order if several match: kernel > qemu > cargo > editor > node > python > go > cmake. The editor fork wins over a bare Node `package.json`.
+
+You do not paste this. `/instructions` is still the place to see token cost of rules and `AGENTS.md`.
+
+## After a red build
+
+If the verify command (or `make` / `cargo test` / `npm test` on the product path) is still **red**, Knox **holds** instead of treating the turn as done and keeps trying to fix. A hold chip can show on the last assistant message.
+
+- Same compiler-error signature: `knoxchat.verifyMaxIterations` (default **8**) skips further auto-builds.
+- Extra no-tool “oracle still red” rounds cap at **8**; **3** in a row with the same diagnostics stop that loop.
+
+Set `knoxchat.verifyMode` to `off` if you do not want a post-edit oracle. `diagnostics` is LSP; `command` is `knoxchat.verifyCommand` (examples: `make -j8`, `cargo check --workspace --all-targets`). A non-empty verify command selects `command`.
+
+## Settings recap
+
+| Setting | Effect |
+|---|---|
+| `knoxchat.agentProfile` | `default` / `systems` / `rust` / `auto` |
+| `knoxchat.enablePostEditVerification` | LSP check + attempted fixes after mutating tools (ignored on systems/rust or when verifyCommand is set) |
+| `knoxchat.verifyCommand` | Compile oracle; empty = LSP on default |
+| `knoxchat.verifyMode` | `diagnostics` / `command` / `off` |
+| `knoxchat.verifyMaxIterations` | Circuit breaker for identical compiler errors (1–20, default 8) |
+
+## Next
+
+<Link to="/knoxcoder/agent/background">Background agents</Link> · <Link to="/knoxcoder/agent/permissions">Permission modes</Link> · <Link to="/knoxcoder/agent/inline-edit">Inline edit (Cmd+I)</Link>

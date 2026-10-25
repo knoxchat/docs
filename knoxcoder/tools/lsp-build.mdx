@@ -1,0 +1,44 @@
+---
+title: LSP, build, verify
+sidebar_label: LSP, build, verify
+description: builtin_lsp on classified workspaces, builtin_build, verifyCommand, oracle-hold, and the Rust gate.
+---
+
+import Link from '@docusaurus/Link';
+
+# LSP, build, verify
+
+After Knox edits files it can **check** the result: LSP diagnostics, a compile command, or a language gate (`cargo` / `make`).
+
+## `builtin_lsp`
+
+Promoted to **core** on classified workspaces: node, python, go, cargo, editor (this KnoxCoder / VS Code fork), cmake, and **systems**. On an unknown tree it stays behind `builtin_tool_search`.
+
+Needs a working language extension in the editor (for example rust-analyzer for Rust). Empty results say so — for Rust, prefer `builtin_build` (`cargo check`) rather than inventing APIs.
+
+## `builtin_build`
+
+Deferred on the default profile; **core on systems**. Actions include check / test / clippy / fmt / doc / gate (language-dependent).
+
+On a **Cargo** repo, `action=gate` runs `scripts/pre-commit.sh` when present, else an inline cargo chain. `action=gate_init` can install the bundled script into **your** project. It does **not** install a git hook unless **you** run `scripts/pre-commit.sh --install-hook`. Never `cargo clean` / `publish` / `login` unless you asked.
+
+`knoxchat.agentProfile` **rust** uses `cargo check --workspace --all-targets` as the post-edit oracle. **systems** uses `make`. Details: <Link to="/knoxcoder/agent/profiles">Agent profiles</Link>.
+
+## Verify settings
+
+| Setting | Effect |
+|---|---|
+| `knoxchat.enablePostEditVerification` | After mutating tools, LSP check + attempted fixes. **Ignored** on systems/rust or when `verifyCommand` is set. |
+| `knoxchat.verifyCommand` | Compile oracle (`make -j8`, `cargo check --workspace --all-targets`, …). Non-empty selects command mode. |
+| `knoxchat.verifyMode` | `diagnostics` / `command` / `off` |
+| `knoxchat.verifyMaxIterations` | Skip further auto-builds after this many **identical** compiler-error signatures (default **8**, 1–20) |
+
+## Oracle-hold
+
+If the verify command (or `make` / `cargo test` / `npm test` on the product path) is still **red**, Knox **holds** instead of treating the turn as done and keeps trying. Extra no-tool “still red” rounds cap at **8**; **3** in a row with the same diagnostics stop that loop.
+
+Set `verifyMode` to `off` if you do not want a post-edit oracle.
+
+## Next
+
+<Link to="/knoxcoder/agent/profiles">Agent profiles</Link> · <Link to="/knoxcoder/tools/systems">Systems</Link> · <Link to="/knoxcoder/tools/catalog">Tool catalog</Link>

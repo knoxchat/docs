@@ -1,0 +1,48 @@
+---
+title: Permissions and command guard
+sidebar_label: Permissions and command guard
+description: What Knox always denies, Path & command policy, remaining holes (encoded scripts, make recipes), and Ask on untrusted trees.
+---
+
+import Link from '@docusaurus/Link';
+
+# Permissions and command guard
+
+<Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> decide whether a tool **asks**. The **command guard** still runs in **every** mode, including Auto.
+
+## Always denied (unless you allowlist that command)
+
+The guard splits a command on `;` `&&` `||` `|` newlines `$()` backticks subshells, strips wrappers (`sudo`, `env`, `nice`, `command`, …), and recurses into `sh -c`, `bash -lc`, `eval`, `xargs`, here-strings, `find -exec`, `cmd /c`, `powershell -Command`.
+
+Denied patterns include:
+
+- Forced / recursive removal
+- Destructive git: `reset --hard`, `clean -f`, force / delete / mirror push, `checkout -f`, `branch -D`, `stash clear`, `reflog expire`, `filter-branch`
+- Git config keys that run programs (`core.sshCommand`, `alias.x=!…`, …)
+- Downloads or decoded payloads piped into a shell or interpreter (`curl | sh`)
+- Raw device writes
+- Recursive `chmod` / `chown`
+- Windows `del /s`, `rd /s`, `Remove-Item -Recurse`, `format`, `reg delete`, `diskpart`, PowerShell `-EncodedCommand` / `iex` of downloaded code
+
+**Deny always wins** over Always / Ask in the policy file. Tools overlay → **Path & command policy**: one rule per line, `allow|ask|deny` + pattern. `AGENTS.md` `always` / `ask` / `never` blocks merge in too.
+
+## Closed cheap cases (2.2)
+
+One-hop `VAR=cmd; $VAR` / `eval "$VAR"` for those destructive patterns, and an interpreter (`sh` / `bash` / `python` / `node`) running a workspace path **this turn** (or the last N mutating tools) just wrote: **deny** in Ask/Edits, **ask** in Auto.
+
+## Still open
+
+A denylist cannot be complete:
+
+- Encoded scripts
+- `make` recipes
+- Multi-hop indirection
+- Scripts written **outside** the recent-write window
+
+Use **Ask** or **Edits** on untrusted work. `fullAuto` (YOLO) on an untrusted repo should be treated as disposable.
+
+Hard path denies and secret-file **ask** are separate from the shell guard (`~/.ssh`, `.env*`, workspace boundary).
+
+## Next
+
+<Link to="/knoxcoder/agent/permissions">Permission modes</Link> · <Link to="/knoxcoder/safety/threat-model">Threat model</Link> · <Link to="/knoxcoder/tools/terminal-git">Terminal and git</Link>

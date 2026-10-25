@@ -1,0 +1,57 @@
+---
+title: 常见问题
+sidebar_label: 常见问题
+description: 数据在哪、为何新 clone 是 Ask 模式、为何没有 recipe、能否用 Copilot、SSH、MCP、embeddings 和 ~/.knox。
+---
+
+import Link from '@docusaurus/Link';
+
+# 常见问题
+
+## 我的数据在哪？
+
+`~/.knoxcoder`（或 `KNOX_GLOBAL_DIR`）。不是 `~/.knox`。详情：<Link to="/knoxcoder/settings/data">磁盘上的数据</Link> 和 <Link to="/knoxcoder/safety/privacy">隐私</Link>。
+
+## 为什么新 clone 从 Ask 模式开始？
+
+该文件夹没有先前的 Knox 会话，且 git 远程不在 `knoxchat.trustedGitRemotes` 里。不信任的树请 **保持 Ask**。Auto 可以改仓库。<Link to="/knoxcoder/agent/permissions">权限模式</Link>。
+
+## 为什么我问了两次还是没有 recipe？
+
+Recipes 需要一轮 **改文件** 并且 **检查通过**。重复提问不够。在打开 `knoxchat.recipes.enabled` 之前功能是 **关** 的。<Link to="/knoxcoder/memory/recipes">Recipes</Link>。
+
+## 能用 Copilot / Cursor 账号吗？
+
+不能。那是不同产品。可选的 `knoxchat.compatInstructions` 可以 **读取** `.github/copilot-instructions.md` 或 `.cursor/rules` 作为额外 **文本**。不会让你登录 Copilot。
+
+## KnoxCoder 支持 SSH / WSL / Dev Containers 吗？
+
+2.2 的 Knox 宿主 **不支持**。在应用运行的那台机器上打开树。<Link to="/knoxcoder/safety/limitations">限制</Link>。
+
+## 有 MCP 吗？Embeddings？`knox run`？
+
+编辑器里 **没有** MCP，**没有** 向量记忆，2.2 **没有** 无界面 CLI。记忆是词法 sqlite。<Link to="/knoxcoder/memory/brain">Memory Brain</Link>。
+
+## 该安装 `knoxchat.knoxchat` 吗？
+
+**不该。** 它在 KnoxCoder 内被拦截。那个 VSIX 给原版 VS Code 用，占用 `~/.knox`。
+
+## 怎么离线？
+
+本地模型 + 关掉 Jev + `networkMode: deny` + 禁用自动更新。模型 HTTP 仍走你的供应商。<Link to="/knoxcoder/settings/network">网络</Link>。
+
+## Cmd+I 和幽灵文本？
+
+幽灵文本是 **关** 的。编辑器内辅助是 <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link>、从对话 Apply，以及 CodeLens。
+
+## 怎么还原 Knox 改过的文件？
+
+<Link to="/knoxcoder/checkpoints/restore">还原与撤销</Link> — 对 Agent 快照不要用 `git reset`。
+
+## 只有英语和中文？
+
+是，有意如此。
+
+## 下一步
+
+<Link to="/knoxcoder/reference/glossary">术语表</Link> · <Link to="/knoxcoder/reference/compare">对比</Link> · <Link to="/knoxcoder/agent/troubleshooting">排障</Link>

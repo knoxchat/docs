@@ -126,6 +126,13 @@ const config = {
           { type: 'docSidebar', sidebarId: 'apiSidebar', position: 'left', label: 'API Reference' },
           { to: '/blog', label: 'Blog', position: 'left' },
           {
+            type: 'docSidebar',
+            docsPluginId: 'knoxcoder',
+            sidebarId: 'knoxcoderSidebar',
+            position: 'left',
+            label: 'KnoxCoder',
+          },
+          {
             type: 'localeDropdown',
             position: 'right',
             // Rendered as a click-to-toggle pill by the swizzled
@@ -202,7 +209,7 @@ const config = {
       /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions & Record<string, unknown>} */
       ({
         indexPages: true,
-        docsRouteBasePath: '/',
+        docsRouteBasePath: ['/', 'knoxcoder'],
         blogRouteBasePath: '/blog',
         hashed: true,
         language: ['en', 'zh'],
@@ -217,6 +224,19 @@ const config = {
     '@docusaurus/theme-mermaid'
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'knoxcoder',
+        path: 'knoxcoder',
+        routeBasePath: 'knoxcoder',
+        sidebarPath: './sidebarsKnoxcoder.js',
+        remarkPlugins: [remarkMath],
+        rehypePlugins: [rehypeKatex],
+        sidebarCollapsible: true,
+        sidebarCollapsed: false,
+      },
+    ],
     ['./src/plugins/tailwind-config.js', {}],
     [
       'ideal-image',

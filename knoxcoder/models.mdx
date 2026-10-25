@@ -1,0 +1,137 @@
+---
+title: Sign in and models
+sidebar_label: Sign in and models
+description: Connect KnoxStudio or OpenRouter with OAuth, add OpenAI and Anthropic keys, or point config.yaml at a local OpenAI-compatible server.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Sign in and models
+
+Knox Agent talks to **whatever model you configure**. There is no hidden default key in the app, no `KNOX_API_KEY` environment variable, and no `.env` API key in 2.2.
+
+Open **Knox: Settings** (gear on the chat pane) or **Add Model** from the model picker.
+
+## Sign in with KnoxStudio (recommended)
+
+1. In the Add Model / account row, choose **Sign in with KnoxStudio**.
+2. KnoxCoder opens the browser to `https://knoxstudio.ai/oauth2/authorize` (OAuth2 + PKCE).
+3. After you consent, the editor listens on **loopback** `http://127.0.0.1:8733/callback`. Leave that port free; another app on 8733 makes sign-in fail (`oauthErrorPortInUse`).
+4. The session is stored in editor **SecretStorage**, plus `~/.knoxcoder/auth.json` (mode `0600`). You should see **Connected as @handle**.
+
+KnoxStudio is the **knoxchat** provider in config (UI title **KnoxStudio**). One login unlocks the catalog; you then pick a model in the composer. Token usage is billed on the KnoxStudio side — the editor does not keep a local token ledger.
+
+**Sign out** from the same row. Repeat sign-in rotates the minted `sk-` API token row named KnoxStudio.
+
+If the browser never returns: check you are online, that nothing else bound 8733, and that a corporate proxy is not intercepting TLS to `knoxstudio.ai` / `api.knoxstudio.ai`.
+
+## Sign in with OpenRouter
+
+Same overlay, **Sign in with OpenRouter**, or paste an `sk-or-…` key.
+
+- OAuth loopback port is **8734** (not 8733).
+- Keys: [openrouter.ai/keys](https://openrouter.ai/keys).
+- Default API base: `https://openrouter.ai/api/v1/`.
+
+KnoxStudio OAuth and OpenRouter OAuth are **isolated**. Signing into one does not fill the other.
+
+## Add OpenAI or Anthropic with a key
+
+<Tabs>
+<TabItem value="openai" label="OpenAI">
+
+**Add Model → OpenAI**, then a package:
+
+| Package | Model id |
+|---|---|
+| GPT-6.1 Sol | `gpt-6.1-sol` |
+| GPT-6 Luna | `gpt-6-luna` |
+| Autodetect | calls the server `/models` endpoint |
+
+API key: [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). The key is required for this provider.
+
+</TabItem>
+<TabItem value="anthropic" label="Anthropic">
+
+**Add Model → Anthropic**:
+
+| Package | Model id |
+|---|---|
+| Claude Sonnet 5.5 | `claude-sonnet-5.5` |
+| Claude Opus 5.5 | `claude-opus-5.5` |
+| Claude Haiku 5.5 | `claude-haiku-5.5` |
+
+API key: [console.anthropic.com/account/keys](https://console.anthropic.com/account/keys). Optional context length (default 100000 in the form; the Claude 5.5 packages set 1M / 200k as appropriate).
+
+</TabItem>
+</Tabs>
+
+## Local and OpenAI-compatible servers
+
+The Add Model modal’s four tiles are KnoxStudio, OpenRouter, OpenAI, and Anthropic. A **local** server (Ollama, LM Studio, vLLM, llama.cpp) is configured in `config.yaml` as an OpenAI-compatible endpoint.
+
+**Knox: Settings → Open Config File**, or edit `~/.knoxcoder/config.yaml`:
+
+```yaml
+name: Knox
+version: "1.0.0"
+schema: v1
+models:
+  - name: Local Llama
+    provider: openai
+    model: llama3
+    apiBase: http://127.0.0.1:11434/v1
+    apiKey: ollama
+```
+
+- `name` is the **title** you pick in the composer and in `knoxchat.fallbackModel`.
+- Point `apiBase` at your server’s OpenAI-compatible root.
+- Some local stacks want a dummy `apiKey`; others ignore it.
+
+Editing `config.yaml` from the GUI keeps a one-time `config.yaml.vpre-edit.bak`. Knox never rewrites the file on upgrade.
+
+## Composer picker and roles
+
+The picker at the bottom of chat is the **chat** model for this session.
+
+Settings can assign other **roles** (edit, apply, view/read, summarize, realtime search). If a role has no model, Knox uses the chat model. You do not need to fill every role on day one.
+
+`knoxchat.fallbackModel` is a VS Code setting: a model **title** to switch to after repeated transient failures on a native chat turn. It is not a second simultaneous model.
+
+## Jev (System One)
+
+With `knoxchat.jev.enabled` (default **on**), Knox asks a small harness for routing and gates:
+
+- KnoxStudio models → `https://api.knoxstudio.ai/v1/systemone`
+- OpenRouter models → `https://openrouter.ai/api/v1/systemone` (`typesafe/jev-1.14`)
+
+**Sent:** the user message, short turn summaries, tool names and argument *previews*, truncated assistant text. **Never file contents.** Each call has a latency budget and a circuit breaker (3 failures → 5 minutes off). Fail-open: if Jev is down, chat still runs.
+
+See calls in the status bar (`knoxchat.jev.showStatusBar`) and **Knox: Show Jev Log**. Turn it off with `knoxchat.jev.enabled: false`. YAML `jev.enabled` overrides the setting.
+
+## What is not a model setup
+
+| Don’t | Why |
+|---|---|
+| `export KNOX_API_KEY=…` | Not read in 2.2 |
+| Put secrets in the repo `.env` for Knox | Not the 2.2 auth path |
+| Install `knoxchat.knoxchat` to “get models” | Blocked; use this app’s overlay |
+| Expect Copilot / Cursor accounts to appear | Different products |
+
+## Offline-ish
+
+Model HTTP always goes to **your** provider. To stay local:
+
+1. Only a local `apiBase` model in `config.yaml`
+2. `knoxchat.jev.enabled: false`
+3. `knoxchat.networkMode: deny` (blocks `builtin_fetch_url`, not the model)
+4. Disable editor auto-update if you do not want GitHub checks
+
+There is no process-wide firewall that “allows only Ollama.”
+
+## Next
+
+<Link to="/knoxcoder/first-chat">Send the first chat</Link> · <Link to="/knoxcoder/workspace">Open a folder</Link>

@@ -1,0 +1,49 @@
+---
+title: 网络与离线
+sidebar_label: 网络与离线
+description: Knox 发出的每一次出站调用、knoxchat.networkMode、Jev、自动更新，以及如何做到接近离线。
+---
+
+import Link from '@docusaurus/Link';
+
+# 网络与离线
+
+KnoxCoder **不会** 向 Microsoft 发送崩溃报告或使用遥测。VS Code 遥测保持关闭（`enable-crash-reporter` 强制为 false）。Knox **不加** 匿名统计。
+
+## 目的地
+
+| 目的地 | 何时 | 发送什么 | 关闭方式 |
+|---|---|---|---|
+| 你的模型供应商（KnoxStudio、OpenRouter、OpenAI 兼容、Anthropic、Ollama 等） | 对话和 Agent 轮次 | 提示、工具结果、你附加的图片 | 不配置模型 / 离线 |
+| Jev（`https://api.knoxstudio.ai/v1/systemone`，或 OpenRouter `…/systemone` 配 `typesafe/jev-1.14`） | `knoxchat.jev.enabled`（默认开） | 用户消息、短摘要、工具名/参数 **预览**、截断的助手文本。**从不发送文件内容** | `knoxchat.jev.enabled: false` |
+| `builtin_fetch_url` | Agent 调用该工具 | 对公开 URL 的 HTTP GET | `knoxchat.networkMode: deny` |
+| GitHub Releases | 自动更新 | `/releases/latest/download` 的 `latest-*.json`；JSON 缺失时用 API `/releases/latest` | 在编辑器里禁用更新 |
+| Open VSX | 扩展市场 | 市场查询 | 不要打开扩展视图 / 清空 gallery |
+| KnoxStudio / OpenRouter OAuth | 登录 | 授权码 + PKCE | 不登录；自带密钥或本地模型 |
+
+## `knoxchat.networkMode`
+
+只作用于 **`builtin_fetch_url`** 的总开关 — 不管模型 HTTP 本身。
+
+- `allow`（默认）— 公网主机守卫（私网 IP 被拦，除非 `KNOX_FETCH_URL_ALLOW_PRIVATE=1`）
+- `deny` — 阻止 fetch_url
+- `allowlist` — 仅 `knoxchat.networkAllowlist`（或 `KNOX_NETWORK_ALLOWLIST`）
+
+环境变量：`KNOX_NETWORK_MODE`、`KNOX_NETWORK_ALLOWLIST`。
+
+## 接近离线
+
+**没有** 进程级「除了我的模型都不联网」防火墙。请组合：
+
+1. `config.yaml` 里只有本地 `apiBase` 模型
+2. `knoxchat.jev.enabled: false`
+3. `knoxchat.networkMode: deny`
+4. 禁用编辑器自动更新（不再检查 GitHub `latest-*.json`）
+
+若仍使用登录和 Open VSX，它们还是需要网络。
+
+fetch SSRF 详见 <Link to="/knoxcoder/tools/web-jev">Web 与 Jev</Link>。隐私：<Link to="/knoxcoder/safety/privacy">隐私</Link>。
+
+## 下一步
+
+<Link to="/knoxcoder/tools/web-jev">Web 与 Jev</Link> · <Link to="/knoxcoder/models">登录与模型</Link> · <Link to="/knoxcoder/settings/data">磁盘上的数据</Link>

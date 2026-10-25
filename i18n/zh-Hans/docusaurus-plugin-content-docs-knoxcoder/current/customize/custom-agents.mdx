@@ -1,0 +1,69 @@
+---
+title: 自定义 Agent
+sidebar_label: 自定义 Agent
+description: 在 .knoxcoder/agents 里定义子 Agent — frontmatter、工具白名单、只读、worktree 隔离，最多 8 个子任务。
+---
+
+import Link from '@docusaurus/Link';
+
+# 自定义 Agent
+
+**自定义 Agent** 是一份 markdown，Knox 可把它作为主对话的 **子任务** 启动（`builtin_task` 的 `agent="name"`）。子 Agent 有全新上下文、有限步数上限；写文件时在隔离的 git worktree 里工作，补丁再合并回来。
+
+它们不能 **扩大** 父 Agent 已有的权限。`tools:` 列表只能 **收窄** 基础 profile。克隆仓库里敌对的 `agents/*.md` 仍是提示词 — 工具策略照样生效。
+
+## 文件放哪
+
+| 路径 | 范围 |
+|---|---|
+| `.knoxcoder/agents/*.md` | 本工作区（多根窗口的每个根） |
+| `~/.knoxcoder/agents/*.md` | 本机 |
+
+**同名时先出现的生效**（工作区优先，然后全局）。不要用 `.knox/agents` 或 `~/.knox`。
+
+**Knox: Create Custom Agent** 会要一个短标识符，并把模板写到 **主** 文件夹的 `.knoxcoder/agents`。**Knox: List Custom Agents** 打开已有文件。
+
+## Frontmatter
+
+```markdown
+---
+name: reviewer
+description: Reviews diffs for risk
+readonly: true
+tools: [builtin_read_file, builtin_exact_search]
+model: my-fast-model
+---
+You review code changes. Be concise. Flag bugs, security issues, and missing tests.
+```
+
+| 字段 | 必填 | 含义 |
+|---|---|---|
+| `name` | 是（或取自文件名） | 字母、数字、`_` `-`；最长 48；须匹配 `^[a-zA-Z0-9][a-zA-Z0-9_-]{0,47}$` |
+| `description` | 否 | 显示在 **List Custom Agents** |
+| `tools` | 否 | 工具名白名单。省略 = **基础 profile** 已允许的全部工具 |
+| `readonly` | 否 | `true` = 只读子 Agent |
+| `model` | 否 | 首选 **模型标题**（提示；解析不到则忽略） |
+
+`---` 之后的正文是子 Agent 的系统提示。空正文无法解析。
+
+## 父 Agent 如何调用
+
+主 Agent 使用 `builtin_task`：
+
+- `agent="reviewer"` — 你的自定义类型
+- `profile=` — 内置：**explore**（默认，只读）、**review**、**general**（除嵌套 task / ask_user 外的完整工具）、**rust-review**、**rust-borrowck**、**rust-architect**（先设计；在 `builtin_plan` 之前不写代码）
+- `children=[...]` — 最多 **8** 个并行（`concurrency` 默认 3，上限 8）
+- `explores=[{prompt, path}]` — 最多 **3** 个互不重叠的只读搜索
+- `isolate: true` — 即使单个子任务也用 git worktree
+
+子任务步数上限：explore/review 默认 **12**，general **20**，封顶 **40**；systems profile 上 explore **40**，general **80**，封顶 **200**。
+
+## Worktree 隔离
+
+当多个子任务会写文件（或打开了 `isolate`）时，写入方在 **隔离的 git worktree** 里运行。补丁 **按顺序** 合并回来。重叠显示为 merge **CONFLICT**；补丁留在磁盘上，而不是半应用的树。合并无法逃逸：`..`、绝对路径和符号链接条目会被拒绝。
+
+与父 Agent 同一套中间件：权限模式、命令守卫、脱敏。
+
+## 下一步
+
+<Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/agent/background">后台 Agent</Link> · <Link to="/knoxcoder/customize/team-bundles">团队包</Link>

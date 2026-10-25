@@ -1,0 +1,61 @@
+---
+title: 团队包
+sidebar_label: 团队包
+description: 把 AGENTS.md、规则、skills、自定义 Agent 和 hooks 导出/导入为 knox-team-bundle JSON — 除非你允许，否则跳过 hooks。
+---
+
+import Link from '@docusaurus/Link';
+
+# 团队包
+
+**团队包** 是一份带版本的 JSON（`format: knox-team-bundle`，版本 1），让另一个 checkout 加载同一套项目说明。命令：**Knox: Export Team Bundle** 和 **Knox: Import Team Bundle**。先打开一个文件夹。
+
+这 **不是** 云注册表，**不是** Memory Brain，也 **不是** 检查点。不会上传任何内容。
+
+## 包含什么
+
+| 包含 | 路径 |
+|---|---|
+| 规则 | `.knoxrules` |
+| 说明 | `AGENTS.md`、`.knoxcoder/AGENTS.md` |
+| Hooks | `.knoxcoder/hooks.json` |
+| 自定义 Agent | `.knoxcoder/agents/*.md` |
+| Skills | `skills/**` |
+
+## 永远不包含
+
+- `.knoxcoder/config.yaml`（可能含供应商设置）
+- 凭据、`auth.json`、SecretStorage
+- Memory Brain / recipes 数据库
+- 检查点和会话记录
+- 机密（导出 **拒绝** 看起来含密钥的文件）
+- 二进制（文件中含 `\0`）
+- 超过 **256 KB** 的文件
+- 超过 **200** 个文件（之后的会被跳过）
+- 遍历 `skills/` 时的 `node_modules` / `.git`
+
+被跳过的文件会计入导出提示（`N skipped`）。
+
+Recipes 随显式的 **检查点分享包** 走，不走这个文件。导入的 recipes 一律从 **candidate** 开始 — 见 <Link to="/knoxcoder/memory/recipes">Recipes</Link> 和 <Link to="/knoxcoder/checkpoints/share">分享与导入</Link>。
+
+## 导出
+
+1. **Knox: Export Team Bundle**
+2. 保存 `knox-team-bundle.json`（默认文件名在当前文件夹）
+3. 提交，或发送该文件。文本脱敏方式与其它 Knox 导出相同。
+
+## 导入
+
+1. **Knox: Import Team Bundle**
+2. 选择 JSON 文件
+3. 选择：
+   - **Dry run (preview only)** — 不写盘
+   - **Import (keep existing files)** — 默认；已有路径保留
+   - **Import and overwrite** — 覆盖允许的路径
+4. 若包内含 hooks，会弹出 **模态框** 问 **Allow hooks** 或 **Skip hooks**。跳过是更安全的默认。Hooks 是仓库里的 shell 命令。
+
+导入只写入 **允许的相对路径**。任何会逃出目标目录的内容都会被拒绝。
+
+## 下一步
+
+<Link to="/knoxcoder/customize/hooks">Hooks</Link> · <Link to="/knoxcoder/customize/agents-md">AGENTS.md 与规则</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link>

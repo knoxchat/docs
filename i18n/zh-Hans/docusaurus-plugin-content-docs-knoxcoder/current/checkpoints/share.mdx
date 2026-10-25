@@ -1,0 +1,35 @@
+---
+title: 分享与导入
+sidebar_label: 分享与导入
+description: 本地检查点包 — 导出、分享、导入。附带的 recipes 从 candidate 开始，在本机验证前不会自动重放。
+---
+
+import Link from '@docusaurus/Link';
+
+# 分享与导入
+
+检查点 **分享** 会写一份 **本地** 包（文件 + 元数据）。不会上传。命令：
+
+| 命令 | 作用 |
+|---|---|
+| **Knox: Export Checkpoints** | 把包写到磁盘 |
+| **Knox: Share Checkpoints** | 分享流程（同样是本地文件；图谱 **Share** 标签） |
+| **Knox: Import Checkpoints** | 把包读进本文件夹的存储 |
+
+图谱 **Share** 标签是同一套动作。
+
+## 包里的 recipes
+
+分享时可以询问是否包含你 **已验证** 的 recipes（仅 **不含命令** 的那些）。文件字节留在检查点 blob；recipe 文本已脱敏。
+
+**导入的 recipes 从 `candidate` 开始。** 在 **本机** 验证之前绝不会重放。界面传来的跨项目 recipe id 会被拒绝。
+
+这与 <Link to="/knoxcoder/customize/team-bundles">团队包</Link>（`AGENTS.md`、skills、hooks）不同。团队包 **不含** 检查点或 Memory Brain。
+
+## 会话分享是另一回事
+
+`/share` 导出 **对话记录**（Markdown，机密已脱敏）和 `knoxcoder://…/session/import?path=` URI，打开的是 **本机上的那个文件**。**Knox: Import Session Transcript** / **Knox: Copy Session Share Link**。不是检查点包。
+
+## 下一步
+
+<Link to="/knoxcoder/checkpoints/overview">检查点如何工作</Link> · <Link to="/knoxcoder/memory/recipes">Recipes</Link> · <Link to="/knoxcoder/customize/team-bundles">团队包</Link>

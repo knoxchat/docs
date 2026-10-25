@@ -1,0 +1,99 @@
+---
+title: Composer and context
+sidebar_label: Composer and context
+description: Type, send, attach images, Remember, context meter, compaction, queued messages, and the composer keyboard map.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Composer and context
+
+The composer is the bottom of the Knox sidebar. Placeholder: **Ask anything! Type @ for more features...** Follow-ups use **Follow-up question...**
+
+How the rest of the pane is laid out: <Link to="/knoxcoder/agent/chat-ui">Chat UI</Link>. Slash commands: <Link to="/knoxcoder/agent/slash">Slash commands</Link>. Mentions: <Link to="/knoxcoder/agent/mentions">@ mentions</Link>.
+
+## Send, newline, cancel
+
+| Action | Keys |
+|---|---|
+| Send | <kbd>Enter</kbd> (or <kbd>⌘Enter</kbd> / Ctrl+Enter) |
+| Newline | <kbd>Shift+Enter</kbd> |
+| Cancel generation | <kbd>⌘⌫</kbd> / Ctrl+Backspace while streaming |
+| Composer undo / redo | <kbd>⌘Z</kbd> / <kbd>⌘⇧Z</kbd> (composer text only, not the file editor) |
+| Previous / next prompt | <kbd>↑</kbd> at start of input / <kbd>↓</kbd> at end |
+| Accept diffs | <kbd>⌘⇧Enter</kbd> when a diff is visible |
+| Reject diffs | <kbd>⌘⇧⌫</kbd> |
+
+IME (Chinese / Japanese candidate confirm) never submits. <kbd>Enter</kbd> while a `@` or `/` list is open **selects** the highlighted item instead of sending.
+
+**Alt+Enter** submits as well (same as Send). The Send button reads **Send**, **Edit** in Cmd+I edit mode, or **Retry** after a failed apply.
+
+While a turn is running you can still type. Messages **queue**. From the queue: **Send now**, **Interrupt and send**, or remove an item.
+
+## What goes in a message
+
+The composer is a small document, not a plain text field:
+
+- **Text** paragraphs
+- **`@` mention chips** — files, folders, open editors, and the six default providers (`@file`, `@diff`, `@problems`, `@repo-map`, `@terminal`, `@memory`). Live file search starts after two characters. Catalog: <Link to="/knoxcoder/agent/mentions">Mentions</Link>.
+- **`/` slash chips** — builtin commands and your prompt files
+- **Code blocks** — dropping a selection in (⌘L) or `#` file add. Click the title to open that range in the editor. Only the newest block starts expanded.
+- **Images** — **Attach image**, or drag and drop (multiple). Remove with the chip’s delete control.
+
+<kbd>⌘L</kbd> / <kbd>Ctrl+L</kbd> focuses the composer, adds the current selection as context, and **clears** the draft. <kbd>⌘⇧L</kbd> adds without clearing.
+
+## Context Knox adds for you
+
+On submit (2.2 product path), Knox attaches:
+
+- **Turn Context** — open files, git porcelain, diagnostics
+- A **workspace card** on classified trees (Node, Python, Go, CMake, Cargo, kernel/QEMU, this editor)
+- Loaded **instructions** (`AGENTS.md` and friends) — see `/instructions`
+- **Memory Brain** hits (lexical, cap 8000 tokens/turn) unless memory is off
+
+You do not paste those by hand. **Add context** still lets you pick extra files.
+
+The **context meter** (`NN%`, title **Context used**) is on the composer. Around **75%** Knox **compacts** older messages (summarize). A banner reports tokens saved. Compaction does **not** wipe the durable task plan.
+
+A very large session shows **This chat is very large; older messages load as you scroll up.**
+
+## Remember
+
+**Remember** on the composer stores the **selection**, or the current line if nothing is selected, as a Memory Brain fact. **No model call and no tool call.** Hint: *Save the selection or this line as a memory, without sending.*
+
+Chat that states a short preference (`always use bun`) or `remember …` can also land on the Memories tab without you pressing the button. Open **Knox: View Memory** to pin, edit, or mark **Not relevant**.
+
+## Permission bar on the composer
+
+Same row as the input:
+
+- **Ask / Edits / Auto** — <Link to="/knoxcoder/agent/permissions">Permission modes</Link> (Shift+Tab)
+- **Plan** — <Link to="/knoxcoder/agent/plan">Plan mode</Link>
+- **Review edits** — hold file writes in memory; shell still hits disk. Details: <Link to="/knoxcoder/agent/review-edits">Review edits</Link>
+- **Run in background** — start this prompt in a seeded git worktree (cap 2). Merge or discard from **Jobs**. Details: <Link to="/knoxcoder/agent/background">Background agents</Link>
+- **Model picker** — <Link to="/knoxcoder/models">Sign in and models</Link>
+- Optional **reasoning effort** and **web search** toggles when the selected model supports them
+
+First-run notices (dismissible):
+
+- Fresh clone: **Started in Ask: this folder looks like a new clone with no prior Knox sessions.** Keep Ask / Use Auto
+- Auto: **Auto (YOLO) is on… Switch to Ask if this repo is untrusted.** Keep Auto / Switch to Ask
+- Memory: **Memory Brain stores curated facts…** Got it
+
+## Worktree chip
+
+**Worktree** runs agent edits in an isolated git worktree. **Apply** copies them onto the current workspace; **Discard** removes the worktree without applying. Background jobs use the same idea automatically.
+
+## Failures in the composer
+
+| Banner / dialog | What to do |
+|---|---|
+| Connection problem, retrying (n/4) | Transient stream; after 2 failures uses `knoxchat.fallbackModel` if set |
+| Rate limit / bad key / model not found | **Retry** or **Open settings** |
+| Agent mode not supported with current model | Pick a model that can call tools |
+| Doom loop | **Change strategy** or edit the prompt |
+
+## Next
+
+<Link to="/knoxcoder/agent/mentions">Mentions</Link> · <Link to="/knoxcoder/agent/slash">Slash commands</Link> · <Link to="/knoxcoder/agent/background">Background agents</Link>

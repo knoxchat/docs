@@ -1,0 +1,88 @@
+---
+title: 行内编辑（Cmd+I）
+sidebar_label: 行内编辑（Cmd+I）
+description: 用自然语言改当前文件 — Cmd+I、CodeLens、Accept/Reject diff、可选的下一处相关编辑。幽灵文字保持关闭。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 行内编辑（Cmd+I）
+
+<kbd>⌘I</kbd> / <kbd>Ctrl+I</kbd> 改的是 **编辑器里的当前文件**，不是侧边栏里一轮很长的 Agent。在 Knox 输入框里写出你想要的（Send 按钮显示 **Edit**），Knox 会流式给出可审阅的 **纵向 diff**。接受或拒绝。不使用填空 / 幽灵文字模型。
+
+命令面板：**Knox: Generate Code**。快捷键标题：*Edit code with natural language*。
+
+这是 2.2 的编辑器内协助路径。幽灵文字行内补全保持 **关**（`knoxchat.enableInlineCompletions`，默认 false）。不计划做边打字边出下一处编辑的 Copilot 式功能。
+
+## 快捷键
+
+| 操作 | macOS | Windows / Linux |
+|---|---|---|
+| 编辑选区（或光标下的桩 / TODO） | <kbd>⌘I</kbd> | <kbd>Ctrl+I</kbd> |
+| 进入编辑模式但不清空输入框 | <kbd>⌘⇧I</kbd> | <kbd>Ctrl+Shift+I</kbd> |
+| 退出编辑模式 | <kbd>Esc</kbd>（编辑器聚焦时） | <kbd>Esc</kbd> |
+| 接受 diff | <kbd>⌘⇧Enter</kbd> | <kbd>Ctrl+Shift+Enter</kbd> |
+| 拒绝 diff | <kbd>⌘⇧⌫</kbd>（diff 可见时也可用 <kbd>⌘Z</kbd>） | <kbd>Ctrl+Shift+Backspace</kbd> |
+| 接受一块纵向 diff | <kbd>⌥⌘Y</kbd> | <kbd>Alt+Ctrl+Y</kbd> |
+| 拒绝一块纵向 diff | <kbd>⌥⌘N</kbd> | <kbd>Alt+Ctrl+N</kbd> |
+| 应用上一条回复里的代码块 | <kbd>⌥A</kbd> | <kbd>Alt+A</kbd> |
+
+<kbd>⌘I</kbd> 会开一个 **新的编辑会话**（当前对话会保存并清空）并聚焦输入框。有选区时，该范围为编辑目标。**没有选区** 时，Knox 会落到光标下的桩、TODO/FIXME 或空文件目标 — 与 CodeLens 用的范围相同。
+
+<kbd>⌘⇧I</kbd> 进入编辑模式 **不清空** 输入框。输入框聚焦大约等 **两秒**，好让你先在编辑器里打完。
+
+编辑过程中执行 **Knox: New Conversation** 会拒绝待处理 diff 并离开编辑模式。
+
+若 `knoxchat.showInlineTip` 打开（默认），编辑器可显示一行 ⌘L / ⌘I 提示。
+
+## CodeLens（与 Cmd+I 同一路径）
+
+`knoxchat.editAssist.codeLens`（默认 **开**）时，Knox 会在这些地方放 CodeLens：
+
+| 镜头 | 何时 |
+|---|---|
+| **Knox: Generate this file** | 文件是空的 |
+| **Knox: Implement** | 桩函数 |
+| **Knox: Do this TODO** | `TODO` / `FIXME` 注释（已在桩里的不算） |
+| **Knox: Fix this error** | 错误诊断（每个文件最多 5 条） |
+
+每条镜头跑的是与 Cmd+I **相同** 的可审阅编辑。不用补全模型。超过约 40 万字符的文件跳过 CodeLens。把 `knoxchat.editAssist.codeLens` 设为 false 可隐藏镜头。
+
+检查点纵向 diff 的 CodeLens（`knox.checkpoints.inlineDiff.showCodeLens`）是另一套控件 — 标的是检查点 diff，不是协助。
+
+## Accept 之后
+
+若 `knoxchat.editAssist.nextEdit` 打开（默认），Knox 可能会问：
+
+> Knox: look for one related edit in this file?
+
+**Show one edit** / **No thanks**。这次后续只跑 **一次**，仍是可审阅 diff，并且 **不会在你打字时** 跑。
+
+## 从对话应用，以及 shadow preview
+
+**Knox: Apply Code from Chat**（<kbd>⌥A</kbd> / Alt+A）取最新回复的下一块代码，应用到编辑器（纵向 diff）。那不是 Cmd+I。
+
+**Shadow preview**（`knoxchat.enableShadowPreview`，默认 **关**）：把对话编辑应用到已有非空文件之前，Knox 可以打开并排的 *Original ↔ Proposed* diff。**Accept** 继续正常的纵向 diff 应用；**Reject** 丢掉。超过 **4000 行** 的文件会跳过 shadow，除非打开 `knoxchat.shadowPreviewLargeFiles`。
+
+除非你想多一次确认，否则保持关闭。大 C 文件继续用纵向 diff / `apply_patch` 预览。
+
+## Review edits 是另一回事
+
+<Link to="/knoxcoder/agent/review-edits">审阅编辑</Link> 暂存的是 **Agent 工具** 的写入。Cmd+I 是你要求改当前编辑器。同一会话里可以都用；它们不能互相替代。
+
+带工具的侧边栏对话仍是 <Link to="/knoxcoder/agent/chat-ui">对话界面</Link> + <Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link>。
+
+## 设置摘要
+
+| 设置 | 默认 | 作用 |
+|---|---|---|
+| `knoxchat.editAssist.codeLens` | 开 | 空文件、桩、TODO、错误上的 CodeLens |
+| `knoxchat.editAssist.nextEdit` | 开 | Accept 后提供一次相关编辑 |
+| `knoxchat.showInlineTip` | 开 | 编辑器里的快捷键提示 |
+| `knoxchat.enableInlineCompletions` | **关** | 幽灵文字；不是 2.2 产品表面 |
+| `knoxchat.enableShadowPreview` | **关** | 应用到非空文件前的并排预览 |
+
+## 接下来
+
+<Link to="/knoxcoder/agent/profiles">Agent 配置</Link> · <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link> · <Link to="/knoxcoder/first-chat">第一次对话</Link>

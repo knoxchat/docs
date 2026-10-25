@@ -1,0 +1,57 @@
+---
+title: Threat model
+sidebar_label: Threat model
+description: Confused-deputy model for Knox Agent — untrusted repo text, what Auto allows, review diffs, and what the tool layer still cannot stop.
+---
+
+import Link from '@docusaurus/Link';
+
+# Threat model
+
+Knox Agent runs tools **on your machine**. The attacker does **not** control you or the model provider. The attacker controls **text the agent reads** and tries to turn the model into a **confused deputy**: read a secret, run a command, write outside the project, or leak data over the network.
+
+This page is a user abridgement of the 2.2 threat model. It does not list source file paths.
+
+## Trust
+
+| Trusted | Untrusted |
+|---|---|
+| Your own prompt | File contents (cloned repo, dependencies) |
+| User-level config (`~/.knoxcoder`) | Web pages and search results |
+| What you explicitly **Approve** | Tool output (logs, tests, git messages) |
+| | `AGENTS.md`, skills, custom agents, hooks, team bundles, subagent output |
+
+Every untrusted input can become model-visible text. Knox does **not** try to detect injection in the prose. It limits what an injected instruction can **do**, in the tool layer.
+
+## What Auto allows (by design)
+
+**Auto** auto-approves enabled tools. A hostile repo can make the agent **change the project’s own code**. Review the diff (<Link to="/knoxcoder/agent/review-edits">Review edits</Link>, <Link to="/knoxcoder/checkpoints/restore">checkpoints</Link>) before you run or commit.
+
+Fresh clones start in **Ask**. Stay in Ask or Edits on trees you do not trust. Treat Auto on an untrusted repo as a **disposable** environment.
+
+## Controls (always on)
+
+- Path/command policy; **deny always wins**
+- Hard path denies (`~/.ssh`, `~/.gnupg`) on lexical **and** resolved paths
+- Secret files always **ask**, even in Auto
+- Workspace boundary (symlinks resolved)
+- Destructive / download-and-execute command guard — <Link to="/knoxcoder/safety/command-guard">Command guard</Link>
+- Subagent merge cannot escape the trees
+- `builtin_fetch_url` blocks private ranges per redirect hop
+- Secret redaction on tool output and Memory Brain
+- Knox does not activate in an **untrusted** VS Code workspace, so repo hooks never run on folder open
+- Team bundle import **skips hooks** unless you allow them
+
+`AGENTS.md` / skills / custom agents are prompt text. A custom agent’s `tools:` list can only **narrow**, not widen.
+
+## Open holes (be honest)
+
+- Encoded scripts, `make` recipes, deeper indirection past the command guard
+- DNS rebinding on fetch
+- Leakage to a **public** URL via query string
+- Instructions in tool output still reach the model
+- Recipe replay is a code-execution surface (experimental, off) — mitigated, not reviewed as a dedicated audit
+
+## Next
+
+<Link to="/knoxcoder/safety/command-guard">Permissions and command guard</Link> · <Link to="/knoxcoder/agent/permissions">Permission modes</Link> · <Link to="/knoxcoder/safety/limitations">Known limitations</Link>

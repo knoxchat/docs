@@ -1,0 +1,85 @@
+---
+title: Hooks
+sidebar_label: Hooks
+description: Lifecycle hooks in .knoxcoder/hooks.json — events, stdin JSON, exit codes, Test Hook, and why a crash never blocks the turn.
+---
+
+import Link from '@docusaurus/Link';
+
+# Hooks
+
+Hooks are **shell commands** Knox runs at points in a turn. A cloned repo can ship them, so treat `.knoxcoder/hooks.json` like any other executable policy: review it, and do not open an untrusted folder as a trusted workspace.
+
+Knox **does not activate** in an untrusted VS Code workspace (`untrustedWorkspaces.supported: false`). Repo-local hooks therefore never run on folder open. They are **re-read on every call** (tiny files), with that folder as `cwd`.
+
+## Files
+
+| Path | When |
+|---|---|
+| `.knoxcoder/hooks.json` | Each workspace root |
+| `hooks:` in `.knoxcoder/config.yaml` | Same root |
+| `hooks:` in `~/.knoxcoder/config.yaml` | User-level; still runs once the workspace is trusted |
+
+Merge order: **global yaml**, then each root’s **yaml** and **hooks.json** (primary root first). Per-hook `cwd` is the root the file came from.
+
+Type `/hooks` for active events and the last **30** audit-log lines. **Knox: Test Hook** (and the Hooks panel) runs one event against the current file. **Knox: Show Hooks Log** opens the log.
+
+## `hooks.json`
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "run_terminal_command|edit_file",
+        "command": "./check.sh",
+        "timeoutMs": 5000
+      }
+    ]
+  }
+}
+```
+
+`matcher` is a regex against the tool name, **with and without** the `builtin_` prefix. Omit it or use `*` to match everything.
+
+## Events
+
+| Event | Typical use |
+|---|---|
+| `SessionStart` | Extra context at the beginning of a session |
+| `UserPromptSubmit` | Inspect or deny the user’s message |
+| `PreToolUse` | Deny or rewrite a tool call before it runs |
+| `PostToolUse` | Extra context from the result |
+| `Stop` | After the turn ends |
+
+Hooks of one event run **in file order**. `PreToolUse` argument changes **chain**: each hook sees args as modified by the previous one.
+
+Context from `SessionStart` and `UserPromptSubmit` is added to your message in a `<hook_context>` block.
+
+## Stdin JSON
+
+The command receives one JSON object on stdin:
+
+```json
+{ "event": "PreToolUse", "cwd": "/path/to/folder", "toolName": "builtin_edit_file", "args": {}, "result": null, "prompt": null }
+```
+
+Fields present depend on the event (`toolName` / `args` / `result` / `prompt`).
+
+## Exit codes
+
+| Exit | Effect |
+|---|---|
+| **0** | stdout JSON `{ decision, reason, updatedArgs, additionalContext }`, **or** plain text treated as extra context |
+| **2** | **Deny** (`PreToolUse`, `UserPromptSubmit` only). stderr is the reason shown to you |
+| Any other code, crash, or **timeout** | **Never blocks.** Logged to the console / audit log. Default timeout **10 s** (`timeoutMs` overrides) |
+
+A broken hook must not freeze chat. If hooks “do nothing”, check the JSON is valid and read **Knox: Show Hooks Log**.
+
+## Team import
+
+<Link to="/knoxcoder/customize/team-bundles">Team bundles</Link> **skip** `.knoxcoder/hooks.json` unless you choose **Allow hooks**. Hooks run commands from the repo.
+
+## Next
+
+<Link to="/knoxcoder/customize/agents-md">AGENTS.md and rules</Link> · <Link to="/knoxcoder/customize/team-bundles">Team bundles</Link> · <Link to="/knoxcoder/agent/troubleshooting">Troubleshooting</Link>

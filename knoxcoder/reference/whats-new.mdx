@@ -1,0 +1,40 @@
+---
+title: What’s new (2.2)
+sidebar_label: What’s new (2.2)
+description: User-facing highlights in KnoxCoder 2.2.2 — Plan, background start, memory write, recipes on-ramp, checkpoints, and what is still not in 2.2.
+---
+
+import Link from '@docusaurus/Link';
+
+# What’s new (2.2)
+
+KnoxCoder **2.2.2**. SHA-256 sums for every asset are on the GitHub Release `SHA256SUMS`. Upgrade steps: <Link to="/knoxcoder/reference/upgrade">Upgrade</Link>. Gaps: <Link to="/knoxcoder/safety/limitations">Known limitations</Link>.
+
+## 2.2.2
+
+- **Memory write and correction.** Chat that states a preference or decision lands on Memories. **Create** / **Edit** / **Not relevant**, plus composer **Remember** — no model call.
+- **Paraphrase recall** with rule-based synonyms. Rows show `injected last turn · lexical: …`. **No embeddings.**
+- **Recipes on-ramp** after a green mutating turn (still **off** by default). Preview / Replay / Verify / Restore / Save as skill.
+- **Sessions Use as context**, journaled Restore All, one labeled checkpoint per turn, checkpoint **branches** on the agent tool.
+- Streaming stays readable: thinking chip, terminal cards cap at five lines, auto-scroll pauses when you scroll up, copy during stream.
+
+## 2.2.1
+
+- Skip-to-composer, landmarks, named permission/jobs/checkpoint/recipe chrome. VoiceOver/NVDA still a human check.
+- Auto-update reads `latest-*.json` from GitHub Releases (not the releases HTML page).
+
+## 2.2.0
+
+- **One product path.** Sidebar Agent uses the same loop as eval: oracle-hold, auto-context, workspace cards, Turn Context.
+- **Plan mode.** Composer toggle; **Execute plan** when you are ready.
+- **Background start.** **Run in background** / **Knox: Background Agents: Start** (cap 2).
+- **LSP when it matters** on classified workspaces and systems. Git status/diff stay in the deferred core set.
+- **Chinese memory search** via sqlite FTS overlapping bigrams — not vectors.
+
+## Not in 2.2
+
+MCP, vector embeddings, env API keys (`KNOX_API_KEY`), headless CLI, browser tool, SSH/WSL agent host.
+
+## Next
+
+<Link to="/knoxcoder/reference/upgrade">Upgrade</Link> · <Link to="/knoxcoder">What is KnoxCoder</Link> · <Link to="/knoxcoder/first-chat">First chat</Link>

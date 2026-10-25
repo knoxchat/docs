@@ -1,0 +1,82 @@
+---
+id: index
+slug: /
+title: KnoxCoder 是什么
+sidebar_label: KnoxCoder 是什么
+description: KnoxCoder 是带内置原生编程 Agent 的桌面编辑器：对话、工具、本地记忆、以及不依赖 git 的检查点。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# KnoxCoder 是什么
+
+**KnoxCoder** 是基于 Visual Studio Code 开源版的桌面代码编辑器。应用里已经内置 **Knox Agent**：原生侧边栏对话，可以读项目、改文件、跑命令、在本机记住事实，并回滚它自己做过的修改。
+
+下载应用、打开文件夹、对 Knox 说话即可。Agent **不需要** 从 Open VSX / 市场再装一次，也不应该再装。
+
+本指南讲如何 **使用** KnoxCoder——从第一次启动到 Agent 的每一块界面。这里不是 Knox.Chat HTTP API 参考（API 仍在 [文档](/) 和 [API 参考](/1.0.0/api-reference)）。
+
+## 三块东西不要混
+
+| 名称 | 是什么 |
+|---|---|
+| **KnoxCoder** | 编辑器应用（`knoxcoder`）。编辑、Git、终端、扩展模型和 VS Code 同类，由 KnoxStudio 品牌化并打包。 |
+| **Knox Agent** | 内置编程 Agent。系统扩展 id `vscode.knox`，和 Git 同一级。侧边栏对话、工具、Memory Brain、检查点。第一次启动就在——不用安装。 |
+| **Knox.Chat API** | 给应用走 HTTP 调模型的云 API（`api.knox.chat`）。在「文档」标签里，不在这里。 |
+
+KnoxCoder **可以** 在登录后把 Knox.Chat / KnoxStudio 当作模型供应商。这并不会把本标签变成 API 文档。
+
+## Knox Agent 会做什么
+
+一轮典型对话里，Knox 会：
+
+1. 读取你的消息、当前打开的文件，以及项目说明（`AGENTS.md` 等）。
+2. 调用工具：读写/搜索文件、跑 shell、看 git、问你问题、拉起子 Agent。
+3. 在侧边栏用工具卡片展示进度。你可以停下它、切换 **Ask / Edits / Auto**，或打开 **Plan**，让它只探索到你点 **Execute plan**。
+4. 改文件前打一个 **检查点**，以后不必靠 git 也能还原。
+5. 把有用的事实存进本机 **Memory Brain**（sqlite，词法检索——不是向量数据库）。
+
+聊天界面是 **原生工作台面板**，不是 webview。设置和命令 id 仍是 `knoxchat.*`，旧快捷键和 `settings.json` 继续有效；界面文案写的是 Knox。
+
+## 不要安装这些
+
+- **不要** 在 KnoxCoder 里安装市场扩展 `knoxchat.knoxchat`。该 id 已隐藏、禁止安装；如果残留用户副本，会被禁用。那是给原版 VS Code 用的另一款产品，数据在 `~/.knox`。
+- KnoxCoder **不会** 把 Knox 发到 Open VSX / Visual Studio Marketplace。Agent 编译进应用。
+- 可以在扩展视图里 **禁用** Knox，**不能卸载**。
+
+## 这台电脑上的数据
+
+Knox 的全局数据在 **`~/.knoxcoder`**（完整路径可用 `KNOX_GLOBAL_DIR` 覆盖）：
+
+- `config.yaml` — 模型与 Agent 配置
+- 会话、Memory Brain（`brain.sqlite`）、检查点
+- skills、prompts、日志、后台任务输出
+- Knox OAuth 会话（`auth.json`，权限 `0600`）。编辑器同时使用 SecretStorage。
+
+**没有** 从 `~/.knox` 回退或迁移。如果以前用过市场版 Knox，请自行拷贝。
+
+项目级文件留在 **仓库里**：`.knoxcoder/`（hooks、自定义 Agent、prompts、`AGENTS.md`）、`.knoxrules`、`.knoxignore`。KnoxCoder 项目里不要用 `.knox/`——那个目录属于市场扩展。
+
+## 语言、许可证、平台
+
+- 界面语言：**仅英语和中文**。
+- 许可证：KnoxCoder 为 [GPL-3.0](https://github.com/knoxchat/knoxcoder/blob/main/LICENSE.txt)。上游 VS Code 文件仍为 MIT。
+- 桌面应用覆盖 macOS、Windows、Linux。2.2 里 Knox Agent **不支持** Remote SSH、WSL、开发容器。Web 版编辑器不含 Knox。
+
+## 2.2 里没有的东西
+
+写清楚，避免后文说错：
+
+- 编辑器内没有 MCP 服务器
+- 没有无界面 CLI（`knox run` 已移除）
+- 没有操作系统级命令沙箱（shell 靠权限询问 + command guard）
+- 没有幽灵文字 / FIM 行内补全（编辑器内协助是 <kbd>⌘I</kbd> / <kbd>Ctrl+I</kbd>、从对话 Apply、以及先审再改）
+- Memory Brain 不用向量嵌入
+- `config.yaml` 的 `uses:` 没有远程包仓库
+
+## 接下来
+
+1. <Link to="/knoxcoder/install">按系统安装 KnoxCoder</Link>。
+2. <Link to="/knoxcoder/models">登录或添加模型</Link>。
+3. <Link to="/knoxcoder/first-chat">在真实文件夹里发第一条消息</Link>。

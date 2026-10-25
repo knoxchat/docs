@@ -1,0 +1,40 @@
+---
+title: 会话作上下文
+sidebar_label: 会话作上下文
+description: 把过去一次对话的摘要钉进下一轮 Memory Brain 注入 — Use as context 与删除。不会新建存储。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# 会话作上下文
+
+**Knox: View Memory** → **Sessions** 列出 Memory Brain 的会话行（与 **Knox: View History** 的对话浮层不是同一界面）。
+
+<KcShot
+  src="/img/knoxcoder/memory-sessions.png"
+  alt="Sessions 标签上的 Use as context 和 Delete session"
+  caption="Sessions 标签：Use as context 把该摘要钉进之后的注入。不会新建第二个存储。"
+/>
+
+两个动作重要：
+
+| 动作 | 做什么 |
+|---|---|
+| **Use as context** | 把该会话的 **摘要** 和 **靠前的语义行** 钉进 **下一次注入**。不新建数据库，也不会把整份记录拷进 sqlite。 |
+| **Delete** | 从 Brain 删除该会话行。`~/.knoxcoder/sessions/` 下的对话文件是另一回事；History 删除走浮层。 |
+
+Use as context 适合「让上周改 auth 的决定继续生效」，而不必粘贴日志。它覆盖你刚请求的注入周期，不是永远 — 若要持久事实，请固定单条 <Link to="/knoxcoder/memory/memories">记忆</Link>。
+
+## History 浮层 vs Sessions 标签
+
+| 界面 | 命令 | 用途 |
+|---|---|---|
+| History | **Knox: View History** | 重命名、删除、重开对话；那里也有面向 live composer 的 **Use as context** |
+| Memory → Sessions | **Knox: View Memory** | Brain 的会话索引：删除，以及把 Use as context 送进 **记忆注入** |
+
+两者都不会上传。`/share` 写一份 **本地** Markdown 和 `knoxcoder://` URI — <Link to="/knoxcoder/agent/slash">斜杠命令</Link>。
+
+## 下一步
+
+<Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/memory/memories">Memories 标签</Link> · <Link to="/knoxcoder/agent/chat-ui">对话界面</Link>

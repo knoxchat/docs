@@ -1,0 +1,82 @@
+---
+id: index
+slug: /
+title: What is KnoxCoder
+sidebar_label: What is KnoxCoder
+description: KnoxCoder is a desktop code editor with a builtin native coding agent — chat, tools, local memory, and git-independent checkpoints.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# What is KnoxCoder
+
+**KnoxCoder** is a desktop code editor based on Visual Studio Code open source. It ships with **Knox Agent** already installed: a native sidebar chat that can read your project, edit files, run commands, remember facts locally, and roll back its own work.
+
+You download an app. You open a folder. You talk to Knox. There is no Open VSX / marketplace install for the agent, and you should not add one.
+
+This guide is for **using** KnoxCoder — from first launch through every agent surface. It is not the Knox.Chat HTTP API reference (that stays under [Docs](/) and [API Reference](/1.0.0/api-reference)).
+
+## The pieces
+
+| Name | What it is |
+|---|---|
+| **KnoxCoder** | The editor app (`knoxcoder`). Same editing, Git, terminal, and extensions model as VS Code, branded and packaged by KnoxStudio. |
+| **Knox Agent** | The builtin coding agent. System extension id `vscode.knox`, the same class as Git. Sidebar chat, tools, Memory Brain, checkpoints. On first launch — you do not install it. |
+| **Knox.Chat API** | A separate cloud API (`api.knox.chat`) for apps that call models over HTTP. Documented in the Docs tab, not here. |
+
+KnoxCoder can *use* Knox.Chat / KnoxStudio as a model provider after you sign in. That does not make this tab the API docs.
+
+## What Knox Agent does
+
+On a typical turn Knox:
+
+1. Reads your message, open files, and project instructions (`AGENTS.md` and friends).
+2. Calls tools: read/search/edit files, run a shell command, talk to git, ask you a question, spawn a subagent.
+3. Shows tool cards in the sidebar as it works. You can stop it, switch **Ask / Edits / Auto**, or turn on **Plan** so it only explores until you say **Execute plan**.
+4. Takes a **checkpoint** before it changes files, so you can restore later without using git.
+5. Stores useful facts in **Memory Brain** on this machine (sqlite, lexical search — not a vector database).
+
+The chat UI is a **native workbench pane**, not a webview. Settings and command IDs stay `knoxchat.*` so old keybindings and `settings.json` keep working; the UI copy says Knox.
+
+## What you do *not* install
+
+- **Do not install** the marketplace extension `knoxchat.knoxchat` inside KnoxCoder. That id is hidden, blocked from install, and disabled if a leftover copy is present. It is a different product for vanilla VS Code, and it stores data in `~/.knox`.
+- KnoxCoder does **not** publish Knox as an Open VSX / Visual Studio Marketplace VSIX. The agent is compiled into the app.
+- You can **Disable** Knox from the Extensions view. You cannot uninstall it.
+
+## Data on this computer
+
+Everything Knox owns globally lives in **`~/.knoxcoder`** (override the full path with `KNOX_GLOBAL_DIR`):
+
+- `config.yaml` — models and agent config
+- sessions, Memory Brain (`brain.sqlite`), checkpoints
+- skills, prompts, logs, background-job output
+- Knox OAuth session (`auth.json`, mode 0600). The editor also uses SecretStorage.
+
+There is **no** fallback to or migration from `~/.knox`. If you used marketplace Knox before, copy files yourself.
+
+Project-level files stay **in the repo**: `.knoxcoder/` (hooks, custom agents, prompts, `AGENTS.md`), `.knoxrules`, `.knoxignore`. Never use `.knox/` in a KnoxCoder project — that directory belongs to the marketplace extension.
+
+## Locales, license, platforms
+
+- UI languages: **English and Chinese** only.
+- License: KnoxCoder is [GPL-3.0](https://github.com/knoxchat/knoxcoder/blob/main/LICENSE.txt). Upstream VS Code files remain MIT.
+- Desktop apps for macOS, Windows, and Linux. **Remote SSH, WSL, and dev containers are not supported** for Knox Agent in 2.2. The web editor build does not include Knox.
+
+## What is not in 2.2
+
+Call these out so the rest of the guide stays honest:
+
+- No MCP servers inside the editor
+- No headless CLI (`knox run` was removed)
+- No OS command sandbox (shell uses permission prompts + command guard)
+- No ghost-text / fill-in-the-middle inline completions (in-editor assist is <kbd>⌘I</kbd> / <kbd>Ctrl+I</kbd>, Apply from chat, and review-before-edit)
+- No vector embeddings for Memory Brain
+- No remote package registry for `config.yaml` `uses:`
+
+## Next
+
+1. <Link to="/knoxcoder/install">Install KnoxCoder</Link> for your OS.
+2. <Link to="/knoxcoder/models">Sign in or add a model</Link>.
+3. <Link to="/knoxcoder/first-chat">Send the first chat</Link> in a real folder.

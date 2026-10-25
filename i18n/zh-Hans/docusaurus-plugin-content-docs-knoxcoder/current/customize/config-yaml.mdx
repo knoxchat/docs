@@ -1,0 +1,80 @@
+---
+title: Prompts 与 config.yaml
+sidebar_label: Prompts 与 config.yaml
+description: 自定义斜杠 prompts、config.yaml 里的模型和上下文提供者，以及本地 uses owner/package — 远程注册表会被拒绝。
+---
+
+import Link from '@docusaurus/Link';
+
+# Prompts 与 config.yaml
+
+除了 <Link to="/knoxcoder/customize/agents-md">AGENTS.md</Link> 和 <Link to="/knoxcoder/customize/skills">skills</Link>，还有两种定制方式：**prompt 文件**（额外的 `/` 命令）和 **`config.yaml`**（模型、供应商、上下文、可选的 `uses:` 引用）。
+
+## Prompt 文件当作斜杠命令
+
+Markdown 文件放在：
+
+| 路径 | 范围 |
+|---|---|
+| `.knoxcoder/prompts` | 本项目 |
+| `~/.knoxcoder/prompts` | 本机 |
+
+它们出现在 `/` 选择器的 **Prompts** 下，不在 **Commands** 下。命令名就是 `/` 后面你输入的内容。从 Prompts 浮层（**Add Prompt**）创建，或把文件丢进该文件夹。
+
+Prompt 文件 **只有** 在你当作斜杠命令调用时才生效。它们不是始终生效的说明（那种请用 `AGENTS.md`）。
+
+## `config.yaml`
+
+**Knox: Settings → Open Config File**，或编辑：
+
+| 路径 | 作用 |
+|---|---|
+| `~/.knoxcoder/config.yaml` | 用户模型、供应商、部分 Agent 配置、可选 `hooks:` |
+| `.knoxcoder/config.yaml` | 可选的项目覆盖 |
+
+从 GUI 编辑会保留一次性的 `config.yaml.vpre-edit.bak`。升级时 Knox **从不改写** 该文件。
+
+最小的本地模型示例（<Link to="/knoxcoder/models">登录与模型</Link> 也有）：
+
+```yaml
+name: Knox
+version: "1.0.0"
+schema: v1
+models:
+  - name: Local Llama
+    provider: openai
+    model: llama3
+    apiBase: http://127.0.0.1:11434/v1
+    apiKey: ollama
+```
+
+`name` 是 composer 和 `knoxchat.fallbackModel` 里的 **标题**。
+
+还可以在 YAML 里声明 `context:` 提供者、`prompts:`、`rules:` 和 `hooks:`。项目 hooks 更建议放 `.knoxcoder/hooks.json`，这样在仓库里更显眼。
+
+## `uses: owner/package`（仅本地注册表）
+
+某个块可以写 `uses: owner/package`（可选 `owner/package@version`）。Knox 从 **本机** 加载 YAML：
+
+```text
+~/.knoxcoder/registry/owner/package.yaml
+~/.knoxcoder/registry/owner/package@version.yaml
+```
+
+（`KNOX_GLOBAL_DIR` 替换 `~/.knoxcoder`。）文件不存在是 **错误**，不会发起网络请求。
+
+2.2 **不支持远程注册表**。没有包下载，没有定时 Agent，KnoxCoder 内也没有 MCP 服务器。
+
+把 YAML 片段自己拷到 `registry/owner/`，或直接写进 `config.yaml`。
+
+## 不要放进 `config.yaml` 的东西
+
+| 不要 | 原因 |
+|---|---|
+| `KNOX_API_KEY` | 2.2 不读取 — <Link to="/knoxcoder/models">OAuth 或自带密钥</Link> |
+| 市场版 `~/.knox` 路径 | 另一个产品 |
+| Embedding / 向量记忆设置 | Memory Brain 是本地词法检索 |
+
+## 下一步
+
+<Link to="/knoxcoder/models">登录与模型</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/settings/reference">设置参考</Link>

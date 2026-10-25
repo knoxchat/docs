@@ -1,0 +1,75 @@
+---
+title: Mentions
+sidebar_label: Mentions
+description: Type @ in the Knox composer — default providers, live file search, chips, and what you add in config.yaml.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Mentions
+
+Type `@` in the <Link to="/knoxcoder/agent/composer">composer</Link> to attach extra context. Placeholder: **Ask anything! Type @ for more features...** Landmark name: Context mentions.
+
+Arrow keys move, <kbd>Enter</kbd> / <kbd>Tab</kbd> insert a **chip**, <kbd>Esc</kbd> closes. <kbd>Enter</kbd> with the list open never sends the message.
+
+File and folder chips **open in the editor** (hover shows the path). Provider chips (`@diff`, `@problems`, …) do not. Remove a chip with its delete control (**Remove mention**).
+
+This is not a slash command. `/` is <Link to="/knoxcoder/agent/slash">Slash commands</Link>.
+
+## List layout
+
+With an empty query the list is **Open** (open editors, up to 8 files) then **Providers**. After you type, sections are **Files**, **Folders**, **Providers** (and **Other** if needed). Submenus have **Back**.
+
+Top of the list is capped at **40** rows. Live workspace search starts after **two characters**, if fewer than **8** path hits are already showing (150 ms debounce, walk cap **200**). Ranking prefers open files, then exact basename, prefix / camelCase token, then path match; files beat folders on a tie.
+
+Empty: **No files match** / *Try a file name or path*. A truncated walk shows **Showing first N files**.
+
+## Defaults (always on)
+
+These six are always in the picker after load:
+
+| Type `@` | UI title | What it attaches |
+|---|---|---|
+| `@file` | File \| Folder | Submenu: files and folders in the workspace. Same as typing a path after `@`. |
+| `@diff` | Git Diff | Current git diff |
+| `@problems` | Problems | Diagnostics |
+| `@repo-map` | Repository Structure Map | Submenu: repo map (zoom with a path) |
+| `@terminal` | Terminal | Terminal buffer |
+| `@memory` | Project Memory | Query Memories (lexical; not a vector store) |
+
+Open editors appear under **Open** without typing `@file` first.
+
+Knox already sends **Turn Context** (open files, git, diagnostics) and a <Link to="/knoxcoder/agent/profiles">workspace card</Link> on submit. Mentions are extra, when you want a *specific* file, diff, or memory.
+
+## Opt-in (`context:` in config)
+
+These exist in the registry. They show only if you add them under `context:` in `config.yaml` (or a loaded package):
+
+`currentFile`, `open`, `clipboard`, `commit`, `tree`, `search`, `os`, `url`, `serial`
+
+They are **not** on a stock KnoxCoder install.
+
+## Integrations (keys / config)
+
+Never default. Missing required params are skipped (fail closed):
+
+| Name | Needs |
+|---|---|
+| `google` | `serperApiKey` |
+| `discord` | `discordKey` |
+| `postgres` | `host` and `database` |
+| `database` | `connections[]` |
+| `http` | `url` |
+| `issue` | `githubToken` |
+| `greptile`, `web`, `debugger` | an explicit `context:` entry (runtime may still need tokens) |
+
+Do not expect `@google` or `@debugger` until you configure them. There is no MCP mention provider.
+
+## Cmd+I edit mode
+
+In <Link to="/knoxcoder/agent/inline-edit">inline edit</Link> mode these titles are **hidden**: `tree`, `open`, `web`, `diff`, `folder`, `search`, `debugger`, `repo-map`. File mentions still work.
+
+## Next
+
+<Link to="/knoxcoder/agent/composer">Composer and context</Link> · <Link to="/knoxcoder/agent/slash">Slash commands</Link>

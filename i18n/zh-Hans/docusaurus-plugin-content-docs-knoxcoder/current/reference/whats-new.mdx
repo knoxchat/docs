@@ -1,0 +1,40 @@
+---
+title: 更新说明（2.2）
+sidebar_label: 更新说明（2.2）
+description: KnoxCoder 2.2.2 面向用户的亮点 — Plan、后台启动、记忆写入、recipes 引导、检查点，以及 2.2 仍没有的东西。
+---
+
+import Link from '@docusaurus/Link';
+
+# 更新说明（2.2）
+
+KnoxCoder **2.2.2**。每个资源的 SHA-256 在 GitHub Release 的 `SHA256SUMS`。升级步骤：<Link to="/knoxcoder/reference/upgrade">升级</Link>。缺口：<Link to="/knoxcoder/safety/limitations">已知限制</Link>。
+
+## 2.2.2
+
+- **记忆写入与纠正。** 说出偏好或决定的对话会落到 Memories。**Create** / **Edit** / **Not relevant**，以及 composer **Remember** — 不调模型。
+- **释义回忆**，基于规则的同义词。行上显示 `injected last turn · lexical: …`。**没有 embeddings。**
+- 变绿的改文件轮次之后有 **recipes 引导**（默认仍 **关**）。Preview / Replay / Verify / Restore / Save as skill。
+- **Sessions Use as context**、带日志的 Restore All、每轮一个带标签的检查点、Agent 工具上的检查点 **分支**。
+- 流式更可读：思考芯片、终端卡片最多五行、向上滚动时暂停自动滚动、流式中可复制。
+
+## 2.2.1
+
+- 跳到 composer、landmarks、具名的权限 / 任务 / 检查点 / recipe 界面。VoiceOver/NVDA 仍需人工检查。
+- 自动更新读取 GitHub Releases 的 `latest-*.json`（不是 releases HTML 页）。
+
+## 2.2.0
+
+- **一条产品路径。** 侧栏 Agent 与 eval 使用同一循环：oracle-hold、自动上下文、工作区卡片、Turn Context。
+- **Plan 模式。** Composer 开关；准备好后 **Execute plan**。
+- **后台启动。** **Run in background** / **Knox: Background Agents: Start**（上限 2）。
+- 在已分类工作区和 systems 上 **该用 LSP 时才用**。Git status/diff 仍在延迟核心集里。
+- **中文记忆搜索** 靠 sqlite FTS 重叠双字 — 不是向量。
+
+## 2.2 没有
+
+MCP、向量 embeddings、环境 API 密钥（`KNOX_API_KEY`）、无界面 CLI、浏览器工具、SSH/WSL Agent 宿主。
+
+## 下一步
+
+<Link to="/knoxcoder/reference/upgrade">升级</Link> · <Link to="/knoxcoder">KnoxCoder 是什么</Link> · <Link to="/knoxcoder/first-chat">第一次对话</Link>

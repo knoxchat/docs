@@ -1,0 +1,97 @@
+---
+title: Permission modes
+sidebar_label: Permission modes
+description: Ask mode, Edits, and Auto — what each allows, fresh-clone Ask, Shift+Tab, Review edits, and commands that are always denied.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Permission modes
+
+The permission bar on the <Link to="/knoxcoder/agent/composer">composer</Link> is how tools are approved. It is **not** Chat vs Agent (that split is gone; Jev routes when enabled). Three **permission modes**: **Ask mode**, **Edits**, and **Auto**. Cycle **Ask → Edits → Auto → Ask** with **Shift+Tab**, or click the control.
+
+Hints on the control:
+
+| Mode | UI hint | Reads | File edits | Shell / PTY / QEMU |
+|---|---|---|---|---|
+| **Ask** | Ask before writes and terminal | automatic | asks | asks |
+| **Edits** | Auto-approve file edits; ask for terminal | automatic | automatic | asks |
+| **Auto** | Auto-approve every enabled tool (YOLO, default) | automatic | automatic | automatic |
+
+**Approve** on a permission card allows **this call**. **Always** auto-approves that tool for the **rest of this chat**. **Deny** blocks it.
+
+## How a new session picks a mode
+
+1. A mode you **already saved for this folder** wins.
+2. Else `knoxchat.permissionDefault` (`auto` / `ask` / `edits`) if you set it.
+3. Else **Auto** if Knox has used the folder before, **or** the git remote substring is in `knoxchat.trustedGitRemotes` (example: `github.com/torvalds/linux`).
+4. Else **Ask** on a **fresh clone** (no prior Knox sessions, remote not allowlisted), with:
+
+   > Started in Ask: this folder looks like a new clone with no prior Knox sessions.
+
+   **Keep Ask** / **Use Auto**.
+
+When Auto is on and the transcript is still empty, a YOLO notice:
+
+> Auto (YOLO) is on: Knox runs tools without asking. Switch to Ask if this repo is untrusted.
+
+**Keep Auto** / **Switch to Ask**. Dismissed notices stay dismissed for that session.
+
+Stay in **Ask** or **Edits** on a repo you do not trust. Auto can edit the project; that is by design.
+
+## Always denied (every mode)
+
+Destructive and download-and-execute patterns are blocked unless you allow that **command** in the agent policy (Tools overlay → **Path & command policy**):
+
+`git push --force`, `git reset --hard`, `git clean -fd`, `chmod -R`, raw device writes, `curl | sh`, `find -delete`, and similar.
+
+Policy file: one rule per line, `allow|ask|deny` + pattern. **Deny always wins.** Project `always` / `ask` / `never` blocks in `AGENTS.md` are applied too.
+
+Also always:
+
+- Hard path denies (`~/.ssh`, `~/.gnupg`, `**/.ssh/**`) on lexical **and** resolved paths
+- Secret files (`.env*`, `*.pem`, `id_*`) **ask**, even in Auto
+- Paths **outside the workspace** ask or deny (symlinks resolved)
+- `builtin_fetch_url` follows `knoxchat.networkMode` (allow / deny / allowlist)
+
+Command guard also blocks some one-hop indirection (`VAR=cmd; $VAR`, `eval "$VAR"`, “write a script then run it”). Encoded scripts, `make` recipes, and deeper tricks can still slip through — use Ask/Edits on untrusted trees.
+
+## Review edits
+
+**Review edits** (mode popover chip, not a fourth permission):
+
+- File edits stay **in memory** until you **Apply** / **Discard** each file (or Apply all / Discard all).
+- A checkpoint is taken before Apply all writes to disk.
+- **Shell commands still run on the real disk**, not on the staged tree.
+
+Leave the chip only after applying or discarding pending files. Full page: <Link to="/knoxcoder/agent/review-edits">Review edits</Link>.
+
+## Plan is separate
+
+**Plan** is a composer toggle next to Ask / Edits / Auto. It does **not** change the permission table. When you **Execute plan**, Ask / Edits / Auto apply as they stand. Details: <Link to="/knoxcoder/agent/plan">Plan mode</Link>.
+
+## Tools overlay
+
+**Tools** (wrench) is where you disable a group, set a tool to ask/allow/off, and edit path & command policy.
+
+- **Ask on write** preset: reads auto; writes, terminal, and web ask.
+- **YOLO** preset: auto-approve every enabled tool (previous Knox default).
+
+`knoxchat.enableCompositeTools` (off by default) is the only way composite_* tools appear on the catalog.
+
+## Background jobs
+
+**Run in background** / **Knox: Background Agents: Start**: edits auto-apply in the worktree; **shell is denied unless Auto**. Merge / Discard in **Jobs**. Cap 2 concurrent. Full page: <Link to="/knoxcoder/agent/background">Background agents</Link>.
+
+## Settings recap
+
+| Setting | Effect |
+|---|---|
+| `knoxchat.permissionDefault` | Override the heuristic (`auto` / `ask` / `edits`) |
+| `knoxchat.trustedGitRemotes` | Remote URL substrings that keep new sessions in Auto |
+| `knoxchat.networkMode` | `builtin_fetch_url` allow / deny / allowlist |
+
+## Next
+
+<Link to="/knoxcoder/agent/plan">Plan mode</Link> · <Link to="/knoxcoder/first-chat">First chat</Link> · <Link to="/knoxcoder/agent/chat-ui">Chat UI</Link>

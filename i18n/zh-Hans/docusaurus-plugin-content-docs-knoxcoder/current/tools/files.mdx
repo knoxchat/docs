@@ -1,0 +1,48 @@
+---
+title: 文件与搜索
+sidebar_label: 文件与搜索
+description: 读、编辑、写入、apply_patch、glob 和精确搜索 — 模糊匹配、Review edits 和路径策略。
+---
+
+import Link from '@docusaurus/Link';
+
+# 文件与搜索
+
+核心文件工具（默认目录始终包含）：
+
+| 工具 | 作用 |
+|---|---|
+| `builtin_read_file` / `builtin_read_currently_open_file` | 读取 |
+| `builtin_create_new_file` / `builtin_write_file` / `builtin_edit_file` | 创建和编辑 |
+| `builtin_apply_patch` | Unified-diff / Apply Patch hunks |
+| `builtin_view_subdirectory` | 列目录（模型省略 `maxFiles` 时默认上限 1000 个文件） |
+| `builtin_glob` | 按模式找路径 |
+| `builtin_exact_search` | 精确 / 正则搜索（ripgrep 风格） |
+| `builtin_view_repo_map` | 结构地图 |
+
+延迟：`builtin_enhanced_search`、`builtin_view_diff`、`builtin_generate_tests`。
+
+## `apply_patch` 模糊匹配
+
+Hunk 可容忍缩进、行尾空白、引号/破折号漂移、过期上下文（git 风格 fuzz）、残缺的首/末行，以及 unified-diff 的 `---` / `+++` 包装。**Add File** 在路径已存在时会覆盖（与 write 相同）。
+
+补丁仍失败时，2.1.3+ 会更紧地重试写入；你也可以从对话应用（**Alt+A** / **⌥A**）或用 <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link>。
+
+## Review edits
+
+打开 <Link to="/knoxcoder/agent/review-edits">Review edits</Link> 时，文件工具在 **内存** 里暂存。**Apply** 才写盘（Apply all 会先打检查点）。Shell 仍看到 **真实** 磁盘，不是暂存树。
+
+## 路径策略
+
+始终：
+
+- 硬拒绝：`~/.ssh`、`~/.gnupg`、`**/.ssh/**`（词面 **和** 解析后的路径）
+- 机密文件（`.env*`、`*.pem`、`id_*`）即使 Auto 也 **询问**
+- 工作区 **之外** 的路径询问或拒绝（解析符号链接）
+- Cargo registry **写入** 拒绝；允许读 `~/.cargo/registry/src`
+
+`.knoxignore` 影响检查点和部分遍历；不能替代在不信任树上使用 Ask。
+
+## 下一步
+
+<Link to="/knoxcoder/tools/catalog">工具目录</Link> · <Link to="/knoxcoder/tools/terminal-git">终端与 git</Link> · <Link to="/knoxcoder/agent/review-edits">Review edits</Link>

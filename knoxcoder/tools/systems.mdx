@@ -1,0 +1,60 @@
+---
+title: Systems (kernel / QEMU / Rust)
+sidebar_label: Systems (kernel / QEMU / Rust)
+description: Who the systems and rust profiles are for — QEMU, kconfig, maintainers, PTY, builtin_debug versus a configured @debugger mention.
+---
+
+import Link from '@docusaurus/Link';
+
+# Systems (kernel / QEMU / Rust)
+
+`knoxchat.agentProfile` **systems** / **rust** / **auto** change the **loop** (doom-loop, post-edit oracle) and which tools sit on the **core** catalog. Permissions are still Ask / Edits / Auto. Full table: <Link to="/knoxcoder/agent/profiles">Agent profiles</Link>.
+
+This page is for people working on **Linux kernels, QEMU, or Cargo workspaces** inside KnoxCoder. App repos should stay on **default** (or let `auto` pick).
+
+## Who `auto` picks
+
+First match on the **workspace root** (not nested folders):
+
+1. **kernel** — `Kconfig` plus `arch/` / `Makefile` / `Kbuild`
+2. **qemu** — `meson.build` plus `target/` / `accel/` / `hw/`
+3. **cargo** — **root** `Cargo.toml` (nested `rust/Cargo.toml` does not count, so rust-for-linux stays systems)
+4. Otherwise **default**
+
+Bare `Makefile` / `CMakeLists.txt` is **not** enough for systems.
+
+## Systems-core tools
+
+When the resolved profile is systems, these are sent every turn (plus the usual core set):
+
+| Tool | Role |
+|---|---|
+| `builtin_build` | `make` / meson-oriented build helpers |
+| `builtin_pty_start` / `send` / `read` | Serial / interactive PTY |
+| `builtin_qemu` | Drive QEMU |
+| `builtin_debug` | DAP session (gdb / CodeLLDB / Native Debug) |
+| `builtin_kconfig` | Kconfig |
+| `builtin_maintainers` | MAINTAINERS lookup |
+
+Plan mode refuses writes, shell, **PTY**, and **QEMU** until **Execute plan**.
+
+## Bundled skills
+
+Shipped `SKILL.md` packs: **linux-kernel**, **qemu**, **gdb**, **kbuild**, **rust**. Project skills with the same name override. `/skills` lists them. See <Link to="/knoxcoder/customize/skills">Skills</Link>.
+
+## `builtin_debug` vs `@debugger`
+
+| Surface | What it is |
+|---|---|
+| `builtin_debug` | Agent tool: launch / attach / breakpoint / step / backtrace via the editor’s **DAP** adapter. Gated: systems profile **or** an active debug session. Prefer this over inventing gdb commands when a session exists. |
+| `@debugger` | Composer **mention** provider. **Not** on a stock install — add it under `context:` in `config.yaml`. Hidden in Cmd+I mode. |
+
+`@debugger` does not replace `builtin_debug`. Configure a `launch.json` the way you would in VS Code.
+
+## Rust inner loop
+
+On a Cargo root, the bundled **rust** skill plus `builtin_build` (`check` → `clippy` → `test` → `gate`) is the intended loop. rust-analyzer hover before inventing methods. Writes under `~/.cargo/registry` are denied.
+
+## Next
+
+<Link to="/knoxcoder/agent/profiles">Agent profiles</Link> · <Link to="/knoxcoder/tools/lsp-build">LSP, build, verify</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link>

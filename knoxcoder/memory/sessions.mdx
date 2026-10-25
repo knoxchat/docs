@@ -1,0 +1,40 @@
+---
+title: Sessions as context
+sidebar_label: Sessions as context
+description: Pin a past chat’s summary into the next Memory Brain inject — Use as context versus delete. Does not create a new store.
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# Sessions as context
+
+**Knox: View Memory** → **Sessions** lists Memory Brain’s session rows (not the same UI as **Knox: View History**, which is the chat overlay).
+
+<KcShot
+  src="/img/knoxcoder/memory-sessions.png"
+  alt="Sessions tab with Use as context and Delete session on a past chat"
+  caption="Sessions tab: Use as context pins that summary into later injects. It does not create a second store."
+/>
+
+Two actions matter:
+
+| Action | What it does |
+|---|---|
+| **Use as context** | Pins that session’s **summary** and **top semantic rows** into the **next inject**. No new database, no copy of the whole transcript into sqlite. |
+| **Delete** | Removes that session row from Brain. Chat files under `~/.knoxcoder/sessions/` are separate; History delete is the overlay. |
+
+Use as context is for “keep last week’s auth-refactor decisions in play” without pasting the log. It lasts for the inject cycle you just requested, not forever — pin individual <Link to="/knoxcoder/memory/memories">memories</Link> if you want a durable fact.
+
+## History overlay vs Sessions tab
+
+| Surface | Command | For |
+|---|---|---|
+| History | **Knox: View History** | Rename, delete, reopen chats; **Use as context** also exists there for the live composer |
+| Memory → Sessions | **Knox: View Memory** | Brain’s session index: delete, Use as context into **memory inject** |
+
+Neither uploads. `/share` writes a **local** Markdown file and a `knoxcoder://` URI — <Link to="/knoxcoder/agent/slash">Slash commands</Link>.
+
+## Next
+
+<Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/memory/memories">Memories tab</Link> · <Link to="/knoxcoder/agent/chat-ui">Chat UI</Link>

@@ -1,0 +1,45 @@
+---
+title: Self-improve
+sidebar_label: Self-improve
+description: Off by default. Local analysis of memory and checkpoint history that proposes fixes and issue drafts — nothing is posted automatically.
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# Self-improve
+
+`knoxchat.selfImprove.enabled` is **off by default**. When on (and usually with <Link to="/knoxcoder/memory/recipes">recipes</Link> on), the memory sleep cycle reviews recorded failures **on this machine**.
+
+<KcShot
+  src="/img/knoxcoder/memory-settings.png"
+  alt="Memory Settings showing Let Knox review its own history toggle"
+  caption="Self-improve is Let Knox review its own history on Memory → Settings. Off by default. Nothing is posted automatically."
+/>
+
+It may:
+
+- Store an `error_fix` memory for failures seen **3 or more** times
+- Quarantine failing recipes
+- Merge duplicate recipes
+- Propose memory fixes, skills, and **local issue drafts**
+
+**Proposals need your approval.** Nothing is posted to GitHub, Knox.Chat, or anywhere else automatically.
+
+This is **not** a cloud fine-tune, **not** embeddings, and **not** an unattended rewrite of your repo.
+
+## Where to turn it on
+
+**Memory → Settings**, same card as recipes (`knoxchat.selfImprove.enabled`). Agent Settings does not list it.
+
+## What it is not
+
+- Not MCP
+- Not scheduled agents (those are **not in 2.2**)
+- Not the internal `npm run mc:self-improve` contributor report (that stays in the Knox repo’s engineering docs)
+
+Stay in <Link to="/knoxcoder/agent/permissions">Ask or Edits</Link> if you do not want unattended file changes while you evaluate proposals.
+
+## Next
+
+<Link to="/knoxcoder/memory/recipes">Recipes</Link> · <Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/safety/privacy">Privacy</Link>

@@ -1,0 +1,33 @@
+---
+title: Composite tools
+sidebar_label: Composite tools
+description: Heuristic composite_* helpers — off by default. Scaffolds and pattern scans, not magic.
+---
+
+import Link from '@docusaurus/Link';
+
+# Composite tools
+
+`composite_*` tools are **off** unless you set `knoxchat.enableCompositeTools`. Even then they are scaffolds and heuristics, **not** a second agent and **not** a guarantee of a correct patch.
+
+They stay routed through `callTool` for honesty tests when off; the model simply does not see them.
+
+JS import/export/class heuristics are **skipped** for `.c` / `.h` / `.S` / Kconfig.
+
+## Catalog (when enabled)
+
+| Tool | Honest behavior |
+|---|---|
+| `composite_smart_edit` | Read → modify → optional validate. **Not** full AST analysis. |
+| `composite_implement_feature` | Structural **stubs** (`execute()` throws NotImplemented until filled in). Does **not** implement real business logic or create git commits. |
+| `composite_investigate_bug` | Search + optional web lookup → heuristic report. **No** git-history analysis or deep static analysis. |
+| `composite_code_review` | Pattern-scan local diffs. **Not** a substitute for human review or SAST. |
+| `composite_migrate` | Regex / convention migrate. Not a compiler. |
+| `composite_health_check` | Heuristic project health. |
+| `composite_learn_codebase` | Heuristic map of the tree. Not a full index. |
+
+If you leave them off (recommended), Knox already has read / search / edit / `builtin_task` for the same jobs, with clearer cards.
+
+## Next
+
+<Link to="/knoxcoder/tools/catalog">Tool catalog</Link> · <Link to="/knoxcoder/settings/reference">Settings reference</Link> · <Link to="/knoxcoder/agent/permissions">Permission modes</Link>

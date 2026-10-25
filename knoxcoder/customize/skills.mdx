@@ -1,0 +1,67 @@
+---
+title: Skills
+sidebar_label: Skills
+description: SKILL.md files Knox can load — locations, frontmatter, globs, bundled rust/kernel/QEMU skills, and /skills.
+---
+
+import Link from '@docusaurus/Link';
+
+# Skills
+
+A **skill** is a folder with a `SKILL.md`: short frontmatter plus a markdown body the agent can load with `builtin_skill`. Skills are extra instructions for a domain (Rust gates, kernel builds, your team’s review checklist). They do **not** add tools or bypass <Link to="/knoxcoder/agent/permissions">permissions</Link>.
+
+Skills are **not** dumped into every prompt. Knox may hint a matching skill name; the full body loads when the agent calls `builtin_skill`. Type `/skills` to list what is loaded and which directories were scanned.
+
+## `SKILL.md` format
+
+```markdown
+---
+name: rust-review
+description: Review a Rust diff for ownership, clippy, and missing tests. Use when reviewing .rs files or cargo check output.
+globs: ["**/*.rs", "Cargo.toml"]
+---
+
+1. Restate the ownership graph in prose.
+2. Prefer `builtin_build` over shell cargo.
+3. Do not `cargo clean` unless asked.
+```
+
+Required: `name`, `description`. Optional: `globs`, `paths`, or `applyTo` (same matching as <Link to="/knoxcoder/customize/agents-md">rules</Link>). A skill with globs is **only offered while a matching file is open**.
+
+The body can include `@./relative/file` references and `` !`shell` `` snippets. Follows symlinks when scanning.
+
+## Where Knox looks
+
+Project (workspace, walking up toward the repo root):
+
+| Location | Notes |
+|---|---|
+| `skills/` or `skill/` | Knox-native project skills |
+| `.claude/skills/` | Claude Code compat |
+| `.agents/skills/` | Shared-agent compat |
+| `.opencode/skill/` and `.opencode/skills/` | OpenCode compat |
+
+This machine:
+
+| Location | Notes |
+|---|---|
+| `~/.knoxcoder/skills/` | User skills (Knox-native) |
+| `~/.claude/skills/`, `~/.agents/skills/`, `~/.opencode/skill(s)/` | Same compat dirs, global |
+
+**Bundled** (shipped with Knox): `rust`, `linux-kernel`, `qemu`, `gdb`, `kbuild`. A **project skill with the same name overrides** a bundled or global one.
+
+Skip directories: `node_modules`, `.git`, `__pycache__`, `.venv`.
+
+There is **no remote skill registry** in 2.2. Put files on disk. `config.yaml` `uses: owner/package` is a **local** YAML include under `~/.knoxcoder/registry/`, not a skill download — see <Link to="/knoxcoder/customize/config-yaml">Prompts and config.yaml</Link>.
+
+## Using a skill
+
+1. Drop `skills/my-skill/SKILL.md` in the repo (or `~/.knoxcoder/skills/my-skill/SKILL.md`).
+2. `/skills` — confirm it appears.
+3. Ask Knox to do the matching work, or mention the skill in chat. The agent calls `builtin_skill` when it needs the body.
+
+Verified <Link to="/knoxcoder/memory/recipes">recipes</Link> with at least **three clean replays** can be **saved as a skill** (Recipes tab → Save as project / global skill). Existing skills are never overwritten.
+
+## Next
+
+<Link to="/knoxcoder/customize/agents-md">AGENTS.md and rules</Link> · <Link to="/knoxcoder/customize/custom-agents">Custom agents</Link> · <Link to="/knoxcoder/customize/config-yaml">Prompts and config.yaml</Link>

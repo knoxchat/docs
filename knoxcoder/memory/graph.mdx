@@ -1,0 +1,38 @@
+---
+title: Knowledge graph
+sidebar_label: Knowledge graph
+description: Local entity graph in Memory Brain — explore related concepts on this machine, not a cloud knowledge base.
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# Knowledge graph
+
+**Knox: View Memory** → **Graph** draws entities Memory Brain extracted from your sessions (files, symbols, concepts) and the edges between them (`uses`, `depends_on`, `contains`, …).
+
+<KcShot
+  src="/img/knoxcoder/memory-graph.png"
+  alt="Memory Graph tab exploring a file entity and related edges"
+  caption="Graph tab: entities, edges, Explore. Entirely on this machine — no hosted knowledge base."
+/>
+
+It is **local sqlite**, same `brain.sqlite` as the other tabs. Nothing is posted. There is no hosted knowledge base and no embedding index of the graph.
+
+## What you can do
+
+- Click a node to inspect it
+- Explore neighbors (depth is bounded; this is not a full-repo crawl)
+- Use it to see **what Knox already associated**, then correct the <Link to="/knoxcoder/memory/memories">Memories</Link> list if an entity is wrong
+
+The graph is built from stored memories and turn extraction. Empty Brain → empty graph. Turning Memory Brain **off** stops new writes; existing nodes stay until you wipe.
+
+## What it is not
+
+- Not a substitute for <Link to="/knoxcoder/tools/files">search / glob</Link> in the repo
+- Not Knox-MS vector memory (Docs tab)
+- Not shared across machines unless you copy `~/.knoxcoder` yourself
+
+## Next
+
+<Link to="/knoxcoder/memory/brain">Memory Brain</Link> · <Link to="/knoxcoder/memory/memories">Memories tab</Link> · <Link to="/knoxcoder/memory/recipes">Recipes</Link>

@@ -1,0 +1,137 @@
+---
+title: 登录与模型
+sidebar_label: 登录与模型
+description: 用 OAuth 连接 KnoxStudio 或 OpenRouter，添加 OpenAI / Anthropic 密钥，或在 config.yaml 里指向本地 OpenAI 兼容服务。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 登录与模型
+
+Knox Agent 使用 **你配置的模型**。应用里没有隐藏默认密钥，2.2 不读 `KNOX_API_KEY` 环境变量，也不从 `.env` 读 API 密钥。
+
+打开 **Knox: Settings**（对话面板上的齿轮）或模型选择器里的 **Add Model**。
+
+## 用 KnoxStudio 登录（推荐）
+
+1. 在 Add Model / 账号行选择 **Sign in with KnoxStudio**（使用 KnoxStudio 登录）。
+2. KnoxCoder 用浏览器打开 `https://knoxstudio.ai/oauth2/authorize`（OAuth2 + PKCE）。
+3. 同意后，编辑器在回环地址 **`http://127.0.0.1:8733/callback`** 上等待。请保持该端口空闲；8733 被占用会导致登录失败（`oauthErrorPortInUse`）。
+4. 会话存在编辑器的 **SecretStorage**，以及 `~/.knoxcoder/auth.json`（权限 `0600`）。你应看到 **Connected as @handle**。
+
+KnoxStudio 在配置里是 **knoxchat** 供应商（界面标题 **KnoxStudio**）。一次登录打开目录，再在输入框里选模型。用量在 KnoxStudio 服务端计费——编辑器不做本地 token 账本。
+
+在同一行 **Sign out**。再次登录会轮换名为 KnoxStudio 的 `sk-` API token 行。
+
+浏览器一直不回来：检查网络、8733 是否被占、公司代理是否在截断到 `knoxstudio.ai` / `api.knoxstudio.ai` 的 TLS。
+
+## 用 OpenRouter 登录
+
+同一层界面里选 **Sign in with OpenRouter**，或粘贴 `sk-or-…` 密钥。
+
+- OAuth 回环端口是 **8734**（不是 8733）。
+- 密钥：[openrouter.ai/keys](https://openrouter.ai/keys)。
+- 默认 API 根：`https://openrouter.ai/api/v1/`。
+
+KnoxStudio OAuth 和 OpenRouter OAuth **互相隔离**。登录一个不会填另一个。
+
+## 用密钥添加 OpenAI 或 Anthropic
+
+<Tabs>
+<TabItem value="openai" label="OpenAI">
+
+**Add Model → OpenAI**，然后选套餐：
+
+| 套餐 | 模型 id |
+|---|---|
+| GPT-6.1 Sol | `gpt-6.1-sol` |
+| GPT-6 Luna | `gpt-6-luna` |
+| Autodetect | 调用服务器 `/models` |
+
+密钥：[platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)。此供应商必须填密钥。
+
+</TabItem>
+<TabItem value="anthropic" label="Anthropic">
+
+**Add Model → Anthropic**：
+
+| 套餐 | 模型 id |
+|---|---|
+| Claude Sonnet 5.5 | `claude-sonnet-5.5` |
+| Claude Opus 5.5 | `claude-opus-5.5` |
+| Claude Haiku 5.5 | `claude-haiku-5.5` |
+
+密钥：[console.anthropic.com/account/keys](https://console.anthropic.com/account/keys)。可选上下文长度（表单默认 100000；Claude 5.5 套餐会设成 1M / 200k）。
+
+</TabItem>
+</Tabs>
+
+## 本地与 OpenAI 兼容服务
+
+Add Model 四个磁贴是 KnoxStudio、OpenRouter、OpenAI、Anthropic。**本地** 服务（Ollama、LM Studio、vLLM、llama.cpp）在 `config.yaml` 里配成 OpenAI 兼容端点。
+
+**Knox: Settings → Open Config File**，或编辑 `~/.knoxcoder/config.yaml`：
+
+```yaml
+name: Knox
+version: "1.0.0"
+schema: v1
+models:
+  - name: Local Llama
+    provider: openai
+    model: llama3
+    apiBase: http://127.0.0.1:11434/v1
+    apiKey: ollama
+```
+
+- `name` 是输入框和 `knoxchat.fallbackModel` 里用的 **标题**。
+- 把 `apiBase` 指到你服务器的 OpenAI 兼容根路径。
+- 有的本地栈需要占位 `apiKey`，有的会忽略。
+
+从 GUI 编辑 `config.yaml` 时会留一份一次性的 `config.yaml.vpre-edit.bak`。升级不会重写该文件。
+
+## 输入框选择器与角色
+
+对话底部的选择器是本会话的 **chat** 模型。
+
+设置里还可以给其它 **角色** 指定模型（edit、apply、view/read、summarize、realtime search）。某角色没有模型时，Knox 用 chat 模型。第一天不必填满所有角色。
+
+`knoxchat.fallbackModel` 是 VS Code 设置：原生对话轮次里瞬时失败多次后切换到的模型 **标题**。它不是同时跑的第二个模型。
+
+## Jev（System One）
+
+`knoxchat.jev.enabled`（默认 **开**）时，Knox 会向一个小套件询问路由和门控：
+
+- KnoxStudio 模型 → `https://api.knoxstudio.ai/v1/systemone`
+- OpenRouter 模型 → `https://openrouter.ai/api/v1/systemone`（`typesafe/jev-1.14`）
+
+**会发送：** 用户消息、短轮次摘要、工具名和参数 *预览*、截断后的助手文本。**从不发送文件内容。** 每次调用有时延预算和熔断（连续 3 次失败则 5 分钟不用）。失败开放：Jev 挂了对话仍能跑。
+
+在状态栏查看（`knoxchat.jev.showStatusBar`），或用 **Knox: Show Jev Log**。关闭：`knoxchat.jev.enabled: false`。YAML 的 `jev.enabled` 覆盖该设置。
+
+## 这些不是模型配置
+
+| 不要 | 原因 |
+|---|---|
+| `export KNOX_API_KEY=…` | 2.2 不读 |
+| 为了 Knox 把密钥放进仓库 `.env` | 不是 2.2 的认证路径 |
+| 安装 `knoxchat.knoxchat`「来拿模型」 | 已被拦截；用本应用的设置层 |
+| 指望出现 Copilot / Cursor 账号 | 另一类产品 |
+
+## 尽量离线
+
+模型 HTTP **总会** 打到你配置的供应商。若要留在本地：
+
+1. `config.yaml` 里只有本地 `apiBase` 模型
+2. `knoxchat.jev.enabled: false`
+3. `knoxchat.networkMode: deny`（拦住 `builtin_fetch_url`，拦不住模型）
+4. 若不想访问 GitHub，关掉编辑器自动更新
+
+没有「只允许 Ollama」的进程级防火墙。
+
+## 接下来
+
+<Link to="/knoxcoder/first-chat">发第一条消息</Link> · <Link to="/knoxcoder/workspace">打开文件夹</Link>

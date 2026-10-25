@@ -1,0 +1,75 @@
+---
+title: 命令面板
+sidebar_label: 命令面板
+description: 面向用户的 Knox 命令 — 对话、记忆、检查点、团队包、hooks、后台 Agent 和 diff。
+---
+
+import Link from '@docusaurus/Link';
+
+# 命令面板
+
+在命令面板输入 **Knox:**。分类是 **Knox** 或 **Knox Checkpoints**。下列是 2.2.2 面向用户的集合；跳过仅用于启用条件的内部项。
+
+## 对话与模型
+
+| 标题 | 典型用途 |
+|---|---|
+| **Knox: Settings** | 模型浮层（齿轮） |
+| **Knox: Open Knox Settings** | 分组设置选择器 |
+| **Knox: New Conversation** | 新会话 |
+| **Knox: View History** | 会话浮层 |
+| **Knox: Add as Context and Clear Chat** | ⌘L / Ctrl+L |
+| **Knox: Add as Context** | ⌘⇧L |
+| **Knox: Generate Code** | Cmd+I |
+| **Knox: Apply Code from Chat** | ⌥A / Alt+A |
+| **Knox: Import Session Transcript** | 恢复 `/share` 的 Markdown 文件 |
+| **Knox: Copy Session Share Link** | 本地 `knoxcoder://` URI |
+| **Knox: Show Jev Log** | Jev 发送了什么（从无文件内容） |
+| **Knox: View Logs** | Knox 日志 |
+| **Knox: Show Hooks Log** | Hook 审计 |
+
+## 记忆
+
+| 标题 | 典型用途 |
+|---|---|
+| **Knox: View Memory** | Memory Brain 编辑器 |
+| **Knox: Export Memory Brain** | 导出 sqlite 内容 |
+| **Knox: Wipe Memory Brain** | 删除本地 Brain（会询问） |
+
+## Agent 附加
+
+| 标题 | 典型用途 |
+|---|---|
+| **Knox: Create Custom Agent** | `.knoxcoder/agents` 里的模板 |
+| **Knox: List Custom Agents** | 打开一份定义 |
+| **Knox: Export Team Bundle** / **Import Team Bundle** | <Link to="/knoxcoder/customize/team-bundles">团队包</Link> |
+| **Knox: Test Hook** | 运行一个 hook 事件 |
+| **Knox: Background Agents: Start** / **List** / **Merge** / **Discard** | 任务面板 |
+
+## 检查点
+
+| 标题 | 典型用途 |
+|---|---|
+| **Knox: View Checkpoints** | 还原界面 |
+| **Knox: View Checkpoint Graph** | 图谱窗格 |
+| **Knox: Create Checkpoint** | 手动快照 |
+| **Knox: Restore Checkpoint** | 对话框 |
+| **Knox: Undo Checkpoint** / **Redo Checkpoint** | 自动撤销栈 |
+| **Knox: Show Undo History** | 列表 |
+| **Knox: Create / Switch / Merge / Delete Checkpoint Branch** | 引擎线，不是 git |
+| **Knox: Export / Share / Import Checkpoints** | 本地包 |
+| **Knox: Show Inline Diff** / **Hide Inline Diff** | 与某个检查点的 gutter 对比 |
+| **Knox: Create global .knoxignore** | 用户忽略文件 |
+| **Knox: Toggle Auto Checkpoints** | |
+| **Knox: Clean Up Old Checkpoints** | |
+| **Knox: Health Check** / **Run Recovery** | 存储健康 |
+
+## Diff 与辅助
+
+Accept / Reject Diff、纵向 diff 块、批量接受/拒绝、影子预览接受/拒绝、建议、注释 / docstring / 修复 / 优化 / 语法、Code Issues、调试会话助手、重命名 / 提取 / 移动。
+
+有选区或可见 Knox diff 时会出现面向编辑器的项。
+
+## 下一步
+
+<Link to="/knoxcoder/settings/shortcuts">键盘快捷键</Link> · <Link to="/knoxcoder/settings/reference">设置参考</Link> · <Link to="/knoxcoder/agent/chat-ui">对话界面</Link>

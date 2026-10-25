@@ -1,0 +1,92 @@
+---
+title: 后台 Agent
+sidebar_label: 后台 Agent
+description: 在已播种的 git worktree 里跑输入框任务 — 上限 2、Auto vs Edits、Jobs 面板 Merge / Discard，冲突时干净中止合并。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 后台 Agent
+
+**Run in background**（中文 UI：**后台运行**）把 **当前输入框文字** 放到隔离的 git worktree 里跑，好让你继续在侧边栏对话。提示：*Start the composer task in a git worktree. Merge or discard from the jobs panel when it finishes.*
+
+<KcShot
+  src="/img/knoxcoder/chat-streaming.png"
+  alt="Knox 侧边栏显示后台任务计数、工具卡片和输入框上的后台运行"
+  caption="长轮次时输入框上的 Jobs 计数。同时最多 2 个后台 Agent。完成后在 Jobs 面板 Merge 或 Discard。"
+/>
+
+命令面板：**Knox: Background Agents: Start** / List / Merge / Discard（`knox.bg.start` 等）。
+
+这不是 `/autonomous`（那个循环留在当前对话里，有步数上限）。也不是大约 30 秒后转入后台的长 shell（那也会出现在 **Jobs** 里，但是 shell 行）。
+
+## 启动
+
+1. 打开一个作为 git 仓库的 **文件夹**。否则：**Open a folder to start a background agent.**
+2. 需要有聊天模型。否则：**No chat model is available.**
+3. 同时最多 **两个** 后台 *Agent* 任务。第三次启动会失败：*At most 2 background jobs can run at once.*
+
+从输入框点 **Run in background** 时，用的是条上的权限模式。
+
+从 **Knox: Background Agents: Start** 先输入任务，再选：
+
+| 选项 | 含义 |
+|---|---|
+| **Auto (YOLO, default)** | 写入和 shell 都不询问 |
+| **Edits** | 文件写入会应用；**拒绝 shell**（后台没有提示） |
+
+没有 Ask 选项：脱离的任务无法弹出权限卡片。若树不值得信任但仍想改文件、不要 shell，请留在 **Edits**。
+
+编辑在 worktree **里自动应用**。除非 Auto，否则拒绝 shell。与 2.2 已知问题说明相同。
+
+这类无人值守运行的工具回合有上限（默认 **40** / rust **60** / systems **80**，绝对上限 **200**）。不用这次启动的 GUI 对话仍不限步。<Link to="/knoxcoder/agent/profiles">Agent 配置</Link> 仍决定 doom-loop 和校验 oracle。
+
+## Worktree
+
+每个任务在 `~/.knoxcoder/bg/<id>/` 下：
+
+| 路径 | 内容 |
+|---|---|
+| `tree/` | 分支 `knox/bg-<id>` 上的 git worktree，从 **HEAD** 创建 |
+| `job.json` | 状态、任务、改动过的文件 |
+
+父仓库 **未提交** 的已跟踪和未跟踪文件会拷进 worktree（和子 Agent worktree 同一思路）。播种失败时，任务仍在 HEAD 上跑。
+
+跑完后 Knox 会 `git add -A`，若有改动则以 `Knox <knox@localhost>` 提交，说明为 `knox bg <id>: <task>`。桌面 toast 报告完成 / 失败。
+
+状态：`running`、`done`、`failed`、`merged`、`discarded`。
+
+## Jobs 面板
+
+**Jobs** 面板（长 shell 和子 Agent 之后也会出现）列出这些行。
+
+空：*No background jobs. Long shell commands and subagents appear here.*
+
+| 控件 | 对后台 Agent |
+|---|---|
+| **Merge** | 把任务分支 `git merge --no-edit` 进工作区 **当前** 分支。只对有改动文件的 `done` / `failed` 任务。没有改动 → *job made no changes; use discard*。 |
+| **Discard** | 删掉 worktree 并删除 `knox/bg-<id>`。正在跑的会先中止。 |
+| **Kill** | 停掉正在跑的任务 |
+| **Clear** | 从列表去掉已结束的行 |
+
+合并 **冲突** 时，Knox **中止** 合并。工作区保持不变；任务分支保留。消息会点出两边分支和冲突文件：
+
+> Merge conflict between workspace branch "…" and job branch "knox/bg-…". Files: …. Repo left unchanged. Branch knox/bg-… is kept.
+
+自己解决，或 Discard。命令面板 **Knox: Background Agents: Merge** 只列出 `done` 任务；面板还可以合并仍有 diff 的 `failed` 任务。
+
+## Jobs vs 子 Agent vs Plan
+
+| 机制 | 角色 |
+|---|---|
+| **后台 Agent** | 整个任务在 worktree 里；之后 Merge / Discard |
+| **子 Agent**（`builtin_task`） | 当前对话的子任务；进度流进 Jobs |
+| 长 **shell** | `background=true` 或约 30 秒自动转后台；在 Jobs 里 Kill / await |
+| <Link to="/knoxcoder/agent/plan">Plan</Link> | 只读直到 Execute，同一会话 |
+| 输入框 **Worktree** 芯片 | *当前* 对话的隔离编辑，然后 Apply / Discard |
+
+## 接下来
+
+<Link to="/knoxcoder/agent/troubleshooting">排查</Link> · <Link to="/knoxcoder/agent/permissions">权限模式</Link> · <Link to="/knoxcoder/agent/composer">输入框</Link>

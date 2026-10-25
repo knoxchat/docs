@@ -1,0 +1,48 @@
+---
+title: 权限与命令守卫
+sidebar_label: 权限与命令守卫
+description: Knox 始终拒绝什么、Path & command policy、仍开放的漏洞（编码脚本、make recipes），以及在不信任树上使用 Ask。
+---
+
+import Link from '@docusaurus/Link';
+
+# 权限与命令守卫
+
+<Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> 决定工具是否 **询问**。**命令守卫** 在 **所有** 模式（包括 Auto）下仍会运行。
+
+## 始终拒绝（除非你允许该命令）
+
+守卫按 `;` `&&` `||` `|` 换行 `$()` 反引号 子 shell 拆分命令，去掉包装（`sudo`、`env`、`nice`、`command` 等），并递归进入 `sh -c`、`bash -lc`、`eval`、`xargs`、here-string、`find -exec`、`cmd /c`、`powershell -Command`。
+
+被拒绝的模式包括：
+
+- 强制 / 递归删除
+- 破坏性 git：`reset --hard`、`clean -f`、强制 / 删除 / mirror 推送、`checkout -f`、`branch -D`、`stash clear`、`reflog expire`、`filter-branch`
+- 会跑程序的 git 配置键（`core.sshCommand`、`alias.x=!…` 等）
+- 下载或解码后的载荷管道进 shell 或解释器（`curl | sh`）
+- 裸设备写入
+- 递归 `chmod` / `chown`
+- Windows `del /s`、`rd /s`、`Remove-Item -Recurse`、`format`、`reg delete`、`diskpart`、PowerShell `-EncodedCommand` / 对下载代码的 `iex`
+
+策略文件里 **Deny 始终胜出** Always / Ask。工具浮层 → **Path & command policy**：每行一条，`allow|ask|deny` + 模式。`AGENTS.md` 的 `always` / `ask` / `never` 块也会合并进来。
+
+## 已关掉的廉价绕过（2.2）
+
+针对上述破坏性模式的一跳 `VAR=cmd; $VAR` / `eval "$VAR"`，以及解释器（`sh` / `bash` / `python` / `node`）运行 **本轮**（或最近 N 个变更工具）刚写入的工作区路径：Ask/Edits 下 **拒绝**，Auto 下 **询问**。
+
+## 仍然开放
+
+黑名单不可能完整：
+
+- 编码脚本
+- `make` recipes
+- 多跳间接
+- 写在最近写入窗口 **之外** 的脚本
+
+不信任的工作请用 **Ask** 或 **Edits**。把不信任仓库上的 `fullAuto`（YOLO）当成一次性环境。
+
+硬路径拒绝和机密文件 **询问** 与 shell 守卫是分开的（`~/.ssh`、`.env*`、工作区边界）。
+
+## 下一步
+
+<Link to="/knoxcoder/agent/permissions">权限模式</Link> · <Link to="/knoxcoder/safety/threat-model">威胁模型</Link> · <Link to="/knoxcoder/tools/terminal-git">终端与 git</Link>

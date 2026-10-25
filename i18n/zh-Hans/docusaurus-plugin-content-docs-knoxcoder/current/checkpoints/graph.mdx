@@ -1,0 +1,46 @@
+---
+title: Checkpoint Graph
+sidebar_label: Checkpoint Graph
+description: Knox 工作区检查点的图谱、列表、时间线、分析、分享、配置和仪表盘标签。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Checkpoint Graph
+
+标题栏图谱图标、**Knox: View Checkpoint Graph**，或 **Knox: View Checkpoints**。这是 **原生** 窗格（与对话和 Memory 同一类），不是 webview。
+
+<KcShot
+  src="/img/knoxcoder/checkpoint-analysis.png"
+  alt="Checkpoint Graph Analysis 标签上的影响范围芯片和建议分组"
+  caption="Analysis 标签：影响范围来自清单和 diff，不是 LLM 摘要。"
+/>
+
+标签页：
+
+| 标签 | 用途 |
+|---|---|
+| **Graph** | 引擎线，类似提交图。工作区行、查找，Cmd/Ctrl+H 跳到 HEAD 但不打开它。标签和原始请求可搜索。 |
+| **Checkpoints** | 列表：固定、还原、删除 |
+| **Timeline** | 按时间；可从节点分出 <Link to="/knoxcoder/checkpoints/branches">分支</Link> |
+| **Analysis** | 所选快照的影响 / 范围芯片（受影响的文件和层） |
+| **Share** | 导出 / 导入包 — <Link to="/knoxcoder/checkpoints/share">分享与导入</Link> |
+| **Configuration** | 上限、忽略、自动 — 或 **Knox: Open Knox Settings** → checkpoints 分组 |
+| **Dashboard** | 计数、存储、AI 会话指标（recipes 打开时含复用估算） |
+
+方向键可在检查点标签间移动（无障碍）。此处也有跳到 composer 和 landmarks。
+
+## 图谱习惯
+
+- 每个节点是 **带标签的还原点**，不是 git commit
+- 泳道是 <Link to="/knoxcoder/checkpoints/branches">检查点分支</Link>（引擎线）
+- <Link to="/knoxcoder/memory/recipes">recipe</Link> 上的来源芯片会在这里打开该节点
+- 右键一行可还原 / 分支 / 固定（菜单保持在屏幕内）
+
+需要 git 历史？用源代码管理视图。检查点不替代 `git log`。
+
+## 下一步
+
+<Link to="/knoxcoder/checkpoints/overview">检查点如何工作</Link> · <Link to="/knoxcoder/checkpoints/restore">还原与撤销</Link> · <Link to="/knoxcoder/checkpoints/branches">分支</Link>

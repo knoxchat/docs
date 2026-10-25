@@ -1,0 +1,82 @@
+---
+title: Memory Brain
+sidebar_label: Memory Brain
+description: Local sqlite memory — lexical retrieval (FTS, BM25, trigrams, synonyms), inject cap, off switches, and what is never embeddings.
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+
+# Memory Brain
+
+Memory Brain stores facts from your sessions **on this machine** and injects the relevant ones on later turns. Open it with the title-bar brain icon, or **Knox: View Memory**.
+
+Tabs: **Overview**, **Memories**, **Sessions**, **Graph**, **Recipes**, **Settings**.
+
+<KcShot
+  src="/img/knoxcoder/memory-overview.png"
+  alt="Memory Brain Overview tab with counts, last inject, and chat still open in the sidebar"
+  caption="Memory Brain Overview (One Dark). Local sqlite — lexical retrieval, not a vector database. Chat stays in the sidebar."
+/>
+
+<KcShot
+  src="/img/knoxcoder/memory-last-inject.png"
+  alt="Memory Overview showing Last inject and why a memory was injected last turn"
+  caption="Overview can show Last inject — for example injected last turn, lexical match — without a model call."
+/>
+
+Everything lives in sqlite under `~/.knoxcoder` (override `KNOX_GLOBAL_DIR`). There is **no cloud memory**, **no embeddings**, **no vector database**, and **no neural / LLM rerank** of memories. Knox-MS in the Docs tab is a **different product**.
+
+## How recall works
+
+Retrieval is **local and lexical**:
+
+- sqlite **FTS** (BM25)
+- **Trigrams** for fuzzy overlap
+- **Rule-based synonym groups** (longest matching phrase wins) — for example invoice/tax → money, icon-only → a11y
+- A **knowledge graph** walk for related entities
+- Chinese: overlapping **CJK bigrams** in FTS so a Chinese query hits sqlite, not a vector index
+
+Memories rows and Overview can show **why** a row was injected last turn, for example `injected last turn · lexical: jwt`.
+
+That is ordinary score math, not a model call.
+
+## What is stored
+
+- Facts, preferences, and decisions you **Remember**, **Create**, or that chat extracts (a stated preference/decision can land without you saying “we decided”)
+- Session summaries (for <Link to="/knoxcoder/memory/sessions">Use as context</Link>)
+- Graph entities and edges
+- Optional <Link to="/knoxcoder/memory/recipes">recipes</Link> (experimental, off)
+
+Text is **redacted** before it is stored (API keys, PEM, `KEY=value`, …). Filler chat still stores **nothing**.
+
+The agent tool `builtin_memory` can only `store` / `recall` / `search` / `delete` / `build_context` / `pin` / `unpin`. Admin actions (`heal`, `export`, `run_pipeline`, …) **error** and do not run. Export / wipe stay on the command palette.
+
+## Caps
+
+| Cap | Default | Override |
+|---|---|---|
+| Injected memory per turn | **8000** tokens | `KNOX_MEMORY_INJECT_CAP` |
+| `brain.sqlite` (+ WAL) | **256 MB** (`268435456` bytes) | `knoxchat.memoryBrain.maxBytes` or `KNOX_BRAIN_MAX_BYTES` (`0` = disable the cap) |
+
+When the size cap is exceeded, oldest **episodic** turns are pruned; curated facts are kept. Enforced on open and on each consolidation tick.
+
+## Off switches
+
+| Switch | Scope |
+|---|---|
+| `knoxchat.memoryBrain.enabled` | Global. Off skips retrieval, auto-consolidation, and new writes. The file stays on disk. |
+| `knoxchat.memoryBrain.workspaceEnabled` | **This folder** (workspace setting) |
+| `KNOX_BRAIN_ENABLED=0` | Process override for the global switch |
+
+**Knox: Export Memory Brain** / **Knox: Wipe Memory Brain** from the command palette.
+
+## Settings tab
+
+Product knobs (on/off, scope, auto-extract, recipes, enhanced semantic, inject cap) stay on the Memory **Settings** tab. λ / fusion / budget / compression / mode multipliers sit behind collapsed **Expert retrieval**, with reset-to-defaults.
+
+Recipe switches are **not** on the chat gear (Agent Settings). Use Memory → Settings.
+
+## Next
+
+<Link to="/knoxcoder/memory/memories">Memories tab</Link> · <Link to="/knoxcoder/memory/sessions">Sessions as context</Link> · <Link to="/knoxcoder/safety/privacy">Privacy</Link>

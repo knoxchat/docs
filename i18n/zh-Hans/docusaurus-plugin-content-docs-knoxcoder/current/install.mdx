@@ -1,0 +1,121 @@
+---
+title: 安装
+sidebar_label: 安装
+description: 下载 macOS、Windows、Linux 版 KnoxCoder。校验校验和，处理 Gatekeeper 与 SmartScreen，并打开自动更新。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
+
+# 安装 KnoxCoder
+
+从 GitHub Releases 下载 **桌面构建**。Knox Agent 已在应用内。不要再装 VSIX，也不要在 Open VSX 里搜 Knox。
+
+**当前系列：** 2.2.x · [最新发布](https://github.com/knoxchat/knoxcoder/releases/latest) · 同一页上的 `SHA256SUMS`。
+
+选和操作系统、CPU 匹配的资源。文件名形如 `KnoxCoder-<version>-<platform>-<arch>…`。
+
+<Tabs>
+<TabItem value="mac" label="macOS">
+
+Apple Silicon（`arm64`）和 Intel（`x64`）是两套构建。
+
+| 资源 | 用途 |
+|---|---|
+| `KnoxCoder-darwin-arm64.dmg` 或 `KnoxCoder-<version>-darwin-arm64.zip` | Apple Silicon |
+| `KnoxCoder-darwin-x64.dmg` 或 `KnoxCoder-<version>-darwin-x64.zip` | Intel |
+
+**DMG（推荐）。** 打开镜像，把 **KnoxCoder** 拖进「应用程序」。macOS 构建已签名、公证并 staple。Gatekeeper 应能直接打开。
+
+**ZIP。** 解压后把 `KnoxCoder.app` 放到「应用程序」。如果系统提示来自身份不明的开发者，改下 DMG。
+
+在 **帮助 → 关于** 确认显示 KnoxCoder 且产品版本为 `2.2.x`。
+
+</TabItem>
+<TabItem value="win" label="Windows">
+
+| 资源 | 用途 |
+|---|---|
+| `KnoxCoder-<version>-win32-x64-user-setup.exe` | 当前用户安装（无需管理员）。默认选择。 |
+| `KnoxCoder-<version>-win32-x64-system-setup.exe` | 全部用户（需要管理员）。 |
+| `KnoxCoder-<version>-win32-x64.zip` | 绿色解压。 |
+| `…-win32-arm64-…` | ARM64 Windows，同样分 user / system。 |
+
+使用 **Download Update** 时，Windows 会核对更新源里的 `sha256hash`。首次安装请对照 Release 页的 `SHA256SUMS`。
+
+**SmartScreen。** 在代码签名证书到位之前，安装包可能未签名。Windows 会显示“Windows 已保护你的电脑”/未知发布者。选择 **更多信息 → 仍要运行**。这是 2.2 的预期行为，不是 Knox 报毒。
+
+装好后如需可固定到任务栏，然后打开文件夹——不要一上来去装名叫 Knox 的扩展。
+
+</TabItem>
+<TabItem value="linux" label="Linux">
+
+| 资源 | 用途 |
+|---|---|
+| `KnoxCoder_<version>_amd64.deb` | Debian / Ubuntu x64（`arm64` 另有 deb）。 |
+| `KnoxCoder-<version>-*.rpm` | Fedora / RHEL 系。 |
+| `KnoxCoder-<version>-linux-x64.tar.gz` | 解压即用，另有 `linux-arm64`。 |
+
+```bash
+# Debian / Ubuntu
+sudo apt install ./KnoxCoder_<version>_amd64.deb
+
+# RPM
+sudo rpm -Uvh KnoxCoder-<version>-*.rpm
+
+# tarball：解压并把 `knoxcoder` 放到 PATH
+tar -xf KnoxCoder-<version>-linux-x64.tar.gz
+```
+
+Debian 版本排序里 `2.0.0~beta` 在 `2.0.0` 之前，所以 beta deb 可以原地升到正式版。
+
+Wayland 和 X11 与 VS Code 一样可用。Knox Agent 是带原生 sqlite / ripgrep / node-pty 的 node/Electron 宿主——**不是** 浏览器标签。
+
+</TabItem>
+</Tabs>
+
+## 校验下载
+
+每个 GitHub Release 都附带 `SHA256SUMS`。核对你下的文件：
+
+```bash
+# macOS / Linux
+shasum -a 256 KnoxCoder-*
+# 对照 SHA256SUMS 里的那一行
+
+# Windows（PowerShell）
+Get-FileHash .\KnoxCoder-*-setup.exe -Algorithm SHA256
+```
+
+自动更新用同一套哈希：应用从 `https://github.com/knoxchat/knoxcoder/releases/latest/download/` 拉取 `latest-<platform>-<arch>.json`，Windows 应用更新前检查 `sha256hash`。
+
+## 第一次启动
+
+1. 打开 KnoxCoder。Knox 已在活动栏（Knox 图标）。不用开预览开关。
+2. **不要** 从任何市场安装 `knoxchat.knoxchat`。若有残留副本，KnoxCoder 会禁用它；内置 `vscode.knox` 优先。
+3. 打开文件夹（见 <Link to="/knoxcoder/workspace">打开文件夹</Link>）。没有文件夹时，对话无处安全地改文件。
+4. 登录或添加模型（<Link to="/knoxcoder/models">登录与模型</Link>），然后发消息（<Link to="/knoxcoder/first-chat">第一次对话</Link>）。
+
+第一次使用时会在 `~/.knoxcoder` 创建全局状态（Windows 上是 `C:\Users\<you>\.knoxcoder`）。
+
+## 自动更新
+
+打包构建会轮询 GitHub Releases（不需要 API token）：
+
+`https://github.com/knoxchat/knoxcoder/releases/latest/download/latest-<platform>-<arch>[-<target>].json`
+
+JSON 里的 `productVersion` 和 **帮助 → 关于** 比较。**Download Update** 下载该 JSON 里的包地址，而不是通用的 releases HTML 页。
+
+需要钉死某个版本时，在编辑器里关掉更新。除编辑器自带的更新服务外，没有另一套 Knox 更新器。
+
+## 这次安装不会给你的东西
+
+- **Remote SSH / WSL / 开发容器** — 2.2 里 Knox 宿主不在远程文件系统上跑。请在本机编辑。
+- **Web** — `gulp vscode-web` 会跳过 Knox；激活时拒绝 `UIKind.Web`。
+- **无界面 CLI** — 2.2 没有 `knox run`。
+- **从源码构建** — 用户不需要。贡献者看仓库 README。
+
+## 接下来
+
+<Link to="/knoxcoder/models">登录或添加模型</Link>，然后 <Link to="/knoxcoder/first-chat">发第一条消息</Link>。

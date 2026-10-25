@@ -1,0 +1,63 @@
+---
+title: 还原与撤销
+sidebar_label: 还原与撤销
+description: 带日志的 Restore All、额外文件复选框（默认关）、Restore Selected、自动撤销，以及 Cmd+Z 与 Knox 撤销的区别。
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 还原与撤销
+
+从图谱或列表打开一个检查点 → **Restore**。对话框会预览文件。**还原失败会设置错误并保持对话框打开**（不会半应用）。
+
+<KcShot
+  src="/img/knoxcoder/checkpoint-restore.png"
+  alt="Checkpoint Details 对比视图，带 Restore This Checkpoint"
+  caption="Checkpoint Details：对比变更，然后 Restore This Checkpoint。额外文件删除默认关闭，除非你勾选。"
+/>
+
+## Restore All（带日志）
+
+GUI 的 **Restore All**、跳过确认，以及 Agent 的 `restore` 工具都走带日志的 `restoreCheckpoint`：**备份 + 日志 + 回滚**。中途失败时，Knox 会回滚这次还原本身。
+
+**Restore Selected** 只写入 **勾选** 的路径。
+
+## 额外文件（默认关）
+
+活树上有、检查点里 **没有** 的文件显示为未勾选的额外行，外加：
+
+> Also remove files not in this checkpoint
+
+除非你打算删除那些文件，否则保持 **关闭**。额外文件复选框在你主动打开前保持未勾选。
+
+也可以把 Memory Brain 一并还原到该快照（`rewind_memory` / restore-memory 开关，**默认关**），避免语义记忆跑到磁盘前面。
+
+## 自动撤销
+
+**Undo** 还原的是 **上一次编辑之前** 的检查点。例如：快照 `[A, B]` 加上脏工作区 → 撤销到 **A**，撤销前的脏树存为 **redo** 目标。
+
+快捷键：
+
+| 动作 | Mac | Windows / Linux |
+|---|---|---|
+| 撤销检查点 | ⌥⌘Z | Ctrl+Alt+Z |
+| 重做检查点 | ⌥⌘Y | Ctrl+Alt+Y |
+| 撤销上次 **助手** 操作 | ⇧⌥⌘Z | Ctrl+Shift+Alt+Z |
+| 重做上次助手操作 | ⇧⌥⌘Y | Ctrl+Shift+Alt+Y |
+
+## Cmd+Z vs Knox 撤销
+
+| 快捷键 | 撤销什么 |
+|---|---|
+| ⌘Z / Ctrl+Z | 编辑器缓冲区（Knox diff 可见时还用于 **Reject diff**） |
+| Knox 检查点 / 助手撤销 | 上次 Agent 快照对应的 **磁盘文件**，不是缓冲区里的一次按键 |
+
+Auto 改了很多文件时用检查点撤销。打字时用编辑器撤销。
+
+**Knox: Show Undo History** 列出自动检查点撤销。**Knox: Undo Last Assistant Operation** 是感知 Agent 的路径。
+
+## 下一步
+
+<Link to="/knoxcoder/checkpoints/overview">检查点如何工作</Link> · <Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link> · <Link to="/knoxcoder/settings/shortcuts">键盘快捷键</Link>

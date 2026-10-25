@@ -1,0 +1,107 @@
+---
+title: AGENTS.md 与规则
+sidebar_label: AGENTS.md 与规则
+description: Knox 每轮加载的项目说明 — AGENTS.md、CLAUDE.md、.knoxrules、嵌套文件、applyTo glob，以及 token 告警。
+---
+
+import Link from '@docusaurus/Link';
+
+# AGENTS.md 与规则
+
+Knox 在每一轮对话加载项目说明文件，并追加到系统上下文。它们是 **提示词文本**，不是额外能力：<Link to="/knoxcoder/agent/permissions">Ask / Edits / Auto</Link> 和命令守卫仍然约束它们要求的操作。
+
+在 composer 里用 `/init` 起步。它会根据仓库写一份入门 `AGENTS.md`。**拒绝覆盖**，除非你输入 `/init --force`。
+
+`/instructions` 按 **加载顺序** 列出全部内容，并带 token 开销。单个文件超过 **2000** token，或始终生效的说明超过 **6000** token，会告警。请精简始终生效的文件，或把细节挪到带 glob 的 <Link to="/knoxcoder/customize/skills">skill</Link>。
+
+## Knox 加载哪些文件
+
+从 **每一个** 工作区文件夹（多根窗口里的所有根）：
+
+| 文件 | 作用 |
+|---|---|
+| `AGENTS.md` | 项目说明（Codex / Agents 风格） |
+| `.knoxcoder/AGENTS.md` | 同样内容，放在 Knox 项目目录下 |
+| `CLAUDE.md` | 兼容 |
+| `.knoxrules` | Knox 专用规则（同级时优先于通用 agent 文件） |
+
+另外，从 **打开的文件** 向上走到该文件夹根，更靠近文件的嵌套 `AGENTS.md` 也会加载。
+
+本机全局：
+
+| 路径 | 作用 |
+|---|---|
+| `~/.knoxcoder/.knoxrules` | 用户级规则 |
+| `~/.knoxcoder/rules/*` | 额外用户规则文件 |
+
+不要放在 **`.knox/`** 下。那个名字属于市场版 Knox（`knoxchat.knoxchat`）。KnoxCoder 用 **`.knoxcoder/`** 和 **`~/.knoxcoder`**。
+
+文件夹级 `{subdir}/.knoxrules` **不会** 扫描。嵌套 **`AGENTS.md`** 会。
+
+## 加载顺序（同一事项上后者优先）
+
+1. `~/.knoxcoder/.knoxrules` 和 `~/.knoxcoder/rules/*`
+2. `{workspace}/CLAUDE.md`
+3. `{workspace}/AGENTS.md`
+4. `{workspace}/.knoxcoder/AGENTS.md`
+5. `{workspace}/.knoxrules`
+6. 离打开文件更近的嵌套 `{subdir}/AGENTS.md`
+
+多根窗口里，嵌套 `AGENTS.md` 从 **打开文件所在文件夹** 解析，不会把同一相对路径套到每个根上。每个根自己的 `AGENTS.md` / `.knoxrules` 仍会加载。
+
+## `applyTo` glob
+
+YAML frontmatter 的 `applyTo`（或 markdown 里的 `applyTo:` 列表）把规则限制在匹配的 **当前 / 打开** 文件路径。缺少 `applyTo`，或写 `**`，表示始终生效。没有打开文件时，只有通用规则匹配。
+
+```markdown
+---
+applyTo:
+  - "**/*.rs"
+  - "crates/**"
+---
+
+优先用 `builtin_build`，不要用 shell 里的 `cargo`。除非用户要求，否则不要 `cargo clean`。
+```
+
+Skills 用同样的 glob 思路（`SKILL.md` 里的 `globs` / `paths` / `applyTo`）。
+
+## 策略块（`always` / `ask` / `never`）
+
+规则还可以带路径 / 命令策略，合并进 agent 策略（deny 始终胜出）：
+
+```markdown
+---
+never:
+  - "rm -rf *"
+  - "git push --force"
+ask:
+  - ".env*"
+always:
+  - "src/**"
+---
+```
+
+Markdown 列表（`- never: rm -rf *`）也可以。这 **不能** 替代在不信任的 clone 上使用 Ask。
+
+## 可选兼容（默认关闭）
+
+`knoxchat.compatInstructions` 是数组。它们排在 **`AGENTS.md` 之下**：
+
+| 值 | 文件 |
+|---|---|
+| `cursor` | `.cursor/rules`、`.cursorrules` |
+| `copilot` | `.github/copilot-instructions.md` |
+
+覆盖：`KNOX_COMPAT_INSTRUCTIONS=cursor,copilot`。打开此项 **不会** 安装 Copilot 或 Cursor。
+
+## 模板变量
+
+说明文本可以使用 `{os}`、`{arch}`、`{home}`（加载时替换）。
+
+## Skills 不会整篇塞进来
+
+匹配到的 <Link to="/knoxcoder/customize/skills">skills</Link> **不会** 作为全文自动注入。Agent 需要时用 `builtin_skill` 加载。`/instructions` 仍会列出它们。
+
+## 下一步
+
+<Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/customize/hooks">Hooks</Link> · <Link to="/knoxcoder/workspace">打开文件夹</Link> · <Link to="/knoxcoder/agent/slash">斜杠命令</Link>

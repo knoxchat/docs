@@ -1,0 +1,87 @@
+---
+title: Plan 模式
+sidebar_label: Plan 模式
+description: 只读探索直到 Execute plan — Plan 允许什么、builtin_plan 清单，以及执行时 Ask / Edits / Auto 如何生效。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Plan 模式
+
+**Plan** 是 Ask / Edits / Auto **旁边** 的输入框开关。它 **不是** 第四种权限模式。Shift+Tab 不会循环 Plan。
+
+控件提示：*Read-only explore and write a plan. Leave Plan mode to execute.*
+
+想让 Knox 先四处看看并写一份清单、**再** 动树时用它。
+
+## Plan 可以做什么
+
+允许：
+
+- 读取、搜索、glob、仓库地图、列目录
+- `builtin_ask_user`
+- `builtin_plan`（create / add / complete / skip / list / …）
+- `builtin_tool_search`（加载更多 **只读** 工具）
+- 保持只读的 `builtin_task` 子任务：**explore**、**review**（以及 rust-review / rust-borrowck）
+
+会以 **“leave Plan mode to execute”** 拒绝：
+
+- 文件写入（`edit_file`、`write_file`、`apply_patch`、创建文件等）
+- Shell、`await_shell`、PTY、QEMU、构建
+- `profile: general` 或 `isolate: true` 的 `builtin_task`（这些子任务会写入）
+
+Plan 打开时，Ask / Edits / Auto **不能** 覆盖上述拒绝。它们在 **Execute plan** 时重新生效。
+
+## 计划清单
+
+`builtin_plan` 是本会话持久的工作单。每轮都会重新注入，并且 **能挺过压缩**。
+
+常见动作：
+
+| 动作 | 效果 |
+|---|---|
+| `create` | 新计划。若省略 `steps`，Knox 会根据你的请求起草具体步骤。 |
+| `add` / `update` / `complete` / `skip` | 改当前工作单。`complete` / `skip` 不带 `step_id` 时作用于当前 `[*]` 步骤。 |
+| `list` / `clear` | 显示或丢掉计划。 |
+
+反复 `{ action: complete }` **不算** doom loop。
+
+**Task plan** 面板显示 `done/total`、**N remaining / M total**，以及步骤状态（Pending、In progress、Done、Skipped）。关掉预览只是隐藏；计划在清除前仍然存在。
+
+这是给多步工作用的 — 不是修一个文件里的笔误。
+
+## Execute plan
+
+还有剩余步骤时，**Execute plan**：
+
+1. 在 **同一会话** 关掉 **Plan**（不开新对话）。
+2. 提交类似 `Execute the approved plan. Remaining N: …` 的提示。
+3. 作为普通 Agent 轮次运行。此时条上的 **Ask / Edits / Auto** 生效。
+
+若 remaining 已经是 0：toast **Nothing left to execute — remaining is 0.**，不提交。
+
+你也可以自己关掉 Plan 再输入 “go” — Execute plan 是产品按钮，好把剩余列表写进提示。
+
+## 建议流程
+
+1. 权限留在 **Ask** 或 **Edits**。
+2. 打开 **Plan**。
+3. 用一条消息说明功能或缺陷。
+4. 看清单和工具卡片（只有读/搜索）。
+5. 某步不对就在对话里改计划（`skip` / `add`）。
+6. **Execute plan**。若写入前仍想确认，继续留在 Ask。
+
+## Plan vs `/autonomous` vs Review edits
+
+| 机制 | 角色 |
+|---|---|
+| **Plan** | 只读，直到你执行清单 |
+| **`/autonomous`** | 无人值守 **写入** 循环，有步数上限 |
+| <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link> | 写入先在内存里直到 Apply；不是只读 |
+
+可以组合：Plan + Ask 是谨慎默认。Plan + Auto 在 Execute 前仍不能写；Execute 之后 Auto 会不询问就写。
+
+## 接下来
+
+<Link to="/knoxcoder/agent/review-edits">审阅编辑</Link> · <Link to="/knoxcoder/agent/permissions">权限模式</Link> · <Link to="/knoxcoder/agent/profiles">Agent 配置</Link>

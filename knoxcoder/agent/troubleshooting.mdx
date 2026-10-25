@@ -1,0 +1,78 @@
+---
+title: Troubleshooting
+sidebar_label: Troubleshooting
+description: Connection retries, fallback model, doom-loop, context full, hooks, git-without-repo, background start, and 2.2 limits.
+---
+
+import Link from '@docusaurus/Link';
+
+# Troubleshooting
+
+Short fixes for the native Knox Agent. Settings: **Knox: Open Knox Settings**. Overlay: **Knox: Settings**. Jev log (never file contents): **Knox: Show Jev Log**.
+
+## The stream fails
+
+| You see | What it means |
+|---|---|
+| **Connection problem, retrying (n/4)** | Transient stream failure. The round restarts. After **two** failures Knox switches to `knoxchat.fallbackModel` if that setting is a **model title**. Empty = never switch. |
+| Rate limit / bad key / model not found | Dialog: **Retry** / **Open settings**. Check the picker and <Link to="/knoxcoder/models">Sign in and models</Link>. |
+| **Agent mode not supported with current model** | That model cannot call tools. Pick one that can, or stay in a text-only turn. |
+| Composer empty / “No chat model is available” | Add a model or finish KnoxStudio / OpenRouter sign-in. Background start needs a model too. |
+
+## The agent is stuck or huge
+
+| You see | What to do |
+|---|---|
+| **Doom loop** / repeated identical tools | **Change strategy** injects a one-line instruction to pick a different approach. Or **Cancel** (<kbd>⌘⌫</kbd>) and edit the prompt. Thresholds follow the <Link to="/knoxcoder/agent/profiles">profile</Link> (3 / rust 4 / systems 5). |
+| Composer `NN%` (**Context used**) | Knox **compacts** around **75%**. A banner reports tokens saved. The durable <Link to="/knoxcoder/agent/plan">task plan</Link> is not wiped. |
+| **This chat is very large; older messages load as you scroll up.** | Scroll up for older turns. **Knox: New Conversation** if the session is unwieldy. |
+| Oracle / verify still red | Knox **holds** and keeps trying. Caps: 8 extra no-tool rounds, 3 identical diagnostics, `knoxchat.verifyMaxIterations` (default 8) for identical compiler errors. Set `knoxchat.verifyMode` to `off` to skip. |
+
+## Permissions, Plan, Review
+
+| You see | What to do |
+|---|---|
+| Fresh-clone Ask notice | New folder with no prior Knox sessions. **Keep Ask** on untrusted trees. <Link to="/knoxcoder/agent/permissions">Permission modes</Link>. |
+| **leave Plan mode to execute** | Writes, shell, PTY, QEMU are refused until you turn Plan off or **Execute plan**. |
+| **Apply or discard the staged edits first** | <Link to="/knoxcoder/agent/review-edits">Review edits</Link> is on with pending files. Apply / Discard, then leave the chip. |
+| Destructive command blocked | `git push --force`, `git reset --hard`, download-and-execute, … are denied in every mode unless you allow that command in Path & command policy. Encoded scripts and `make` recipes can still slip — stay in Ask/Edits on untrusted repos. |
+| Secret / `~/.ssh` / outside workspace | Hard path denies; `.env*` / `*.pem` **ask** even in Auto. |
+
+## Folder, git, background
+
+| You see | What to do |
+|---|---|
+| Chat works but nothing changes on disk | Open the project **folder**. A window with no folder cannot apply agent writes. <Link to="/knoxcoder/workspace">Open a folder</Link>. |
+| Git tool: **not a git repository** | That folder has no `.git`. `@diff` / `@commit` / background worktrees need git. Checkpoints still work (they are git-independent). |
+| **Open a folder to start a background agent.** | <Link to="/knoxcoder/agent/background">Background agents</Link> need a workspace folder. |
+| **At most 2 background jobs can run at once.** | Wait, Kill, or Discard a running job. |
+| Merge conflict on a background job | Merge was **aborted**. Workspace unchanged; `knox/bg-…` kept. Fix by hand or Discard. |
+| Shell did nothing in a background job | Permission was **Edits**: shell is denied unless **Auto**. |
+| Wrong folder in a multi-root window | Shell, git, and relative paths use the folder of the **active editor file**. Search / `AGENTS.md` / hooks still cover every root. |
+
+## Hooks, instructions, models
+
+| You see | What to do |
+|---|---|
+| Hooks never run | `.knoxcoder/hooks.json` in the workspace folder must be valid JSON. `/hooks` and **Knox: Show Hooks Log**. Events: `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Stop`, `SessionStart`. |
+| `/instructions` token warnings | A file &gt; 2000 tokens, or always-on text &gt; 6000. Trim `AGENTS.md` or move detail into a glob-scoped skill. |
+| CodeLens / Cmd+I missing | `knoxchat.editAssist.codeLens` (default on). Ghost-text is **off** — that is not a bug. <Link to="/knoxcoder/agent/inline-edit">Inline edit</Link>. |
+
+## Not in 2.2
+
+These are missing on purpose. Do not look for them in the editor:
+
+- MCP servers
+- Headless CLI (`knox run` was removed)
+- Remote SSH, WSL, and dev containers for Knox Agent
+- Ghost-text / fill-in-the-middle completions
+- Vector embeddings for Memory Brain
+- Remote `uses:` package registry (local `~/.knoxcoder/registry/` only)
+- Extra UI locales (English and Chinese only)
+- Marketplace VSIX for Knox inside KnoxCoder
+
+Windows SmartScreen on unsigned installers is a packaging issue, not the agent.
+
+## Next
+
+<Link to="/knoxcoder/safety/limitations">Known limitations</Link> · <Link to="/knoxcoder/settings/network">Network</Link> · <Link to="/knoxcoder/agent/background">Background agents</Link>

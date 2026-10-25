@@ -1,0 +1,96 @@
+---
+title: Settings reference
+sidebar_label: Settings reference
+description: Knox settings grouped — agent, memory, recipes, network, checkpoints, edit assist. Deprecated sandbox and sharedLoop keys are ignored.
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Settings reference
+
+Open **Knox: Open Knox Settings** for a grouped picker (editor assist, agent, verification, memory, network, checkpoints), then the filtered Settings UI. Chat gear is **Knox: Settings** (models and agent knobs — **not** recipe knobs). IDs stay `knoxchat.*` / `knox.*` so old `settings.json` and keybindings keep working.
+
+Values below match KnoxCoder **2.2.2** `package.json`. Search `@id:knoxchat` in Settings.
+
+## Agent
+
+| Setting | Default | Effect |
+|---|---|---|
+| `knoxchat.agentProfile` | `default` | `default` / `systems` / `rust` / `auto` — <Link to="/knoxcoder/agent/profiles">profiles</Link> |
+| `knoxchat.permissionDefault` | unset | Override new-session heuristic (`auto` / `ask` / `edits`) |
+| `knoxchat.trustedGitRemotes` | `[]` | Remote URL substrings that keep new sessions in Auto |
+| `knoxchat.fallbackModel` | `""` | Model **title** after repeated transient stream failures |
+| `knoxchat.deferTools` | `true` | Core catalog + `builtin_tool_search` |
+| `knoxchat.enableCompositeTools` | `false` | Expose `composite_*` |
+| `knoxchat.enablePostEditVerification` | `true` | LSP fixes after mutating tools; ignored on systems/rust or when `verifyCommand` is set |
+| `knoxchat.verifyCommand` | `""` | Compile oracle |
+| `knoxchat.verifyMode` | `diagnostics` | `diagnostics` / `command` / `off` |
+| `knoxchat.verifyMaxIterations` | `8` | Identical compiler-error circuit breaker (1–20) |
+| `knoxchat.compatInstructions` | `[]` | `cursor` and/or `copilot` extra instruction files |
+| `knoxchat.jev.enabled` | `true` | Jev / System One |
+| `knoxchat.jev.showStatusBar` | `true` | Status bar + log |
+
+## Memory and recipes
+
+| Setting | Default | Effect |
+|---|---|---|
+| `knoxchat.memoryBrain.enabled` | `true` | Global Memory Brain |
+| `knoxchat.memoryBrain.workspaceEnabled` | `true` | This folder |
+| `knoxchat.memoryBrain.maxBytes` | `268435456` | sqlite + WAL cap (256 MB). `0` disables. `KNOX_BRAIN_MAX_BYTES` overrides |
+| `knoxchat.recipes.enabled` | `false` | Capture verified mutating work |
+| `knoxchat.recipes.autoReplay` | `off` | `off` / `ask` / `exact` |
+| `knoxchat.selfImprove.enabled` | `false` | Local proposals; nothing posted |
+
+Recipe switches live on **Memory → Settings**, not the chat gear.
+
+## Network
+
+| Setting | Default | Effect |
+|---|---|---|
+| `knoxchat.networkMode` | `allow` | `builtin_fetch_url`: `allow` / `deny` / `allowlist`. `KNOX_NETWORK_MODE` overrides |
+| `knoxchat.networkAllowlist` | `[]` | Hosts when mode is allowlist. `KNOX_NETWORK_ALLOWLIST` comma-separated |
+
+Does **not** block model HTTP. <Link to="/knoxcoder/settings/network">Network and offline</Link>.
+
+## Edit assist
+
+| Setting | Default | Effect |
+|---|---|---|
+| `knoxchat.showInlineTip` | `true` | Shortcut tips (⌘L / ⌘I) |
+| `knoxchat.enableInlineCompletions` | `false` | Ghost-text completions. **Stay off** in 2.2 — no FIM model. Assist is <Link to="/knoxcoder/agent/inline-edit">Cmd+I</Link>, Apply from chat, review-before-edit |
+| `knoxchat.inlineCompletionModel` | `""` | Unused unless you turn ghost-text on |
+| `knoxchat.editAssist.codeLens` | `true` | CodeLens on empty files, stubs, TODOs, errors — same path as Cmd+I |
+| `knoxchat.editAssist.nextEdit` | `true` | After Accept, one related reviewable edit; never while you type |
+| `knoxchat.enableShadowPreview` | `false` | Side-by-side shadow diff before applying a chat edit |
+| `knoxchat.shadowPreviewLargeFiles` | `false` | Allow shadow preview on files over 4000 lines |
+| `knoxchat.disableQuickFix` | `false` | Disable quick fix |
+| `knoxchat.enableQuickActions` | `false` | Extra quick actions |
+
+## Checkpoints (selected)
+
+| Setting | Default | Effect |
+|---|---|---|
+| `knox.checkpoints.maxCheckpoints` | `1000` | Engine retention (+ pins) |
+| `knox.checkpoints.maxFileSizeBytes` | `5242880` | 5 MB per file |
+| `knox.checkpoints.maxStorageBytes` | `1000000000` | 1 GB |
+| `knox.checkpoints.enableAutoCheckpoints` | `true` | After AI turns that changed files |
+| `knox.checkpoints.auto.enabled` | `true` | Time / file-threshold autos |
+| `knox.checkpoints.encryptAtRest` | `false` | AES-GCM blobs; key in Secret Storage |
+| `knox.checkpoints.smart.maxCheckpoints` | `50` | **Ignored** (deprecated) |
+
+Full checkpoint keys: search `@id:knox.checkpoints` or the Configuration tab on the <Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link>.
+
+## Deprecated no-ops (ignored)
+
+| Setting | Why it is still in Settings |
+|---|---|
+| `knoxchat.sandbox` | OS sandbox removed in 2.0. Shell uses command guard + prompts |
+| `knoxchat.sharedLoop` | Agent chat always uses the shared loop |
+| `knox.checkpoints.smart.maxCheckpoints` | Smart create uses `knox.checkpoints.maxCheckpoints` |
+
+Old `settings.json` still loads. Changing these does nothing.
+
+## Next
+
+<Link to="/knoxcoder/settings/shortcuts">Keyboard shortcuts</Link> · <Link to="/knoxcoder/settings/commands">Command palette</Link> · <Link to="/knoxcoder/settings/network">Network and offline</Link>

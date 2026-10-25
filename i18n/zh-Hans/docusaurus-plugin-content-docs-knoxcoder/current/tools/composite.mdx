@@ -1,0 +1,33 @@
+---
+title: Composite 工具
+sidebar_label: Composite 工具
+description: 启发式 composite_* 助手 — 默认关闭。脚手架和模式扫描，不是魔法。
+---
+
+import Link from '@docusaurus/Link';
+
+# Composite 工具
+
+除非设置 `knoxchat.enableCompositeTools`，否则 `composite_*` 工具是 **关** 的。即便打开，它们也是脚手架和启发式，**不是** 第二个 Agent，也 **不保证** 补丁正确。
+
+关闭时仍经 `callTool` 走诚实测试；模型只是看不见它们。
+
+对 `.c` / `.h` / `.S` / Kconfig 会 **跳过** JS import/export/class 启发式。
+
+## 目录（启用时）
+
+| 工具 | 实际行为 |
+|---|---|
+| `composite_smart_edit` | 读 → 改 → 可选校验。**不是** 完整 AST 分析。 |
+| `composite_implement_feature` | 结构 **桩**（`execute()` 抛 NotImplemented，直到你填上）。**不会** 实现真正业务逻辑，也不会 git commit。 |
+| `composite_investigate_bug` | 搜索 + 可选网上查找 → 启发式报告。**没有** git 历史分析或深度静态分析。 |
+| `composite_code_review` | 对本地 diff 做模式扫描。**不能** 替代人工 review 或 SAST。 |
+| `composite_migrate` | 正则 / 约定迁移。不是编译器。 |
+| `composite_health_check` | 启发式项目健康检查。 |
+| `composite_learn_codebase` | 启发式树图。不是完整索引。 |
+
+若保持关闭（推荐），Knox 已有 read / search / edit / `builtin_task` 做同样的事，卡片更清楚。
+
+## 下一步
+
+<Link to="/knoxcoder/tools/catalog">工具目录</Link> · <Link to="/knoxcoder/settings/reference">设置参考</Link> · <Link to="/knoxcoder/agent/permissions">权限模式</Link>

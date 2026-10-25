@@ -1,0 +1,35 @@
+---
+title: 术语表
+sidebar_label: 术语表
+description: Jev、Plan、Review edits、Memory Brain、recipe、检查点分支、延迟工具和系统扩展 — KnoxCoder 2.2 用语。
+---
+
+import Link from '@docusaurus/Link';
+
+# 术语表
+
+| 术语 | 含义 |
+|---|---|
+| **KnoxCoder** | 桌面编辑器应用（`knoxcoder`）。VS Code 1.141.0 fork。 |
+| **Knox Agent** | 内置 **系统扩展** `vscode.knox` — 不能卸载；可以禁用。侧栏对话、工具、记忆、检查点。 |
+| **Knox.Chat API** | 单独的 HTTP API（`api.knox.chat`），文档在 Docs 标签。 |
+| **系统扩展** | 与 Git 同一类：随应用附带，不是市场 VSIX。 |
+| **Ask / Edits / Auto** | 工具的 <Link to="/knoxcoder/agent/permissions">权限模式</Link>。**Ask 模式** 在写入和终端前询问（全新克隆默认）。Auto 即 YOLO。 |
+| **Plan** | Composer 的 **开关**，不是第四种权限。在 **Execute plan** 之前只能读/搜索/询问/`builtin_plan`。 |
+| **Review edits** | 文件编辑暂存在 **内存**；shell 仍打到真实磁盘。 |
+| **Jev（System One）** | 路由/门控 harness。发送用户消息 + 工具预览，**从不发送文件内容**。 |
+| **Memory Brain** | 本地 sqlite，**词法** 检索（FTS、BM25、trigram、同义词、图谱）。不是 embeddings。 |
+| **Recipe** | 实验性：已验证的 **改文件工作** 快照。默认关。同一句话发两次 ≠ recipe。 |
+| **检查点** | 不依赖 git、字节级精确的工作区快照。每轮 Agent 一个带标签的点。 |
+| **检查点分支** | 图谱上的引擎线，**不是** git 分支。 |
+| **延迟工具** | `knoxchat.deferTools` 打开时经 `builtin_tool_search` 加载的额外工具。 |
+| **Skill** | 含 `SKILL.md` 的文件夹。用 `builtin_skill` 加载，不会塞进每一轮提示。 |
+| **自定义 Agent** | `.knoxcoder/agents/*.md`，给 `builtin_task` 用的子类型。 |
+| **Hook** | 生命周期事件上的 shell 命令（`.knoxcoder/hooks.json`）。崩溃从不卡住。 |
+| **团队包** | 规则 / skills / agents / hooks 的本地 JSON。除非允许，否则跳过 hooks。 |
+| **主根** | 多根时 **当前活动编辑器文件** 所在文件夹。 |
+| **Oracle-hold** | 验证仍红时，Knox 继续修而不是结束该轮。 |
+
+## 下一步
+
+<Link to="/knoxcoder/reference/compare">对比</Link> · <Link to="/knoxcoder/reference/faq">常见问题</Link> · <Link to="/knoxcoder">KnoxCoder 是什么</Link>

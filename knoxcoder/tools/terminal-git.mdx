@@ -1,0 +1,44 @@
+---
+title: Terminal and git
+sidebar_label: Terminal and git
+description: Shell, await_shell, PTY, and git tools — command guard, no-repo fail-fast, and permission modes.
+---
+
+import Link from '@docusaurus/Link';
+
+# Terminal and git
+
+## Shell
+
+| Tool | Role |
+|---|---|
+| `builtin_run_terminal_command` | Run a command in the **primary** folder (multi-root: folder of the active file) |
+| `builtin_await_shell` | Wait on a backgrounded command |
+
+Streaming **terminal cards** cap at **five lines**; long output scrolls inside the card.
+
+**Ask** and **Edits** prompt for shell. **Auto** auto-approves enabled shell tools. Destructive patterns are **denied in every mode** unless you allow that command in Path & command policy. Details: <Link to="/knoxcoder/safety/command-guard">Permissions and command guard</Link>.
+
+There is **no OS sandbox** in 2.0+ (`knoxchat.sandbox` is a deprecated no-op). The guard parses shell structure; it is not a complete denylist. Stay in Ask/Edits on untrusted trees.
+
+Background agents: edits auto-apply in the worktree; **shell is denied unless Auto**.
+
+## PTY
+
+`builtin_pty_start` / `pty_send` / `pty_read` are **systems-core** (kernel / QEMU serial). Ordinary app chats load them through tool-search if needed. Plan mode **refuses** PTY until Execute plan.
+
+## Git
+
+Core: `builtin_git_status`, `builtin_git_diff`.
+
+Deferred: `builtin_git_log`, `git_blame`, `git_commit`, `git_bisect`.
+
+**No git repo:** these tools **fail immediately** (no 20s HEAD poll, no stack dump that looks like a crash). Chat and file tools still work. Checkpoints do **not** need git.
+
+`/commit`, `/pr`, `/changelog` use git diffs/logs from the composer — <Link to="/knoxcoder/agent/slash">Slash commands</Link>.
+
+Do not ask Knox to `git push --force`, `reset --hard`, or `clean -fd`; the guard blocks those unless you allowlist the command.
+
+## Next
+
+<Link to="/knoxcoder/tools/catalog">Tool catalog</Link> · <Link to="/knoxcoder/safety/command-guard">Command guard</Link> · <Link to="/knoxcoder/tools/lsp-build">LSP, build, verify</Link>

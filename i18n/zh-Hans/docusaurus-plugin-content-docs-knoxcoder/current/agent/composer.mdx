@@ -1,0 +1,99 @@
+---
+title: 输入框与上下文
+sidebar_label: 输入框与上下文
+description: 输入、发送、附加图片、Remember、上下文计量、压缩、排队消息，以及输入框快捷键。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 输入框与上下文
+
+输入框在 Knox 侧边栏底部。占位符：**Ask anything! Type @ for more features...** 追问用 **Follow-up question...**
+
+面板其余布局见 <Link to="/knoxcoder/agent/chat-ui">对话界面</Link>。斜杠命令见 <Link to="/knoxcoder/agent/slash">斜杠命令</Link>。提及见 <Link to="/knoxcoder/agent/mentions">@ 提及</Link>。
+
+## 发送、换行、取消
+
+| 操作 | 按键 |
+|---|---|
+| 发送 | <kbd>Enter</kbd>（或 <kbd>⌘Enter</kbd> / Ctrl+Enter） |
+| 换行 | <kbd>Shift+Enter</kbd> |
+| 取消生成 | 流式输出时 <kbd>⌘⌫</kbd> / Ctrl+Backspace |
+| 输入框撤销 / 重做 | <kbd>⌘Z</kbd> / <kbd>⌘⇧Z</kbd>（只作用于输入框文字，不是文件编辑器） |
+| 上一条 / 下一条提示 | 输入开头按 <kbd>↑</kbd> / 输入末尾按 <kbd>↓</kbd> |
+| 接受 diff | 有 diff 可见时 <kbd>⌘⇧Enter</kbd> |
+| 拒绝 diff | <kbd>⌘⇧⌫</kbd> |
+
+IME（中文 / 日文候选确认）不会提交。<kbd>Enter</kbd> 在 `@` 或 `/` 列表打开时 **选中** 高亮项，而不是发送。
+
+**Alt+Enter** 也会提交（与 Send 相同）。Send 按钮显示 **Send**，Cmd+I 编辑模式下是 **Edit**，应用失败后是 **Retry**。
+
+一轮进行中仍可输入。消息会 **排队**。队列里可以 **Send now**、**Interrupt and send**，或删掉一项。
+
+## 一条消息里有什么
+
+输入框是一份小文档，不是普通文本框：
+
+- **文本** 段落
+- **`@` 提及芯片** — 文件、文件夹、打开的编辑器，以及六个默认提供者（`@file`、`@diff`、`@problems`、`@repo-map`、`@terminal`、`@memory`）。两个字符后开始实时搜文件。目录见 <Link to="/knoxcoder/agent/mentions">提及</Link>。
+- **`/` 斜杠芯片** — 内置命令和你的提示文件
+- **代码块** — 拖入选区（⌘L）或 `#` 添加文件。点标题在编辑器里打开该范围。只有最新一块默认展开。
+- **图片** — **Attach image**，或拖放（可多张）。用芯片上的删除控件去掉。
+
+<kbd>⌘L</kbd> / <kbd>Ctrl+L</kbd> 聚焦输入框，把当前选区加入上下文，并 **清空** 草稿。<kbd>⌘⇧L</kbd> 加入但不清空。
+
+## Knox 自动附上的上下文
+
+提交时（2.2 产品路径），Knox 会附上：
+
+- **Turn Context** — 打开的文件、git porcelain、诊断
+- 已分类树上的 **工作区卡片**（Node、Python、Go、CMake、Cargo、kernel/QEMU、本编辑器）
+- 已加载的 **指令**（`AGENTS.md` 等）— 见 `/instructions`
+- **Memory Brain** 命中（词法检索，每轮上限 8000 token），除非记忆关闭
+
+这些不用手贴。**Add context** 仍可再挑文件。
+
+输入框上有 **上下文计量**（`NN%`，标题 **Context used**）。大约 **75%** 时 Knox **压缩** 较旧消息（摘要）。横幅会报告节省的 token。压缩 **不会** 抹掉持久的任务计划。
+
+非常大的会话会显示 **This chat is very large; older messages load as you scroll up.**
+
+## Remember
+
+输入框上的 **Remember** 把 **选区**（没有选区则是当前行）存成 Memory Brain 事实。**不调模型，也不调工具。** 提示：*Save the selection or this line as a memory, without sending.*
+
+对话里说出短偏好（`always use bun`）或 `remember …` 也可能落到 Memories 标签，不必按按钮。打开 **Knox: View Memory** 可钉住、编辑，或标 **Not relevant**。
+
+## 输入框上的权限条
+
+与输入同一行：
+
+- **Ask / Edits / Auto** — <Link to="/knoxcoder/agent/permissions">权限模式</Link>（Shift+Tab）
+- **Plan** — <Link to="/knoxcoder/agent/plan">Plan 模式</Link>
+- **Review edits** — 文件写入先留在内存；shell 仍写磁盘。细节见 <Link to="/knoxcoder/agent/review-edits">审阅编辑</Link>
+- **Run in background** — 在已播种的 git worktree 里跑这条提示（上限 2）。在 **Jobs** 里 Merge 或 Discard。细节见 <Link to="/knoxcoder/agent/background">后台 Agent</Link>
+- **模型选择器** — <Link to="/knoxcoder/models">登录与模型</Link>
+- 所选模型支持时，可选 **reasoning effort** 和 **web search** 开关
+
+首次运行提示（可关闭）：
+
+- 全新克隆：**Started in Ask: this folder looks like a new clone with no prior Knox sessions.** Keep Ask / Use Auto
+- Auto：**Auto (YOLO) is on… Switch to Ask if this repo is untrusted.** Keep Auto / Switch to Ask
+- Memory：**Memory Brain stores curated facts…** Got it
+
+## Worktree 芯片
+
+**Worktree** 把 Agent 编辑放到隔离的 git worktree。**Apply** 拷回当前工作区；**Discard** 删掉 worktree 且不应用。后台任务自动用同一思路。
+
+## 输入框里的失败
+
+| 横幅 / 对话框 | 怎么做 |
+|---|---|
+| Connection problem, retrying (n/4) | 瞬时流失败；失败两次后若设置了 `knoxchat.fallbackModel` 会改用它 |
+| 限流 / 密钥无效 / 找不到模型 | **Retry** 或 **Open settings** |
+| Agent mode not supported with current model | 换一个能调工具的模型 |
+| Doom loop | **Change strategy** 或改提示 |
+
+## 接下来
+
+<Link to="/knoxcoder/agent/mentions">提及</Link> · <Link to="/knoxcoder/agent/slash">斜杠命令</Link> · <Link to="/knoxcoder/agent/background">后台 Agent</Link>

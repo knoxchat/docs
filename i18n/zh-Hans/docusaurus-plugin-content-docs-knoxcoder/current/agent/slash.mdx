@@ -1,0 +1,71 @@
+---
+title: 斜杠命令
+sidebar_label: 斜杠命令
+description: Knox 输入框里的内置 / 命令 — autonomous、share、commit、review、init、instructions、hooks、skills，以及自定义提示。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 斜杠命令
+
+在 <Link to="/knoxcoder/agent/composer">输入框</Link> 里输入 `/` 打开斜杠列表。分区：**Bookmarked**、**Recent**、**Commands**（内置）、**Prompts**（你的文件）。可从列表给命令加书签。方向键移动，<kbd>Enter</kbd> / <kbd>Tab</kbd> 插入芯片，<kbd>Esc</kbd> 关闭。
+
+自定义提示在 `.knoxcoder/prompts`（项目）和 `~/.knoxcoder/prompts`（用户）。它们出现在 **Prompts**，不在 Commands。
+
+## 内置目录（2.2）
+
+| 命令 | 作用 |
+|---|---|
+| `/autonomous` | 无人值守多步循环。输入 `/autonomous` 再写目标。有步数上限（默认 40 / rust 60 / systems 80，绝对上限 200）。不用这条命令的 GUI 对话仍不限步。 |
+| `/issue` | 根据你的文字起草 GitHub issue。需要配置里的 `repositoryUrl`。 |
+| `/share` | 将会话导出为 Markdown（密钥已打码），并打印一条 **本地** `knoxcoder://…/session/import?path=` URI。不会上传。命令面板里的 **Knox: Import Session Transcript** / **Knox: Copy Session Share Link** 做同样的事。 |
+| `/cmd` | 根据描述生成 **一条** shell 命令（`/cmd list rust tests`）。若看起来危险（`rm -rf`、`sudo` 等）会警告。不会执行。 |
+| `/http` | 把 `{ input }` POST 到该命令 `params.url` 里的地址（需配置斜杠命令）。不是通用浏览器。 |
+| `/commit` | 根据 `git diff` 写提交说明。`/commit --conventional` 用 Conventional Commits。没有暂存改动 → “No changes detected.” |
+| `/review` | 用同事工程师提示审阅上一条用户消息 / 代码（可读性、坏味道、速度、内存）。 |
+| `/pr` | 根据 `git diff BASE...HEAD` 写 PR 说明。默认 base 是 `main`。覆盖：`/pr --base=develop`。 |
+| `/changelog` | 根据 `git log` 写 changelog。`/changelog --since=v2.2.0` 或 `--count=50`（最多 200）。 |
+| `/skills` | 列出已加载的 skills 以及扫描过的目录。 |
+| `/init` | 根据仓库写一份起步 `AGENTS.md`。除非 `/init --force`，否则拒绝覆盖。 |
+| `/instructions` | 已加载的规则、嵌套 `AGENTS.md`、skills — **顺序、token 成本、警告**（文件 &gt; 2000 token、始终加载的文本 &gt; 6000）。 |
+| `/hooks` | 活动 hook 事件以及最近 30 条审计日志。为空时说明如何添加 `.knoxcoder/hooks.json`。 |
+
+`/autonomous` 注册进选择器是为了能搜到；循环本身在 GUI 流里跑，不在遗留斜杠 `run` 体里。
+
+## `/share` 实际怎么用
+
+1. `/share`
+2. Knox 在 `~/.knoxcoder`（或 `params.outputDir`）写下 `YYYYMMDDTHHMMSS_session.md`
+3. 打开该文件
+4. 打印一条 `knoxcoder://vscode.knox/session/import?path=` 链接
+
+这条 URI 在 **本机** 的 Knox 里打开该文件。不是 Knox.Chat 云分享。
+
+## `/init` 与 `/instructions`
+
+新仓库开始长会话前先用：
+
+```text
+/init
+/instructions
+```
+
+若 `/instructions` 警告始终加载的文本超过 6000 token，精简 `AGENTS.md`，或把细节挪到按 glob 限定的 skill。
+
+## 提示文件作为额外命令
+
+带 frontmatter 的 Markdown 提示文件会变成 `/your-name`。从 Prompts 覆盖层（**Add Prompt**）创建，或把文件放到 `.knoxcoder/prompts`。命令名就是 `/` 后面你输入的那个。
+
+## 不是斜杠命令
+
+这些是输入框 **开关** 或命令面板项，不是 `/` 条目：
+
+- Plan / Execute plan — <Link to="/knoxcoder/agent/plan">Plan 模式</Link>
+- Run in background — Jobs 面板
+- Remember — Memory Brain，不调模型
+- **Knox: New Conversation**、**Knox: View History**
+
+## 接下来
+
+<Link to="/knoxcoder/customize/agents-md">AGENTS.md 与规则</Link> · <Link to="/knoxcoder/customize/skills">Skills</Link> · <Link to="/knoxcoder/customize/hooks">Hooks</Link>

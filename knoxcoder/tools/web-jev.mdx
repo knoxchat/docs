@@ -1,0 +1,58 @@
+---
+title: Web and Jev
+sidebar_label: Web and Jev
+description: builtin_fetch_url SSRF guards, search_web, networkMode, and what Jev (System One) actually sends.
+---
+
+import Link from '@docusaurus/Link';
+import KcShot from '@site/src/components/knoxcoder/KcShot';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# Web and Jev
+
+## `builtin_fetch_url`
+
+HTTP GET of a **public** URL, returned as readable Markdown. Follows `knoxchat.networkMode`:
+
+| Mode | Effect |
+|---|---|
+| `allow` (default) | Public-host guard: private / loopback / link-local / CGNAT blocked unless `KNOX_FETCH_URL_ALLOW_PRIVATE=1` |
+| `deny` | fetch_url blocked |
+| `allowlist` | Only `knoxchat.networkAllowlist` (exact or `*.suffix`). `KNOX_NETWORK_ALLOWLIST` comma-separated override |
+
+Also: http/https only, no credentials in the URL, redirects re-validated (max 5 hops), time and size caps (2 MB body, 15 s, 60k output chars). Env: `KNOX_NETWORK_MODE`.
+
+**Known limit:** DNS is checked before connect, so DNS rebinding between check and connect is still open. Data can still leak to a **public** URL if a query string carries it. Keep sensitive work in Ask/Edits and prefer `deny` / `allowlist`.
+
+## `builtin_search_web`
+
+Deferred search. Results are untrusted text (same confused-deputy limits as files). Fetched / searched text is redacted on the way in.
+
+## Jev (System One)
+
+`knoxchat.jev.enabled` (default **on**) asks a small harness for routing, skill hints, passage/tool gates, citation checks, and `auto` profile confirm.
+
+| Selected models | Endpoint |
+|---|---|
+| KnoxStudio | `https://api.knoxstudio.ai/v1/systemone` |
+| OpenRouter | `https://openrouter.ai/api/v1/systemone` (`typesafe/jev-1.14`) |
+
+**Sent:** user message, short turn summaries, tool **names** and argument **previews**, truncated assistant text. **Never file contents.**
+
+<KcShot
+  src="/img/knoxcoder/chat-streaming.png"
+  alt="KnoxCoder status bar showing Jev on the right"
+  caption="Jev in the status bar (lower right). It never receives file contents."
+/>
+
+Each call has a latency budget (gates 800 ms, others 2 s) and a circuit breaker (**3** failures → **5 minutes** off). Fail-open: if Jev is down, chat still runs. YAML `jev.enabled` overrides the setting.
+
+Status bar: `knoxchat.jev.showStatusBar`. Log: **Knox: Show Jev Log**. Off: `knoxchat.jev.enabled: false`.
+
+## Offline-ish
+
+Model HTTP always goes to **your** provider. Combine `networkMode: deny`, Jev off, a local model, and disabled auto-update. There is no process-wide firewall. Full table: <Link to="/knoxcoder/settings/network">Network and offline</Link>.
+
+## Next
+
+<Link to="/knoxcoder/settings/network">Network and offline</Link> · <Link to="/knoxcoder/models">Sign in and models</Link> · <Link to="/knoxcoder/safety/privacy">Privacy</Link>

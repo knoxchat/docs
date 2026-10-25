@@ -1,0 +1,85 @@
+---
+title: Hooks
+sidebar_label: Hooks
+description: .knoxcoder/hooks.json 里的生命周期 hooks — 事件、stdin JSON、退出码、Test Hook，以及崩溃为何从不卡住这一轮。
+---
+
+import Link from '@docusaurus/Link';
+
+# Hooks
+
+Hooks 是 Knox 在一轮对话的某些节点运行的 **shell 命令**。克隆的仓库可以自带 hooks，所以把 `.knoxcoder/hooks.json` 当成可执行策略：先审查，不要把不信任的文件夹当作已信任工作区打开。
+
+Knox **不会** 在未信任的 VS Code 工作区激活（`untrustedWorkspaces.supported: false`）。因此仓库内 hooks 不会在打开文件夹时运行。它们在 **每次调用时重新读取**（文件很小），并以该文件夹为 `cwd`。
+
+## 文件
+
+| 路径 | 何时 |
+|---|---|
+| `.knoxcoder/hooks.json` | 每个工作区根 |
+| `.knoxcoder/config.yaml` 里的 `hooks:` | 同一根 |
+| `~/.knoxcoder/config.yaml` 里的 `hooks:` | 用户级；工作区受信任后仍会运行 |
+
+合并顺序：**全局 yaml**，然后每个根的 **yaml** 和 **hooks.json**（主根优先）。每个 hook 的 `cwd` 是该文件所在根。
+
+输入 `/hooks` 查看活动事件和最近 **30** 条审计日志。**Knox: Test Hook**（以及 Hooks 面板）用当前文件测一个事件。**Knox: Show Hooks Log** 打开日志。
+
+## `hooks.json`
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "run_terminal_command|edit_file",
+        "command": "./check.sh",
+        "timeoutMs": 5000
+      }
+    ]
+  }
+}
+```
+
+`matcher` 是针对工具名的正则，**带或不带** `builtin_` 前缀都测。省略或写 `*` 匹配全部。
+
+## 事件
+
+| 事件 | 典型用途 |
+|---|---|
+| `SessionStart` | 会话开始时附加上下文 |
+| `UserPromptSubmit` | 检查或拒绝用户消息 |
+| `PreToolUse` | 在工具运行前拒绝或改写调用 |
+| `PostToolUse` | 根据结果附加上下文 |
+| `Stop` | 本轮结束后 |
+
+同一事件的 hooks 按 **文件顺序** 运行。`PreToolUse` 的参数修改会 **串联**：每个 hook 看到的是前一个改过的 args。
+
+`SessionStart` 和 `UserPromptSubmit` 的上下文会加到你的消息里，包在 `<hook_context>` 块中。
+
+## Stdin JSON
+
+命令在 stdin 收到一个 JSON 对象：
+
+```json
+{ "event": "PreToolUse", "cwd": "/path/to/folder", "toolName": "builtin_edit_file", "args": {}, "result": null, "prompt": null }
+```
+
+字段随事件变化（`toolName` / `args` / `result` / `prompt`）。
+
+## 退出码
+
+| 退出 | 效果 |
+|---|---|
+| **0** | stdout 为 JSON `{ decision, reason, updatedArgs, additionalContext }`，**或** 纯文本当作额外上下文 |
+| **2** | **拒绝**（仅 `PreToolUse`、`UserPromptSubmit`）。stderr 是展示给你的原因 |
+| 其它退出码、崩溃或 **超时** | **从不卡住。** 写入控制台 / 审计日志。默认超时 **10 秒**（`timeoutMs` 可覆盖） |
+
+坏掉的 hook 不得冻住对话。若 hooks「没反应」，检查 JSON 是否合法，并看 **Knox: Show Hooks Log**。
+
+## 团队导入
+
+<Link to="/knoxcoder/customize/team-bundles">团队包</Link> **跳过** `.knoxcoder/hooks.json`，除非你选择 **Allow hooks**。Hooks 会运行仓库里的命令。
+
+## 下一步
+
+<Link to="/knoxcoder/customize/agents-md">AGENTS.md 与规则</Link> · <Link to="/knoxcoder/customize/team-bundles">团队包</Link> · <Link to="/knoxcoder/agent/troubleshooting">排障</Link>

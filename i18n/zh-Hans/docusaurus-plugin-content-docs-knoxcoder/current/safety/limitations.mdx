@@ -1,0 +1,53 @@
+---
+title: 已知限制
+sidebar_label: 已知限制
+description: KnoxCoder 2.2 不做的事 — SSH/WSL、MCP、CLI、幽灵文本、额外语言、未签名的 Windows，以及命令守卫仍开放的漏洞。
+---
+
+import Link from '@docusaurus/Link';
+
+# 已知限制
+
+KnoxCoder **2.2.2** 里如实存在的缺口。另见 <Link to="/knoxcoder/agent/troubleshooting">排障</Link>。
+
+## 本季度不支持
+
+| 缺口 | 说明 |
+|---|---|
+| Remote SSH、WSL、Dev Containers、web（`UIKind.Web`） | Knox 宿主拒绝这些。在 KnoxCoder 运行的那台机器上打开文件 |
+| 无界面 CLI（`knox run`） | 2.0 已移除 |
+| OS 命令沙箱 | 已移除；`knoxchat.sandbox` 被忽略 |
+| 编辑器内的 MCP 服务器 | 2.2 没有 |
+| 幽灵文本行内补全（FIM） | **关闭**。辅助是 Cmd+I / Apply / 先审查。不计划做打字时的 Copilot 式 next-edit |
+| 额外语言 | **仅英语和中文** |
+| 远程包注册表 | `uses:` 仅本地 `~/.knoxcoder/registry/` |
+| 定时 Agent | 2.2 没有 |
+| KnoxCoder 内的市场 VSIX `knoxchat.knoxchat` | 隐藏 / 拦截。不要在这里安装 |
+
+## 平台
+
+支持：macOS（签名/公证）、Windows（安装包 **可能未签名** → SmartScreen **更多信息，仍要运行**）、Linux（deb / rpm / tar.gz）。自动更新来自 GitHub 的 `latest-<platform>-<arch>.json`。
+
+## 命令守卫
+
+编码脚本、`make` recipes 和更深的间接仍可能漏过。不信任的工作请留在 Edits 或 Ask。<Link to="/knoxcoder/safety/command-guard">命令守卫</Link>。
+
+## 多根
+
+**当前活动文件** 所在文件夹是主根（shell、git、构建、相对路径）。搜索、glob、说明、hooks、自定义 Agent 覆盖 **所有** 根。检查点 **按文件夹**。
+
+## 后台 Agent
+
+上限 **2**。编辑自动应用；除非 Auto 否则拒绝 shell。在 Jobs 里合并/丢弃。
+
+## Recipes
+
+默认关。200 条预算。同一句话发两次不够。工程测试里的 soak 数字只针对引擎（不是真正的 VS Code 窗口）。
+
+## 无障碍
+
+标签、landmarks、跳到 composer、对比度检查过的 One Dark / Light+ / 高对比。专门的 VoiceOver/NVDA 会话 **仍需人工检查**。对话界面针对 One Dark 调过。
+
+## 下一步
+
+<Link to="/knoxcoder/reference/faq">常见问题</Link> · <Link to="/knoxcoder/reference/whats-new">更新说明</Link> · <Link to="/knoxcoder/install">安装</Link>

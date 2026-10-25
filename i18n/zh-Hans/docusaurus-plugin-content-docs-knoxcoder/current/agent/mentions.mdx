@@ -1,0 +1,75 @@
+---
+title: 提及
+sidebar_label: 提及
+description: 在 Knox 输入框里输入 @ — 默认提供者、实时搜文件、芯片，以及你在 config.yaml 里加的项。
+---
+
+import Link from '@docusaurus/Link';
+import UiAnatomy from '@site/src/components/knoxcoder/UiAnatomy';
+
+# 提及
+
+在 <Link to="/knoxcoder/agent/composer">输入框</Link> 里输入 `@` 可附加额外上下文。占位符：**Ask anything! Type @ for more features...** 地标名：Context mentions。
+
+方向键移动，<kbd>Enter</kbd> / <kbd>Tab</kbd> 插入 **芯片**，<kbd>Esc</kbd> 关闭。列表打开时按 <kbd>Enter</kbd> 不会发送。
+
+文件和文件夹芯片会 **在编辑器里打开**（悬停显示路径）。提供者芯片（`@diff`、`@problems` 等）不会。用芯片上的删除控件去掉（**Remove mention**）。
+
+这不是斜杠命令。`/` 见 <Link to="/knoxcoder/agent/slash">斜杠命令</Link>。
+
+## 列表布局
+
+查询为空时，列表是 **Open**（打开的编辑器，最多 8 个文件），然后是 **Providers**。开始输入后，分区是 **Files**、**Folders**、**Providers**（需要时还有 **Other**）。子菜单有 **Back**。
+
+列表顶部最多 **40** 行。实时工作区搜索在 **两个字符** 之后开始，且已有路径命中少于 **8** 条时才会搜（150 ms 防抖，遍历上限 **200**）。排序优先打开的文件，然后是精确基名、前缀 / camelCase 词，再是路径匹配；同分时文件排在文件夹前面。
+
+空结果：**No files match** / *Try a file name or path*。截断的遍历显示 **Showing first N files**。
+
+## 默认（始终有）
+
+加载后选择器里始终有这六个：
+
+| 输入 `@` | 界面标题 | 附上什么 |
+|---|---|---|
+| `@file` | File \| Folder | 子菜单：工作区里的文件和文件夹。等价于在 `@` 后输入路径。 |
+| `@diff` | Git Diff | 当前 git diff |
+| `@problems` | Problems | 诊断 |
+| `@repo-map` | Repository Structure Map | 子菜单：仓库地图（可用路径放大） |
+| `@terminal` | Terminal | 终端缓冲区 |
+| `@memory` | Project Memory | 查询 Memories（词法检索；不是向量库） |
+
+打开的编辑器会出现在 **Open** 下，不必先输入 `@file`。
+
+提交时 Knox 已经会送 **Turn Context**（打开的文件、git、诊断）以及 <Link to="/knoxcoder/agent/profiles">工作区卡片</Link>。提及是额外的，用于指定 *某一个* 文件、diff 或记忆。
+
+## 可选（`config.yaml` 的 `context:`）
+
+这些在注册表里。只有在 `config.yaml`（或已加载的包）的 `context:` 下加上才会出现：
+
+`currentFile`、`open`、`clipboard`、`commit`、`tree`、`search`、`os`、`url`、`serial`
+
+它们 **不是** 默认 KnoxCoder 安装自带的。
+
+## 集成（密钥 / 配置）
+
+从不默认。缺少必需参数会被跳过（失败即关闭）：
+
+| 名称 | 需要 |
+|---|---|
+| `google` | `serperApiKey` |
+| `discord` | `discordKey` |
+| `postgres` | `host` 和 `database` |
+| `database` | `connections[]` |
+| `http` | `url` |
+| `issue` | `githubToken` |
+| `greptile`、`web`、`debugger` | 显式的 `context:` 条目（运行时仍可能需要 token） |
+
+在配置之前不要指望有 `@google` 或 `@debugger`。没有 MCP 提及提供者。
+
+## Cmd+I 编辑模式
+
+在 <Link to="/knoxcoder/agent/inline-edit">行内编辑</Link> 模式下，这些标题会被 **隐藏**：`tree`、`open`、`web`、`diff`、`folder`、`search`、`debugger`、`repo-map`。文件提及仍然可用。
+
+## 接下来
+
+<Link to="/knoxcoder/agent/composer">输入框与上下文</Link> · <Link to="/knoxcoder/agent/slash">斜杠命令</Link>

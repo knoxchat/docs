@@ -1,0 +1,53 @@
+---
+title: Known limitations
+sidebar_label: Known limitations
+description: What KnoxCoder 2.2 does not do — SSH/WSL, MCP, CLI, ghost-text, extra locales, unsigned Windows, and remaining command-guard holes.
+---
+
+import Link from '@docusaurus/Link';
+
+# Known limitations
+
+Honest gaps in KnoxCoder **2.2.2**. Also see <Link to="/knoxcoder/agent/troubleshooting">Troubleshooting</Link>.
+
+## Not supported this quarter
+
+| Gap | Notes |
+|---|---|
+| Remote SSH, WSL, Dev Containers, web (`UIKind.Web`) | Knox host refuses these. Open files on the machine where KnoxCoder runs |
+| Headless CLI (`knox run`) | Removed in 2.0 |
+| OS command sandbox | Removed; `knoxchat.sandbox` ignored |
+| MCP servers in the editor | Not in 2.2 |
+| Ghost-text inline completions (FIM) | **Off**. Assist is Cmd+I / Apply / review. Copilot-style next-edit while typing is not planned |
+| Extra locales | **English and Chinese only** |
+| Remote package registry | `uses:` is local `~/.knoxcoder/registry/` only |
+| Scheduled agents | Not in 2.2 |
+| Marketplace VSIX `knoxchat.knoxchat` inside KnoxCoder | Hidden / blocked. Do not install it here |
+
+## Platforms
+
+Supported: macOS (signed/notarized), Windows (installers **may be unsigned** → SmartScreen **More info, Run anyway**), Linux (deb / rpm / tar.gz). Auto-update from GitHub `latest-<platform>-<arch>.json`.
+
+## Command guard
+
+Encoded scripts, `make` recipes, and deeper indirection can still slip. Stay in Edits or Ask for untrusted work. <Link to="/knoxcoder/safety/command-guard">Command guard</Link>.
+
+## Multi-root
+
+Folder of the **active file** is primary (shell, git, builds, relative paths). Search, glob, instructions, hooks, custom agents cover **all** roots. Checkpoints **per folder**.
+
+## Background agents
+
+Cap **2**. Edits auto-apply; shell denied unless Auto. Merge/discard in Jobs.
+
+## Recipes
+
+Off by default. 200-recipe budget. Same chat twice is not enough. Soak numbers in engineering tests are engine-only (not a real VS Code window).
+
+## Accessibility
+
+Labels, landmarks, skip-to-composer, contrast-checked One Dark / Light+ / high-contrast. A dedicated VoiceOver/NVDA session is **still a human check**. Chat UI was tuned for One Dark.
+
+## Next
+
+<Link to="/knoxcoder/reference/faq">FAQ</Link> · <Link to="/knoxcoder/reference/whats-new">What’s new</Link> · <Link to="/knoxcoder/install">Install</Link>

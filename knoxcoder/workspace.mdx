@@ -1,0 +1,80 @@
+---
+title: Open a folder
+sidebar_label: Open a folder
+description: How Knox picks the primary root, what lives in ~/.knoxcoder versus the repo, and how multi-root workspaces behave.
+---
+
+import Link from '@docusaurus/Link';
+
+# Open a folder
+
+Knox Agent is a **workspace** agent. Open the project with **File → Open Folder…** (or a `.code-workspace` with folders). Until a folder is open, tools have no tree to read or edit.
+
+## Primary root
+
+In a **single-folder** window, that folder is the root.
+
+In a **multi-root** workspace, the folder of the **active editor file** is the primary root. Shell commands, git, builds, and relative paths run there. Search, glob, instruction files, hooks, and custom agents still cover **all** roots. Nested `.knoxignore` is honored. Checkpoints are stored **per folder**.
+
+If you keep jumping between two repos in one window, watch which file is focused before you let Auto run the shell.
+
+## Two places files live
+
+### On this machine — `~/.knoxcoder`
+
+Global Knox state (override the whole path with `KNOX_GLOBAL_DIR`):
+
+| Path | Contents |
+|---|---|
+| `config.yaml` | Models, providers, some agent config |
+| `auth.json` | Knox OAuth session, mode `0600` |
+| `sessions/` | Chat transcripts |
+| Memory Brain sqlite | Facts, graph, recipes (if enabled) |
+| checkpoints | Byte-exact snapshots, not git |
+| `skills/`, prompts, logs, job output | User-level extras |
+
+This directory is **not** `~/.knox`. Marketplace Knox (`knoxchat.knoxchat`) owns `~/.knox`. KnoxCoder never migrates that folder. Copy files by hand if you want them.
+
+On Windows: `C:\Users\<you>\.knoxcoder`.
+
+### In the repo — `.knoxcoder/` and friends
+
+These are project files you can commit:
+
+| Path | Role |
+|---|---|
+| `AGENTS.md` | Project instructions (also `.knoxcoder/AGENTS.md`, nested `AGENTS.md` closer to the open file, `CLAUDE.md`, `.knoxrules`) |
+| `.knoxcoder/hooks.json` | Lifecycle hooks |
+| `.knoxcoder/agents/*.md` | Custom subagents |
+| `.knoxcoder/prompts` | Extra slash commands |
+| `skills/` or `skill/` | Project skills (`SKILL.md`) |
+| `.knoxignore` | Checkpoint / scan ignore (repo + a global one under `~/.knoxcoder`) |
+| `.knoxcoder/config.yaml` | Optional project config |
+
+Never create **`.knox/`** in a KnoxCoder project. That name belongs to the marketplace extension.
+
+Type `/instructions` to list everything loaded, in order, with token cost. Warnings fire if a single file is over **2000** tokens or always-on instruction text is over **6000**. `/init` writes a starter `AGENTS.md` (refuses to overwrite without `--force`).
+
+Opt-in extras, off unless you set them: `knoxchat.compatInstructions` = `cursor` (`.cursor/rules`, `.cursorrules`) and/or `copilot` (`.github/copilot-instructions.md`). They sit **below** `AGENTS.md`.
+
+## Git remotes and first-session mode
+
+A **fresh clone** (no prior Knox sessions for that folder, remote not in `knoxchat.trustedGitRemotes`) starts the permission bar in **Ask**. After Knox has used the folder, or if the remote substring is allowlisted, new sessions start in **Auto**. `knoxchat.permissionDefault` overrides the heuristic; a saved mode for the folder still wins.
+
+See <Link to="/knoxcoder/first-chat">First chat</Link> for Ask / Edits / Auto.
+
+## What Knox will not use as a workspace
+
+- **Remote SSH, WSL, Dev Containers** — not supported for the Knox host in 2.2. Open the files on the machine where KnoxCoder is running.
+- **Virtual documents / untitled files only** — open a folder if you want edits, checkpoints, and git tools.
+- **No git repo** — chat and file tools still work. Git tools (`builtin_git_status`, commit, …) fail immediately instead of hanging. Checkpoints do **not** need git.
+
+## Disable Knox for this window
+
+Extensions view → **Knox** → **Disable**. It cannot be uninstalled. Disabling hides the sidebar and commands; `~/.knoxcoder` stays on disk.
+
+To stop Memory Brain in **this folder only**, set `knoxchat.memoryBrain.workspaceEnabled` to false as a workspace setting. The global switch is `knoxchat.memoryBrain.enabled` (or `KNOX_BRAIN_ENABLED=0`).
+
+## Next
+
+<Link to="/knoxcoder/first-chat">First chat</Link> · <Link to="/knoxcoder/customize/agents-md">AGENTS.md and rules</Link> · <Link to="/knoxcoder/memory/brain">Memory Brain</Link>

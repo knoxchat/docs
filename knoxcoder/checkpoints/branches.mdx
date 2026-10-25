@@ -1,0 +1,31 @@
+---
+title: Checkpoint branches
+sidebar_label: Branches
+description: Engine lines on the Checkpoint Graph — create_branch forks a snapshot line. These are not git branches.
+---
+
+import Link from '@docusaurus/Link';
+
+# Checkpoint branches
+
+A checkpoint **branch** is an **engine line** on the <Link to="/knoxcoder/checkpoints/graph">graph</Link>: a named fork of snapshots. It is **not** `git branch`. Creating one does not touch git refs, remotes, or your working tree’s git HEAD.
+
+## Create a line
+
+- Graph / Timeline: fork from a node
+- Command palette: **Knox: Create Checkpoint Branch**, **Switch**, **Merge**, **Delete**
+- Agent tool: `builtin_workspace_checkpoint` `create_branch` with `name` (optional `checkpoint_id`; defaults to newest). `list` shows `label=` and `branch=`
+
+Restore and delete on a branch **still prompt**.
+
+Use a branch when you want to compare “what if Knox takes path A” against the main checkpoint line without making a git branch. Recipe adapt may fork a `what-if/*` line before applying so you can compare with a model-written result.
+
+## Merge / switch / delete
+
+These operate on **checkpoint metadata and blobs**, not git. Merging a checkpoint branch does **not** run `git merge`.
+
+If you also need a git branch for a PR, create that in Source Control yourself after you like the files.
+
+## Next
+
+<Link to="/knoxcoder/checkpoints/graph">Checkpoint Graph</Link> · <Link to="/knoxcoder/checkpoints/restore">Restore and undo</Link> · <Link to="/knoxcoder/agent/plan">Plan mode</Link>
