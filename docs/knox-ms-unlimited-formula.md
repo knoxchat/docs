@@ -5,9 +5,6 @@ description: Bounded context, unbounded memory, measured recall. The formal mode
 keywords: [knox, knox api, ai integration, knox-ms, unlimited context, context theorem, recall theorem, bounded context, brain-inspired, memory system, fsrs, neural architecture]
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # KMS Unlimited Context Theorem
 
 **Bounded context, unbounded memory, measured recall.**
