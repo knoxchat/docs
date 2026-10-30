@@ -23,11 +23,9 @@ Knox-MS is an SI orchestration engine with a human-brain-inspired memory archite
   - [Knox-MS Parameters](#knox-ms-parameters)
   - [Knox-MS Metadata in Responses](#knox-ms-metadata-in-responses)
 - [Models](#models)
-- [Embeddings](#embeddings)
 - [Image Generation](#image-generation)
 - [Audio](#audio)
 - [Moderations](#moderations)
-- [Reranking](#reranking)
 - [Anthropic Messages API (Claude Code)](#anthropic-messages-api)
 - [Autonomous Execution](#autonomous-execution)
   - [Start Execution](#start-execution)
@@ -190,7 +188,7 @@ When using `knox/knox-ms`, you can pass additional parameters in a `knox_ms` obj
     "memory_mode": "summarized",
     "verbosity": "verbose",
     "include_reasoning": true,
-    "use_vector_search": true,
+    "use_lexical_search": true,
     "extract_knowledge": true
   }
 }
@@ -202,15 +200,15 @@ When using `knox/knox-ms`, you can pass additional parameters in a `knox_ms` obj
 | `memory_mode` | string | `"summarized"` | How context is managed: `"full"` (keep everything), `"summarized"` (compress older context), `"selective"` (only relevant context). |
 | `verbosity` | string | `"normal"` | Response detail level: `"minimal"`, `"normal"`, `"verbose"`. |
 | `include_reasoning` | boolean | `false` | Include planning/reasoning steps in the response. |
-| `use_vector_search` | boolean | `false` | Enable semantic vector search over past sessions for relevant context. |
-| `vector_top_k` | integer | `30` | Number of vector search candidates to retrieve. |
-| `rerank_threshold` | number | `0.5` | Minimum relevance score for vector search results (0.0–1.0). |
+| `use_lexical_search` | boolean | `true` | Enable BM25 + ripgrep retrieval over past sessions and project text. |
+| `search_top_k` | integer | `30` | Number of lexical candidates to retrieve. |
+| `relevance_threshold` | number | `0.35` | Calibrated $P(\text{helpful})$ cut-off for injected memories (0.0–1.0). |
 | `max_context_tokens` | integer | — | Override the context window size for this request. |
 | `force_model` | string | — | Override auto-routing and use a specific model for all tasks. |
 | `task_difficulty` | string | — | Override auto-detection: `"easy"`, `"medium"`, `"hard"`. |
 | `extract_knowledge` | boolean | `false` | Extract key facts and concepts into the knowledge base. |
 | `final_only` | boolean | `false` | Return only the final result, not intermediate task outputs. |
-| `project_id` | string | — | Project ID for scoped vector embeddings retrieval. |
+| `project_id` | string | — | Project ID for scoped BM25 / ripgrep retrieval. |
 | `temperature` | number | — | Passed through to underlying models. |
 | `top_p` | number | — | Passed through to underlying models. |
 | `tools` | array | — | Tool/function definitions passed through to underlying models. |
@@ -241,7 +239,7 @@ When using `knox/knox-ms`, responses include an additional `knox_ms_meta` field:
     "memory_tokens_saved": 5000,
     "context_tokens_used": 1200,
     "execution_time_ms": 3200,
-    "vector_search_results": 0,
+    "search_results": 0,
     "summary_updated": false
   }
 }
@@ -256,7 +254,7 @@ When using `knox/knox-ms`, responses include an additional `knox_ms_meta` field:
 | `memory_tokens_saved` | Tokens saved via summarization/compression |
 | `context_tokens_used` | Tokens used for context in this request |
 | `execution_time_ms` | Total processing time |
-| `vector_search_results` | Number of relevant past context chunks retrieved |
+| `search_results` | Number of relevant past context chunks retrieved by BM25 / ripgrep |
 
 ## Models
 
@@ -297,50 +295,6 @@ GET /v1/models/{model_id}
 ```
 
 Returns details about a specific model.
-Knox.chat
-## Embeddings
-
-```
-POST /v1/embeddings
-```
-
-Generate vector embeddings for text input.
-
-**Request body:**
-
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `model` | string | Yes | Embedding model ID (e.g., `voyage-4-lite`, `text-embedding-3-small`). |
-| `input` | string/array | Yes | Text(s) to embed. |
-
-**Example:**
-
-```json
-{
-  "model": "voyage-4-lite",
-  "input": "Knox-MS is an SI orchestration engine."
-}
-```
-
-**Response:**
-
-```json
-{
-  "object": "list",
-  "data": [
-    {
-      "object": "embedding",
-      "index": 0,
-      "embedding": [0.0123, -0.0456, ...]
-    }
-  ],
-  "model": "voyage-4-lite",
-  "usage": {
-    "prompt_tokens": 8,
-    "total_tokens": 8
-  }
-}
-```
 Knox.chat
 ## Image Generation
 
@@ -401,23 +355,6 @@ POST /v1/moderations
 
 Classify text for content policy violations.
 Knox.chat
-## Reranking
-
-```
-POST /v1/rerank
-```
-
-Rerank a list of documents by relevance to a query (VoyageAI-compatible).
-
-**Request body:**
-
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `model` | string | Yes | Rerank model ID (e.g., `rerank-2.5`). |
-| `query` | string | Yes | The query to rank documents against. |
-| `documents` | array | Yes | List of document strings to rerank. |
-| `top_n` | integer | No | Number of top results to return. |
-
 ## Anthropic Messages API
 
 Knox provides full compatibility with the Anthropic Messages API, so tools like **Claude Code** and the **Anthropic Python/JS SDK** work natively.
@@ -683,7 +620,7 @@ Returns the full conversation history stored in this session.
 Knox.chat
 ## Knowledge Base
 
-Knox-MS automatically extracts facts, concepts, and patterns from conversations into a knowledge base that can be searched and reused across sessions.
+Knox-MS automatically extracts facts, concepts, and patterns from conversations into a knowledge base that can be searched and reused across sessions. Search is lexical (BM25 and ripgrep), not vector similarity.
 
 ### Search Knowledge
 
@@ -777,11 +714,6 @@ Only include the fields you want to change.
 | `easy_model` | string | Model for simple tasks. |
 | `medium_model` | string | Model for medium-complexity tasks. |
 | `hard_model` | string | Model for complex tasks. |
-| `embedding_model_general` | string | Embedding model for general text. |
-| `embedding_model_code` | string | Embedding model for code. |
-| `rerank_model` | string | Model for search result reranking. |
-| `enable_rerank` | boolean | Enable reranking for vector search. |
-| `rerank_top_n` | integer | Number of top results to rerank. |
 | `max_context_tokens` | integer | Maximum context window size. |
 | `auto_summarize` | boolean | Automatically compress old context. |
 | `enable_knowledge_extraction` | boolean | Auto-extract knowledge entries from conversations. |

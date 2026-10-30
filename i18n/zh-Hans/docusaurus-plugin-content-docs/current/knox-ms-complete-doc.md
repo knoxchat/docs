@@ -24,11 +24,9 @@ Knox-MS 是一个 SI 编排引擎，采用受人脑启发的记忆架构，具�
   - [Knox-MS 参数](#knox-ms-parameters)
   - [响应中的 Knox-MS 元数据](#knox-ms-metadata-in-responses)
 - [模型](#models)
-- [嵌入](#embeddings)
 - [图像生成](#image-generation)
 - [音频](#audio)
 - [内容审核](#moderations)
-- [重排序](#reranking)
 - [Anthropic Messages API (Claude Code)](#anthropic-messages-api)
 - [自主执行](#autonomous-execution)
   - [启动执行](#start-execution)
@@ -191,7 +189,7 @@ data: [DONE]
     "memory_mode": "summarized",
     "verbosity": "verbose",
     "include_reasoning": true,
-    "use_vector_search": true,
+    "use_lexical_search": true,
     "extract_knowledge": true
   }
 }
@@ -203,15 +201,15 @@ data: [DONE]
 | `memory_mode` | string | `"summarized"` | 上下文管理方式：`"full"`（保留全部）、`"summarized"`（压缩较早上下文）、`"selective"`（仅保留相关上下文）。 |
 | `verbosity` | string | `"normal"` | 响应详细程度：`"minimal"`、`"normal"`、`"verbose"`。 |
 | `include_reasoning` | boolean | `false` | 在响应中包含规划/推理步骤。 |
-| `use_vector_search` | boolean | `false` | 启用对过往会话的语义向量搜索以获取相关上下文。 |
-| `vector_top_k` | integer | `30` | 检索的向量搜索候选数量。 |
-| `rerank_threshold` | number | `0.5` | 向量搜索结果的最低相关性分数（0.0–1.0）。 |
+| `use_lexical_search` | boolean | `true` | 启用对过往会话与项目文本的 BM25 + ripgrep 检索。 |
+| `search_top_k` | integer | `30` | 检索的词法候选数量。 |
+| `relevance_threshold` | number | `0.35` | 注入记忆的校准 $P(\text{helpful})$ 截断（0.0–1.0）。 |
 | `max_context_tokens` | integer | — | 覆盖此请求的上下文窗口大小。 |
 | `force_model` | string | — | 覆盖自动路由，对所有任务使用指定模型。 |
 | `task_difficulty` | string | — | 覆盖自动检测：`"easy"`、`"medium"`、`"hard"`。 |
 | `extract_knowledge` | boolean | `false` | 将关键事实和概念提取到知识库中。 |
 | `final_only` | boolean | `false` | 仅返回最终结果，不返回中间任务输出。 |
-| `project_id` | string | — | 用于限定范围的向量嵌入检索的项目 ID。 |
+| `project_id` | string | — | 用于限定范围的 BM25 / ripgrep 检索的项目 ID。 |
 | `temperature` | number | — | 透传至底层模型。 |
 | `top_p` | number | — | 透传至底层模型。 |
 | `tools` | array | — | 透传至底层模型的工具/函数定义。 |
@@ -242,7 +240,7 @@ data: [DONE]
     "memory_tokens_saved": 5000,
     "context_tokens_used": 1200,
     "execution_time_ms": 3200,
-    "vector_search_results": 0,
+    "search_results": 0,
     "summary_updated": false
   }
 }
@@ -257,7 +255,7 @@ data: [DONE]
 | `memory_tokens_saved` | 通过摘要/压缩节省的令牌数 |
 | `context_tokens_used` | 该请求中用于上下文的令牌数 |
 | `execution_time_ms` | 总处理时间 |
-| `vector_search_results` | 检索到的相关历史上下文块数量 |
+| `search_results` | 由 BM25 / ripgrep 检索到的相关历史上下文块数量 |
 
 ## 模型 {#models}
 
@@ -298,50 +296,6 @@ GET /v1/models/{model_id}
 ```
 
 返回指定模型的详细信息。
-Knox.chat
-## 嵌入 {#embeddings}
-
-```
-POST /v1/embeddings
-```
-
-为文本输入生成向量嵌入。
-
-**请求体：**
-
-| 字段 | 类型 | 必填 | 描述 |
-|---|---|---|---|
-| `model` | string | 是 | 嵌入模型 ID（如 `voyage-4-lite`、`text-embedding-3-small`）。 |
-| `input` | string/array | 是 | 要嵌入的文本。 |
-
-**示例：**
-
-```json
-{
-  "model": "voyage-4-lite",
-  "input": "Knox-MS is an SI orchestration engine."
-}
-```
-
-**响应：**
-
-```json
-{
-  "object": "list",
-  "data": [
-    {
-      "object": "embedding",
-      "index": 0,
-      "embedding": [0.0123, -0.0456, ...]
-    }
-  ],
-  "model": "voyage-4-lite",
-  "usage": {
-    "prompt_tokens": 8,
-    "total_tokens": 8
-  }
-}
-```
 Knox.chat
 ## 图像生成 {#image-generation}
 
@@ -402,23 +356,6 @@ POST /v1/moderations
 
 对文本进行内容政策违规分类。
 Knox.chat
-## 重排序 {#reranking}
-
-```
-POST /v1/rerank
-```
-
-按与查询的相关性对文档列表进行重排序（兼容 VoyageAI）。
-
-**请求体：**
-
-| 字段 | 类型 | 必填 | 描述 |
-|---|---|---|---|
-| `model` | string | 是 | 重排序模型 ID（如 `rerank-2.5`）。 |
-| `query` | string | 是 | 用于对文档进行排序的查询。 |
-| `documents` | array | 是 | 要重排序的文档字符串列表。 |
-| `top_n` | integer | 否 | 返回的前 N 个结果数量。 |
-
 ## Anthropic Messages API
 
 Knox 完全兼容 Anthropic Messages API，因此 **Claude Code** 和 **Anthropic Python/JS SDK** 等工具可以原生使用。
@@ -684,7 +621,7 @@ GET /api/knox-ms/sessions/{session_id}/history
 Knox.chat
 ## 知识库 {#knowledge-base}
 
-Knox-MS 自动从对话中提取事实、概念和模式到知识库中，可在不同会话间搜索和复用。
+Knox-MS 自动从对话中提取事实、概念和模式到知识库中，可在不同会话间搜索和复用。搜索是词法检索（BM25 与 ripgrep），不是向量相似度。
 
 ### 搜索知识 {#search-knowledge}
 
@@ -778,11 +715,6 @@ PUT /api/knox-ms/user/preferences
 | `easy_model` | string | 用于简单任务的模型。 |
 | `medium_model` | string | 用于中等复杂度任务的模型。 |
 | `hard_model` | string | 用于复杂任务的模型。 |
-| `embedding_model_general` | string | 用于通用文本的嵌入模型。 |
-| `embedding_model_code` | string | 用于代码的嵌入模型。 |
-| `rerank_model` | string | 用于搜索结果重排序的模型。 |
-| `enable_rerank` | boolean | 启用向量搜索的重排序。 |
-| `rerank_top_n` | integer | 重排序的前 N 个结果数量。 |
 | `max_context_tokens` | integer | 最大上下文窗口大小。 |
 | `auto_summarize` | boolean | 自动压缩旧上下文。 |
 | `enable_knowledge_extraction` | boolean | 自动从对话中提取知识条目。 |

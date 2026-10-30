@@ -54,7 +54,7 @@ x \xrightarrow{\text{encode}} \mathcal{S} \xrightarrow{\text{filter}} \mathcal{T
 $$
 
 Where:
-- $\mathcal{S}$ = **Sensory Cortex**: input processing (parse, embed, extract entities)
+- $\mathcal{S}$ = **Sensory Cortex**: input processing (parse, tokenize, extract entities)
 - $\mathcal{T}$ = **Thalamus**: relay and filter (scope and attention)
 - $\mathcal{A}$ = **Amygdala**: salience weighting (initial importance $I_0$)
 - $\mathcal{P}$ = **Prefrontal Cortex**: planning and task decomposition
@@ -122,8 +122,8 @@ $$
 1. **$\phi_1$: Input**. The turn enters the buffer.
    $$\phi_1(x_t) = \mathcal{S}(x_t) \to M_1$$
 
-2. **$\phi_2$: Encoding**. Embedding, lexical indexing, and entity extraction.
-   $$\phi_2(x) = \big(E(x) \in \mathbb{R}^d,\; \text{terms}(x),\; \text{ent}(x)\big)$$
+2. **$\phi_2$: Encoding**. Lexical indexing (BM25 terms, n-grams, ripgrep-ready text) and entity extraction. There is no embedding vector.
+   $$\phi_2(x) = \big(\text{terms}(x),\; \text{ngrams}(x),\; \text{ent}(x)\big)$$
 
 3. **$\phi_3$: Working Memory**. Budgeted context assembly (Part VII).
    $$\phi_3(q) = \text{Select}\big(\text{Cand}(q),\, W_{\text{mem}}\big) \to M_2$$
@@ -138,7 +138,7 @@ $$
 6. **$\phi_6$: Retrieval**. Scoped, multi-channel, fused candidate generation (Part V).
    $$\phi_6(q) = \text{Cand}(q) \subseteq \Omega(q)$$
 
-7. **$\phi_7$: Sleep Consolidation**. Background maintenance: deduplicate, scan for contradictions, maintain the summary tree, re-embed stale vectors, and refit parameters from outcomes. Strengthening is driven by *use* (Part IV). Low-value memories are archived, not deleted.
+7. **$\phi_7$: Sleep Consolidation**. Background maintenance: deduplicate, scan for contradictions, maintain the summary tree, refresh lexical indexes (BM25, n-grams, ripgrep corpus), and refit parameters from outcomes. Strengthening is driven by *use* (Part IV). Low-value memories are archived, not deleted.
    $$\phi_7(\mathcal{M}) = \text{refit} \circ \text{archive}_{\text{Value} < \theta_{\text{arch}}} \circ \text{tree} \circ \text{reconcile} \circ \text{dedup}(\mathcal{M})$$
 
 8. **$\phi_8$: Output and Attribution**. Respond, then log which memories were used and whether they helped.
@@ -149,7 +149,7 @@ $$
 $$
 \begin{aligned}
 &\textbf{Budget:} && \forall q:\; \lvert C(q) \rvert \le W \\
-&\textbf{Reachability:} && \forall m \in \mathcal{M} \text{ not deleted}:\; m \text{ is reachable from at least one index (lexical, vector, graph, tree)} \\
+&\textbf{Reachability:} && \forall m \in \mathcal{M} \text{ not deleted}:\; m \text{ is reachable from at least one index (lexical, ripgrep, graph, tree)} \\
 &\textbf{Losslessness:} && \text{every leaf under a summary node is a retained original or a tombstone}
 \end{aligned}
 $$
@@ -239,18 +239,18 @@ A decision with $S_0 = 60$ days stays Hot for two months, and each useful access
 
 Each query searches only its **scope** $\Omega(q)$: the matching user, project, and session, facts valid at query time, and nothing superseded. Write $N_q = \lvert \Omega(q) \rvert$.
 
-Four channels each return a ranked list over $\Omega(q)$:
+Four channels each return a ranked list over $\Omega(q)$. There is no embedding model, vector index, or neural reranker:
 
 | Channel $s$ | Ranking signal |
 |---|---|
-| lexical | BM25 over terms |
-| semantic | cosine similarity $\dfrac{E(q) \cdot E(m)}{\lVert E(q) \rVert\, \lVert E(m) \rVert}$ |
+| lexical | BM25 over terms, with trigram fuzzy overlap and rule-based synonyms |
+| ripgrep | exact, regex, and identifier hits over stored text and project files |
 | graph | Personalized PageRank (Part VI) |
 | tree | beam search over the summary tree (Part VIII) |
 
 ### Stage 2: Scale-Free Fusion
 
-Channel scores live on different scales (cosine in $[-1, 1]$, BM25 in $[0, \infty)$, graph scores of arbitrary size), so they are **never added directly**. Only ranks are combined, using Reciprocal Rank Fusion:
+Channel scores live on different scales (BM25 in $[0, \infty)$, ripgrep hit counts, graph scores of arbitrary size), so they are **never added directly**. Only ranks are combined, using Reciprocal Rank Fusion:
 
 $$
 \text{rel}(m, q) = \sum_{s} \frac{w_s}{k_0 + \text{rank}_s(m)}, \qquad k_0 = 60
@@ -272,9 +272,9 @@ $$
 - $\text{rel}(m, q) = 0 \Rightarrow \text{score}(m, q) = 0$, so an irrelevant memory can never be selected because it is important or recent.
 - $m$ can outrank $m'$ only if $\text{rel}(m, q) > \text{rel}(m', q) / 1.95$.
 
-### Stage 4: Rerank and Calibrated Threshold
+### Stage 4: Calibrated Threshold
 
-The top 50 fused candidates are reranked by a cross-encoder (`/v1/rerank`) when one is available. The cut-off $\theta$ is **calibrated** on the attribution log so that it means $P(\text{helpful} \mid m, q) \ge \theta$, instead of being a raw similarity value.
+The top 50 fused candidates are cut by $\theta$. The cut-off is **calibrated** on the attribution log so that it means $P(\text{helpful} \mid m, q) \ge \theta$, instead of a raw BM25 or ripgrep score. Relevance stays the fused lexical / ripgrep / graph / tree rank; nothing is re-scored by an embedding or rerank model.
 
 ### Outcome Attribution (closes the loop)
 
@@ -293,7 +293,7 @@ This log feeds $U(m)$, the FSRS refit, the channel weights $w_s$, and the thresh
 ### Entity-Relationship Model
 
 $$
-\mathcal{G} = (V, E, \phi_V, \phi_E), \qquad \phi_V: V \to \mathbb{R}^d, \qquad \phi_E: E \to [0, 1]
+\mathcal{G} = (V, E, \phi_V, \phi_E), \qquad \phi_V: V \to \text{aliases and types}, \qquad \phi_E: E \to [0, 1]
 $$
 
 There is **no fixed entity cap**. Entities are deduplicated by entity resolution (for example, "TS" and "TypeScript" are merged). Edges carry validity intervals, just like facts.
@@ -407,7 +407,7 @@ If level failures are independent, the routing term tightens to $1 - (1 - \varep
 |---|---|---|
 | Recall as $N \to \infty$ | $\to 0$, decaying exponentially (Dilution Lemma) | $\ge 1 - \varepsilon_S - \varepsilon_B \lceil \log_b N_q \rceil$, decaying **logarithmically** |
 | Context per call | $\le W$ | $\le W$ |
-| Search cost | $O(N)$, or ANN with recall loss | $O(\log N_q)$ |
+| Search cost | $O(N)$ flat scan | $O(\log N_q)$ inverted-index + tree routing |
 
 **Worked example.** With $\varepsilon_B = 0.02$, $b = 8$ and $\varepsilon_S = 0$:
 
@@ -445,7 +445,7 @@ $$
 }
 $$
 
-The knowledge graph and vector index are **retrieval channels over the same memories**. They are not added on top of storage as extra "capacity".
+The knowledge graph and the lexical indexes (BM25, n-grams, ripgrep) are **retrieval channels over the same memories**. They are not added on top of storage as extra "capacity".
 
 ### Parameters (single source of truth)
 
@@ -467,7 +467,7 @@ These values replace all earlier parameters and apply to both Knox-MS and Memory
 | $\alpha$ | PPR restart probability | 0.15 | — |
 | $b,\, B$ | Tree branching / beam width | 8, 4 | — |
 | $\lambda$ | Coverage weight | 0.5 | ✓ |
-| Candidates | Fused candidates before rerank | 50 | — |
+| Candidates | Fused candidates before the calibrated cut-off | 50 | — |
 
 ## Part X: Brain-Like Reasoning Workflow
 
@@ -515,11 +515,12 @@ Corrections relative to the previous version of this page:
 | 7 | **Two definitions of strength.** $S$ = access count vs. $S \mathrel{+}= 0.1$. | One stability update with a spacing effect and saturation (Part IV). |
 | 8 | **Graph contradiction.** The proof assumed $\lvert \mathcal{G} \rvert \to \infty$, but Part VI capped entities at 5,000. The graph was also added as extra capacity ("$C_{\text{graph}} = \infty$"), counting the same memories twice. | No cap: PPR cost is independent of $\lvert V \rvert$. The graph is a retrieval channel, not capacity (Part VI). |
 | 9 | **Inconsistent pipeline order.** The composition applied $\mathcal{P}$ before $\mathcal{T}$, the arrow diagram had $\mathcal{T}$ before $\mathcal{P}$ and omitted $\mathcal{A}$, and the boxed $\mathcal{O}(x)$ omitted both. | One order, $\mathcal{S} \to \mathcal{T} \to \mathcal{A} \to \mathcal{P} \to \mathcal{H} \to \mathcal{B}_g \to \mathcal{B}_s$, used everywhere (Part I). |
-| 10 | **Scales did not match in the retrieval score.** Cosine, BM25, and an unbounded graph sum were added together, and importance and recency were *added*, so an important but irrelevant memory could outrank a relevant one. | Rank-based fusion (RRF). Priors multiply relevance within $[1, 1.95]$, so an irrelevant memory scores 0 (Part V). |
+| 10 | **Scales did not match in the retrieval score.** Cosine, BM25, and an unbounded graph sum were added together, and importance and recency were *added*, so an important but irrelevant memory could outrank a relevant one. | Rank-based fusion (RRF) over BM25, ripgrep, graph, and tree. Priors multiply relevance within $[1, 1.95]$, so an irrelevant memory scores 0 (Part V). |
 | 11 | An infinite "sensory stream" ($\lvert M_1 \rvert = \infty$) was counted as stored capacity. | $M_1$ and $M_2$ are per-turn and per-call buffers and are excluded from storage (Part II). |
 | 12 | The cycle invariant ("at least one phase is active") guaranteed nothing. | Replaced by testable Budget, Reachability, and Losslessness invariants (Part III). |
 | 13 | Fixed $W_{\max} = 100\text{K}$ disagreed with the API (configurable, e.g. 200K) and Memory Brain (4K). Top-$k$ (20 vs. 30) and thresholds (0.6 vs. 0.5) also differed. | $W$ comes from the routed model. One parameter table covers both systems (Part IX). |
 | 14 | Neuroanatomy was presented as fact (working memory in the thalamus, long-term memory in the parietal lobe), with human timings (250 ms / 30 s / 1 h) as specs. | Labels are marked as inspiration. Working memory maps to the prefrontal cortex and long-term memory to the neocortex. Lifetimes use system units: turn, call, session (Parts I–II). |
+| 15 | **Embeddings, a vector index, and `/v1/rerank` were treated as retrieval channels.** That stack is not used. | Encoding is lexical only. Channels are BM25 (with trigrams and synonyms), ripgrep, graph, and tree. The cut-off $\theta$ is calibrated on outcomes, not a neural rerank score (Part V). |
 
 ---
 

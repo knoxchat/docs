@@ -27,7 +27,7 @@ Using the **KnoxCoder** desktop editor? Start at the <Link to="/knoxcoder">KnoxC
 
 ### Knox‑MS Memory System
 
-Knox‑MS adds multi‑level memory, summaries, vector search, and a knowledge graph to power persistent agents and workflows. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/blog/kms-docs">Knox Memory System — Full Feature Deep Dive</Link>.
+Knox‑MS adds multi‑level memory, summaries, BM25 / ripgrep retrieval, and a knowledge graph to power persistent agents and workflows. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/blog/kms-docs">Knox Memory System — Full Feature Deep Dive</Link>.
 
 ## Using the OpenAI SDK
 
@@ -300,7 +300,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-3">
       <AccordionTrigger>What is Knox‑MS and when should I use it?</AccordionTrigger>
         <AccordionContent>
-          Knox‑MS is a memory‑centric system that adds multi‑level memory, summaries, vector search, and a knowledge graph. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS documentation](/knox-ms-unlimited-formula).
+          Knox‑MS is a memory‑centric system that adds multi‑level memory, summaries, BM25 / ripgrep retrieval, and a knowledge graph. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS documentation](/knox-ms-unlimited-formula).
         </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-3b">
@@ -436,7 +436,7 @@ Please see our [Terms of Service](/terms-of-service) and [Privacy Policy](/priva
     <AccordionItem value="item-1">
       <AccordionTrigger>What data is logged during API use?</AccordionTrigger>
       <AccordionContent>
-        We will record basic request metadata (timestamps, models used, token counts). We will not record prompts or generated outputs. Even in the event of errors, we will not record your prompts or generated outputs. If you enable Knox‑MS, memory artifacts (summaries, embeddings, knowledge entries) are stored in your account to provide persistence.
+        We will record basic request metadata (timestamps, models used, token counts). We will not record prompts or generated outputs. Even in the event of errors, we will not record your prompts or generated outputs. If you enable Knox‑MS, memory artifacts (summaries, lexical indexes, knowledge entries) are stored in your account to provide persistence.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-2">

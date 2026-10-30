@@ -55,7 +55,7 @@ x \xrightarrow{\text{encode}} \mathcal{S} \xrightarrow{\text{filter}} \mathcal{T
 $$
 
 其中：
-- $\mathcal{S}$ = **感觉皮层**：输入处理（解析、嵌入、抽取实体）
+- $\mathcal{S}$ = **感觉皮层**：输入处理（解析、分词、抽取实体）
 - $\mathcal{T}$ = **丘脑**：中继与过滤（作用域与注意力）
 - $\mathcal{A}$ = **杏仁核**：显著性加权（初始重要性 $I_0$）
 - $\mathcal{P}$ = **前额叶皮层**：规划与任务分解
@@ -123,8 +123,8 @@ $$
 1. **$\phi_1$：输入**。该轮进入缓冲。
    $$\phi_1(x_t) = \mathcal{S}(x_t) \to M_1$$
 
-2. **$\phi_2$：编码**。嵌入、词法索引与实体抽取。
-   $$\phi_2(x) = \big(E(x) \in \mathbb{R}^d,\; \text{terms}(x),\; \text{ent}(x)\big)$$
+2. **$\phi_2$：编码**。词法索引（BM25 词项、n-gram、可供 ripgrep 检索的文本）与实体抽取。没有嵌入向量。
+   $$\phi_2(x) = \big(\text{terms}(x),\; \text{ngrams}(x),\; \text{ent}(x)\big)$$
 
 3. **$\phi_3$：工作记忆**。有预算的上下文组装（第七部分）。
    $$\phi_3(q) = \text{Select}\big(\text{Cand}(q),\, W_{\text{mem}}\big) \to M_2$$
@@ -139,7 +139,7 @@ $$
 6. **$\phi_6$：检索**。限定作用域、多通道、融合候选生成（第五部分）。
    $$\phi_6(q) = \text{Cand}(q) \subseteq \Omega(q)$$
 
-7. **$\phi_7$：睡眠巩固**。后台维护：去重、扫描矛盾、维护摘要树、对过期向量重新嵌入，并根据结果重拟合参数。强化由*使用*驱动（第四部分）。低价值记忆被归档，而非删除。
+7. **$\phi_7$：睡眠巩固**。后台维护：去重、扫描矛盾、维护摘要树、刷新词法索引（BM25、n-gram、ripgrep 语料），并根据结果重拟合参数。强化由*使用*驱动（第四部分）。低价值记忆被归档，而非删除。
    $$\phi_7(\mathcal{M}) = \text{refit} \circ \text{archive}_{\text{Value} < \theta_{\text{arch}}} \circ \text{tree} \circ \text{reconcile} \circ \text{dedup}(\mathcal{M})$$
 
 8. **$\phi_8$：输出与归因**。作答，然后记录使用了哪些记忆以及它们是否有帮助。
@@ -150,7 +150,7 @@ $$
 $$
 \begin{aligned}
 &\textbf{Budget:} && \forall q:\; \lvert C(q) \rvert \le W \\
-&\textbf{Reachability:} && \forall m \in \mathcal{M} \text{ not deleted}:\; m \text{ is reachable from at least one index (lexical, vector, graph, tree)} \\
+&\textbf{Reachability:} && \forall m \in \mathcal{M} \text{ not deleted}:\; m \text{ is reachable from at least one index (lexical, ripgrep, graph, tree)} \\
 &\textbf{Losslessness:} && \text{every leaf under a summary node is a retained original or a tombstone}
 \end{aligned}
 $$
@@ -240,18 +240,18 @@ $$
 
 每个查询只搜索其**作用域** $\Omega(q)$：匹配的用户、项目与会话、查询时刻仍有效的事实，以及未被取代的内容。记 $N_q = \lvert \Omega(q) \rvert$。
 
-四个通道各自在 $\Omega(q)$ 上返回一个排序列表：
+四个通道各自在 $\Omega(q)$ 上返回一个排序列表。没有嵌入模型、向量索引或神经重排序器：
 
 | 通道 $s$ | 排序信号 |
 |---|---|
-| lexical | 词项上的 BM25 |
-| semantic | 余弦相似度 $\dfrac{E(q) \cdot E(m)}{\lVert E(q) \rVert\, \lVert E(m) \rVert}$ |
+| lexical | 词项上的 BM25，辅以 trigram 模糊重叠与基于规则的同义词 |
+| ripgrep | 对已存文本与项目文件的精确、正则与标识符命中 |
 | graph | 个性化 PageRank（第六部分） |
 | tree | 摘要树上的束搜索（第八部分） |
 
 ### 第二阶段：无标度融合
 
-通道分数处于不同量纲（余弦在 $[-1, 1]$，BM25 在 $[0, \infty)$，图分数大小任意），因此**绝不直接相加**。只组合秩，使用倒数秩融合（Reciprocal Rank Fusion）：
+通道分数处于不同量纲（BM25 在 $[0, \infty)$，ripgrep 命中次数，图分数大小任意），因此**绝不直接相加**。只组合秩，使用倒数秩融合（Reciprocal Rank Fusion）：
 
 $$
 \text{rel}(m, q) = \sum_{s} \frac{w_s}{k_0 + \text{rank}_s(m)}, \qquad k_0 = 60
@@ -273,9 +273,9 @@ $$
 - $\text{rel}(m, q) = 0 \Rightarrow \text{score}(m, q) = 0$，因此无关记忆绝不会因为重要或新近而被选中。
 - $m$ 能排在 $m'$ 之上，仅当 $\text{rel}(m, q) > \text{rel}(m', q) / 1.95$。
 
-### 第四阶段：重排序与校准阈值
+### 第四阶段：校准阈值
 
-融合后的前 50 个候选在可用时由交叉编码器（`/v1/rerank`）重排序。截断阈值 $\theta$ 根据归因日志**校准**，使其表示 $P(\text{helpful} \mid m, q) \ge \theta$，而不是原始相似度值。
+融合后的前 50 个候选由 $\theta$ 截断。截断阈值根据归因日志**校准**，使其表示 $P(\text{helpful} \mid m, q) \ge \theta$，而不是原始 BM25 或 ripgrep 分数。相关性保持融合后的词法 / ripgrep / 图 / 树秩；不会再用嵌入或重排序模型重新打分。
 
 ### 结果归因（闭合回路）
 
@@ -294,7 +294,7 @@ $$
 ### 实体-关系模型
 
 $$
-\mathcal{G} = (V, E, \phi_V, \phi_E), \qquad \phi_V: V \to \mathbb{R}^d, \qquad \phi_E: E \to [0, 1]
+\mathcal{G} = (V, E, \phi_V, \phi_E), \qquad \phi_V: V \to \text{aliases and types}, \qquad \phi_E: E \to [0, 1]
 $$
 
 **没有固定实体上限。** 实体通过实体消解去重（例如「TS」与「TypeScript」合并）。边与事实一样带有效区间。
@@ -408,7 +408,7 @@ $$
 |---|---|---|
 | $N \to \infty$ 时的召回 | $\to 0$，指数衰减（稀释引理） | $\ge 1 - \varepsilon_S - \varepsilon_B \lceil \log_b N_q \rceil$，**对数**衰减 |
 | 每次调用的上下文 | $\le W$ | $\le W$ |
-| 搜索代价 | $O(N)$，或带召回损失的 ANN | $O(\log N_q)$ |
+| 搜索代价 | $O(N)$ 扁平扫描 | $O(\log N_q)$ 倒排索引 + 树路由 |
 
 **算例。** 取 $\varepsilon_B = 0.02$，$b = 8$ 且 $\varepsilon_S = 0$：
 
@@ -446,7 +446,7 @@ $$
 }
 $$
 
-知识图谱与向量索引是同一批记忆上的**检索通道**。它们不是叠加在存储之上的额外「容量」。
+知识图谱与词法索引（BM25、n-gram、ripgrep）是同一批记忆上的**检索通道**。它们不是叠加在存储之上的额外「容量」。
 
 ### 参数（单一事实来源）
 
@@ -468,7 +468,7 @@ $$
 | $\alpha$ | PPR 重启概率 | 0.15 | — |
 | $b,\, B$ | 树分支 / 束宽 | 8, 4 | — |
 | $\lambda$ | 覆盖权重 | 0.5 | ✓ |
-| Candidates | 重排序前的融合候选数 | 50 | — |
+| Candidates | 校准截断前的融合候选数 | 50 | — |
 
 ## 第十部分：类脑推理工作流
 
@@ -516,11 +516,12 @@ $$
 | 7 | **强度的两种定义。** $S$ = 访问次数 vs. $S \mathrel{+}= 0.1$。 | 一套带间隔效应与饱和的稳定性更新（第四部分）。 |
 | 8 | **图的矛盾。** 证明假设 $\lvert \mathcal{G} \rvert \to \infty$，但第六部分把实体上限设为 5,000。图还被加为额外容量（"$C_{\text{graph}} = \infty$"），把同一批记忆算了两次。 | 无上限：PPR 代价与 $\lvert V \rvert$ 无关。图是检索通道，不是容量（第六部分）。 |
 | 9 | **管线顺序不一致。** 复合运算在 $\mathcal{T}$ 之前应用 $\mathcal{P}$，箭头图则是 $\mathcal{T}$ 在 $\mathcal{P}$ 之前并省略了 $\mathcal{A}$，框中的 $\mathcal{O}(x)$ 两者都省略了。 | 同一顺序 $\mathcal{S} \to \mathcal{T} \to \mathcal{A} \to \mathcal{P} \to \mathcal{H} \to \mathcal{B}_g \to \mathcal{B}_s$，各处通用（第一部分）。 |
-| 10 | **检索分数的量纲不匹配。** 余弦、BM25 与无界图求和被直接相加，重要性与新近性被*相加*，因此一条重要但无关的记忆可以压过相关记忆。 | 基于秩的融合（RRF）。先验在 $[1, 1.95]$ 内乘以相关性，因此无关记忆得分为 0（第五部分）。 |
+| 10 | **检索分数的量纲不匹配。** 余弦、BM25 与无界图求和被直接相加，重要性与新近性被*相加*，因此一条重要但无关的记忆可以压过相关记忆。 | 基于秩的融合（RRF），覆盖 BM25、ripgrep、图与树。先验在 $[1, 1.95]$ 内乘以相关性，因此无关记忆得分为 0（第五部分）。 |
 | 11 | 无限「感觉流」（$\lvert M_1 \rvert = \infty$）被计为存储容量。 | $M_1$ 与 $M_2$ 是按轮、按调用的缓冲，排除在存储之外（第二部分）。 |
 | 12 | 循环不变量（「至少一个阶段处于活动」）什么也不保证。 | 替换为可检验的预算、可达性与无损性不变量（第三部分）。 |
 | 13 | 固定 $W_{\max} = 100\text{K}$ 与 API（可配置，例如 200K）及 Memory Brain（4K）不一致。Top-$k$（20 vs. 30）与阈值（0.6 vs. 0.5）也不同。 | $W$ 来自被路由的模型。一张参数表覆盖两个系统（第九部分）。 |
 | 14 | 神经解剖被当作事实呈现（工作记忆在丘脑、长期记忆在顶叶），并以人类时间尺度（250 ms / 30 s / 1 h）作为规格。 | 标签标明为启发。工作记忆对应前额叶皮层，长期记忆对应新皮层。寿命使用系统单位：轮、调用、会话（第一–二部分）。 |
+| 15 | **嵌入、向量索引与 `/v1/rerank` 被当作检索通道。** 该技术栈并未使用。 | 编码仅为词法。通道是 BM25（含 trigram 与同义词）、ripgrep、图与树。截断 $\theta$ 按结果校准，而不是神经重排序分数（第五部分）。 |
 
 ---
 

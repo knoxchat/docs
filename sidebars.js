@@ -75,7 +75,6 @@ const sidebars = {
         'dubbing',
         'forced-alignment',
         'music',
-        'embedding-and-rerankers',
         'image-generation',
         'video-generation',
         'online-ai-image-editor',
