@@ -1038,3 +1038,15 @@ html[data-theme='dark'] .theme-doc-sidebar-menu > .theme-doc-sidebar-item-catego
 .theme-doc-sidebar-container .menu__link {
   overflow-wrap: anywhere;
 }
+
+/* Keep display math inside the article column so wide formulas never paint over the TOC. */
+.theme-doc-markdown .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.theme-doc-markdown .katex-display > .katex {
+  white-space: normal;
+  font-size: 1.05em;
+}
