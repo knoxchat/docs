@@ -90,6 +90,8 @@ const config = {
           truncateMarker: /<!--\s*(truncate)\s*-->/,
           showReadingTime: true,
           onUntruncatedBlogPosts: 'ignore',
+          remarkPlugins: [remarkMath],
+          rehypePlugins: [rehypeKatex],
         },
         theme: { customCss: './src/css/custom.css' }
       })
