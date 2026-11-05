@@ -13,7 +13,7 @@ description: Bounded context, unbounded memory, measured recall. The Knox-MS the
 
 The [KMS Unlimited Context Theorem](/knox-ms-unlimited-formula) has a new revision. An earlier version of that page “proved” unlimited context by showing that storage is unbounded. That is true of any disk and says nothing about what a model can use in one call.
 
-This revision states the claim that actually matters: as history grows, **recall stays above a known bound**, usable context stays inside the model window, and search cost grows only logarithmically.
+This revision states the claim that actually matters: as history grows, **recall stays above a known bound**, usable context stays inside the model window, and tree-routing cost grows only logarithmically (BM25 and ripgrep work still grows with the store, within explicit cost limits).
 
 <!-- truncate -->
 
@@ -43,7 +43,7 @@ $$
 \text{Search}(q) = O\!\left(B\, b\, \log_b N_q\right)
 $$
 
-Recall decays **logarithmically** in the scoped store size $N_q$, not exponentially. Context per call stays inside the routed model window. Search cost is $O(\log N_q)$.
+Recall decays **logarithmically** in the scoped store size $N_q$, not exponentially. Context per call stays inside the routed model window. Tree-routing cost is $O(\log N_q)$; BM25 and ripgrep work grows with $N_q$ and is capped explicitly (the old claim of $O(\log N)$ for every channel was wrong, see revision note 18).
 
 A worked example with $\varepsilon_B = 0.02$, $b = 8$, and $\varepsilon_S = 0$:
 
@@ -74,7 +74,7 @@ Knox-MS still gives a model a memory horizon that is not limited by its context 
 - every retained memory stays reachable
 - the memories that matter for $q$ still reach the call with high probability as $N$ grows
 - the call itself stays inside $W$
-- the cost of finding those memories grows like $\log N_q$
+- the cost of routing through the summary tree grows like $\log N_q$ (the other channels are cost-limited, not logarithmic)
 
 The one headline number is the **answerable horizon** $H_{0.85}$: the age up to which facts are still recalled at least 85% of the time. It can be compared directly with full-context models and other memory systems.
 

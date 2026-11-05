@@ -77,6 +77,19 @@ Agent 工具 `builtin_memory` 只能 `store` / `recall` / `search` / `delete` / 
 
 Recipe 开关 **不在** 对话齿轮（Agent Settings）上。请用 Memory → Settings。
 
+## Memory Brain 与 Knox-MS
+
+两者都遵循**有界上下文，无界记忆**：单次提示注入的内容有上限，存储的内容没有上限（下文的磁盘上限除外），检索是词法加图谱，绝不使用 embeddings。
+
+| | Memory Brain（本页） | Knox-MS（托管的 `knox/knox-ms`） |
+|---|---|---|
+| 位置 | 本机 sqlite | 您的 Knox 账户 |
+| 检索 | FTS / BM25、trigram、同义词、图谱遍历 | BM25、ripgrep、图谱（个性化 PageRank）、摘要树，按排名融合 |
+| 单轮注入上限 | 8000 令牌（`KNOX_MEMORY_INJECT_CAP`） | 记忆预算 `W_mem`：无路由模型时默认 4,000 令牌，否则由模型窗口推导 |
+| 遗忘 | 删除记忆，或在命令面板中清空 | 带墓碑的传播式擦除（见 [Knox-MS 文档](/knox-ms-complete-doc#forgetting--memory-api)） |
+
+Memory Brain（暂）不使用 Knox-MS 的参数集；两个存储相互独立，从不同步。
+
 ## 下一步
 
 <Link to="/knoxcoder/memory/memories">Memories 标签</Link> · <Link to="/knoxcoder/memory/sessions">会话作上下文</Link> · <Link to="/knoxcoder/safety/privacy">隐私</Link>

@@ -21,7 +21,7 @@ Two actions matter:
 
 | Action | What it does |
 |---|---|
-| **Use as context** | Pins that session’s **summary** and **top semantic rows** into the **next inject**. No new database, no copy of the whole transcript into sqlite. |
+| **Use as context** | Pins that session’s **summary** and **top-ranked rows** into the **next inject**. No new database, no copy of the whole transcript into sqlite. |
 | **Delete** | Removes that session row from Brain. Chat files under `~/.knoxcoder/sessions/` are separate; History delete is the overlay. |
 
 Use as context is for “keep last week’s auth-refactor decisions in play” without pasting the log. It lasts for the inject cycle you just requested, not forever — pin individual <Link to="/knoxcoder/memory/memories">memories</Link> if you want a durable fact.

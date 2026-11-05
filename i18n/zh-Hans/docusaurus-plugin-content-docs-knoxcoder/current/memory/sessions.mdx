@@ -21,7 +21,7 @@ import KcShot from '@site/src/components/knoxcoder/KcShot';
 
 | 动作 | 做什么 |
 |---|---|
-| **Use as context** | 把该会话的 **摘要** 和 **靠前的语义行** 钉进 **下一次注入**。不新建数据库，也不会把整份记录拷进 sqlite。 |
+| **Use as context** | 把该会话的 **摘要** 和 **排名靠前的行** 钉进 **下一次注入**。不新建数据库，也不会把整份记录拷进 sqlite。 |
 | **Delete** | 从 Brain 删除该会话行。`~/.knoxcoder/sessions/` 下的对话文件是另一回事；History 删除走浮层。 |
 
 Use as context 适合「让上周改 auth 的决定继续生效」，而不必粘贴日志。它覆盖你刚请求的注入周期，不是永远 — 若要持久事实，请固定单条 <Link to="/knoxcoder/memory/memories">记忆</Link>。

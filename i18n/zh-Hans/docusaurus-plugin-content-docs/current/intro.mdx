@@ -27,7 +27,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 
 ### Knox‑MS 记忆系统
 
-Knox‑MS 提供多层级记忆、摘要生成、BM25 / ripgrep 检索和知识图谱，用于驱动持久化 Agent 和工作流。它还支持自主规划、任务编排、自我修复和实时进度事件。了解更多请参阅 <Link to="/blog/kms-docs">Knox Memory System — 完整功能深度解析</Link>。
+Knox‑MS 遵循一条原则：**有界上下文，无界记忆**。每次调用都适配模型的窗口，而长期记忆没有上限，通过 BM25、ripgrep、知识图谱（个性化 PageRank）和摘要树按需检索。只有最可能有帮助的记忆会在令牌预算内被注入。您可以查看每条记忆为何被选中，也可以遗忘其中任何一条。它还支持自主规划、任务编排、自我修复和实时进度事件。了解更多请参阅 <Link to="/knox-ms-complete-doc">Knox‑MS 开发者文档</Link>。
 
 ## 使用 OpenAI SDK
 
@@ -202,3 +202,266 @@ Models API 返回标准化的 JSON 响应格式，为每个可用模型提供全
   ]
 }
 ```
+
+### 模型对象结构
+
+`data` 数组中的每个模型都包含以下标准化字段：
+
+| 字段                  | 类型                                          | 描述                                                                            |
+| ---------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `id`                   | `string`                                      | API 请求中使用的唯一模型标识符（例如 `"google/gemini-2.5-pro"`）       |
+| `object`               | `string`                                      | 对象类型标识（始终为 `"model"`）                                             |
+| `created`              | `number`                                      | 模型创建时间的 Unix 时间戳                                          |
+| `owned_by`             | `string`                                      | 拥有该模型的组织                                                       |
+| `permission`           | `ModelPermission[]`                           | 定义访问控制的权限对象数组                                   |
+| `root`                 | `string`                                      | 根模型标识符                                                                  |
+| `parent`               | `string \| null`                              | 若为微调版本，则为父模型标识符                               |
+| `context_length`       | `number`                                      | 最大上下文窗口大小（令牌数）                                                 |
+| `architecture`         | `Architecture`                                | 描述模型技术能力的对象                                   |
+| `pricing`              | `Pricing`                                     | 使用该模型的价格结构                                                  |
+| `top_provider`         | `TopProvider`                                 | 主要供应商的配置详情                                        |
+| `supported_parameters` | `string[]`                                    | 该模型支持的 API 参数数组                                      |
+#### Architecture 对象
+
+```typescript showLineNumbers
+{
+  "modality": string, // 输入/输出流的概要描述（例如 "text+image->text"）
+  "input_modalities": string[], // 支持的输入类型： ["file", "image", "text", "audio"]
+  "output_modalities": string[], // 支持的输出类型： ["text"]
+  "tokenizer": string // 使用的分词方式（例如 "Gemini"）
+}
+```
+
+#### Pricing 对象
+
+所有价格均以美元计，按每令牌/请求/单位计费。值为 `"0"` 表示该功能免费。
+
+```typescript showLineNumbers
+{
+  "prompt": string, // 每个输入令牌的费用
+  "completion": string, // 每个输出令牌的费用
+  "request": string, // 每次 API 请求的固定费用
+  "image": string, // 每个图像输入的费用
+  "audio": string, // 每个音频输入的费用
+  "web_search": string, // 每次网络搜索的费用
+  "internal_reasoning": string, // 内部推理令牌的费用
+  "input_cache_read": string, // 每个缓存输入令牌读取的费用
+  "input_cache_write": string // 每个缓存输入令牌写入的费用
+}
+```
+
+#### Top Provider 对象
+
+```typescript showLineNumbers
+{
+  "context_length": number, // 供应商特定的上下文限制
+  "max_completion_tokens": number // 响应中的最大令牌数
+}
+```
+
+#### 支持的参数
+
+`supported_parameters` 数组表示每个模型支持哪些与 OpenAI 兼容的参数：
+
+* `include_reasoning` - 在响应中包含推理内容
+* `max_tokens` - 限制响应长度
+* `reasoning` - 内部推理模式
+* `response_format` - 输出格式规范
+* `seed` - 确定性输出
+* `stop` - 自定义停止序列
+* `structured_outputs` - JSON Schema 强制校验
+* `temperature` - 随机性控制
+* `tool_choice` - 工具选择控制
+* `tools` - 函数调用能力
+* `top_p` - 核采样
+
+:::note 令牌计数差异
+不同模型使用不同的分词方式（见模型结构中的 `tokenizer` 字段）。有些模型将文本拆分为多字符块（GPT、Claude、Llama 等），而另一些则采用不同方式（如 Gemini）。这意味着即使输入和输出相同，不同模型的令牌数（以及费用）也会不同。费用按所用模型的分词器显示和计费。您可以通过 API 响应中的 `usage` 字段获取输入和输出的实际令牌数。
+:::
+
+## 常见问题
+
+### 入门
+
+<div className="bg-white dark:bg-transparent rounded-md border border-slate-200 dark:border-slate-700 shadow-sm my-4">
+  <Accordion type="single" collapsible className="w-full">
+    <AccordionItem value="item-1">
+      <AccordionTrigger>为什么应该使用 Knox？</AccordionTrigger>
+      <AccordionContent>
+        Knox 提供统一的 API，通过单一端点访问数百种 SI 模型，具备智能路由、自动故障转移和透明定价。它还包含 **Knox‑MS**，一个面向持久化 Agent 和工作流的记忆系统。通过[“活动”](https://knox.chat/activity)和[“统计”](https://knox.chat/stats)页面可以分析使用量、成本和性能。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-2">
+      <AccordionTrigger>如何开始使用 Knox？</AccordionTrigger>
+        <AccordionContent>
+          开始使用 **Knox** 很简单。在[**注册**](https://knox.chat/register)页面注册（或使用 [**GitHub**](https://github.com) [**登录**](https://knox.chat/login)），然后在[**密钥**](https://knox.chat/keys)页面创建 API 密钥。从[**模型**](https://knox.chat/models)页面选择模型，即可调用与 OpenAI 兼容的 API。如需持久记忆，请在设置中启用 Knox‑MS 或使用 Knox‑MS 端点。
+        </AccordionContent>
+      </AccordionItem>
+    <AccordionItem value="item-3">
+      <AccordionTrigger>什么是 Knox‑MS，何时使用？</AccordionTrigger>
+        <AccordionContent>
+          Knox‑MS 是一个以记忆为中心的系统，遵循有界上下文、无界记忆：长期存储不断增长，通过 BM25、ripgrep、知识图谱和摘要树检索，只有最有用的记忆会在令牌预算内注入每次调用。它为长时间运行的 Agent 或工作流提供自主规划、任务编排和自我修复能力。当您需要超越单次聊天的持久性，或希望 Agent 随时间改进时使用。详见 [Knox‑MS 文档](/knox-ms-complete-doc)。
+        </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-3b">
+      <AccordionTrigger>什么是 Jev，何时使用？</AccordionTrigger>
+        <AccordionContent>
+          Jev 是 TypeSafe 在 Knox 上提供的 System One 模型。它不是 LLM：您向 [`POST /v1/systemone`](/1.0.0/systemone) 发送 `state` 和带类型的问题（是/否、选择或评分），即可获得代码可直接使用的结构化答案。适用于路由、分类和校准判断；需要生成文本时请使用聊天补全。参见 [Jev](/jev) 指南。
+        </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-4">
+      <AccordionTrigger>在哪里获得技术支持？</AccordionTrigger>
+        <AccordionContent>
+          最快的技术支持方式是联系 **support@knox.chat**
+        </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-5">
+      <AccordionTrigger>如何为使用 Knox 付费？</AccordionTrigger>
+      <AccordionContent>
+        我们为每个模型显示每百万令牌的价格，以及请求、图像、音频、网络搜索、缓存读/写和推理等费用。所有详情见[**模型**](https://knox.chat/models)页面。
+        向 **Knox** 发起请求时，我们依据供应商报告的用量计算费用，并从[**额度**](https://knox.chat/credits)页面的余额中扣除。零输出补偿保险覆盖的请求（空/失败生成）不计费。完整使用记录见[**活动**](https://knox.chat/activity)页面。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-6">
+      <AccordionTrigger>如何充值？</AccordionTrigger>
+      <AccordionContent>
+        可通过[**额度**](https://knox.chat/credits)页面付款并为使用 **[Knox](https://knox.chat)** 充值。
+      </AccordionContent>
+    </AccordionItem>
+  </Accordion>
+</div>
+
+### 模型与供应商
+
+<div className="bg-white dark:bg-transparent rounded-md border border-slate-200 dark:border-slate-700 shadow-sm my-4">
+  <Accordion type="single" collapsible className="w-full">
+    <AccordionItem value="item-1">
+      <AccordionTrigger>Knox 支持哪些 LLM 模型？</AccordionTrigger>
+      <AccordionContent>
+        Knox 提供多种 LLM，包括主要供应商的前沿模型，以及多模态和图像生成模型。完整列表请访问[模型列表](https://knox.chat/models)，或通过[模型 API](https://api.knox.chat/v1/models)获取。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-2">
+      <AccordionTrigger>新模型多久添加一次？</AccordionTrigger>
+      <AccordionContent>
+        我们会尽快添加模型，并经常与实验室合作，使模型一经发布即可上线。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-3">
+      <AccordionTrigger>什么是模型变体？</AccordionTrigger>
+      <AccordionContent>
+        变体是可添加到模型 slug 后的后缀，用于改变其行为。
+
+        静态变体只能用于特定模型，列在我们的[模型 API](https://api.knox.chat/v1/models)中。
+
+        1. `:free` - 该模型始终免费提供，速率限制较低。
+        2. `:beta` - 该模型不经 Knox 审核。
+        3. `:extended` - 该模型的上下文长度比通常更长。
+        4. `:thinking` - 该模型默认支持推理。
+
+        动态变体可用于所有模型，会改变请求的路由或使用方式。
+
+        1. `:online` - 所有请求都会执行查询以提取网络结果并附加到提示中。
+        2. `:nitro` - 供应商按吞吐量而非默认顺序排序，以优化响应速度。
+        3. `:floor` - 供应商按价格而非默认顺序排序，优先选择最具性价比的选项。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-5">
+      <AccordionTrigger>不同模型的预期延迟/响应时间是多少？</AccordionTrigger>
+      <AccordionContent>
+        Knox 会显示每个模型在各供应商上的延迟（首个令牌时间）和吞吐量。您可以用 `:nitro` 优化吞吐量、用 `:floor` 优化成本，或设置路由偏好以兼顾性能和可靠性。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-6">
+      <AccordionTrigger>供应商不可用时，模型故障转移如何工作？</AccordionTrigger>
+      <AccordionContent>
+        若供应商返回错误，Knox 会自动切换到下一个最佳供应商。这对用户透明，并提升了韧性。您可在[模型路由](/model-routing)文档中配置路由策略、权重和故障转移行为。
+      </AccordionContent>
+    </AccordionItem>
+  </Accordion>
+</div>
+
+### API 技术规格
+
+<div className="bg-white dark:bg-transparent rounded-md border border-slate-200 dark:border-slate-700 shadow-sm my-4">
+  <Accordion type="single" collapsible className="w-full">
+    <AccordionItem value="item-1">
+      <AccordionTrigger>支持哪些认证方式？</AccordionTrigger>
+      <AccordionContent>
+        Knox 使用两种认证方式：
+
+        1. 基于 Cookie 的认证，用于网页界面和聊天
+        2. API 密钥（以 Bearer 令牌传递），用于访问补全 API 和其他核心端点
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-2">
+      <AccordionTrigger>速率限制如何计算？</AccordionTrigger>
+      <AccordionContent>
+        速率限制取决于模型、供应商和您的账户等级。对于免费模型，限制由额度决定：额度至少为 10 时，免费模型每天限 1000 次请求；否则每天限 50 次免费模型 API 请求。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-3">
+      <AccordionTrigger>有哪些可用的 API 端点？</AccordionTrigger>
+      <AccordionContent>
+        Knox 为 `/completions` 和 `/chat/completions` 实现了 OpenAI API 规范，让您以相同的请求/响应格式使用任何模型。还提供 `/v1/models`、`/v1/systemone`（[Jev](/jev)）、`/v1/realtime`、`/v1/videos` 以及 Knox‑MS 路由等端点。详细规范见 [API 参考](/1.0.0/api-reference)。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-4">
+      <AccordionTrigger>支持哪些格式？</AccordionTrigger>
+      <AccordionContent>
+        API 支持文本、PDF、图像、音频、视频生成和语音到语音 Realtime。图像可通过 URL 或 base64 数据 URL 传递。聊天音频必须为 base64 编码。具备图像输出模态的模型支持图像生成输出。视频生成使用异步 `/v1/videos` API，见[视频生成](/video-generation)。实时语音 Agent 使用 `/v1/realtime`，见 [Realtime](/realtime)。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-5">
+      <AccordionTrigger>流式传输如何工作？</AccordionTrigger>
+      <AccordionContent>
+        流式传输使用服务器发送事件（SSE）实时传递令牌。在请求中设置 `stream: true` 即可启用流式响应。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-6">
+      <AccordionTrigger>支持哪些 SDK？</AccordionTrigger>
+      <AccordionContent>
+        Knox 可直接替代 OpenAI，因此任何与 OpenAI 兼容的 SDK 和框架都可开箱即用，包括工具调用、结构化输出和推理参数。
+      </AccordionContent>
+    </AccordionItem>
+  </Accordion>
+</div>
+
+### 隐私与数据日志
+
+请参阅我们的[服务条款](/terms-of-service)和[隐私政策](/privacy-policy)。
+
+<div className="bg-white dark:bg-transparent rounded-md border border-slate-200 dark:border-slate-700 shadow-sm my-4">
+  <Accordion type="single" collapsible className="w-full">
+    <AccordionItem value="item-1">
+      <AccordionTrigger>使用 API 时会记录哪些数据？</AccordionTrigger>
+      <AccordionContent>
+        我们会记录基本的请求元数据（时间戳、所用模型、令牌数）。我们不会记录提示或生成的输出，即使发生错误也不会。如果启用 Knox‑MS，记忆产物（记忆、摘要、搜索索引、知识图谱条目）会存储在您的账户中以提供持久性。您可以随时查看并擦除它们。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-2">
+      <AccordionTrigger>会与第三方共享哪些数据？</AccordionTrigger>
+      <AccordionContent>
+        Knox 是一个代理系统，会将您的请求发送给模型供应商以完成处理。我们与所有供应商合作，尽可能确保提示和生成的输出不被记录或用于训练。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-3">
+      <AccordionTrigger>使用聊天页面时会记录哪些数据？</AccordionTrigger>
+      <AccordionContent>
+        聊天页面与 API 适用相同的数据隐私规则。聊天页面中的所有对话都存储在您的设备本地，不会跨设备同步。可以在聊天页面导出对话。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-4">
+      <AccordionTrigger>如何删除 Knox‑MS 记住的内容？</AccordionTrigger>
+      <AccordionContent>
+        删除单条记忆使用 `DELETE /api/knox-ms/memory/{id}`；按 id 集合、会话、项目或全部（`all: true` 且 `confirm: true`）遗忘使用 `POST /api/knox-ms/memory/forget`；也可以删除会话。遗忘是传播式擦除：文本、其搜索索引条目、依赖它的摘要节点和知识图谱边，以及缓存或冷存储副本会一并移除。系统保留一条墓碑（id、原因和时间，不含内容），防止过期副本使该记忆复活，此后任何检索通道都不会返回已擦除的内容。详见 [Knox‑MS 文档](/knox-ms-complete-doc#forgetting--memory-api)。
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-5">
+      <AccordionTrigger>我能看到 Knox‑MS 为何使用某条记忆吗？</AccordionTrigger>
+      <AccordionContent>
+        可以。每个 Knox‑MS 响应都包含 `knox_ms_meta.injected_memories`（放入提示的 `[mem:id]` 条目及各检索通道给出的排名）和 `call_id`。`GET /api/knox-ms/calls/{call_id}/explain` 显示选择背后的分数，`GET /api/knox-ms/calls/{call_id}/budget` 显示窗口如何分配。
+      </AccordionContent>
+    </AccordionItem>
+  </Accordion>
+</div>

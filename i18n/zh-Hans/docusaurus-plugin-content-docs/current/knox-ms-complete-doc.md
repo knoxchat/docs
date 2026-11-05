@@ -11,7 +11,7 @@ keywords: [knox, knox api, ai integration, knox-ms, memory system, developer gui
 > **Base URL:** `https://api.knox.chat`  
 > **API 版本:** v1
 
-Knox-MS 是一个 SI 编排引擎，采用受人脑启发的记忆架构，具备分层记忆级别、自主执行和智能上下文管理功能，实现有效的无限上下文窗口和跨会话持久记忆。
+Knox-MS 是一个 SI 编排引擎，采用受人脑启发的记忆架构，具备自主执行与可度量的召回。其理念是**有界上下文，无界记忆**：每次调用都适配路由模型的窗口，而记忆库本身没有上限，按需检索。
 
 ## 目录
 
@@ -40,6 +40,7 @@ Knox-MS 是一个 SI 编排引擎，采用受人脑启发的记忆架构，具�
   - [获取会话](#get-a-session)
   - [删除会话](#delete-a-session)
   - [获取会话历史](#get-session-history)
+- [遗忘与记忆 API](#forgetting--memory-api)
 - [知识库](#knowledge-base)
   - [搜索知识](#search-knowledge)
   - [添加知识](#add-knowledge)
@@ -51,7 +52,6 @@ Knox-MS 是一个 SI 编排引擎，采用受人脑启发的记忆架构，具�
   - [Node.js (OpenAI SDK)](#nodejs-openai-sdk)
   - [cURL](#curl)
   - [Claude Code / Anthropic SDK](#claude-code--anthropic-sdk)
-Knox.chat
 ## 快速开始 {#quick-start}
 
 ```bash
@@ -68,7 +68,6 @@ curl https://api.knox.chat/v1/chat/completions \
 ```
 
 就是这么简单。Knox-MS 完全兼容 OpenAI — 任何 OpenAI SDK、库或工具都可以直接使用。
-Knox.chat
 ## 认证 {#authentication}
 
 所有 API 请求都需要 Bearer 令牌。请在 Knox 仪表板的 **Settings → API Keys** 中创建 API 密钥。
@@ -78,7 +77,6 @@ Authorization: Bearer sk-xxxxxxxxxxxxxxxxxxxx
 ```
 
 在每个请求的 `Authorization` 头中传递密钥。
-Knox.chat
 ## 聊天补全 {#chat-completions}
 
 ### 基本请求 {#basic-request}
@@ -171,53 +169,57 @@ data: [DONE]
 
 1. **规划** — 将您的请求分解为一组任务
 2. **路由** — 将每个任务发送到最佳模型，根据难度选择（简单任务使用快速模型，复杂任务使用强大模型）
-3. **记忆** — 将对话上下文持久化到记忆系统中，使您的对话能够远超任何单一模型的上下文窗口
+3. **记忆** — 将重要内容存入长期记忆，并在每次调用时只注入适配记忆预算 `W_mem` 的最有用记忆，使对话能够远超任何单一模型的上下文窗口
 4. **学习** — 记录成功的模式并随时间改进
 
 它通过与其他任何模型相同的 `/v1/chat/completions` 端点访问。您无需做任何特殊操作 — 只需设置 `"model": "knox/knox-ms"` 即可。
 
 ### Knox-MS 参数 {#knox-ms-parameters}
 
-使用 `knox/knox-ms` 时，您可以在请求体的顶层 `knox_ms` 对象中传递附加参数：
+`knox/knox-ms` 从请求体中标准的 OpenAI 风格 `metadata` 对象读取选项。未知字段会被忽略；**格式错误的记忆字段会返回 `400`**（静默丢弃 `as_of` 会让回答基于错误版本的事实）。
 
 ```json
 {
   "model": "knox/knox-ms",
   "messages": [...],
-  "knox_ms": {
+  "metadata": {
     "session_id": "my-project-session",
-    "memory_mode": "summarized",
-    "verbosity": "verbose",
-    "include_reasoning": true,
-    "use_lexical_search": true,
+    "project_id": "billing-service",
+    "task_difficulty": "hard",
+    "as_of": "2026-09-30",
+    "channels": ["lexical", "graph"],
+    "memory_budget": 6000,
+    "cross_session": true,
     "extract_knowledge": true
   }
 }
 ```
 
-| 参数 | 类型 | 默认值 | 描述 |
+| 字段 | 类型 | 默认值 | 描述 |
 |---|---|---|---|
 | `session_id` | string | 自动生成 | 持久会话 ID。在多次请求中使用相同 ID 以维持对话上下文。 |
-| `memory_mode` | string | `"summarized"` | 上下文管理方式：`"full"`（保留全部）、`"summarized"`（压缩较早上下文）、`"selective"`（仅保留相关上下文）。 |
-| `verbosity` | string | `"normal"` | 响应详细程度：`"minimal"`、`"normal"`、`"verbose"`。 |
+| `project_id` | string | — | 检索的项目范围。 |
+| `task_difficulty` | number \| string | 自动 | `0`–`1`，或 `"easy"` / `"medium"` / `"hard"`。影响路由以及值得投入的记忆量。 |
+| `as_of` | string | 当前时间 | RFC 3339 时间戳或 `YYYY-MM-DD`（当天结束，UTC）。依据该时间点有效的事实作答。 |
+| `channels` | array \| object | 全部开启 | 要运行的检索通道：`lexical`（BM25）、`ripgrep`、`graph`（个性化 PageRank）、`tree`（摘要树）。可为列表（`["lexical", "graph"]`）或开关（`{"ripgrep": false}`，未列出的通道保持开启）。至少保留一个。 |
+| `memory_budget` | integer | 自动 | 记忆块 `W_mem` 的正整数令牌数，优先于已保存的偏好。仍会被限制，确保整个提示适配窗口。 |
+| `cross_session` | boolean | 偏好设置 | 同时检索您账户的其他会话。 |
+| `memory_mode` | string | `"summarized"` | 较早轮次在提示中的保留方式：`"full"`、`"summarized"`、`"selective"`、`"minimal"`。无论哪种方式都不会删除任何内容；被省略的轮次仍保留在存储中。 |
+| `verbosity` | string | `"normal"` | `"minimal"`、`"normal"`、`"verbose"`。 |
 | `include_reasoning` | boolean | `false` | 在响应中包含规划/推理步骤。 |
-| `use_lexical_search` | boolean | `true` | 启用对过往会话与项目文本的 BM25 + ripgrep 检索。 |
-| `search_top_k` | integer | `30` | 检索的词法候选数量。 |
-| `relevance_threshold` | number | `0.35` | 注入记忆的校准 $P(\text{helpful})$ 截断（0.0–1.0）。 |
-| `max_context_tokens` | integer | — | 覆盖此请求的上下文窗口大小。 |
+| `auto_plan` | boolean | `true` | 将请求分解为任务。 |
+| `max_tasks` | integer | — | 规划任务数量上限。 |
+| `enable_parallel` | boolean | `true` | 并行运行相互独立的任务。 |
 | `force_model` | string | — | 覆盖自动路由，对所有任务使用指定模型。 |
-| `task_difficulty` | string | — | 覆盖自动检测：`"easy"`、`"medium"`、`"hard"`。 |
-| `extract_knowledge` | boolean | `false` | 将关键事实和概念提取到知识库中。 |
+| `extract_knowledge` | boolean | `false` | 将关键事实提取到长期记忆中。 |
 | `final_only` | boolean | `false` | 仅返回最终结果，不返回中间任务输出。 |
-| `project_id` | string | — | 用于限定范围的 BM25 / ripgrep 检索的项目 ID。 |
-| `temperature` | number | — | 透传至底层模型。 |
-| `top_p` | number | — | 透传至底层模型。 |
-| `tools` | array | — | 透传至底层模型的工具/函数定义。 |
-| `tool_choice` | string/object | — | 透传至底层模型的工具选择策略。 |
+| `system_prompt` | string | — | 本次运行的额外系统提示。 |
+
+标准的顶层参数（`temperature`、`top_p`、`top_k`、`stop`、`seed`、`response_format`、`tools`、`tool_choice`、`parallel_tool_calls` 等）会透传至底层模型。
 
 ### 响应中的 Knox-MS 元数据 {#knox-ms-metadata-in-responses}
 
-使用 `knox/knox-ms` 时，响应中包含一个额外的 `knox_ms_meta` 字段：
+响应中包含一个额外的 `knox_ms_meta` 字段：
 
 ```json
 {
@@ -228,20 +230,33 @@ data: [DONE]
   "knox_ms_meta": {
     "session_id": "my-project-session",
     "plan_id": "plan-xyz",
-    "plan_description": "Implement fibonacci function with memoization",
-    "current_task": "write_function",
-    "task_status": "completed",
     "tasks_completed": 1,
     "tasks_total": 1,
     "tasks_failed": 0,
     "total_model_calls": 2,
     "models_used": {"anthropic/claude-sonnet-4.6": 1, "anthropic/claude-haiku-4.5": 1},
-    "memory_mode": "summarized",
     "memory_tokens_saved": 5000,
     "context_tokens_used": 1200,
     "execution_time_ms": 3200,
-    "search_results": 0,
-    "summary_updated": false
+    "summary_updated": false,
+    "call_id": "0b0e8f7a-2c5e-4d57-9a53-6d1a7e0c9f11",
+    "routed_model": "anthropic/claude-sonnet-4.6",
+    "injected_memories": [
+      {
+        "id": 1042,
+        "rank": 0,
+        "tokens": 87,
+        "score": 0.61,
+        "p_helpful": 0.74,
+        "explored": false,
+        "channels": {"lexical": 1, "graph": 3}
+      }
+    ],
+    "budget": {
+      "window": 200000, "w_out": 8192, "system": 640, "goal": 120, "recent": 2300,
+      "w_mem": 4000, "floor": 1000, "memory_tokens": 1180, "total_tokens": 12432,
+      "dropped_turns": 0, "summary_used": false
+    }
   }
 }
 ```
@@ -252,10 +267,28 @@ data: [DONE]
 | `plan_id` | 生成的执行计划 ID |
 | `tasks_completed` / `tasks_total` / `tasks_failed` | 任务执行摘要 |
 | `models_used` | 模型 → 调用次数的映射 |
-| `memory_tokens_saved` | 通过摘要/压缩节省的令牌数 |
+| `memory_tokens_saved` | 通过摘要从提示中省去的令牌数 |
 | `context_tokens_used` | 该请求中用于上下文的令牌数 |
 | `execution_time_ms` | 总处理时间 |
-| `search_results` | 由 BM25 / ripgrep 检索到的相关历史上下文块数量 |
+| `call_id` | 本次调用的标识。可配合 `GET /api/knox-ms/calls/{call_id}/explain` 与 `/budget` 使用。 |
+| `routed_model` | 其窗口限定了上下文的模型 |
+| `injected_memories` | 以 `[mem:<id>]` 形式放入提示的记忆（最佳优先）：`rank`（从 0 起）、`tokens`（占用 `W_mem` 的成本）、融合后的 `score`、校准后的 `p_helpful`（采用 top-k 回退时缺省）、`explored`（由探索策略选中）、`channels`（在返回它的各通道中的排名，从 1 起）。 |
+| `budget` | 本次调用如何分配窗口（见下文）。 |
+
+仅当本次调用执行了记忆检索时，才会出现 `call_id`、`injected_memories`、`budget` 和 `routed_model`。
+
+#### 令牌预算如何推导
+
+路由模型的窗口 `W` 划分为
+
+$$W = \text{system} + \text{goal} + \text{recent} + W_{mem} + W_{out} + \text{slack}$$
+
+- `system`、`goal` 与 `recent` 分别是系统提示、当前请求和最近的轮次，始终保留。
+- `W_out` 为回答预留。
+- `W_mem` 是留给记忆的部分。没有路由模型时默认为 4,000 令牌；`memory_budget` 可覆盖。下限（`floor`，至多 1,000 令牌且不超过 `W` 的一定比例）可保证提示拥挤时仍保留少量记忆，做法是用会话摘要替换较早的最近轮次（`dropped_turns`、`summary_used`）。
+- 记忆通过次模选择挑选：`p_helpful` 低于校准阈值的条目被丢弃，每个条目的成本为其令牌数加分词器安全余量，因此始终满足 `memory_tokens <= w_mem` 且 `total_tokens <= window`。
+
+存储本身没有上限；只有注入的记忆块有界。
 
 ## 模型 {#models}
 
@@ -296,7 +329,6 @@ GET /v1/models/{model_id}
 ```
 
 返回指定模型的详细信息。
-Knox.chat
 ## 图像生成 {#image-generation}
 
 ```
@@ -355,7 +387,6 @@ POST /v1/moderations
 ```
 
 对文本进行内容政策违规分类。
-Knox.chat
 ## Anthropic Messages API
 
 Knox 完全兼容 Anthropic Messages API，因此 **Claude Code** 和 **Anthropic Python/JS SDK** 等工具可以原生使用。
@@ -392,7 +423,6 @@ print(message.content[0].text)
 ```
 
 该端点接受完整的 Anthropic 请求格式（独立的 `system` 字段、必填的 `max_tokens`、内容块、工具使用、扩展思考）并返回 Anthropic 格式的响应。
-Knox.chat
 ## 自主执行 {#autonomous-execution}
 
 对于复杂的多步骤任务，Knox-MS 可以运行**自主执行循环**，迭代地规划、执行、评估和优化，直到达成您的目标 — 并支持实时进度流式传输。
@@ -544,7 +574,6 @@ POST /api/knox-ms/autonomous/resume
   }
 }
 ```
-Knox.chat
 ## 会话与记忆 {#session--memory}
 
 Knox-MS 将对话上下文持久化在**会话**中。使用会话可以在多次 API 调用之间维持记忆。
@@ -609,7 +638,7 @@ GET /api/knox-ms/sessions/{session_id}
 DELETE /api/knox-ms/sessions/{session_id}
 ```
 
-永久删除会话及所有关联的记忆。
+擦除会话及其所有派生内容。这是一次**传播式擦除**：会话的记忆、包含它们的摘要树节点、仅依赖它们的图谱边，以及缓存或冷存储副本会一次性删除，并留下墓碑记录，防止被过期副本重新生成。若擦除失败，则不会报告已删除。参见[遗忘与记忆 API](#forgetting--memory-api)。
 
 ### 获取会话历史 {#get-session-history}
 
@@ -618,7 +647,40 @@ GET /api/knox-ms/sessions/{session_id}/history
 ```
 
 返回该会话中存储的完整对话历史。
-Knox.chat
+## 遗忘与记忆 API {#forgetting--memory-api}
+
+您拥有自己的记忆。所有端点均需认证，位于 `/api/knox-ms` 之下。
+
+| 端点 | 用途 |
+|---|---|
+| `GET /memory` | 列出记忆（筛选：层级、类别、层、来源、`as_of`、含已被取代）。 |
+| `GET /memory/{id}` · `GET /memory/{id}/history` | 单条记忆及其 FSRS 状态、来源、有效期与版本历史。 |
+| `POST /memory/search` | 全通道搜索，附带每个通道的排名。请求体：`query`、`limit`、`as_of`、`session_id`、`project_id`、`cross_session`、`channels`。只读：不注入、不记录、不强化。 |
+| `POST /memory/lexical-search` | 仅 BM25。请求体：`query`、`limit`。 |
+| `POST /memory/grep` | 对记忆文本执行 ripgrep。请求体：`pattern`、`regex`（默认 `false`）、`case_insensitive`（默认 `true`）、`limit`。 |
+| `DELETE /memory/{id}` | 遗忘单条记忆（传播式擦除）。 |
+| `POST /memory/forget` | 按 `ids`、`session_id`、`project_id` 或全部（`all: true` 且 `confirm: true`）遗忘。只允许一个选择器。返回受影响的产物。 |
+| `GET /memory/tombstones` · `GET /memory/audit` | 擦除了什么、何时、为何；记忆操作审计。 |
+| `GET /memory/tree` · `GET /memory/tree/{node}` | 浏览摘要树，直至原文。 |
+| `GET /calls/{call_id}/explain` | 每条记忆为何（未）被注入：通道排名、融合分数、先验、`p_helpful`、阈值。 |
+| `GET /calls/{call_id}/budget` | 一次调用的令牌预算。 |
+| `POST /graph/ppr` | 从种子实体出发的个性化 PageRank。 |
+| `GET /consolidation/status` · `POST /consolidation/run` | 您范围内的后台整合（分层、摘要、合并）。 |
+| `GET /metrics` | 记忆质量指标。 |
+
+### 擦除保证
+
+遗忘是传播式擦除。Knox-MS 会一次性移除记忆文本、其搜索索引条目、包含它的摘要树节点、仅依赖它的图谱边、缓存的提示材料以及冷存储对象。系统会保留一条**墓碑**（id、范围、原因、时间，不含内容），防止已擦除的记忆被过期副本或导入重新生成，并便于您核验擦除。擦除成功后，任何检索通道在任何 `as_of` 下都不会再返回已擦除的内容。
+
+```bash
+curl -X POST https://api.knox.chat/api/knox-ms/memory/forget \
+  -H "Authorization: Bearer sk-your-knox-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"session_id": "my-project-session"}'
+```
+
+删除会话（`DELETE /sessions/{session_id}`）会对该会话执行同样的操作。
+
 ## 知识库 {#knowledge-base}
 
 Knox-MS 自动从对话中提取事实、概念和模式到知识库中，可在不同会话间搜索和复用。搜索是词法检索（BM25 与 ripgrep），不是向量相似度。
@@ -674,7 +736,6 @@ POST /api/knox-ms/knowledge
   "keywords": ["architecture", "async", "messaging"]
 }
 ```
-Knox.chat
 ## 用户偏好设置 {#user-preferences}
 
 自定义 Knox-MS 在您账户下的行为方式。
@@ -734,7 +795,6 @@ PUT /api/knox-ms/user/preferences
 | 管理端点 (`/api/*`) | 120 次请求 / 60 秒 |
 
 当达到速率限制时，API 返回 HTTP `429 Too Many Requests`。请在您的集成中实现指数退避。
-Knox.chat
 ## 错误处理 {#errors}
 
 所有响应遵循一致的格式。
@@ -836,7 +896,7 @@ response = requests.post(
         "messages": [
             {"role": "user", "content": "Let's design a REST API for a blog"}
         ],
-        "knox_ms": {
+        "metadata": {
             "session_id": "blog-api-design",
             "memory_mode": "summarized",
             "extract_knowledge": True,
@@ -846,7 +906,7 @@ response = requests.post(
 
 print(response.json()["choices"][0]["message"]["content"])
 
-# Later, continue the same conversation — Knox-MS remembers everything:
+# Later, continue the same conversation — Knox-MS retrieves the relevant memories:
 response = requests.post(
     "https://api.knox.chat/v1/chat/completions",
     headers={"Authorization": "Bearer sk-your-knox-api-key"},
@@ -855,7 +915,7 @@ response = requests.post(
         "messages": [
             {"role": "user", "content": "Now add pagination to the list endpoints we discussed"}
         ],
-        "knox_ms": {
+        "metadata": {
             "session_id": "blog-api-design",
         },
     },
@@ -957,5 +1017,4 @@ message = client.messages.create(
 
 print(message.content[0].text)
 ```
-Knox.chat
 *需要帮助？请访问 [Knox.chat](https://knox.chat) 管理您的 API 密钥、查看使用量和充值余额。*

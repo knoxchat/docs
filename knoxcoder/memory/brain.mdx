@@ -77,6 +77,19 @@ Product knobs (on/off, scope, auto-extract, recipes, enhanced semantic, inject c
 
 Recipe switches are **not** on the chat gear (Agent Settings). Use Memory → Settings.
 
+## Memory Brain and Knox-MS
+
+Both follow **bounded context, unbounded memory**: what goes into one prompt is capped, what is stored is not (beyond the disk cap below), and retrieval is lexical plus a graph, never embeddings.
+
+| | Memory Brain (this page) | Knox-MS (hosted `knox/knox-ms`) |
+|---|---|---|
+| Where | sqlite on this machine | Your Knox account |
+| Retrieval | FTS / BM25, trigrams, synonyms, graph walk | BM25, ripgrep, graph (personalized PageRank), summary tree, fused by rank |
+| Per-turn injection cap | 8000 tokens (`KNOX_MEMORY_INJECT_CAP`) | Memory budget `W_mem`, 4,000 tokens by default without a routed model, derived from the model window otherwise |
+| Forgetting | Delete a memory, or wipe from the command palette | Propagating erase with a tombstone (see the [Knox-MS docs](/knox-ms-complete-doc#forgetting--memory-api)) |
+
+Memory Brain does not (yet) use the Knox-MS parameter set; the two stores are separate and never sync.
+
 ## Next
 
 <Link to="/knoxcoder/memory/memories">Memories tab</Link> · <Link to="/knoxcoder/memory/sessions">Sessions as context</Link> · <Link to="/knoxcoder/safety/privacy">Privacy</Link>

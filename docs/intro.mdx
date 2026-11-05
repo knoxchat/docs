@@ -27,7 +27,7 @@ Using the **KnoxCoder** desktop editor? Start at the <Link to="/knoxcoder">KnoxC
 
 ### Knox‑MS Memory System
 
-Knox‑MS adds multi‑level memory, summaries, BM25 / ripgrep retrieval, and a knowledge graph to power persistent agents and workflows. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/blog/kms-docs">Knox Memory System — Full Feature Deep Dive</Link>.
+Knox‑MS follows one rule: **bounded context, unbounded memory**. Every call fits the model's window, while long‑term memory is not capped and is searched on demand with BM25, ripgrep, a knowledge graph (personalized PageRank) and a summary tree. Only the memories most likely to help are injected, within a token budget. You can inspect why each one was chosen, and forget any of them. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/knox-ms-complete-doc">Knox‑MS developer documentation</Link>.
 
 ## Using the OpenAI SDK
 
@@ -300,7 +300,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-3">
       <AccordionTrigger>What is Knox‑MS and when should I use it?</AccordionTrigger>
         <AccordionContent>
-          Knox‑MS is a memory‑centric system that adds multi‑level memory, summaries, BM25 / ripgrep retrieval, and a knowledge graph. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS documentation](/knox-ms-unlimited-formula).
+          Knox‑MS is a memory‑centric system with bounded context and unbounded memory: a growing long‑term store, searched with BM25, ripgrep, a knowledge graph and a summary tree, from which only the most useful memories are injected into each call within a token budget. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS documentation](/knox-ms-complete-doc).
         </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-3b">
@@ -436,7 +436,7 @@ Please see our [Terms of Service](/terms-of-service) and [Privacy Policy](/priva
     <AccordionItem value="item-1">
       <AccordionTrigger>What data is logged during API use?</AccordionTrigger>
       <AccordionContent>
-        We will record basic request metadata (timestamps, models used, token counts). We will not record prompts or generated outputs. Even in the event of errors, we will not record your prompts or generated outputs. If you enable Knox‑MS, memory artifacts (summaries, lexical indexes, knowledge entries) are stored in your account to provide persistence.
+        We will record basic request metadata (timestamps, models used, token counts). We will not record prompts or generated outputs. Even in the event of errors, we will not record your prompts or generated outputs. If you enable Knox‑MS, memory artifacts (memories, summaries, search indexes, knowledge graph entries) are stored in your account to provide persistence. You can see and erase them at any time.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-2">
@@ -449,6 +449,18 @@ Please see our [Terms of Service](/terms-of-service) and [Privacy Policy](/priva
       <AccordionTrigger>What data is logged during Chat page use?</AccordionTrigger>
       <AccordionContent>
         The same data privacy applies to the Chat as the API. All conversations in the Chat page are stored locally on your device. Conversations will not sync across devices. It is possible to export conversations with the Chat page.
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-4">
+      <AccordionTrigger>How do I delete what Knox‑MS remembers?</AccordionTrigger>
+      <AccordionContent>
+        Use `DELETE /api/knox-ms/memory/{id}` for one memory, `POST /api/knox-ms/memory/forget` for a set of ids, a session, a project, or everything (`all: true` with `confirm: true`), or delete a session. Forgetting is a propagating erase: the text, its search‑index entries, the summary nodes and knowledge‑graph edges that depended on it, and cached or cold copies are removed together. A tombstone (id, reason and time, but no content) is kept so a stale copy cannot bring the memory back, and no retrieval channel returns the erased content afterwards. See the [Knox‑MS documentation](/knox-ms-complete-doc#forgetting--memory-api).
+      </AccordionContent>
+    </AccordionItem>
+    <AccordionItem value="item-5">
+      <AccordionTrigger>Can I see why Knox‑MS used a memory?</AccordionTrigger>
+      <AccordionContent>
+        Yes. Each Knox‑MS response includes `knox_ms_meta.injected_memories` (the `[mem:id]` items placed in the prompt, with the rank each retrieval channel gave them) and a `call_id`. `GET /api/knox-ms/calls/{call_id}/explain` shows the scores behind the choice and `GET /api/knox-ms/calls/{call_id}/budget` shows how the window was spent.
       </AccordionContent>
     </AccordionItem>
   </Accordion>

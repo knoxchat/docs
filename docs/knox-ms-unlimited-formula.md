@@ -613,6 +613,7 @@ Corrections relative to the previous version of this page:
 | 22 | Undefined pieces: $\text{sim}$ in the selector, $D_0$, how $I_0$ scales $S_0$, the calibration model, and cold start. Difficulty could only rise, and one use could multiply stability by about 78. | All defined; difficulty reverts to $D_0$; gain and stability are capped (Parts IV, V, VII). |
 | 23 | Deletion, write concurrency, index freshness, and untrusted (tool or web) memories were not specified. | Deletion propagates to summaries and indexes; idempotent per-scope writes; Freshness and Erasure invariants; provenance-based trust (Parts II, III). |
 | 24 | Symbols were reused: $R$ (retrievability and relevant set), $b$ (stability exponent and branching), $D$ (memory and task difficulty), $\phi$ (phases and edge weights). | Relevant set is $G(q)$, stability exponent is $\gamma$, task difficulty is $\delta(x)$, edge weights are $\psi_E$. |
+| 25 | **Implementation clarifications** (no change to any bound). "Active" tier was not operationalised; trust was only ordered; the injection format was unspecified. | Active = memories of sessions touched within the last 30 minutes (`consolidate_active_session_minutes`). Trust only needs the order $\text{user} > \text{assistant} > \text{tool} > \text{external}$; the reference values are 1.0 / 0.7 / 0.4 / 0.2. Retrieved originals are injected verbatim as a quoted block of `[mem:<id>]` items in a user-role message (never the system prompt), and `[mem:<id>]` citations in the reply feed attribution (Parts IV–V). |
 
 ---
 
