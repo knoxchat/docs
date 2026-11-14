@@ -17,7 +17,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 ### 核心功能
 
 - **智能模型路由**：提供性能优先/成本优先/均衡等策略，支持自动故障转移和供应商指标监控。
-- **多模态输入输出**：支持文本、图片、PDF、视频和音频输入，以及图像生成、视频生成、[音乐生成](/music)、[文本转语音](/text-to-speech)、[语音转文本](/speech-to-text)、[音色](/voices)、[语音转换](/voice-changer)、[人声分离](/voice-isolator)、[音效生成](/sound-effects)、[配音](/dubbing)、[强制对齐](/forced-alignment)，以及语音到语音的 [实时语音](/realtime)。
+- **多模态输入输出**：支持文本、图片、PDF、视频和音频输入，以及图像生成、视频生成、[音乐生成](/music)、[文本转语音](/text-to-speech)、[语音转文本](/speech-to-text)、[音色](/voices)、[语音转换](/voice-changer)、[人声分离](/voice-isolator)、[音效生成](/sound-effects)、[配音](/dubbing)、[强制对齐](/forced-alignment)、语音到语音的 [实时语音](/realtime)，以及全双工 [GPT-Live](/live)。
 - **工具调用与 MCP**：兼容 OpenAI 工具调用规范，并可桥接 MCP 服务器。
 - **联网搜索**：使用 `:online` 模型变体或 `web` 插件获取实时引用。
 - **Jev（System One）**：对共享 state 提出 typed questions，返回结构化 answers（不是 LLM）。详见 [Jev](/jev)。
@@ -173,7 +173,7 @@ Knox 帮助团队在多个供应商之间构建可靠、高性价比的 SI 系�
 
 **记忆优先的应用**。Knox‑MS 为长时间运行的 Agent 提供持久记忆、知识提取和自主规划能力。
 
-**默认多模态**。图片、PDF、音频输入以及图像生成、视频生成和语音到语音 Realtime，让多模态工作流变得简单直接。
+**默认多模态**。图片、PDF、音频输入以及图像生成、视频生成、语音到语音 Realtime 和全双工 GPT-Live，让多模态工作流变得简单直接。
 
 **统一计费**。无论您使用多少个供应商，都可享受简洁透明的计费方式，并附带零输出补偿保险。
 
@@ -403,13 +403,13 @@ Models API 返回标准化的 JSON 响应格式，为每个可用模型提供全
     <AccordionItem value="item-3">
       <AccordionTrigger>有哪些可用的 API 端点？</AccordionTrigger>
       <AccordionContent>
-        Knox 为 `/completions` 和 `/chat/completions` 实现了 OpenAI API 规范，让您以相同的请求/响应格式使用任何模型。还提供 `/v1/models`、`/v1/systemone`（[Jev](/jev)）、`/v1/realtime`、`/v1/videos` 以及 Knox‑MS 路由等端点。详细规范见 [API 参考](/1.0.0/api-reference)。
+        Knox 为 `/completions` 和 `/chat/completions` 实现了 OpenAI API 规范，让您以相同的请求/响应格式使用任何模型。还提供 `/v1/models`、`/v1/systemone`（[Jev](/jev)）、`/v1/realtime`、`/v1/live/sessions`、`/v1/videos` 以及 Knox‑MS 路由等端点。详细规范见 [API 参考](/1.0.0/api-reference)。
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-4">
       <AccordionTrigger>支持哪些格式？</AccordionTrigger>
       <AccordionContent>
-        API 支持文本、PDF、图像、音频、视频生成和语音到语音 Realtime。图像可通过 URL 或 base64 数据 URL 传递。聊天音频必须为 base64 编码。具备图像输出模态的模型支持图像生成输出。视频生成使用异步 `/v1/videos` API，见[视频生成](/video-generation)。实时语音 Agent 使用 `/v1/realtime`，见 [Realtime](/realtime)。
+        API 支持文本、PDF、图像、音频、视频生成、语音到语音 Realtime 和全双工 GPT-Live。图像可通过 URL 或 base64 数据 URL 传递。聊天音频必须为 base64 编码。具备图像输出模态的模型支持图像生成输出。视频生成使用异步 `/v1/videos` API，见[视频生成](/video-generation)。语音 Agent 使用 `/v1/realtime`（[实时语音](/realtime)）或 `/v1/live/sessions`（[GPT-Live](/live)）。
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-5">

@@ -1,0 +1,71 @@
+---
+id: live-content
+title: "Download Live Recording"
+description: "Download a stored gpt-live-1 session as a stereo WAV (input left, output right). Kept for 30 days."
+sidebar_label: "Download Live recording"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Download Live Recording"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/content"}
+>
+</MethodEndpoint>
+
+Download the stored recording for a Live session created with `"store": true`. The file is a **stereo WAV**: caller input on the left channel, assistant output on the right.
+
+Recordings are available for **30 days** after create. Only the session owner can download. See the [GPT-Live](/live) guide.
+
+## Request
+
+### Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| session_id | String | Yes | Stored Live session id. |
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer sk-…`. |
+
+## cURL example
+
+```shell
+curl -L https://api.knox.chat/v1/live/sessions/sess_…/content \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -o session.wav
+```
+
+## Response
+
+`200` with `Content-Type: audio/wav` (or the upstream type) and `Content-Disposition: attachment; filename="{session_id}.wav"`. The body is streamed.
+
+## Error Responses
+
+| Status | When |
+| ------ | ---- |
+| `401` | Missing or invalid Knox API key. |
+| `403` | Token is not authorized for `gpt-live-1`. |
+| `404` | Session not found, not owned by you, not stored (`store: false`), or older than 30 days. |
+| `502` | Failed to fetch the recording from the Live provider. |

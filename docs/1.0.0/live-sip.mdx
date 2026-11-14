@@ -1,0 +1,116 @@
+---
+id: live-sip
+title: "Live SIP Call Controls"
+description: "Accept, reject, hang up, or transfer a gpt-live-1 SIP call through Knox."
+sidebar_label: "Live SIP call controls"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Live SIP Call Controls"}
+>
+</Heading>
+
+SIP helpers on an existing Live session. Place outbound calls with [`POST /v1/live/sessions`](/1.0.0/live-create). Attach a [sideband](/1.0.0/live-attach) to watch ringing and answer. See the [GPT-Live](/live) guide and OpenAI [Telephony](https://developers.openai.com/api/docs/guides/voice-sip).
+
+All four routes require `Authorization: Bearer sk-…` and a path `session_id`. The same routes are mounted under `/api/v1`.
+
+## Accept
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/accept"}
+>
+</MethodEndpoint>
+
+Accept an incoming SIP call. Knox pins `session.model` to `gpt-live-1` and sets `session.type` to `"live"` (required by OpenAI; do not send another value). Starts billing with the **15-second** SIP init charge.
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/accept \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "session": {
+    "model": "gpt-live-1",
+    "audio": { "output": { "voice": "marin" } },
+    "store": true
+  }
+}'
+```
+
+An empty body is accepted. `session.type` if present must be `"live"`.
+
+## Hang up
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/hangup"}
+>
+</MethodEndpoint>
+
+End a SIP call. No body.
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/hangup \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -X POST
+```
+
+## Refer (transfer)
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/refer"}
+>
+</MethodEndpoint>
+
+Transfer the call. `target_uri` is required and must be a non-blank SIP Refer-To URI with no whitespace.
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/refer \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{ "target_uri": "sip:+15555550199@sip.example.com" }'
+```
+
+## Reject
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/reject"}
+>
+</MethodEndpoint>
+
+Reject an incoming SIP call. `status_code` is required and must be an integer **300-699**.
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/reject \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{ "status_code": 486 }'
+```
+
+## Error Responses
+
+| Status | When |
+| ------ | ---- |
+| `400` | Invalid JSON, `session.type` not `"live"` (accept), missing `target_uri` (refer), or `status_code` outside 300-699 (reject). |
+| `401` | Missing or invalid Knox API key. |
+| `402` | Account balance is not greater than $0.01 (accept starts a billable session). |
+| `403` | Token is not authorized for `gpt-live-1`. |
+| `404` | Session not found or not owned by you. |
+| `502` | Upstream SIP action failed. |

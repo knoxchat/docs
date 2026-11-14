@@ -1,0 +1,142 @@
+---
+id: live-create
+title: "Create Live Session"
+description: "Create a gpt-live-1 WebRTC session from an SDP offer, or place an outbound SIP call."
+sidebar_label: "Create Live session"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create Live Session"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions"}
+>
+</MethodEndpoint>
+
+Create a Live WebRTC session from an SDP offer, or place an outbound SIP call. Knox forwards the request to OpenAI with the channel key.
+
+Returns **201 Created** after session initialization. WebRTC responses include an SDP answer. SIP responses do **not** wait for the callee to answer; attach a [sideband](/1.0.0/live-attach) with `session.id` to monitor progress.
+
+Media goes to OpenAI. Knox attaches its own sideband so **voice duration and nested backend usage are billed**. WebRTC/SIP create charges **15 seconds** of voice up front; that amount is credited against the running duration.
+
+Do **not** send `session.start` again on the WebRTC data channel. Do **not** send `audio.format` (the codec is negotiated on the media transport). Do **not** send `session.type` on create.
+
+See the [GPT-Live](/live) guide and OpenAI’s [Create session](https://developers.openai.com/api/reference/resources/live/methods/create).
+
+## Request
+
+Send JSON or raw SDP. `multipart/form-data` is **not** accepted.
+
+### Request Headers
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| Authorization | String | Yes | `Bearer sk-…` or `Bearer ek_knox_…`. |
+| Content-Type | String | Yes | `application/json`, or `application/sdp` / `text/plain` for a raw WebRTC offer. |
+
+The same routes are also mounted under `/api/v1`.
+
+### JSON body (`application/json`)
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| session | Object | No | Live session config. Knox pins `model` to `gpt-live-1`. |
+| session.model | String | No | Must be `gpt-live-1` when set. |
+| session.audio.output.voice | String | No | Voice name (default upstream is `marin`). Immutable after start. |
+| session.instructions | String | No | Conversation prompt. Omitted uses OpenAI server defaults. |
+| session.delegation | Object or null | No | Omitted / `null` = client mode. `responses` or `decisions` otherwise. |
+| session.store | Boolean | No | `true` to keep the session for fork and recording download. |
+| session.input | Array | No | Prior text messages. |
+| transport.type | String | No | `webrtc` (default) or `sip`. |
+| transport.sdp | String | If WebRTC | WebRTC offer SDP. |
+| transport.destination | String | If SIP | E.164 destination. |
+| transport.trunk | Object | If SIP | SIP trunk credentials (see OpenAI telephony docs). |
+
+### Raw SDP body (`application/sdp`)
+
+The request body is the offer SDP text. Session config then uses Knox/OpenAI defaults (`gpt-live-1`, client-mode delegation).
+
+## cURL examples
+
+### WebRTC JSON
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "session": {
+    "model": "gpt-live-1",
+    "audio": { "output": { "voice": "marin" } },
+    "delegation": {
+      "type": "responses",
+      "responses": {
+        "model": "gpt-6-luna",
+        "tools": [{ "type": "web_search" }]
+      }
+    }
+  },
+  "transport": { "type": "webrtc", "sdp": "v=0\r\n…" }
+}'
+```
+
+### Raw SDP
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/sdp" \
+     --data-binary @offer.sdp
+```
+
+Raw SDP success is `201 Created` with `Content-Type: application/sdp`, `Location: /v1/live/sessions/{id}`, and `X-Live-Session-Id`.
+
+### Outbound SIP
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "session": { "model": "gpt-live-1" },
+  "transport": {
+    "type": "sip",
+    "destination": "+15555550100",
+    "trunk": {}
+  }
+}'
+```
+
+Each SIP request creates a new call. If a request times out, retry with caution: the original request may have succeeded. Ringing is limited to 3 minutes and connected calls to 2 hours.
+
+## Response
+
+On JSON success, Knox returns the upstream body (session object plus `transport.sdp` for WebRTC). Connect the answer SDP to your `RTCPeerConnection`. From that point, audio is peer-to-peer with OpenAI; control events still go over the WebRTC data channel.
+
+## Error Responses
+
+| Status | When |
+| ------ | ---- |
+| `400` | Invalid JSON, missing SDP, unsupported `transport.type`, or invalid session (wrong model, bad backend model). |
+| `401` | Missing or invalid Knox API key. |
+| `402` | Account balance is not greater than $0.01. |
+| `403` | Token allow-list does not include `gpt-live-1`. |
+| `502` | `Failed to connect to Live provider` / missing `session.id` or SDP answer. |

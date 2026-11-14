@@ -1,0 +1,491 @@
+---
+sidebar_position: 16
+sidebar_label: GPT-Live 全双工语音
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# GPT-Live
+
+Knox 为 [`gpt-live-1`](https://developers.openai.com/api/docs/models/gpt-live-1) 代理 OpenAI 的 [GPT-Live API](https://developers.openai.com/api/docs/guides/live)。客户端使用 Knox API key 连接到 Knox。Knox 完成鉴权、选择上游 OpenAI 通道，并转发实时会话。
+
+这是**全双工**语音端点：模型可以一边听一边说。对话由 GPT-Live 负责；推理、工具调用和联网搜索会**委派**给后端（Responses、Decisions 或你自己的 Agent）。它**不是** [`/v1/chat/completions`](/1.0.0/chat-completion)，也**不是** [`/v1/realtime`](/realtime)。若需要会话内工具、按轮次的语音到语音（`gpt-realtime-2.1`），请参阅 [实时语音](/realtime)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
+
+所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key：
+
+```
+https://api.knox.chat/v1
+Authorization: Bearer sk-...
+```
+
+相同路由也挂载在 `/api/v1` 下。把模型写在 session 对象里（`session.start` 或 `POST` 请求体）。**不要**把 `?model=` 当作查询参数。
+
+您也可以在 Knox 界面或 [KnoxStudio](https://knoxstudio.ai) 中使用 **OpenAI: GPT Live 1**：选择该模型、选择 API key，然后点击麦克风。界面走 Socket.IO，并套用 Knox 产品默认值。本页是兼容 OpenAI 的 HTTP / WebSocket API。
+
+确认模型已列出：
+
+```shell
+curl -s https://api.knox.chat/v1/models \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  | jq '.data[] | select(.id=="gpt-live-1")'
+```
+
+您应看到 `gpt-live-1`，输入模态为 `audio`、`text`，输出为 `audio`、`text`。不支持图片和视频。
+
+## GPT-Live 与 Realtime 的区别
+
+| | GPT-Live（`gpt-live-1`） | Realtime（`gpt-realtime-2.1`） |
+| --- | --- | --- |
+| 端点 | `/v1/live/sessions` | `/v1/realtime` |
+| 对话 | 全双工（说话时仍可听） | 按轮次，带 semantic VAD 和插话 |
+| 推理与工具 | 委派给后端 | 会话内工具和 `reasoning.effort` |
+| 语音计费 | **$0.05 / 分钟**，按秒计 | 按 token（文本 / 音频 / 图片） |
+| 后端计费 | Responses / Decisions 的 token 和工具，单独计 | 包含在 Realtime token 用量中 |
+| 图片 | 不支持 | 支持 |
+| 首个客户端事件 | `session.start`（必填） | `session.update`（可选） |
+| WebRTC 计费 | Knox 挂 sideband，按时长计费 | SDP 成功后媒体绕过 Knox 计量 |
+
+## 端点
+
+| 路径 | 传输 | 用途 |
+| ---- | ---- | ---- |
+| `GET` `/v1/live/sessions` | WebSocket | 主会话（计费） |
+| `POST` `/v1/live/sessions` | HTTP JSON 或 SDP | 创建 WebRTC 会话或发起外呼 SIP |
+| `GET` `/v1/live/sessions/{id}/attach` | WebSocket | Sideband：监控或控制已有会话 |
+| `GET` `/v1/live/sessions/{id}/fork` | WebSocket | 分叉已存储会话（WebSocket） |
+| `POST` `/v1/live/sessions/{id}/fork` | HTTP JSON 或 SDP | 分叉已存储会话（WebRTC） |
+| `GET` `/v1/live/sessions/{id}/content` | HTTP | 下载已存储立体声 WAV（保留 30 天） |
+| `POST` `/v1/live/sessions/{id}/accept` | HTTP JSON | 接听来电 SIP |
+| `POST` `/v1/live/sessions/{id}/hangup` | HTTP | 挂断 SIP |
+| `POST` `/v1/live/sessions/{id}/refer` | HTTP JSON | 转接 SIP（`target_uri`） |
+| `POST` `/v1/live/sessions/{id}/reject` | HTTP JSON | 拒接来电 SIP（`status_code`） |
+
+典型流程：
+
+1. 通过 WebSocket 连接 [`GET /v1/live/sessions`](/1.0.0/live)（推荐的完整计费路径）。
+2. **第一条**消息必须是 `session.start`。等待 `session.started`。
+3. 发送 `session.input_audio.append`，播放 `session.output_audio.delta`。
+4. 发送 `session.close`，等待 `session.closed`，以便结算最终用量。
+
+浏览器场景通常用 [`POST /v1/live/sessions`](/1.0.0/live-create) 交换 WebRTC SDP。Knox 仍会挂 sideband，按时长计费。
+
+## 身份验证
+
+Knox token 使用与其余 `/v1` 接口相同的 `sk-` 前缀。
+
+| 客户端 | 如何发送密钥 |
+| ------ | ------------ |
+| 服务端（Node `ws`、Python、OpenAI SDK） | `Authorization: Bearer sk-…` |
+| Anthropic 风格 HTTP | `x-api-key: sk-…` |
+| 浏览器 WebSocket | 子协议 `openai-insecure-api-key.sk-…` |
+| Knox 签发的临时密钥 | `Authorization: Bearer ek_knox_…`（来自 [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)） |
+
+仅在 WebSocket 升级时，若缺少请求头/子协议，也接受 `?api_key=` 或 `?authorization=`。
+
+浏览器原生 `WebSocket` 无法设置 HTTP 头：
+
+```javascript
+const ws = new WebSocket(
+  "wss://api.knox.chat/v1/live/sessions",
+  ["openai-insecure-api-key.sk-YOUR_KNOX_KEY"]
+);
+```
+
+Knox 会哈希用户 ID，并在上游连接上发送 `OpenAI-Safety-Identifier`。您无需自行设置。
+
+开始会话的最低余额：**> $0.01**。Token 必须允许全部模型（`*` / `__ALL_MODELS__`）或包含 `gpt-live-1`。
+
+## 服务端到服务端 WebSocket
+
+这是完整计费路径。Knox 位于您的进程与 `wss://api.openai.com/v1/live/sessions` 之间。连接时**不要带查询参数**。第一条消息必须是 `session.start`（Knox 最多等待 30 秒）。在发送音频之前等待 `session.started`。
+
+<Tabs>
+<TabItem value="node" label="Node.js">
+
+```javascript
+import WebSocket from "ws";
+
+const ws = new WebSocket("wss://api.knox.chat/v1/live/sessions", {
+  headers: {
+    Authorization: "Bearer " + process.env.KNOX_API_KEY,
+  },
+});
+
+ws.on("open", () => {
+  ws.send(
+    JSON.stringify({
+      type: "session.start",
+      event_id: "event_start",
+      session: {
+        model: "gpt-live-1",
+        instructions:
+          "Be concise. Delegate requests needing current information to the backend, which can search the web.",
+        audio: {
+          format: { type: "audio/pcm", rate: 24000 },
+          output: { voice: "marin" },
+        },
+        delegation: {
+          type: "responses",
+          responses: {
+            model: "gpt-6-luna",
+            tools: [{ type: "web_search" }],
+            tool_choice: "auto",
+          },
+        },
+      },
+    })
+  );
+});
+
+ws.on("message", (data) => {
+  const event = JSON.parse(data.toString());
+  if (event.type === "session.started") {
+    // 此后发送 session.input_audio.append
+  }
+  if (event.type === "session.output_audio.delta") {
+    // 解码 event.delta（base64 PCM）并播放
+  }
+  console.log(event.type);
+});
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```python
+import json
+import os
+import websocket
+
+url = "wss://api.knox.chat/v1/live/sessions"
+headers = [f"Authorization: Bearer {os.environ['KNOX_API_KEY']}"]
+
+def on_open(ws):
+    ws.send(json.dumps({
+        "type": "session.start",
+        "event_id": "event_start",
+        "session": {
+            "model": "gpt-live-1",
+            "instructions": (
+                "Be concise. Delegate requests needing current information "
+                "to the backend, which can search the web."
+            ),
+            "audio": {
+                "format": {"type": "audio/pcm", "rate": 24000},
+                "output": {"voice": "marin"},
+            },
+            "delegation": {
+                "type": "responses",
+                "responses": {
+                    "model": "gpt-6-luna",
+                    "tools": [{"type": "web_search"}],
+                    "tool_choice": "auto",
+                },
+            },
+        },
+    }))
+
+def on_message(ws, message):
+    print(json.loads(message).get("type"))
+
+websocket.WebSocketApp(url, header=headers, on_open=on_open, on_message=on_message).run_forever()
+```
+
+</TabItem>
+<TabItem value="sdk" label="OpenAI SDK">
+
+把官方 Live 客户端指向 Knox。需要带 `LiveWS` 的 `openai` SDK 版本。
+
+```javascript
+import OpenAI from "openai";
+import { LiveWS } from "openai/resources/live/ws";
+
+const client = new OpenAI({
+  apiKey: process.env.KNOX_API_KEY,
+  baseURL: "https://api.knox.chat/v1",
+});
+
+const ws = new LiveWS(client);
+
+ws.socket.on("open", () => {
+  ws.send({
+    type: "session.start",
+    session: {
+      model: "gpt-live-1",
+      audio: { format: { type: "audio/pcm", rate: 24000 } },
+    },
+  });
+});
+
+ws.on("event", (event) => {
+  if (event.type === "session.started") {
+    console.log("ready", event.session.id);
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+对 `/v1/live/sessions` 发出不含 `Upgrade: websocket` 的 GET 会返回 `400`（除非你 `POST` WebRTC 或 SIP 创建请求体）。
+
+### 发送音频
+
+WebSocket 音频是 **base64 编码的原始字节**，不是 WAV/MP3/WebM。在启动时设置 `session.audio.format`。同一格式同时用于输入和输出，会话中不能更改。
+
+| 格式 | 说明 |
+| ---- | ---- |
+| `{ "type": "audio/pcm", "rate": 24000 }` | 单声道有符号 16 位小端 PCM，24 kHz（默认） |
+| `{ "type": "audio/pcm", "rate": 16000 }` | 同样的 PCM，16 kHz |
+| `{ "type": "audio/pcmu", "rate": 8000 }` | G.711 μ-law |
+| `{ "type": "audio/pcma", "rate": 8000 }` | G.711 A-law |
+
+PCM 块必须包含完整的 16 位采样（字节长度为偶数）。在 `session.started` 之后：
+
+```json
+{ "type": "session.input_audio.append", "audio": "<base64 pcm16>" }
+```
+
+音频追加没有确认事件。按顺序播放 `session.output_audio.delta`。WebRTC 和 SIP 在媒体传输上协商编解码器，创建时不要带 `audio.format`。
+
+静音但不结束会话：`session.input_audio.mute` / `session.input_audio.unmute`。等待 `session.input_audio.muted` / `unmuted`。
+
+### 会话配置
+
+`session.start.session`（以及 WebRTC/SIP 创建时的 `session` 对象）只接受 Live 字段。多余字段（包括 `type`）会被丢弃，以免 OpenAI 返回 `unknown_parameter`。`session.type` 只属于 SIP `accept`。
+
+| 字段 | 启动时 | 之后 |
+| ---- | ------ | ---- |
+| `model` | 必填。Knox 固定为 `gpt-live-1`。 | 新开会话。 |
+| `instructions` | 对话提示，最多 16,384 tokens。省略则使用 OpenAI 服务端默认值。 | `session.instructions.append` |
+| `input` | 先前文本消息（最多 128 条，8,192 tokens）。 | 下文的 append 事件。 |
+| `audio.output.voice` | 内置音色（默认 `marin`）或自定义音色 id。 | 新开会话。 |
+| `audio.format` | 仅 WebSocket。 | 新开会话。 |
+| `delegation` | `null` / 省略 = **client** 模式。或 `responses` / `decisions`。 | 在同一模式下更新 Responses 设置。切换模式需要新会话。 |
+| `store` | `true` 以保留会话，供分叉和录音下载。默认 `false`。 | 仅启动时。 |
+| `client` | WebRTC 前端事件白名单。 | 仅启动时。 |
+| `triggers` | 可选 Live 触发器。 | 仅启动时。 |
+| `safety_identifier` | Knox 根据哈希后的用户 ID 设置。 | 您无需设置。 |
+
+公开 `/v1/live` API 与 OpenAI 一致：省略 `delegation` 即为 client 模式，省略 `instructions` 则保持未设置。Knox Chat 麦克风路径会另外套用产品默认值（音色 `marin`、PCM 24 kHz、带联网搜索的 Responses 委派）。
+
+用文本消息预置历史：
+
+```json
+{
+  "type": "session.start",
+  "session": {
+    "model": "gpt-live-1",
+    "input": [
+      {
+        "type": "message",
+        "role": "user",
+        "content": [{ "type": "input_text", "text": "I need help with my recent order." }]
+      },
+      {
+        "type": "message",
+        "role": "assistant",
+        "content": [{ "type": "output_text", "text": "What is the order number?" }]
+      }
+    ]
+  }
+}
+```
+
+用户和 developer 消息使用 `input_text`。助手消息使用 `output_text` 或 `text`。
+
+### 常用事件
+
+| 方向 | 事件 | 含义 |
+| ---- | ---- | ---- |
+| 客户端 | `session.start` | 主 WebSocket 的第一条消息 |
+| 服务端 | `session.started` | 会话已就绪（此处有 `session.id`） |
+| 客户端 | `session.input_audio.append` | Base64 音频块 |
+| 服务端 | `session.output_audio.delta` | 待播放的 Base64 音频 |
+| 服务端 | `session.input_transcript.delta` | 用户转写片段（`start_ms` / `end_ms`） |
+| 服务端 | `session.output_transcript.delta` | 助手转写片段 |
+| 客户端 | `session.thinking.append` | 补充事实，不要求立刻说出来 |
+| 客户端 | `session.commentary.append` | 请模型开口（可能改写） |
+| 客户端 | `session.instructions.append` | 追加可信的应用指令 |
+| 客户端 | `session.update` | 在已有 Responses 会话中改 `delegation.responses` |
+| 服务端 | `session.updated` | 更新已生效 |
+| 服务端 | `session.delegation.created` | Live 向后端求助 |
+| 服务端 | `response.event` | 嵌套的 Responses 事件 |
+| 服务端 | `session.usage.updated` | 累计语音秒数快照 |
+| 客户端 | `session.close` | 结束会话 |
+| 服务端 | `session.closed` | 最终 `usage.seconds` 和 `reason` |
+| 服务端 | `error` | 命令被拒或会话错误（`error.client_event_id`） |
+
+用发出去的 `event_id` 与确认/错误上的 `client_event_id` 对应。GPT-Live 是全双工：双方同时说话时，把主叫和助手字幕分开更新。
+
+若要在主叫开口前先问候：把问候指令放进 `developer` 角色的 `input` 消息，等待 `session.started`，再用 `session.commentary.append`（`delegation_id: null`）发送一次相同文本。继续把静音当作输入音频发送。
+
+## 委派
+
+GPT-Live 负责说话。后端负责思考和用工具。
+
+| 模式 | 何时使用 | Knox 做什么 |
+| ---- | -------- | ----------- |
+| **Client**（省略 `delegation` 或为 `null`） | 你已有 Agent。自己处理 `session.delegation.created`。 | 转发事件。由你运行工具并回写 thinking/commentary。 |
+| **Responses**（`delegation.type: "responses"`） | 最快路径。OpenAI 运行 Responses 模型及你的工具。 | 转发嵌套 `response.event`，并计该模型的 token 与工具调用。 |
+| **Decisions**（`delegation.type: "decisions"`） | 结构化决策后端。 | 转发 `decision.event` 并计嵌套用量。 |
+
+Responses 后端示例（联网搜索）：
+
+```json
+{
+  "delegation": {
+    "type": "responses",
+    "responses": {
+      "model": "gpt-6-luna",
+      "instructions": "Keep answers short and suitable for speech. Name your sources.",
+      "tools": [{ "type": "web_search" }],
+      "tool_choice": "auto"
+    }
+  }
+}
+```
+
+访问你自己系统的 **function** 工具仍由你的应用执行。权限和确认写在代码里，不要只写在 Live 提示里。
+
+`delegation.responses.model` 必须是合法模型 ID。通道运营方可在通道 `config` JSON 中固定或放行后端：
+
+```json
+{
+  "live_backend_model": "gpt-6-luna",
+  "live_allowed_backend_models": ["gpt-6-luna", "gpt-6-sol"],
+  "live_max_concurrent_per_user": 10
+}
+```
+
+默认每用户最多同时 **10** 路 Live 会话。`session.update` 可以在已经是 Responses 的会话里改 Responses 设置。要在 client 与 Responses 之间切换，请新开会话。
+
+官方指南：[Prompting GPT-Live](https://developers.openai.com/api/docs/guides/live-prompting)、[Delegation and tools](https://developers.openai.com/api/docs/guides/live-delegation)。
+
+## WebRTC
+
+浏览器和移动端应在你的服务器上创建会话，再把 SDP answer 接到 `RTCPeerConnection`。媒体走向 OpenAI。Knox 会挂一条 **sideband** WebSocket，以便按时长和嵌套后端用量计费。
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session": {
+      "model": "gpt-live-1",
+      "audio": { "output": { "voice": "marin" } },
+      "delegation": {
+        "type": "responses",
+        "responses": {
+          "model": "gpt-6-luna",
+          "tools": [{ "type": "web_search" }]
+        }
+      }
+    },
+    "transport": { "type": "webrtc", "sdp": "v=0\r\n…" }
+  }'
+```
+
+也接受原始 SDP（`Content-Type: application/sdp`）。成功为 `201 Created`，带 `Location: /v1/live/sessions/{id}` 和 `X-Live-Session-Id`。不要在 WebRTC 数据通道上再次发送 `session.start`。不要发送 `audio.format`（编解码器会协商）。
+
+WebRTC 创建会预收 **15 秒**语音费用，之后从累计时长中抵扣。
+
+见 [`POST /v1/live/sessions`](/1.0.0/live-create) 以及 OpenAI 的 [WebRTC 传输](https://developers.openai.com/api/docs/guides/voice-webrtc)。
+
+## Sideband、分叉、录音
+
+**Sideband。** [`GET /v1/live/sessions/{id}/attach`](/1.0.0/live-attach) 在已有会话上打开第二条 WebSocket。音频仍走主连接。关闭 sideband **不会**挂断通话。可从服务器观察转写、处理 client 委派，或发送 `session.close`。
+
+**分叉。** 创建时带 `"store": true`。之后 [`/v1/live/sessions/{id}/fork`](/1.0.0/live-fork) 会开一个继承已存对话的新会话。分叉可覆盖的字段仅限 `store`、Responses 委派，以及（WebSocket）`audio.format`。只有原会话所有者可以分叉。
+
+**录音。** 已存储会话保留立体声 WAV（输入在左声道，输出在右声道）**30 天**。从 [`GET /v1/live/sessions/{id}/content`](/1.0.0/live-content) 下载。`store: false` 的会话无法下载。
+
+## SIP
+
+发起外呼：
+
+```json
+{
+  "session": { "model": "gpt-live-1" },
+  "transport": {
+    "type": "sip",
+    "destination": "+15555550100",
+    "trunk": { }
+  }
+}
+```
+
+SIP 创建在初始化后即返回，**不会**等待被叫接听。用 `session.id` 挂 sideband 观察进度。振铃上限 **3 分钟**，接通后上限 **2 小时**（OpenAI 限制）。
+
+来电：[`accept`](/1.0.0/live-sip)、[`reject`](/1.0.0/live-sip)（`status_code` 300-699）、[`hangup`](/1.0.0/live-sip)、[`refer`](/1.0.0/live-sip)（`target_uri`）。接听时 Knox 会把 `session.type` 设为 `"live"`（OpenAI 要求）。详见 OpenAI [Telephony and SIP](https://developers.openai.com/api/docs/guides/voice-sip)。
+
+## 计费
+
+语音按累计 `usage.seconds` 快照计费（`session.usage.updated` 和 `session.closed`），不是按 token。分组倍率生效。费率与 OpenAI 公布的卡片一致：
+
+[`gpt-live-1`](https://developers.openai.com/api/docs/models/gpt-live-1)：
+
+| 指标 | 价格 |
+| --- | ---: |
+| 语音会话时长 | **$0.05 / 分钟**，**按秒**计（不向上取整到整分钟） |
+
+WebRTC 和 SIP 还会在创建/接听时预收 **15 秒**，之后从累计时长中抵扣。会话进行中 Knox 大约每 **60 秒**记一笔语音费用，关闭时结算。若始终没有 `session.closed`，Knox 会回退到墙钟时间。
+
+后端 Responses 和 Decisions 用量按被委派模型在目录中的价格**单独**计费（prompt、缓存输入、completion）外加联网搜索次数。`/activity` 会显示一条 Live 语音记录和嵌套的后端记录。
+
+Live **不**遵循对话补全「无输出 token 则不计费」的规则。只要接通并说话就会按时长计费，即使助手没有说完一句。余额在通话中耗尽时，Knox 会发送 `session.close`。
+
+请始终发送 `session.close` 并等待 `session.closed`，以便记录最终秒数。
+
+## 限制
+
+- `/v1/live/sessions` 只提供 `gpt-live-1`。该模型不支持 Chat Completions、Completions、Responses 和 `/v1/realtime`。
+- 默认每用户最多同时 **10** 路 Live 会话（通道 `live_max_concurrent_per_user`）。
+- 上游仍受 OpenAI 并发会话限额约束。
+- 已存储录音保留 **30 天**。
+- SIP 振铃 3 分钟，接通后 2 小时。
+- 不支持图片和视频输入。
+- WebSocket 第一条消息必须在 **30 秒**内是 `session.start`。
+
+## 故障排除
+
+### 握手无法升级
+
+- 不含 `Upgrade: websocket` 的 `GET /v1/live/sessions` 返回 400（WebRTC/SIP 请用 `POST`）。
+- 缺少或无效的 Knox key → 401。
+- 浏览器：发送 `openai-insecure-api-key.sk-…` 子协议。
+
+### 会话已打开但没有声音
+
+- 在 `session.input_audio.append` 之前等待 `session.started`。
+- WebSocket 客户端必须发送已配置的 PCM/G.711 字节，而不是 WAV 容器。
+- 关注 `error` 事件（`session_start_required`、`invalid_session`、被拒的 append）。
+- 不要在 WebSocket 或 WebRTC 创建时发送 `session.type`。
+
+### 用错模型 / 用错 API
+
+把 `gpt-live-1` 打到 `/v1/realtime` 或 `/v1/chat/completions` 会失败。请使用 `/v1/live/sessions`。把 Realtime 模型打到 `/v1/live/sessions` 会返回 400（`use /v1/realtime for Realtime models`）。
+
+### WebRTC 已创建但 Knox 没有用量
+
+Knox 通过观察用 sideband 计费。若创建返回 201，时长从 15 秒预收开始。关闭会话（在 sideband 上发 `session.close`，或挂断）以便 `session.closed` 结算。
+
+### 快速连通性检查
+
+```shell
+curl -i https://api.knox.chat/v1/live/sessions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+# 期望 400：需要 WebSocket，或 POST WebRTC/SIP 请求体
+```
+
+## API 参考
+
+* [连接 Live 会话](/1.0.0/live)
+* [创建 Live 会话](/1.0.0/live-create)
+* [挂载 sideband](/1.0.0/live-attach)
+* [分叉 Live 会话](/1.0.0/live-fork)
+* [下载录音](/1.0.0/live-content)
+* [SIP 呼叫控制](/1.0.0/live-sip)
+
+OpenAI 官方参考：[GPT-Live 概览](https://developers.openai.com/api/docs/guides/live)、[创建会话](https://developers.openai.com/api/reference/resources/live/methods/create)、[WebSockets](https://developers.openai.com/api/docs/guides/voice-websockets)、[管理会话](https://developers.openai.com/api/docs/guides/live-conversations)、[委派](https://developers.openai.com/api/docs/guides/live-delegation)、[从 Realtime 迁移](https://developers.openai.com/api/docs/guides/live-migration)。

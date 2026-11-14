@@ -72,6 +72,17 @@ Speech-to-speech voice agents over WebSocket (`gpt-realtime-2.1`, `gpt-realtime-
 - [**Create Realtime Client Secret**](/1.0.0/realtime-client-secrets) - Mint a Knox ephemeral key (`ek_knox_…`, ~60s)
 - [**Create Realtime Call**](/1.0.0/realtime-calls) - WebRTC SDP exchange (`POST /v1/realtime/calls`)
 
+### GPT-Live
+
+Full-duplex voice (`gpt-live-1`) over `/v1/live/sessions`. The model listens while speaking and delegates reasoning and tools to a backend. Voice is billed $0.05/minute per second; backend usage is separate. This is not chat completions and not Realtime. See the [**GPT-Live**](/live) guide.
+
+- [**Connect Live Session**](/1.0.0/live) - WebSocket conversation (`GET /v1/live/sessions`, send `session.start` first)
+- [**Create Live Session**](/1.0.0/live-create) - WebRTC SDP or outbound SIP (`POST /v1/live/sessions`)
+- [**Attach Live Sideband**](/1.0.0/live-attach) - Server-side WebSocket on an existing session
+- [**Fork Live Session**](/1.0.0/live-fork) - Resume a stored session (`GET` WebSocket / `POST` WebRTC)
+- [**Download Live Recording**](/1.0.0/live-content) - Stereo WAV for `store: true` sessions (30 days)
+- [**Live SIP Call Controls**](/1.0.0/live-sip) - Accept, hangup, refer, reject
+
 ### Video Generation
 
 Video generation is asynchronous: submit a job, poll until it completes, then download the file. See the [**Video Generation**](/video-generation) guide for a full walkthrough.

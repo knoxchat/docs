@@ -17,7 +17,7 @@ Using the **KnoxCoder** desktop editor? Start at the <Link to="/knoxcoder">KnoxC
 ### What you get
 
 - **Smart model routing**: performance/cost/balanced strategies with automatic fallback and provider metrics.
-- **Multimodal I/O**: text, images, PDFs, and audio inputs, plus image, video, and [music](/music) generation, [text to speech](/text-to-speech), [speech to text](/speech-to-text), [voices](/voices), [voice changer](/voice-changer), [Voice Isolator](/voice-isolator), [sound effects](/sound-effects), [dubbing](/dubbing), [forced alignment](/forced-alignment), and speech-to-speech [Realtime](/realtime).
+- **Multimodal I/O**: text, images, PDFs, and audio inputs, plus image, video, and [music](/music) generation, [text to speech](/text-to-speech), [speech to text](/speech-to-text), [voices](/voices), [voice changer](/voice-changer), [Voice Isolator](/voice-isolator), [sound effects](/sound-effects), [dubbing](/dubbing), [forced alignment](/forced-alignment), speech-to-speech [Realtime](/realtime), and full-duplex [GPT-Live](/live).
 - **Tools and MCP**: OpenAI‑compatible tool calling and MCP server bridging.
 - **Web search**: `:online` model variant or the `web` plugin for live citations.
 - **Jev (System One)**: typed questions against a shared state, structured answers (not an LLM). See [Jev](/jev).
@@ -173,7 +173,7 @@ Standardized API. No code changes when switching between models or providers. Us
 
 Memory‑First Apps. Knox‑MS enables long‑running agents with persistent memory, knowledge extraction, and autonomous planning.
 
-Multimodal by Default. Images, PDFs, and audio inputs plus image generation, video generation, and speech-to-speech Realtime make multimodal workflows straightforward.
+Multimodal by Default. Images, PDFs, and audio inputs plus image generation, video generation, speech-to-speech Realtime, and full-duplex GPT-Live make multimodal workflows straightforward.
 
 Consolidated Billing. Simple and transparent billing, regardless of how many providers you use, with zero‑completion insurance for failed/empty generations.
 
@@ -403,13 +403,13 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-3">
       <AccordionTrigger>What API endpoints are available?</AccordionTrigger>
       <AccordionContent>
-        Knox implements the OpenAI API specification for `/completions` and `/chat/completions`, allowing you to use any model with the same request/response format. Additional endpoints like `/v1/models`, `/v1/systemone` ([Jev](/jev)), `/v1/realtime`, `/v1/videos`, and Knox‑MS routes are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
+        Knox implements the OpenAI API specification for `/completions` and `/chat/completions`, allowing you to use any model with the same request/response format. Additional endpoints like `/v1/models`, `/v1/systemone` ([Jev](/jev)), `/v1/realtime`, `/v1/live/sessions`, `/v1/videos`, and Knox‑MS routes are also available. See our [API Reference](/1.0.0/api-reference) for detailed specifications.
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-4">
       <AccordionTrigger>What are the supported formats?</AccordionTrigger>
       <AccordionContent>
-        The API supports text, PDFs, images, audio, video generation, and speech-to-speech Realtime. Images can be passed as URLs or base64 data URLs. Chat audio must be base64 encoded. Image generation outputs are supported for models with image output modalities. Video generation uses the asynchronous `/v1/videos` API — see [Video Generation](/video-generation). Live voice agents use `/v1/realtime` — see [Realtime](/realtime).
+        The API supports text, PDFs, images, audio, video generation, speech-to-speech Realtime, and full-duplex GPT-Live. Images can be passed as URLs or base64 data URLs. Chat audio must be base64 encoded. Image generation outputs are supported for models with image output modalities. Video generation uses the asynchronous `/v1/videos` API: see [Video Generation](/video-generation). Voice agents use `/v1/realtime` ([Realtime](/realtime)) or `/v1/live/sessions` ([GPT-Live](/live)).
       </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-5">

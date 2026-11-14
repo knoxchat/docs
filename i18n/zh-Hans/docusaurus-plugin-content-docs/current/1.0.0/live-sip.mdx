@@ -1,0 +1,116 @@
+---
+id: live-sip
+title: "Live SIP 呼叫控制"
+description: "通过 Knox 接听、拒接、挂断或转接 gpt-live-1 SIP 呼叫。"
+sidebar_label: "Live SIP 呼叫控制"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "post api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Live SIP 呼叫控制"}
+>
+</Heading>
+
+已有 Live 会话上的 SIP 辅助接口。外呼请用 [`POST /v1/live/sessions`](/1.0.0/live-create)。挂 [sideband](/1.0.0/live-attach) 观察振铃和接通。见 [GPT-Live](/live) 指南和 OpenAI [Telephony](https://developers.openai.com/api/docs/guides/voice-sip)。
+
+四条路由都需要 `Authorization: Bearer sk-…` 和路径参数 `session_id`。相同路由也挂载在 `/api/v1` 下。
+
+## 接听
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/accept"}
+>
+</MethodEndpoint>
+
+接听来电 SIP。Knox 把 `session.model` 固定为 `gpt-live-1`，并把 `session.type` 设为 `"live"`（OpenAI 要求；不要发送其他值）。开始计费，预收 **15 秒** SIP 费用。
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/accept \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "session": {
+    "model": "gpt-live-1",
+    "audio": { "output": { "voice": "marin" } },
+    "store": true
+  }
+}'
+```
+
+空请求体可接受。若存在 `session.type`，必须为 `"live"`。
+
+## 挂断
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/hangup"}
+>
+</MethodEndpoint>
+
+结束 SIP 呼叫。无请求体。
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/hangup \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -X POST
+```
+
+## 转接（Refer）
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/refer"}
+>
+</MethodEndpoint>
+
+转接呼叫。`target_uri` 必填，必须是不含空白的 SIP Refer-To URI。
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/refer \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{ "target_uri": "sip:+15555550199@sip.example.com" }'
+```
+
+## 拒接
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/reject"}
+>
+</MethodEndpoint>
+
+拒接来电 SIP。`status_code` 必填，必须是 **300-699** 的整数。
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/reject \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{ "status_code": 486 }'
+```
+
+## 错误响应
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | JSON 无效、`session.type` 不是 `"live"`（接听）、缺少 `target_uri`（转接），或 `status_code` 不在 300-699（拒接）。 |
+| `401` | 缺少或无效的 Knox API key。 |
+| `402` | 账户余额不大于 $0.01（接听会开始计费会话）。 |
+| `403` | Token 未被授权使用 `gpt-live-1`。 |
+| `404` | 会话不存在或不属于你。 |
+| `502` | 上游 SIP 操作失败。 |

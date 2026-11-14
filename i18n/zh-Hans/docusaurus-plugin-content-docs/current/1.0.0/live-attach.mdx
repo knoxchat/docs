@@ -1,0 +1,91 @@
+---
+id: live-attach
+title: "挂载 Live Sideband"
+description: "在已有 gpt-live-1 会话上打开 sideband WebSocket，用于监控或控制，不承载音频。"
+sidebar_label: "挂载 Live sideband"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"挂载 Live Sideband"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"wss://api.knox.chat/v1/live/sessions/{session_id}/attach"}
+>
+</MethodEndpoint>
+
+在已有 Live 会话上打开 **sideband** WebSocket。音频继续走主 WebSocket 或 WebRTC/SIP 媒体路径。从服务器使用 sideband 可以：
+
+- 观察转写、`session.delegation.created` 和嵌套 `response.event`
+- 发送 `session.thinking.append` / `session.commentary.append` / `session.update`
+- 发送 `session.close` 以挂断并收取最终用量
+
+关闭 sideband **不会**结束主会话。Knox 内部也会用 sideband 为 WebRTC 和 SIP 按时长计费。
+
+你必须拥有该会话（或对尚未写入 Knox 表的来电 SIP id 提供有效 Knox key）。见 [GPT-Live](/live) 指南和 OpenAI [服务端控制](https://developers.openai.com/api/docs/guides/voice-server-controls)。
+
+## 请求
+
+### 路径参数
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| session_id | String | 是 | 来自 `session.started` 或创建响应的 Live 会话 id。 |
+
+### 请求头
+
+| 名称 | 类型 | 必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| Authorization | String | 是 | `Bearer sk-…` 或 `Bearer ek_knox_…`。 |
+| Upgrade | String | 是 | 必须为 `websocket`。 |
+
+非 WebSocket 的 GET 返回 `400`：请通过 WebSocket 连接 `/v1/live/sessions/{id}/attach`。
+
+## 连接示例
+
+```javascript
+import WebSocket from "ws";
+
+const sessionId = "sess_…";
+const ws = new WebSocket(
+  `wss://api.knox.chat/v1/live/sessions/${sessionId}/attach`,
+  { headers: { Authorization: "Bearer " + process.env.KNOX_API_KEY } }
+);
+
+ws.on("message", (data) => {
+  const event = JSON.parse(data.toString());
+  console.log(event.type);
+});
+
+// 从服务器结束通话：
+// ws.send(JSON.stringify({ type: "session.close" }));
+```
+
+sideband 上的 `session.update` 与主连接校验方式相同（`delegation.responses.model` 必须被允许）。
+
+## 错误响应
+
+| 状态 | 何时 |
+| ---- | ---- |
+| `400` | 不是 WebSocket 升级，或会话 id 无效。 |
+| `401` | 缺少或无效的 Knox API key。 |
+| `403` | Token 未被授权使用 `gpt-live-1`。 |
+| `404` | 会话不存在，或不属于当前用户。 |
+| `502` | 上游 attach 失败。 |

@@ -78,6 +78,49 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "GPT-Live",
+      collapsed: true,
+      items: [
+        {
+          type: "doc",
+          id: "1.0.0/live",
+          label: "Connect Live session",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "1.0.0/live-create",
+          label: "Create Live session",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "1.0.0/live-attach",
+          label: "Attach Live sideband",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "1.0.0/live-fork",
+          label: "Fork Live session",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "1.0.0/live-content",
+          label: "Download Live recording",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "1.0.0/live-sip",
+          label: "Live SIP call controls",
+          className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "Video Generation",
       collapsed: true,
       items: [

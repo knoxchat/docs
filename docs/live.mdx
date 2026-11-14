@@ -1,0 +1,490 @@
+---
+sidebar_position: 16
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# GPT-Live
+
+Knox proxies OpenAI’s [GPT-Live API](https://developers.openai.com/api/docs/guides/live) for [`gpt-live-1`](https://developers.openai.com/api/docs/models/gpt-live-1). Clients connect to Knox with a Knox API key. Knox authenticates, picks an upstream OpenAI channel, and relays the live session.
+
+This is a **full-duplex** voice endpoint: the model can listen and speak at the same time. Conversation stays on GPT-Live. Reasoning, tool use, and web search are **delegated** to a backend (Responses, Decisions, or your own agent). It is **not** [`/v1/chat/completions`](/1.0.0/chat-completion) and **not** [`/v1/realtime`](/realtime). For turn-based speech-to-speech with in-session tools (`gpt-realtime-2.1`), see [Realtime](/realtime). For one-shot audio files in chat, see [Audio Inputs](/audio).
+
+All authenticated requests use the same base URL and API key as the rest of Knox:
+
+```
+https://api.knox.chat/v1
+Authorization: Bearer sk-...
+```
+
+The same routes are also mounted under `/api/v1`. Put the model in the session object (`session.start` or `POST` body). Do **not** pass `?model=` as a query parameter.
+
+You can also use **OpenAI: GPT Live 1** in the Knox.Chat UI or [KnoxStudio](https://knoxstudio.ai): select the model, pick an API key, and click the microphone. The UI uses Socket.IO with Knox product defaults. This page is the OpenAI-compatible HTTP and WebSocket API.
+
+Confirm the model is listed:
+
+```shell
+curl -s https://api.knox.chat/v1/models \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  | jq '.data[] | select(.id=="gpt-live-1")'
+```
+
+You should see `gpt-live-1` with input modalities `audio`, `text` and output `audio`, `text`. Image and video are not supported.
+
+## GPT-Live vs Realtime
+
+| | GPT-Live (`gpt-live-1`) | Realtime (`gpt-realtime-2.1`) |
+| --- | --- | --- |
+| Endpoint | `/v1/live/sessions` | `/v1/realtime` |
+| Conversation | Full duplex (listen while speaking) | Turn-based with semantic VAD and barge-in |
+| Reasoning and tools | Delegated to a backend | In-session tools and `reasoning.effort` |
+| Voice billing | **$0.05 / minute**, billed per second | Per token (text / audio / image) |
+| Backend billing | Responses / Decisions tokens and tools, separately | Included in Realtime token usage |
+| Images | Not supported | Supported |
+| First client event | `session.start` (required) | `session.update` (optional) |
+| WebRTC billing | Knox attaches a sideband and bills duration | SDP succeeds, then media bypasses Knox metering |
+
+## Endpoints
+
+| Path | Transport | Purpose |
+| ---- | --------- | ------- |
+| `GET` `/v1/live/sessions` | WebSocket | Primary conversation session (billed) |
+| `POST` `/v1/live/sessions` | HTTP JSON or SDP | Create a WebRTC session or place an outbound SIP call |
+| `GET` `/v1/live/sessions/{id}/attach` | WebSocket | Sideband: monitor or control an existing session |
+| `GET` `/v1/live/sessions/{id}/fork` | WebSocket | Fork a stored session over WebSocket |
+| `POST` `/v1/live/sessions/{id}/fork` | HTTP JSON or SDP | Fork a stored session over WebRTC |
+| `GET` `/v1/live/sessions/{id}/content` | HTTP | Download a stored stereo WAV (30 days) |
+| `POST` `/v1/live/sessions/{id}/accept` | HTTP JSON | Accept an incoming SIP call |
+| `POST` `/v1/live/sessions/{id}/hangup` | HTTP | Hang up a SIP call |
+| `POST` `/v1/live/sessions/{id}/refer` | HTTP JSON | Transfer a SIP call (`target_uri`) |
+| `POST` `/v1/live/sessions/{id}/reject` | HTTP JSON | Reject an incoming SIP call (`status_code`) |
+
+Typical flow:
+
+1. Connect over WebSocket to [`GET /v1/live/sessions`](/1.0.0/live) (recommended billed path).
+2. Send `session.start` as the **first** message. Wait for `session.started`.
+3. Stream `session.input_audio.append`. Play `session.output_audio.delta`.
+4. Send `session.close` and wait for `session.closed` so final usage is billed.
+
+For browsers, [`POST /v1/live/sessions`](/1.0.0/live-create) with a WebRTC SDP offer is the usual path. Knox still bills voice duration by attaching its own sideband.
+
+## Authentication
+
+Knox tokens use the same `sk-` prefix as the rest of `/v1`.
+
+| Client | How to send the key |
+| ------ | ------------------- |
+| Server (Node `ws`, Python, OpenAI SDK) | `Authorization: Bearer sk-…` |
+| Anthropic-style HTTP | `x-api-key: sk-…` |
+| Browser WebSocket | subprotocol `openai-insecure-api-key.sk-…` |
+| Knox-issued ephemeral | `Authorization: Bearer ek_knox_…` from [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets) |
+
+On WebSocket upgrades only, `?api_key=` or `?authorization=` is accepted if headers/subprotocol are missing.
+
+Browser native `WebSocket` cannot set HTTP headers:
+
+```javascript
+const ws = new WebSocket(
+  "wss://api.knox.chat/v1/live/sessions",
+  ["openai-insecure-api-key.sk-YOUR_KNOX_KEY"]
+);
+```
+
+Knox hashes the Knox user id and sends `OpenAI-Safety-Identifier` on the upstream connection. You do not need to set this yourself.
+
+Minimum balance to start a session: **> $0.01**. The token must allow all models (`*` / `__ALL_MODELS__`) or list `gpt-live-1`.
+
+## Server-to-server WebSocket
+
+This is the fully billed path. Knox sits between your process and `wss://api.openai.com/v1/live/sessions`. Connect with **no query parameters**. The first message must be `session.start` (Knox waits up to 30 seconds). Wait for `session.started` before sending audio.
+
+<Tabs>
+<TabItem value="node" label="Node.js">
+
+```javascript
+import WebSocket from "ws";
+
+const ws = new WebSocket("wss://api.knox.chat/v1/live/sessions", {
+  headers: {
+    Authorization: "Bearer " + process.env.KNOX_API_KEY,
+  },
+});
+
+ws.on("open", () => {
+  ws.send(
+    JSON.stringify({
+      type: "session.start",
+      event_id: "event_start",
+      session: {
+        model: "gpt-live-1",
+        instructions:
+          "Be concise. Delegate requests needing current information to the backend, which can search the web.",
+        audio: {
+          format: { type: "audio/pcm", rate: 24000 },
+          output: { voice: "marin" },
+        },
+        delegation: {
+          type: "responses",
+          responses: {
+            model: "gpt-6-luna",
+            tools: [{ type: "web_search" }],
+            tool_choice: "auto",
+          },
+        },
+      },
+    })
+  );
+});
+
+ws.on("message", (data) => {
+  const event = JSON.parse(data.toString());
+  if (event.type === "session.started") {
+    // Stream session.input_audio.append after this.
+  }
+  if (event.type === "session.output_audio.delta") {
+    // Decode event.delta (base64 PCM) and play it.
+  }
+  console.log(event.type);
+});
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```python
+import json
+import os
+import websocket
+
+url = "wss://api.knox.chat/v1/live/sessions"
+headers = [f"Authorization: Bearer {os.environ['KNOX_API_KEY']}"]
+
+def on_open(ws):
+    ws.send(json.dumps({
+        "type": "session.start",
+        "event_id": "event_start",
+        "session": {
+            "model": "gpt-live-1",
+            "instructions": (
+                "Be concise. Delegate requests needing current information "
+                "to the backend, which can search the web."
+            ),
+            "audio": {
+                "format": {"type": "audio/pcm", "rate": 24000},
+                "output": {"voice": "marin"},
+            },
+            "delegation": {
+                "type": "responses",
+                "responses": {
+                    "model": "gpt-6-luna",
+                    "tools": [{"type": "web_search"}],
+                    "tool_choice": "auto",
+                },
+            },
+        },
+    }))
+
+def on_message(ws, message):
+    print(json.loads(message).get("type"))
+
+websocket.WebSocketApp(url, header=headers, on_open=on_open, on_message=on_message).run_forever()
+```
+
+</TabItem>
+<TabItem value="sdk" label="OpenAI SDK">
+
+Point the official Live client at Knox. You need an `openai` SDK version that includes `LiveWS`.
+
+```javascript
+import OpenAI from "openai";
+import { LiveWS } from "openai/resources/live/ws";
+
+const client = new OpenAI({
+  apiKey: process.env.KNOX_API_KEY,
+  baseURL: "https://api.knox.chat/v1",
+});
+
+const ws = new LiveWS(client);
+
+ws.socket.on("open", () => {
+  ws.send({
+    type: "session.start",
+    session: {
+      model: "gpt-live-1",
+      audio: { format: { type: "audio/pcm", rate: 24000 } },
+    },
+  });
+});
+
+ws.on("event", (event) => {
+  if (event.type === "session.started") {
+    console.log("ready", event.session.id);
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+Hitting `/v1/live/sessions` without `Upgrade: websocket` returns `400` (unless you `POST` a WebRTC or SIP create body).
+
+### Sending audio
+
+WebSocket audio is **base64-encoded raw bytes**, not WAV/MP3/WebM. Set `session.audio.format` at startup. The same format applies to input and output and cannot change during the session.
+
+| Format | Notes |
+| ------ | ----- |
+| `{ "type": "audio/pcm", "rate": 24000 }` | Mono signed 16-bit little-endian PCM at 24 kHz (default) |
+| `{ "type": "audio/pcm", "rate": 16000 }` | Same PCM at 16 kHz |
+| `{ "type": "audio/pcmu", "rate": 8000 }` | G.711 μ-law |
+| `{ "type": "audio/pcma", "rate": 8000 }` | G.711 A-law |
+
+PCM chunks must contain complete 16-bit samples (even byte length). After `session.started`:
+
+```json
+{ "type": "session.input_audio.append", "audio": "<base64 pcm16>" }
+```
+
+Audio appends have no acknowledgment. Play `session.output_audio.delta` in order. WebRTC and SIP negotiate their codec on the media transport, so leave `audio.format` out of those creates.
+
+Mute without ending the session: `session.input_audio.mute` / `session.input_audio.unmute`. Wait for `session.input_audio.muted` / `unmuted`.
+
+### Session config
+
+`session.start.session` (and the `session` object on WebRTC/SIP create) accepts only Live keys. Extra fields, including `type`, are dropped so OpenAI does not reject `unknown_parameter`. `session.type` belongs only on SIP `accept`.
+
+| Field | At startup | Later |
+| ----- | ---------- | ----- |
+| `model` | Required. Knox pins this to `gpt-live-1`. | Start a new session. |
+| `instructions` | Conversation prompt, up to 16,384 tokens. Omitted uses OpenAI server defaults. | `session.instructions.append` |
+| `input` | Prior text messages (up to 128, 8,192 tokens). | Append events below. |
+| `audio.output.voice` | Built-in voice (default `marin`) or a custom voice id. | Start a new session. |
+| `audio.format` | WebSocket only. | Start a new session. |
+| `delegation` | `null` / omitted = **client** mode. Or `responses` / `decisions`. | Update Responses settings in the same mode. Switching modes needs a new session. |
+| `store` | `true` to keep the session for fork and recording download. Default `false`. | Startup only. |
+| `client` | WebRTC frontend event allow-lists. | Startup only. |
+| `triggers` | Optional Live triggers. | Startup only. |
+| `safety_identifier` | Knox sets this from the hashed user id. | You do not set this. |
+
+The public `/v1/live` API matches OpenAI: omitted `delegation` is client mode, omitted `instructions` stay unset. Knox Chat’s microphone path applies product defaults separately (voice `marin`, PCM 24 kHz, Responses delegation with web search).
+
+Seed history with text messages:
+
+```json
+{
+  "type": "session.start",
+  "session": {
+    "model": "gpt-live-1",
+    "input": [
+      {
+        "type": "message",
+        "role": "user",
+        "content": [{ "type": "input_text", "text": "I need help with my recent order." }]
+      },
+      {
+        "type": "message",
+        "role": "assistant",
+        "content": [{ "type": "output_text", "text": "What is the order number?" }]
+      }
+    ]
+  }
+}
+```
+
+User and developer messages use `input_text`. Assistant messages use `output_text` or `text`.
+
+### Useful events
+
+| Direction | Event | Meaning |
+| --------- | ----- | ------- |
+| Client | `session.start` | First message on a primary WebSocket |
+| Server | `session.started` | Session is live (`session.id` is here) |
+| Client | `session.input_audio.append` | Base64 audio chunk |
+| Server | `session.output_audio.delta` | Base64 audio to play |
+| Server | `session.input_transcript.delta` | User transcript fragment (`start_ms` / `end_ms`) |
+| Server | `session.output_transcript.delta` | Assistant transcript fragment |
+| Client | `session.thinking.append` | Add facts without asking the model to speak them |
+| Client | `session.commentary.append` | Ask the model to say something (it may paraphrase) |
+| Client | `session.instructions.append` | Add trusted application instructions |
+| Client | `session.update` | Change `delegation.responses` in an existing Responses session |
+| Server | `session.updated` | Update applied |
+| Server | `session.delegation.created` | Live asked the backend for help |
+| Server | `response.event` | Nested Responses event (`event.type`, `event.response.usage`, …) |
+| Server | `session.usage.updated` | Cumulative voice seconds snapshot |
+| Client | `session.close` | End the session |
+| Server | `session.closed` | Final `usage.seconds` and `reason` |
+| Server | `error` | Rejected command or session error (`error.client_event_id`) |
+
+Match outgoing `event_id` to `client_event_id` on acknowledgments and errors. GPT-Live is full duplex: keep caller and assistant captions independent when speech overlaps.
+
+To greet before the caller speaks, put greeting instructions in a `developer` `input` message, wait for `session.started`, then send the same text once via `session.commentary.append` with `delegation_id: null`. Keep sending silence as input audio.
+
+## Delegation
+
+GPT-Live talks. A backend thinks and uses tools.
+
+| Mode | When to use | What Knox does |
+| ---- | ----------- | -------------- |
+| **Client** (`delegation` omitted or `null`) | You already have an agent. Handle `session.delegation.created` yourself. | Relays events. You run tools and send thinking/commentary back. |
+| **Responses** (`delegation.type: "responses"`) | Fastest path. OpenAI runs a Responses model with your tools. | Relays nested `response.event` envelopes and bills that model’s tokens plus tool calls. |
+| **Decisions** (`delegation.type: "decisions"`) | Structured decision backends. | Relays `decision.event` and bills nested usage. |
+
+Example Responses backend (web search):
+
+```json
+{
+  "delegation": {
+    "type": "responses",
+    "responses": {
+      "model": "gpt-6-luna",
+      "instructions": "Keep answers short and suitable for speech. Name your sources.",
+      "tools": [{ "type": "web_search" }],
+      "tool_choice": "auto"
+    }
+  }
+}
+```
+
+Your application still runs **function** tools that touch your systems. Check permissions and confirmations in your code, not in the Live prompt.
+
+`delegation.responses.model` must be a valid model id. Channel operators can pin or allow-list backends in the channel `config` JSON:
+
+```json
+{
+  "live_backend_model": "gpt-6-luna",
+  "live_allowed_backend_models": ["gpt-6-luna", "gpt-6-sol"],
+  "live_max_concurrent_per_user": 10
+}
+```
+
+Default concurrent Live sessions per user is **10**. `session.update` may change Responses settings in an already-Responses session. To switch between client and Responses, start a new session.
+
+Official guides: [Prompting GPT-Live](https://developers.openai.com/api/docs/guides/live-prompting), [Delegation and tools](https://developers.openai.com/api/docs/guides/live-delegation).
+
+## WebRTC
+
+Browser and mobile apps should create the session on your server, then attach the SDP answer to `RTCPeerConnection`. Media goes to OpenAI. Knox attaches a **sideband** WebSocket so voice duration and nested backend usage are still billed.
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session": {
+      "model": "gpt-live-1",
+      "audio": { "output": { "voice": "marin" } },
+      "delegation": {
+        "type": "responses",
+        "responses": {
+          "model": "gpt-6-luna",
+          "tools": [{ "type": "web_search" }]
+        }
+      }
+    },
+    "transport": { "type": "webrtc", "sdp": "v=0\r\n…" }
+  }'
+```
+
+Raw SDP (`Content-Type: application/sdp`) is also accepted. Success is `201 Created` with `Location: /v1/live/sessions/{id}` and `X-Live-Session-Id`. Do **not** send `session.start` again on the WebRTC data channel. Do **not** send `audio.format` (the codec is negotiated).
+
+WebRTC create bills **15 seconds** of voice up front; that amount is credited against the running duration.
+
+See [`POST /v1/live/sessions`](/1.0.0/live-create) and OpenAI’s [WebRTC transport](https://developers.openai.com/api/docs/guides/voice-webrtc).
+
+## Sideband, fork, recordings
+
+**Sideband.** [`GET /v1/live/sessions/{id}/attach`](/1.0.0/live-attach) opens a second WebSocket on an existing session. Audio stays on the primary connection. Closing the sideband does **not** hang up the call. Use this from your server to observe transcripts, handle client delegations, or send `session.close`.
+
+**Fork.** Create with `"store": true`. Later, [`/v1/live/sessions/{id}/fork`](/1.0.0/live-fork) starts a new session that inherits the stored conversation. Fork overrides are limited to `store`, Responses delegation, and (WebSocket) `audio.format`. Only the owner of the original session can fork it.
+
+**Recording.** Stored sessions keep a stereo WAV (input left, output right) for **30 days**. Download it from [`GET /v1/live/sessions/{id}/content`](/1.0.0/live-content). Sessions created with `store: false` cannot be downloaded.
+
+## SIP
+
+Place an outbound call:
+
+```json
+{
+  "session": { "model": "gpt-live-1" },
+  "transport": {
+    "type": "sip",
+    "destination": "+15555550100",
+    "trunk": { }
+  }
+}
+```
+
+SIP create returns after initialization; it does **not** wait for the callee to answer. Attach a sideband with `session.id` to watch progress. Ringing is limited to **3 minutes** and connected calls to **2 hours** (OpenAI limits).
+
+Incoming calls: [`accept`](/1.0.0/live-sip), [`reject`](/1.0.0/live-sip) (`status_code` 300-699), [`hangup`](/1.0.0/live-sip), [`refer`](/1.0.0/live-sip) (`target_uri`). On accept, Knox sets `session.type` to `"live"` as required by OpenAI. See OpenAI [Telephony and SIP](https://developers.openai.com/api/docs/guides/voice-sip).
+
+## Billing
+
+Voice is billed on cumulative `usage.seconds` snapshots (`session.usage.updated` and `session.closed`), not on tokens. Group ratio applies. Rates match OpenAI’s published card:
+
+[`gpt-live-1`](https://developers.openai.com/api/docs/models/gpt-live-1):
+
+| Metric | Price |
+| --- | ---: |
+| Voice session duration | **$0.05 / minute**, billed **per second** (not rounded up to a whole minute) |
+
+WebRTC and SIP also charge **15 seconds** at create/accept; that floor is credited against later duration. Knox checkpoints voice about every **60 seconds** while a session runs, then settles on close. If `session.closed` never arrives, Knox falls back to wall-clock time.
+
+Backend Responses and Decisions usage is billed **separately** from the catalog price of the delegated model (prompt, cached input, completion) plus web-search calls. `/activity` shows a Live voice line and nested backend lines.
+
+Live does **not** follow the chat-completions “no output tokens → no charge” rule. Connecting and speaking bills duration even if the assistant never finishes a sentence. If the account hits zero mid-call, Knox sends `session.close`.
+
+Always send `session.close` and wait for `session.closed` so final seconds are recorded.
+
+## Limits
+
+- Only `gpt-live-1` is served on `/v1/live/sessions`. Chat Completions, Completions, Responses, and `/v1/realtime` are **not** supported for this model.
+- Default **10** concurrent Live sessions per user (channel `live_max_concurrent_per_user`).
+- OpenAI concurrent-session rate limits still apply upstream.
+- Stored recordings are kept **30 days**.
+- SIP ringing 3 minutes, connected call 2 hours.
+- Image and video input are not supported.
+- First WebSocket message must be `session.start` within **30 seconds**.
+
+## Troubleshooting
+
+### Handshake never upgrades
+
+- `GET /v1/live/sessions` without `Upgrade: websocket` returns 400 (use `POST` for WebRTC/SIP).
+- Missing/invalid Knox key → 401.
+- Browser: send the `openai-insecure-api-key.sk-…` subprotocol.
+
+### Session opens but no audio
+
+- Wait for `session.started` before `session.input_audio.append`.
+- WebSocket clients must send the configured PCM/G.711 bytes, not a WAV container.
+- Watch `error` events (`session_start_required`, `invalid_session`, rejected appends).
+- Do not send `session.type` on WebSocket or WebRTC create.
+
+### Wrong model / wrong API
+
+`gpt-live-1` on `/v1/realtime` or `/v1/chat/completions` fails. Use `/v1/live/sessions`. Realtime models on `/v1/live/sessions` return 400 (`use /v1/realtime for Realtime models`).
+
+### WebRTC created but Knox shows no usage
+
+Knox bills from its observer sideband. If create returned 201, duration starts at the 15-second init charge. Close the session (`session.close` on a sideband, or hang up) so `session.closed` can settle.
+
+### Quick connectivity check
+
+```shell
+curl -i https://api.knox.chat/v1/live/sessions \
+  -H "Authorization: Bearer $KNOXCHAT_API_KEY"
+# expect 400: requires WebSocket, or POST a WebRTC/SIP body
+```
+
+## API Reference
+
+* [Connect Live session](/1.0.0/live)
+* [Create Live session](/1.0.0/live-create)
+* [Attach sideband](/1.0.0/live-attach)
+* [Fork Live session](/1.0.0/live-fork)
+* [Download recording](/1.0.0/live-content)
+* [SIP call controls](/1.0.0/live-sip)
+
+Official OpenAI references: [GPT-Live overview](https://developers.openai.com/api/docs/guides/live), [Create session](https://developers.openai.com/api/reference/resources/live/methods/create), [WebSockets](https://developers.openai.com/api/docs/guides/voice-websockets), [Managing sessions](https://developers.openai.com/api/docs/guides/live-conversations), [Delegation](https://developers.openai.com/api/docs/guides/live-delegation), [Migrate from Realtime](https://developers.openai.com/api/docs/guides/live-migration).

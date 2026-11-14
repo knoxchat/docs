@@ -1,0 +1,99 @@
+---
+id: live-fork
+title: "Fork Live Session"
+description: "Start a new gpt-live-1 session that inherits a stored conversation, over WebSocket or WebRTC."
+sidebar_label: "Fork Live session"
+hide_title: true
+hide_table_of_contents: true
+sidebar_class_name: "get api-method"
+info_path: docs/1.0.0/api-reference
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Fork Live Session"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"wss://api.knox.chat/v1/live/sessions/{session_id}/fork"}
+>
+</MethodEndpoint>
+
+<MethodEndpoint
+  method={"post"}
+  path={"https://api.knox.chat/v1/live/sessions/{session_id}/fork"}
+>
+</MethodEndpoint>
+
+Fork a **stored** Live session (`store: true` at create time) into a new conversation that inherits history. Only the owner can fork. The fork uses the same upstream OpenAI channel as the source session.
+
+- **GET** upgrades to WebSocket. First message must still be `session.start`. Fork overrides are limited to `store`, Responses delegation, and `audio.format`.
+- **POST** creates a WebRTC fork from an SDP offer (JSON `{ "sdp", "session" }` or raw `application/sdp`).
+
+Inherited settings (voice, instructions, delegation mode) stay unless you send an allowed override. You cannot change `model`; forks stay on `gpt-live-1`.
+
+See the [GPT-Live](/live) guide.
+
+## Path Parameters
+
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+| session_id | String | Yes | Id of the **stored** source session. |
+
+## WebSocket fork
+
+```javascript
+import WebSocket from "ws";
+
+const sourceId = "sess_…";
+const ws = new WebSocket(
+  `wss://api.knox.chat/v1/live/sessions/${sourceId}/fork`,
+  { headers: { Authorization: "Bearer " + process.env.KNOX_API_KEY } }
+);
+
+ws.on("open", () => {
+  ws.send(JSON.stringify({
+    type: "session.start",
+    session: { store: true },
+  }));
+});
+```
+
+A non-WebSocket GET returns `400`: connect to `/v1/live/sessions/{id}/fork` over WebSocket, or POST an SDP offer for WebRTC.
+
+## WebRTC fork
+
+```shell
+curl -s https://api.knox.chat/v1/live/sessions/sess_…/fork \
+     -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "sdp": "v=0\r\n…",
+  "session": { "store": true }
+}'
+```
+
+Same 15-second WebRTC init charge as [create](/1.0.0/live-create).
+
+## Error Responses
+
+| Status | When |
+| ------ | ---- |
+| `400` | Not a WebSocket (GET), missing SDP (POST), or invalid fork session. |
+| `401` | Missing or invalid Knox API key. |
+| `402` | Account balance is not greater than $0.01. |
+| `403` | Token is not authorized for `gpt-live-1`. |
+| `404` | Source session not found, not stored, or owned by another user. |
+| `502` | Upstream fork failed. |

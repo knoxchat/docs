@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 
 Knox 为 [`gpt-realtime-2.1`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1) 和 [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini) 代理 OpenAI 的 [Realtime API](https://developers.openai.com/api/docs/guides/realtime)。客户端使用 Knox API key 连接到 Knox。Knox 完成鉴权、选择上游 OpenAI 通道，并转发实时会话。
 
-这是语音到语音的 Voice Agent 端点：音频与文本输入，音频与文本输出，支持工具调用和可配置推理。它**不是** [`/v1/chat/completions`](/1.0.0/chat-completion)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
+这是语音到语音的 Voice Agent 端点：音频与文本输入，音频与文本输出，支持工具调用和可配置推理。它**不是** [`/v1/chat/completions`](/1.0.0/chat-completion)。若需要边说边听的全双工语音（`gpt-live-1`），请参阅 [GPT-Live](/live)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
 
 所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key：
 

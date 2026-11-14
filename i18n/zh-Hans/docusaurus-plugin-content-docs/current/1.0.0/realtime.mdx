@@ -33,7 +33,7 @@ import Heading from "@theme/Heading";
 
 打开一个按量计费的语音到语音会话。Knox 会验证您的 API key，选择上游 OpenAI 兼容的 Realtime 通道，并转发实时事件流。
 
-这**不是** [`POST /v1/chat/completions`](/1.0.0/chat-completion)。客户端必须升级为 WebSocket。普通 HTTP 请求会返回 `400`。`POST /v1/realtime` 同样用于 WebSocket 升级。相同路由也挂载在 `/api/v1` 下。
+这**不是** [`POST /v1/chat/completions`](/1.0.0/chat-completion)，也**不是** [`GET /v1/live/sessions`](/1.0.0/live)。客户端必须升级为 WebSocket。普通 HTTP 请求会返回 `400`。`POST /v1/realtime` 同样用于 WebSocket 升级。相同路由也挂载在 `/api/v1` 下。
 
 接受的模型 ID：`gpt-realtime-2.1` 和 `gpt-realtime-2.1-mini`。查询参数 `?model=` 可选，Knox 默认使用 `gpt-realtime-2.1`。会话配置、计费、托管联网搜索和 WebRTC 的完整说明见 [实时语音](/realtime) 指南。
 

@@ -66,6 +66,7 @@ const sidebars = {
         'images-and-pdfs',
         'audio',
         'realtime',
+        'live',
         'text-to-speech',
         'voices',
         'speech-to-text',

@@ -135,6 +135,38 @@
     "message": "实时语音",
     "description": "The label for category 'Realtime' in sidebar 'apiSidebar'"
   },
+  "sidebar.apiSidebar.category.GPT-Live": {
+    "message": "GPT-Live",
+    "description": "The label for category 'GPT-Live' in sidebar 'apiSidebar'"
+  },
+  "sidebar.apiSidebar.doc.Connect Live session": {
+    "message": "连接 Live 会话",
+    "description": "The label for the doc item 'Connect Live session' in sidebar 'apiSidebar', linking to the doc 1.0.0/live"
+  },
+  "sidebar.apiSidebar.doc.Create Live session": {
+    "message": "创建 Live 会话",
+    "description": "The label for the doc item 'Create Live session' in sidebar 'apiSidebar', linking to the doc 1.0.0/live-create"
+  },
+  "sidebar.apiSidebar.doc.Attach Live sideband": {
+    "message": "挂载 Live sideband",
+    "description": "The label for the doc item 'Attach Live sideband' in sidebar 'apiSidebar', linking to the doc 1.0.0/live-attach"
+  },
+  "sidebar.apiSidebar.doc.Fork Live session": {
+    "message": "分叉 Live 会话",
+    "description": "The label for the doc item 'Fork Live session' in sidebar 'apiSidebar', linking to the doc 1.0.0/live-fork"
+  },
+  "sidebar.apiSidebar.doc.Download Live recording": {
+    "message": "下载 Live 录音",
+    "description": "The label for the doc item 'Download Live recording' in sidebar 'apiSidebar', linking to the doc 1.0.0/live-content"
+  },
+  "sidebar.apiSidebar.doc.Live SIP call controls": {
+    "message": "Live SIP 呼叫控制",
+    "description": "The label for the doc item 'Live SIP call controls' in sidebar 'apiSidebar', linking to the doc 1.0.0/live-sip"
+  },
+  "sidebar.tutorialSidebar.doc.GPT-Live": {
+    "message": "GPT-Live 全双工语音",
+    "description": "The label for the doc item 'GPT-Live' in sidebar 'tutorialSidebar'"
+  },
   "sidebar.apiSidebar.category.Video Generation": {
     "message": "视频生成",
     "description": "The label for category 'Video Generation' in sidebar 'apiSidebar'"

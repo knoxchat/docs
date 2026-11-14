@@ -33,7 +33,7 @@ import Heading from "@theme/Heading";
 
 Open a billed speech-to-speech conversation session. Knox authenticates your API key, selects an upstream OpenAI-compatible Realtime channel, and relays the live event stream.
 
-This is **not** [`POST /v1/chat/completions`](/1.0.0/chat-completion). Clients must upgrade to WebSocket. A plain HTTP request returns `400`. `POST /v1/realtime` is accepted for the same WebSocket upgrade. The same routes are also mounted under `/api/v1`.
+This is **not** [`POST /v1/chat/completions`](/1.0.0/chat-completion) and **not** [`GET /v1/live/sessions`](/1.0.0/live). Clients must upgrade to WebSocket. A plain HTTP request returns `400`. `POST /v1/realtime` is accepted for the same WebSocket upgrade. The same routes are also mounted under `/api/v1`.
 
 Accepted model IDs: `gpt-realtime-2.1` and `gpt-realtime-2.1-mini`. Query `?model=` is optional; Knox defaults to `gpt-realtime-2.1`. For a full walkthrough of session config, billing, hosted web search, and WebRTC, see the [Realtime](/realtime) guide.
 
