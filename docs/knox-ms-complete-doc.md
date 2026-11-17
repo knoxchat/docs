@@ -1,16 +1,17 @@
 ---
 sidebar_position: 19
-title: Knox-MS 1.0 — Developer Documentation
+title: Knox-MS 2.0 Developer Documentation
 description: A comprehensive guide to Knox.chat's memory system for developers and users.
 keywords: [knox, knox api, ai integration, knox-ms, memory system, developer guide]
 ---
 
-# Knox-MS 1.0 Developer Documentation
+# Knox-MS 2.0 Developer Documentation
 
 > **Base URL:** `https://api.knox.chat` (KnoxChat) or `https://api.knoxstudio.ai` (KnoxStudio). Both hosts are the same API.  
-> **API Version:** v1
+> **API Version:** v1  
+> **Memory model:** [KMS Unlimited Context Theorem](./knox-ms-unlimited-formula.md) V2
 
-Knox-MS is an SI orchestration engine with a human-brain-inspired memory architecture, autonomous execution and measured recall. Its motto is **bounded context, unbounded memory**: every call fits the routed model's window, while the memory store itself is not capped and is searched on demand.
+Knox-MS is an SI orchestration engine with a human-brain-inspired memory architecture, autonomous execution and measured recall. Its motto is **bounded context, unbounded memory, measured recall**: every call fits the routed model's window, while the memory store itself is not capped and is searched on demand. The formal model, assumptions and guarantees behind this are in the [KMS Unlimited Context Theorem](./knox-ms-unlimited-formula.md); the [Memory Model](#memory-model) section below maps them to the API.
 
 ## Table of Contents
 
@@ -22,6 +23,7 @@ Knox-MS is an SI orchestration engine with a human-brain-inspired memory archite
   - [Knox-MS Model](#knox-ms-model)
   - [Knox-MS Parameters](#knox-ms-parameters)
   - [Knox-MS Metadata in Responses](#knox-ms-metadata-in-responses)
+- [Memory Model (KMS V2)](#memory-model)
 - [Models](#models)
 - [Image Generation](#image-generation)
 - [Audio](#audio)
@@ -168,8 +170,8 @@ The `knox/knox-ms` model is a meta-model that automatically:
 
 1. **Plans** — Decomposes your request into a set of tasks
 2. **Routes** — Sends each task to the best model based on difficulty (fast models for simple tasks, powerful models for complex ones)
-3. **Remembers** — Stores what matters in long-term memory and, on each call, injects only the most useful memories that fit the memory budget `W_mem`, so conversations can span far beyond any single model's context window
-4. **Learns** — Records successful patterns and improves over time
+3. **Remembers** — Stores what matters in long-term memory (originals are kept, never replaced by summaries) and, on each call, injects only the most useful memories that fit the memory budget `W_mem`, so conversations can span far beyond any single model's context window
+4. **Learns** — Records which injected memories actually helped, strengthens those, lets the rest fade, and improves over time
 
 It is accessed through the same `/v1/chat/completions` endpoint as any other model. There is nothing special you need to do — just set `"model": "knox/knox-ms"`.
 
@@ -284,10 +286,87 @@ $$W = \text{system} + \text{goal} + \text{recent} + W_{mem} + W_{out} + \text{sl
 
 - `system`, `goal` and `recent` are the system prompt, the current request and the latest turns, which are always kept.
 - `W_out` is reserved for the answer.
-- `W_mem` is what is left for memories. Without a routed model it defaults to 4,000 tokens; `memory_budget` overrides it. A floor (`floor`, at most 1,000 tokens and never more than a fraction of `W`) keeps a small memory block even when the prompt is crowded, by replacing older recent turns with the session summary (`dropped_turns`, `summary_used`).
-- Memories are chosen by a submodular selection: items below the calibrated threshold on `p_helpful` are dropped and each item costs its tokens plus a tokenizer safety margin, so `memory_tokens <= w_mem` and `total_tokens <= window` always hold.
+- `W_mem` is what is left for memories. Without a routed model it defaults to 4,000 tokens; `memory_budget` overrides it. A floor (`floor` = `min(1000, W/8)`) keeps a small memory block even when the prompt is crowded, by replacing older recent turns with the session summary (`dropped_turns`, `summary_used`). The originals of those turns stay retrievable. If `system`, `goal`, `W_out` and the floor alone exceed `W`, the call is routed to a model with a larger window or rejected with an explicit error. It is never truncated silently.
+- Memories are chosen by a submodular selection that rewards both relevance and coverage, so near-duplicates add almost nothing. Items below the calibrated threshold on `p_helpful` are dropped. Each item costs its tokens plus a tokenizer safety margin (5%, counted with the routed model's own tokenizer), so `memory_tokens <= w_mem` and `total_tokens + w_out <= window` always hold.
+- The strongest items are placed at the start and end of the memory block, where models attend most reliably.
 
 The store itself is unbounded; only the injected block is bounded.
+
+## Memory Model
+
+This section summarizes the V2 [KMS Unlimited Context Theorem](./knox-ms-unlimited-formula.md) in terms of what you can observe through the API. "Unlimited context" does not mean the model reads everything. Three quantities are kept apart:
+
+| Quantity | Meaning | Bounded? |
+|---|---|---|
+| Addressable memory | Everything stored for your account | No |
+| Usable context | Tokens placed in one model call (`budget.memory_tokens` plus the rest of the prompt) | Yes, always within the routed model's window minus `w_out` |
+| Recall | Fraction of the relevant memories that actually reach the call | Measured, and kept above a published bound as history grows |
+
+Storage alone is not enough: with a flat top-k search, recall falls toward zero as history grows, even if nothing is deleted. Knox-MS therefore adds structure (scoping, a summary tree, budgeted selection), and the recall bound holds with tree routing cost that grows only logarithmically in the scoped history.
+
+### Memory hierarchy
+
+| Level | Name | Lifetime |
+|---|---|---|
+| M1 | Input buffer | one turn |
+| M2 | Working memory (the injected block, `W_mem`) | one model call |
+| M3 | Session memory | one session |
+| M4 | Long-term memory (facts, episodes, summary tree) | until superseded or forgotten |
+| M5 | Procedural memory (workflows, learned patterns) | until superseded or forgotten |
+
+M1 and M2 are buffers, not stores. **Summaries are pointers**: every summary node in the tree keeps links to its children down to the original text, and only originals enter the prompt. Compression therefore never loses information; summary quality only affects how well a search is routed. Browse the tree with `GET /memory/tree`.
+
+### Writing memory
+
+- **Encoding is lexical** (BM25 terms, trigrams, entities, provenance). There is no embedding model or vector index.
+- **Write-time reconciliation** against existing facts in the same scope: add, update, supersede, merge, or no-op. A superseded fact is closed, not deleted. Facts are bitemporal (valid time and transaction time), which is what `as_of` queries use.
+- **Idempotent, serialized per scope**: two sessions writing the same fact cannot create duplicate or conflicting valid facts.
+- **Read-your-writes**: a memory written in turn `t` is retrievable from turn `t+1`. Only summary text and parameter refits are deferred to background consolidation.
+- **Provenance and trust**: every memory is tagged `user`, `assistant`, `tool` or `external`, ordered by trust in that sequence. Memories from `tool` and `external` sources (web pages, files, API output) are injected as quoted data, never as instructions, and cannot supersede a `user` fact on their own.
+
+### Retrieval
+
+Each query searches only its scope. Tenant and user are a hard access boundary applied inside every index. Project and session (plus your cross-project preferences) are the soft relevance scope, and `cross_session` widens it. A query about the past switches to as-of mode (`as_of`) and searches facts valid at that time, including superseded ones.
+
+| Channel | Signal |
+|---|---|
+| `lexical` | BM25 with trigram fuzzy match and rule-based synonyms |
+| `ripgrep` | exact, regex and identifier hits (200 ms limit) |
+| `graph` | hub-damped personalized PageRank over entities |
+| `tree` | beam search over the summary tree's term sketches |
+
+Channel ranks are combined by rank fusion (never by adding raw scores). Utility and retrievability then scale relevance within a fixed factor range, so an irrelevant memory can never be selected because it is important or recent. The cut-off is calibrated to mean `P(helpful) >= theta`. Only the `tree` channel carries the logarithmic cost and recall bound; the other channels improve recall in practice but are not needed for the bound. See `GET /calls/{call_id}/explain` for the per-memory breakdown.
+
+### Forgetting and tiers
+
+Each memory has a stability `S` (days until its retrievability falls to 90%), following a power-law forgetting curve. A memory strengthens only when it was injected **and actually used** (cited as `[mem:<id>]`, or credited by an ablation probe). Being retrieved is not enough, so a memory cannot reinforce itself by being retrieved. Tiers come from the same model:
+
+| Tier | Rule | Storage |
+|---|---|---|
+| Active | memories of sessions touched in the last 30 minutes | memory (RAM) |
+| Hot | retrievability >= 0.9 | full fidelity, all indexes |
+| Warm | 0.7 to 0.9 | full fidelity |
+| Cold | 0.3 to 0.7 | summarized in the tree, originals kept |
+| Frozen | below 0.3, or low value | compressed archive, reachable on demand |
+| Deleted | only explicit `forget`, a TTL, or a privacy policy | tombstone only |
+
+**Tiers change cost, never reachability.** Age alone never deletes anything.
+
+### Outcome attribution
+
+For every call, Knox-MS logs which memories were injected and whether they helped. A cited memory in a successful turn gains evidence; a memory the next user turn corrects loses it; an injected but uncited memory loses a small fraction (silence is weak evidence). Two mechanisms correct for noisy citations: offline **ablation probes** on about 2% of successful turns, and **exploration** on about 5% of calls (`explored` in `injected_memories`), with selection propensities logged so calibration stays unbiased. This feeds the utility estimate, the channel weights and the threshold.
+
+### Guarantees
+
+| Invariant | Meaning |
+|---|---|
+| Budget | `context + w_out <= window` on every call |
+| Reachability | every non-deleted memory is reachable from the tree and at least one other index, in every tier |
+| Losslessness | every leaf under a summary is a retained original or a tombstone |
+| Freshness | read-your-writes from the next turn |
+| Erasure | no index, edge or summary contains content from an erased memory |
+
+The recall bound is `Rec >= 1 - e_scope - e_select - e_route * ceil(log_b n)`, measured over a query distribution and a gold set that fits the budget. Its error terms are measured on a recall-versus-history scaling benchmark and published with each release. Each release is gated on recall versus history size, answer accuracy (LongMemEval, LoCoMo), the answerable horizon, p95 retrieval latency (under 300 ms at 10^6 memories) and erasure (zero hits). Defaults are listed in the theorem's parameter table, for example tree branching 8, beam width 4, rank-fusion constant 60, threshold 0.35, and 50 fused candidates plus reserved tree slots.
 
 ## Models
 
@@ -670,6 +749,15 @@ You own your memories. All endpoints require authentication and live under `/api
 ### Erasure guarantee
 
 Forgetting is a propagating erase. In one step Knox-MS removes the memory text, its search-index entries, summary-tree nodes that contained it, graph edges that rest only on it, cached prompt material and cold-storage objects. A **tombstone** (id, scope, reason, time; no content) remains so an erased memory is not resurrected by a stale replica or an import, and so you can verify the erase. After a successful erase, no retrieval channel returns the erased content, for any `as_of`.
+
+The erase runs in four steps, and is acknowledged only after the last one, so no summary can leak forgotten content:
+
+1. Remove the row and write the tombstone.
+2. Remove its postings from the BM25 and n-gram indexes and its text from the ripgrep corpus.
+3. Remove graph edges whose only evidence was the memory, and entities left with no evidence.
+4. Regenerate every ancestor summary node from its remaining children, bottom-up.
+
+Retrieved memories are injected verbatim as a quoted block of `[mem:<id>]` items in a user-role message (never the system prompt). Citations of `[mem:<id>]` in the reply feed outcome attribution.
 
 ```bash
 curl -X POST https://api.knox.chat/api/knox-ms/memory/forget \
