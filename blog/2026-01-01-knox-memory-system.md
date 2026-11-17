@@ -8,6 +8,10 @@ tags: [knoxchat, api, ai, context, rag, update]
 
 # Knox Memory System (knox-ms) Model
 
+:::note
+This post describes the first Knox-MS release. Claims of "truly unlimited context", Voyage embeddings, `/v1/rerank`, and vector search no longer describe the system. Knox-MS 2.0 follows **bounded context, unbounded memory, measured recall**. For current behavior see the [Knox-MS 2.0 developer documentation](/knox-ms-complete-doc) and the [KMS Unlimited Context Theorem](/knox-ms-unlimited-formula).
+:::
+
 ## Overview
 
 **Knox Memory System (knox-ms)** is a revolutionary custom SI model that provides **truly unlimited context window length** through an intelligent memory management system that operates like a human brain. Unlike traditional LLMs constrained by fixed context windows (even with context caching), knox-ms breaks through these limitations by orchestrating multiple underlying models through a sophisticated Plan-Task-Memory architecture.

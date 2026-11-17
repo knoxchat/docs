@@ -8,6 +8,10 @@ tags: [knoxchat, ai, vscode]
 
 # The Agent. The Memory. The Solution.
 
+:::note
+This post describes an earlier Memory Brain and Knox-MS design. Human timings, `C_effective`, a 5,000-entity cap, Ebbinghaus decay, and treating unlimited context as disk size no longer describe the current systems. Hosted Knox-MS is now 2.0: **bounded context, unbounded memory, measured recall**. For current KnoxCoder Memory Brain see [Memory Brain](/knoxcoder/memory/brain). For hosted Knox-MS see the [2.0 developer documentation](/knox-ms-complete-doc).
+:::
+
 **Knox** is an SI coding environment for VS Code — not a chat overlay. An autonomous agent, a local memory brain, and git-independent checkpoints share one session, so the model can plan, act, remember, and rewind as a single system.
 
 Bring your own models. Anthropic Claude, OpenAI GPT, DeepSeek, Gemini, Qwen, Grok, GLM, Codestral, Sonar Pro, and Knox's On-Demand model `knox/knox-ms` are supported out of the box.

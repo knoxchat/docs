@@ -79,9 +79,9 @@ Recipe 开关 **不在** 对话齿轮（Agent Settings）上。请用 Memory →
 
 ## Memory Brain 与 Knox-MS
 
-两者都遵循**有界上下文，无界记忆**：单次提示注入的内容有上限，存储的内容没有上限（下文的磁盘上限除外），检索是词法加图谱，绝不使用 embeddings。
+两者都遵循**有界上下文，无界记忆**：单次提示注入的内容有上限，存储的内容没有上限（下文的磁盘上限除外），检索是词法加图谱，绝不使用 embeddings。托管的 Knox-MS 2.0 还会随历史增长度量召回。见 [Knox-MS 2.0 开发者文档](/knox-ms-complete-doc)。
 
-| | Memory Brain（本页） | Knox-MS（托管的 `knox/knox-ms`） |
+| | Memory Brain（本页） | Knox-MS 2.0（托管的 `knox/knox-ms`） |
 |---|---|---|
 | 位置 | 本机 sqlite | 您的 Knox 账户 |
 | 检索 | FTS / BM25、trigram、同义词、图谱遍历 | BM25、ripgrep、图谱（个性化 PageRank）、摘要树，按排名融合 |

@@ -28,7 +28,7 @@ Using the **KnoxCoder** desktop editor? Start at the <Link to="/knoxcoder">KnoxC
 
 ### Knox‑MS Memory System
 
-Knox‑MS follows one rule: **bounded context, unbounded memory**. Every call fits the model's window, while long‑term memory is not capped and is searched on demand with BM25, ripgrep, a knowledge graph (personalized PageRank) and a summary tree. Only the memories most likely to help are injected, within a token budget. You can inspect why each one was chosen, and forget any of them. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/knox-ms-complete-doc">Knox‑MS developer documentation</Link>.
+Knox‑MS 2.0 follows one rule: **bounded context, unbounded memory, measured recall**. Every call fits the model's window, while long‑term memory is not capped and is searched on demand with BM25, ripgrep, a knowledge graph (personalized PageRank) and a summary tree. Only the memories most likely to help are injected, within a token budget. You can inspect why each one was chosen, and forget any of them. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/knox-ms-complete-doc">Knox‑MS 2.0 developer documentation</Link>.
 
 ## Using the OpenAI SDK
 
@@ -305,7 +305,7 @@ Different models use different tokenization methods (as indicated by the `tokeni
     <AccordionItem value="item-3">
       <AccordionTrigger>What is Knox‑MS and when should I use it?</AccordionTrigger>
         <AccordionContent>
-          Knox‑MS is a memory‑centric system with bounded context and unbounded memory: a growing long‑term store, searched with BM25, ripgrep, a knowledge graph and a summary tree, from which only the most useful memories are injected into each call within a token budget. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS documentation](/knox-ms-complete-doc).
+          Knox‑MS 2.0 is a memory‑centric system with bounded context, unbounded memory, and measured recall: a growing long‑term store, searched with BM25, ripgrep, a knowledge graph and a summary tree, from which only the most useful memories are injected into each call within a token budget. It powers autonomous planning, task orchestration, and self‑healing for long‑running agents or workflows. Use it when you need persistence beyond a single chat or when you want agents to improve over time. Learn more in the [Knox‑MS 2.0 documentation](/knox-ms-complete-doc).
         </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-3b">

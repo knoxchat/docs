@@ -33,7 +33,7 @@ import Link from '@docusaurus/Link';
 
 ## KnoxCoder vs Knox.Chat API
 
-登录后 KnoxCoder 可以把 KnoxStudio / Knox.Chat 当作 **模型供应商** 来 **调用**。这不会让编辑器变成 API。多模态生成、Knox-MS **云** 记忆和 OpenAPI 在 **Docs** 下 — 另一个产品，而且 Knox-MS 可能谈论向量。KnoxCoder 的 Memory Brain 从不这样做。
+登录后 KnoxCoder 可以把 KnoxStudio / Knox.Chat 当作 **模型供应商** 来 **调用**。这不会让编辑器变成 API。多模态生成、Knox-MS 2.0 **云** 记忆和 OpenAPI 在 **Docs** 下：另一个产品。Knox-MS 的检索是词法的（BM25、ripgrep、图谱、摘要树），不是 embeddings。KnoxCoder 的 Memory Brain 是本机 sqlite，同样从不使用 embeddings。
 
 ## 给扩展作者
 

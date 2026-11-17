@@ -8,6 +8,10 @@ tags: [knoxchat, ai, vscode]
 
 # 智能体。记忆。解决方案。
 
+:::note
+本文描述的是较早的 Memory Brain 与 Knox-MS 设计。其中人脑时间尺度、`C_effective`、5,000 实体上限、Ebbinghaus 衰减，以及把无限上下文当作磁盘容量，已不再描述当前系统。托管的 Knox-MS 现为 2.0：**有界上下文，无界记忆，可度量召回**。当前 KnoxCoder Memory Brain 见 [Memory Brain](/knoxcoder/memory/brain)。托管 Knox-MS 见 [2.0 开发者文档](/knox-ms-complete-doc)。
+:::
+
 **Knox** 是面向 VS Code 的 SI 编程环境——不是聊天浮层。自主 Agent、本地 Memory Brain，以及不依赖 Git 的检查点共享同一会话，模型可以作为一个系统来规划、执行、记忆和回退。
 
 自带模型。开箱即用支持 Anthropic Claude、OpenAI GPT、DeepSeek、Gemini、Qwen、Grok、GLM、Codestral、Sonar Pro，以及 Knox 的按需模型 `knox/knox-ms`。

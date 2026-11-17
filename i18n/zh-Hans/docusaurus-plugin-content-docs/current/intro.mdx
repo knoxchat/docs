@@ -28,7 +28,7 @@ import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 ### Knox‑MS 记忆系统
 
-Knox‑MS 遵循一条原则：**有界上下文，无界记忆**。每次调用都适配模型的窗口，而长期记忆没有上限，通过 BM25、ripgrep、知识图谱（个性化 PageRank）和摘要树按需检索。只有最可能有帮助的记忆会在令牌预算内被注入。您可以查看每条记忆为何被选中，也可以遗忘其中任何一条。它还支持自主规划、任务编排、自我修复和实时进度事件。了解更多请参阅 <Link to="/knox-ms-complete-doc">Knox‑MS 开发者文档</Link>。
+Knox‑MS 2.0 遵循一条原则：**有界上下文，无界记忆，可度量召回**。每次调用都适配模型的窗口，而长期记忆没有上限，通过 BM25、ripgrep、知识图谱（个性化 PageRank）和摘要树按需检索。只有最可能有帮助的记忆会在令牌预算内被注入。您可以查看每条记忆为何被选中，也可以遗忘其中任何一条。它还支持自主规划、任务编排、自我修复和实时进度事件。了解更多请参阅 <Link to="/knox-ms-complete-doc">Knox‑MS 2.0 开发者文档</Link>。
 
 ## 使用 OpenAI SDK
 
@@ -305,7 +305,7 @@ Models API 返回标准化的 JSON 响应格式，为每个可用模型提供全
     <AccordionItem value="item-3">
       <AccordionTrigger>什么是 Knox‑MS，何时使用？</AccordionTrigger>
         <AccordionContent>
-          Knox‑MS 是一个以记忆为中心的系统，遵循有界上下文、无界记忆：长期存储不断增长，通过 BM25、ripgrep、知识图谱和摘要树检索，只有最有用的记忆会在令牌预算内注入每次调用。它为长时间运行的 Agent 或工作流提供自主规划、任务编排和自我修复能力。当您需要超越单次聊天的持久性，或希望 Agent 随时间改进时使用。详见 [Knox‑MS 文档](/knox-ms-complete-doc)。
+          Knox‑MS 2.0 是一个以记忆为中心的系统，遵循有界上下文、无界记忆、可度量召回：长期存储不断增长，通过 BM25、ripgrep、知识图谱和摘要树检索，只有最有用的记忆会在令牌预算内注入每次调用。它为长时间运行的 Agent 或工作流提供自主规划、任务编排和自我修复能力。当您需要超越单次聊天的持久性，或希望 Agent 随时间改进时使用。详见 [Knox‑MS 2.0 文档](/knox-ms-complete-doc)。
         </AccordionContent>
     </AccordionItem>
     <AccordionItem value="item-3b">
