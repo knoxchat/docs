@@ -5,6 +5,7 @@ sidebar_label: 视频生成
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # 视频生成
 
@@ -17,12 +18,9 @@ Knox 提供独立的**异步**视频生成 API。与对话补全不同，视频�
 3. 轮询状态 — [`GET /v1/videos/{jobId}`](/1.0.0/get-video)
 4. 下载文件 — [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content)
 
-所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key：
+所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
 
-```
-https://api.knox.chat/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 ## 模型发现
 

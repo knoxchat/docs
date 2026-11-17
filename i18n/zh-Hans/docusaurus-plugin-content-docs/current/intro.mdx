@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import Link from '@docusaurus/Link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@site/src/components/ui/accordion';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # 快速入门
 
@@ -30,6 +31,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@s
 Knox‑MS 遵循一条原则：**有界上下文，无界记忆**。每次调用都适配模型的窗口，而长期记忆没有上限，通过 BM25、ripgrep、知识图谱（个性化 PageRank）和摘要树按需检索。只有最可能有帮助的记忆会在令牌预算内被注入。您可以查看每条记忆为何被选中，也可以遗忘其中任何一条。它还支持自主规划、任务编排、自我修复和实时进度事件。了解更多请参阅 <Link to="/knox-ms-complete-doc">Knox‑MS 开发者文档</Link>。
 
 ## 使用 OpenAI SDK
+
+使用以下任一基础 URL。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
+
+<ApiBaseUrlTabs />
 
 <Tabs>
 <TabItem value="ts" label="TypeScript">

@@ -12,6 +12,7 @@ import Heading from "@theme/Heading";
 import SchemaTabs from "@theme/SchemaTabs";
 import TabItem from "@theme/TabItem";
 import Export from "@theme/ApiExplorer/Export";
+import ApiBaseUrlTabs from "@site/src/components/ApiBaseUrlTabs";
 
 # API Reference
 
@@ -19,11 +20,9 @@ Knox's request and response pattern is very similar to the OpenAI Chat API, with
 
 ## Base URL
 
-All API requests should be sent to the following base URL:
+All API requests should be sent to one of the following base URLs. **KnoxChat** and **KnoxStudio** are the same API:
 
-```
-https://api.knox.chat/v1
-```
+<ApiBaseUrlTabs />
 
 ## Authentication
 
@@ -94,7 +93,7 @@ Video generation is asynchronous: submit a job, poll until it completes, then do
 
 ### Music
 
-Compose original songs from a prompt or composition plan. These routes are documented for [KnoxStudio](https://knoxstudio.ai) at `https://api.knoxstudio.ai/v1` (same backend as `https://api.knox.chat/v1`). See the [**Music**](/music) guide.
+Compose original songs from a prompt or composition plan. These routes are available on both [Base URL](#base-url) hosts. See the [**Music**](/music) guide.
 
 - [**List Music Models**](/1.0.0/list-music-models) - Catalog (`GET /v1/music/models`)
 - [**Compose Music**](/1.0.0/compose-music) - Generate a song (`POST /v1/music`)
@@ -109,7 +108,7 @@ Compose original songs from a prompt or composition plan. These routes are docum
 
 ### Text to Speech
 
-Convert text to audio with ElevenLabs voices. Base URL: `https://api.knoxstudio.ai/v1`. Authenticate with `Authorization: Bearer sk-...` or `xi-api-key`. See the [**Text to Speech**](/text-to-speech) guide.
+Convert text to audio with ElevenLabs voices. Authenticate with `Authorization: Bearer sk-...` or `xi-api-key`. See the [**Text to Speech**](/text-to-speech) guide.
 
 - [**List Text-to-Speech Models**](/1.0.0/list-tts-models) - Catalog (`GET /v1/text-to-speech/models`)
 - [**Create Speech**](/1.0.0/convert-speech) - Full audio file (`POST /v1/text-to-speech/{voice_id}`)
@@ -121,7 +120,7 @@ Convert text to audio with ElevenLabs voices. Base URL: `https://api.knoxstudio.
 
 ### Speech to Text
 
-Transcribe audio or video with Scribe. Base URL: `https://api.knoxstudio.ai/v1`. See the [**Speech to Text**](/speech-to-text) guide.
+Transcribe audio or video with Scribe. See the [**Speech to Text**](/speech-to-text) guide.
 
 - [**List Speech-to-Text Models**](/1.0.0/list-stt-models) - Catalog (`GET /v1/speech-to-text/models`)
 - [**Create Transcript**](/1.0.0/convert-speech-to-text) - File or URL transcription (`POST /v1/speech-to-text`)
@@ -131,7 +130,7 @@ Transcribe audio or video with Scribe. Base URL: `https://api.knoxstudio.ai/v1`.
 
 ### Voices
 
-Search, clone, and manage ElevenLabs voices. Base URL: `https://api.knoxstudio.ai/v1` (`GET /v2/voices` for search). **Not billed** as audio minutes. See the [**Voices**](/voices) guide.
+Search, clone, and manage ElevenLabs voices (`GET /v2/voices` for search). **Not billed** as audio minutes. See the [**Voices**](/voices) guide.
 
 - [**List Voices**](/1.0.0/list-voices) - Workspace voices (`GET /v1/voices`)
 - [**Search Voices**](/1.0.0/search-voices) - Filtered search (`GET /v2/voices`)
@@ -143,7 +142,7 @@ Search, clone, and manage ElevenLabs voices. Base URL: `https://api.knoxstudio.a
 
 ### Voice Changer
 
-Restyle source audio with a target `voice_id`. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.17`/minute**. See the [**Voice Changer**](/voice-changer) guide.
+Restyle source audio with a target `voice_id`. Billed at **`$0.17`/minute**. See the [**Voice Changer**](/voice-changer) guide.
 
 - [**List Voice Changer Models**](/1.0.0/list-sts-models) - Catalog (`GET /v1/speech-to-speech/models`)
 - [**Convert Speech to Speech**](/1.0.0/convert-speech-to-speech) - Full audio file (`POST /v1/speech-to-speech/{voice_id}`)
@@ -151,7 +150,7 @@ Restyle source audio with a target `voice_id`. Base URL: `https://api.knoxstudio
 
 ### Voice Isolator
 
-Isolate speech from mixed audio or video. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.17`/minute**. See the [**Voice Isolator**](/voice-isolator) guide.
+Isolate speech from mixed audio or video. Billed at **`$0.17`/minute**. See the [**Voice Isolator**](/voice-isolator) guide.
 
 - [**List Voice Isolator Models**](/1.0.0/list-isolation-models) - Catalog (`GET /v1/audio-isolation/models`)
 - [**Isolate Audio**](/1.0.0/isolate-audio) - Full audio file (`POST /v1/audio-isolation`)
@@ -160,14 +159,14 @@ Isolate speech from mixed audio or video. Base URL: `https://api.knoxstudio.ai/v
 
 ### Sound Effects
 
-Generate short royalty-free clips from text. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.17`/minute**. See the [**Sound Effects**](/sound-effects) guide.
+Generate short royalty-free clips from text. Billed at **`$0.17`/minute**. See the [**Sound Effects**](/sound-effects) guide.
 
 - [**List Sound Effects Models**](/1.0.0/list-sfx-models) - Catalog (`GET /v1/sound-generation/models`)
 - [**Create Sound Effect**](/1.0.0/convert-sound-effect) - Generate audio (`POST /v1/sound-generation`)
 
 ### Dubbing
 
-Dub source audio or video into another language. Base URL: `https://api.knoxstudio.ai/v1`. First language is billed on project create (`$2.25`/min `dubbing_v2`, `$0.38`/min `dubbing_v1`). See the [**Dubbing**](/dubbing) guide.
+Dub source audio or video into another language. First language is billed on project create (`$2.25`/min `dubbing_v2`, `$0.38`/min `dubbing_v1`). See the [**Dubbing**](/dubbing) guide.
 
 - [**List Dubbing Models**](/1.0.0/list-dubbing-models) - Catalog (`GET /v1/dubbing/models`)
 - [**Create / List / Get / Delete Project**](/1.0.0/create-dubbing-project) - Projects (`/v1/dubbing/project`)
@@ -177,7 +176,7 @@ Dub source audio or video into another language. Base URL: `https://api.knoxstud
 
 ### Forced Alignment
 
-Align spoken audio to a transcript. Base URL: `https://api.knoxstudio.ai/v1`. Billed at **`$0.27`/hour**. See the [**Forced Alignment**](/forced-alignment) guide.
+Align spoken audio to a transcript. Billed at **`$0.27`/hour**. See the [**Forced Alignment**](/forced-alignment) guide.
 
 - [**List Forced Alignment Models**](/1.0.0/list-alignment-models) - Catalog (`GET /v1/forced-alignment/models`)
 - [**Create Forced Alignment**](/1.0.0/create-forced-alignment) - Character- and word-level timestamps (`POST /v1/forced-alignment`)

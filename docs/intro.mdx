@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import Link from '@docusaurus/Link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@site/src/components/ui/accordion';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Quickstart
 
@@ -30,6 +31,10 @@ Using the **KnoxCoder** desktop editor? Start at the <Link to="/knoxcoder">KnoxC
 Knox‑MS follows one rule: **bounded context, unbounded memory**. Every call fits the model's window, while long‑term memory is not capped and is searched on demand with BM25, ripgrep, a knowledge graph (personalized PageRank) and a summary tree. Only the memories most likely to help are injected, within a token budget. You can inspect why each one was chosen, and forget any of them. It also supports autonomous planning, task orchestration, self‑healing, and realtime progress events. Learn more in the <Link to="/knox-ms-complete-doc">Knox‑MS developer documentation</Link>.
 
 ## Using the OpenAI SDK
+
+Use either base URL. **KnoxChat** and **KnoxStudio** are the same API:
+
+<ApiBaseUrlTabs />
 
 <Tabs>
 <TabItem value="ts" label="TypeScript">

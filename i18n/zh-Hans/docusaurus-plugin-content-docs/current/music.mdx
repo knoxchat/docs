@@ -5,10 +5,11 @@ sidebar_label: 音乐生成
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # 音乐生成
 
-Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**音乐**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**音乐**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。
 
 典型流程：
 
@@ -17,10 +18,7 @@ Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.a
 3. 作曲 — [`POST /v1/music`](/1.0.0/compose-music)
 4. 或流式生成 — [`POST /v1/music/stream`](/1.0.0/stream-music)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 把官方 ElevenLabs SDK 的 Base URL 指向 Knox，并用 Knox key 作为 `xi-api-key` 即可调用。
 

@@ -4,10 +4,11 @@ sidebar_position: 16
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Dubbing
 
-Knox exposes ElevenLabs-compatible **dubbing** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills billed operations and relays the request upstream. The same routes are also served by `https://api.knox.chat/v1`.
+Knox exposes ElevenLabs-compatible **dubbing** endpoints for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills billed operations and relays the request upstream.
 
 Dubbing takes **source audio or video** and produces a dubbed version in another language. It is not [Voice Changer](/voice-changer) (same-language restyle) and not [Text to Speech](/text-to-speech).
 
@@ -18,10 +19,7 @@ Typical flow:
 3. Poll — [`GET /v1/dubbing/project/{project_id}`](/1.0.0/get-dubbing-project)
 4. Fetch a language target — [`GET /v1/dubbing/project/{project_id}/language/{language_id}`](/1.0.0/get-dubbing-language)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
 

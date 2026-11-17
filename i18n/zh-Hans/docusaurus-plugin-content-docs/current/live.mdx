@@ -5,6 +5,7 @@ sidebar_label: GPT-Live 全双工语音
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # GPT-Live
 
@@ -12,12 +13,9 @@ Knox 为 [`gpt-live-1`](https://developers.openai.com/api/docs/models/gpt-live-1
 
 这是**全双工**语音端点：模型可以一边听一边说。对话由 GPT-Live 负责；推理、工具调用和联网搜索会**委派**给后端（Responses、Decisions 或你自己的 Agent）。它**不是** [`/v1/chat/completions`](/1.0.0/chat-completion)，也**不是** [`/v1/realtime`](/realtime)。若需要会话内工具、按轮次的语音到语音（`gpt-realtime-2.1`），请参阅 [实时语音](/realtime)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
 
-所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key：
+所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
 
-```
-https://api.knox.chat/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 相同路由也挂载在 `/api/v1` 下。把模型写在 session 对象里（`session.start` 或 `POST` 请求体）。**不要**把 `?model=` 当作查询参数。
 

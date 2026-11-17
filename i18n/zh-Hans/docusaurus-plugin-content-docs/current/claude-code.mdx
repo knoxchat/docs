@@ -6,6 +6,9 @@ description: 了解如何将 Claude Code 与 Knox API 集成，获得增强的 S
 keywords: [claude code, knox api, ai integration, anthroptic messages, ai model routing]
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Claude Code 与 Knox 集成
 
 本指南介绍如何将 Claude Code 与 Knox API 配合使用。
@@ -21,7 +24,10 @@ keywords: [claude code, knox api, ai integration, anthroptic messages, ai model 
 
 ### 第二步：配置 Claude Code
 
-将以下环境变量添加到你的 shell 配置文件（`~/.bashrc`、`~/.zshrc` 或 `~/.config/fish/config.fish`）：
+将以下环境变量添加到你的 shell 配置文件（`~/.bashrc`、`~/.zshrc` 或 `~/.config/fish/config.fish`）。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
+
+<Tabs groupId="knox-api-host">
+<TabItem value="knoxchat" label="KnoxChat">
 
 ```bash
 # Production (api.knox.chat)
@@ -29,6 +35,19 @@ export ANTHROPIC_BASE_URL="https://api.knox.chat"
 export ANTHROPIC_AUTH_TOKEN="sk-your-knox-api-key"
 export ANTHROPIC_API_KEY=""  # Important: Must be explicitly empty
 ```
+
+</TabItem>
+<TabItem value="knoxstudio" label="KnoxStudio">
+
+```bash
+# Production (api.knoxstudio.ai)
+export ANTHROPIC_BASE_URL="https://api.knoxstudio.ai"
+export ANTHROPIC_AUTH_TOKEN="sk-your-knox-api-key"
+export ANTHROPIC_API_KEY=""  # Important: Must be explicitly empty
+```
+
+</TabItem>
+</Tabs>
 
 > **重要提示**：不要将这些变量放在项目级别的 `.env` 文件中。原生 Claude Code 安装程序不会读取标准的 `.env` 文件。
 
@@ -73,7 +92,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL="anthropic/claude-haiku-4.5"
 
 Knox 提供了兼容 Anthropic 的 API 层：
 
-1. **直接连接**：当你将 `ANTHROPIC_BASE_URL` 设置为 `https://api.knox.chat` 时，Claude Code 会使用其原生 Anthropic 协议向 `/v1/messages` 端点发送请求。
+1. **直接连接**：当你将 `ANTHROPIC_BASE_URL` 设置为 `https://api.knox.chat` 或 `https://api.knoxstudio.ai` 时，Claude Code 会使用其原生 Anthropic 协议向 `/v1/messages` 端点发送请求。
 
 2. **格式转换**：Knox 在内部自动完成 Anthropic Messages API 格式与 OpenAI Chat Completions 格式之间的转换。
 

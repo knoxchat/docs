@@ -5,6 +5,9 @@ description: Learn how to integrate Claude Code with Knox API for enhanced SI ca
 keywords: [claude code, knox api, ai integration, anthroptic messages, ai model routing]
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Claude Code Integration with Knox
 
 This guide explains how to use Claude Code with Knox API.
@@ -20,7 +23,10 @@ This guide explains how to use Claude Code with Knox API.
 
 ### Step 2: Configure Claude Code
 
-Add these environment variables to your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish`):
+Add these environment variables to your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish`). **KnoxChat** and **KnoxStudio** are the same API:
+
+<Tabs groupId="knox-api-host">
+<TabItem value="knoxchat" label="KnoxChat">
 
 ```bash
 # Production (api.knox.chat)
@@ -28,6 +34,19 @@ export ANTHROPIC_BASE_URL="https://api.knox.chat"
 export ANTHROPIC_AUTH_TOKEN="sk-your-knox-api-key"
 export ANTHROPIC_API_KEY=""  # Important: Must be explicitly empty
 ```
+
+</TabItem>
+<TabItem value="knoxstudio" label="KnoxStudio">
+
+```bash
+# Production (api.knoxstudio.ai)
+export ANTHROPIC_BASE_URL="https://api.knoxstudio.ai"
+export ANTHROPIC_AUTH_TOKEN="sk-your-knox-api-key"
+export ANTHROPIC_API_KEY=""  # Important: Must be explicitly empty
+```
+
+</TabItem>
+</Tabs>
 
 > **Important**: Do not put these in a project-level `.env` file. The native Claude Code installer does not read standard `.env` files.
 
@@ -72,7 +91,7 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL="anthropic/claude-haiku-4.5"
 
 Knox provides an Anthropic-compatible API layer:
 
-1. **Direct Connection**: When you set `ANTHROPIC_BASE_URL` to `https://api.knox.chat`, Claude Code sends requests to the `/v1/messages` endpoint using its native Anthropic protocol.
+1. **Direct Connection**: When you set `ANTHROPIC_BASE_URL` to `https://api.knox.chat` or `https://api.knoxstudio.ai`, Claude Code sends requests to the `/v1/messages` endpoint using its native Anthropic protocol.
 
 2. **Format Conversion**: Knox automatically converts between Anthropic Messages API format and OpenAI Chat Completions format internally.
 

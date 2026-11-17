@@ -8,7 +8,7 @@ keywords: [knox, knox api, ai integration, knox-ms, memory system, developer gui
 
 # Knox-MS 1.0 开发者文档
 
-> **Base URL:** `https://api.knox.chat`  
+> **Base URL:** `https://api.knox.chat`（KnoxChat）或 `https://api.knoxstudio.ai`（KnoxStudio）。两个主机是同一套 API。  
 > **API 版本:** v1
 
 Knox-MS 是一个 SI 编排引擎，采用受人脑启发的记忆架构，具备自主执行与可度量的召回。其理念是**有界上下文，无界记忆**：每次调用都适配路由模型的窗口，而记忆库本身没有上限，按需检索。

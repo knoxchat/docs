@@ -4,10 +4,11 @@ sidebar_position: 15
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Speech to Text
 
-Knox exposes ElevenLabs-compatible **speech-to-text** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). The same routes are also served by `https://api.knox.chat/v1`.
+Knox exposes ElevenLabs-compatible **speech-to-text** endpoints for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`).
 
 This is not sending `input_audio` to [chat completions](/audio), and it is not [Realtime](/realtime) speech-to-speech. STT turns **audio or video into text**.
 
@@ -17,10 +18,7 @@ Typical flow:
 2. Transcribe — [`POST /v1/speech-to-text`](/1.0.0/convert-speech-to-text)
 3. Optionally fetch or delete — [`GET`](/1.0.0/get-transcript) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](/1.0.0/delete-transcript)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 ## Models and billing
 

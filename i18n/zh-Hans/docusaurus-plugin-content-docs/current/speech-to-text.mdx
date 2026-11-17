@@ -5,10 +5,11 @@ sidebar_label: 语音转文本
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # 语音转文本
 
-Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语音转文本**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。`https://api.knox.chat/v1` 提供相同路由。
+Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语音转文本**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。
 
 这不是把 `input_audio` 发给 [对话补全](/audio)，也不是 [实时语音](/realtime) 的语音到语音。STT 是把**音频或视频变成文本**。
 
@@ -18,10 +19,7 @@ Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.a
 2. 转写 — [`POST /v1/speech-to-text`](/1.0.0/convert-speech-to-text)
 3. 可选：读取或删除 — [`GET`](/1.0.0/get-transcript) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](/1.0.0/delete-transcript)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 ## 模型与计费
 

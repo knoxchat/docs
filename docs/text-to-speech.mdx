@@ -4,10 +4,11 @@ sidebar_position: 14
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Text to Speech
 
-Knox exposes ElevenLabs-compatible **text-to-speech** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). The same routes are also served by `https://api.knox.chat/v1`.
+Knox exposes ElevenLabs-compatible **text-to-speech** endpoints for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`).
 
 This is not [Realtime](/realtime) speech-to-speech, and it is not sending audio into [`/v1/chat/completions`](/audio). TTS turns **text into audio**.
 
@@ -17,10 +18,7 @@ Typical flow:
 2. Pick a `voice_id` from [Voices](/voices) (`GET /v1/voices` or `GET /v2/voices`)
 3. Convert — [`POST /v1/text-to-speech/{voice_id}`](/1.0.0/convert-speech)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 A commonly used public voice is `21m00Tcm4TlvDq8ikWAM` (Rachel).
 

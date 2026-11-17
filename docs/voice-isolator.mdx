@@ -4,10 +4,11 @@ sidebar_position: 16
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Voice Isolator
 
-Knox exposes ElevenLabs-compatible **Voice Isolator** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+Knox exposes ElevenLabs-compatible **Voice Isolator** endpoints for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream.
 
 This is not [Speech to Text](/speech-to-text) and not [Voice Changer](/voice-changer). Isolator turns mixed **audio or video into isolated speech**.
 
@@ -17,10 +18,7 @@ Typical flow:
 2. Isolate — [`POST /v1/audio-isolation`](/1.0.0/isolate-audio)
 3. Or stream — [`POST /v1/audio-isolation/stream`](/1.0.0/stream-isolate-audio)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
 

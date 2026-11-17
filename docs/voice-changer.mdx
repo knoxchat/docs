@@ -4,10 +4,11 @@ sidebar_position: 16
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Voice Changer
 
-Knox exposes ElevenLabs-compatible **Voice Changer** (speech-to-speech) endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+Knox exposes ElevenLabs-compatible **Voice Changer** (speech-to-speech) endpoints for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream.
 
 This is not [Text to Speech](/text-to-speech), not [Realtime](/realtime) speech-to-speech with `gpt-realtime-2.1`, and not [Voice Isolator](/voice-isolator). Voice Changer takes **source audio** and restyles it with a target `voice_id` while keeping emotion, timing, and delivery.
 
@@ -17,10 +18,7 @@ Typical flow:
 2. Pick a `voice_id` from [Voices](/voices) (`GET /v1/voices` or `GET /v2/voices`)
 3. Convert — [`POST /v1/speech-to-speech/{voice_id}`](/1.0.0/convert-speech-to-speech)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 A commonly used public voice is `21m00Tcm4TlvDq8ikWAM` (Rachel).
 

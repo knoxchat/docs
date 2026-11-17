@@ -4,6 +4,7 @@ sidebar_position: 16
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # GPT-Live
 
@@ -11,12 +12,9 @@ Knox proxies OpenAI’s [GPT-Live API](https://developers.openai.com/api/docs/gu
 
 This is a **full-duplex** voice endpoint: the model can listen and speak at the same time. Conversation stays on GPT-Live. Reasoning, tool use, and web search are **delegated** to a backend (Responses, Decisions, or your own agent). It is **not** [`/v1/chat/completions`](/1.0.0/chat-completion) and **not** [`/v1/realtime`](/realtime). For turn-based speech-to-speech with in-session tools (`gpt-realtime-2.1`), see [Realtime](/realtime). For one-shot audio files in chat, see [Audio Inputs](/audio).
 
-All authenticated requests use the same base URL and API key as the rest of Knox:
+All authenticated requests use the same base URL and API key as the rest of Knox. **KnoxChat** and **KnoxStudio** are the same API:
 
-```
-https://api.knox.chat/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 The same routes are also mounted under `/api/v1`. Put the model in the session object (`session.start` or `POST` body). Do **not** pass `?model=` as a query parameter.
 

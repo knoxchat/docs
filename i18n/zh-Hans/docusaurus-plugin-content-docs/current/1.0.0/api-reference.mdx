@@ -12,6 +12,7 @@ import Heading from "@theme/Heading";
 import SchemaTabs from "@theme/SchemaTabs";
 import TabItem from "@theme/TabItem";
 import Export from "@theme/ApiExplorer/Export";
+import ApiBaseUrlTabs from "@site/src/components/ApiBaseUrlTabs";
 
 # API 参考
 
@@ -19,11 +20,9 @@ Knox 的请求和响应模式与 OpenAI Chat API 非常相似，仅有少量差�
 
 ## 基础 URL
 
-所有 API 请求应发送到以下基础 URL：
+所有 API 请求应发送到以下基础 URL 之一。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
 
-```
-https://api.knox.chat/v1
-```
+<ApiBaseUrlTabs />
 
 ## 身份验证
 
@@ -94,7 +93,7 @@ Knox API 包含以下主要端点：
 
 ### 音乐生成
 
-根据提示词或作曲计划生成原创歌曲。这些路由面向 [KnoxStudio](https://knoxstudio.ai)，Base URL 为 `https://api.knoxstudio.ai/v1`（与 `https://api.knox.chat/v1` 共用同一后端）。完整流程请参阅 [**音乐生成**](/music) 指南。
+根据提示词或作曲计划生成原创歌曲。这些路由在两个基础 URL 上均可使用。完整流程请参阅 [**音乐生成**](/music) 指南。
 
 - [**列出音乐模型**](/1.0.0/list-music-models) - 目录（`GET /v1/music/models`）
 - [**作曲**](/1.0.0/compose-music) - 生成歌曲（`POST /v1/music`）
@@ -109,7 +108,7 @@ Knox API 包含以下主要端点：
 
 ### 文本转语音
 
-使用 ElevenLabs 音色将文本转为音频。Base URL：`https://api.knoxstudio.ai/v1`。认证使用 `Authorization: Bearer sk-...` 或 `xi-api-key`。完整流程请参阅 [**文本转语音**](/text-to-speech) 指南。
+使用 ElevenLabs 音色将文本转为音频。认证使用 `Authorization: Bearer sk-...` 或 `xi-api-key`。完整流程请参阅 [**文本转语音**](/text-to-speech) 指南。
 
 - [**列出文本转语音模型**](/1.0.0/list-tts-models) - 目录（`GET /v1/text-to-speech/models`）
 - [**生成语音**](/1.0.0/convert-speech) - 完整音频文件（`POST /v1/text-to-speech/{voice_id}`）
@@ -121,7 +120,7 @@ Knox API 包含以下主要端点：
 
 ### 语音转文本
 
-使用 Scribe 转写音频或视频。Base URL：`https://api.knoxstudio.ai/v1`。完整流程请参阅 [**语音转文本**](/speech-to-text) 指南。
+使用 Scribe 转写音频或视频。完整流程请参阅 [**语音转文本**](/speech-to-text) 指南。
 
 - [**列出语音转文本模型**](/1.0.0/list-stt-models) - 目录（`GET /v1/speech-to-text/models`）
 - [**创建转写**](/1.0.0/convert-speech-to-text) - 文件或 URL 转写（`POST /v1/speech-to-text`）
@@ -131,7 +130,7 @@ Knox API 包含以下主要端点：
 
 ### 音色
 
-搜索、克隆和管理 ElevenLabs 音色。Base URL：`https://api.knoxstudio.ai/v1`（搜索用 `GET /v2/voices`）。**不按音频分钟计费**。完整流程请参阅 [**音色**](/voices) 指南。
+搜索、克隆和管理 ElevenLabs 音色（搜索用 `GET /v2/voices`）。**不按音频分钟计费**。完整流程请参阅 [**音色**](/voices) 指南。
 
 - [**列出音色**](/1.0.0/list-voices) - 工作区音色（`GET /v1/voices`）
 - [**搜索音色**](/1.0.0/search-voices) - 带筛选搜索（`GET /v2/voices`）
@@ -143,7 +142,7 @@ Knox API 包含以下主要端点：
 
 ### 语音转换
 
-用目标 `voice_id` 改写源音频。Base URL：`https://api.knoxstudio.ai/v1`。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**语音转换**](/voice-changer) 指南。
+用目标 `voice_id` 改写源音频。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**语音转换**](/voice-changer) 指南。
 
 - [**列出语音转换模型**](/1.0.0/list-sts-models) - 目录（`GET /v1/speech-to-speech/models`）
 - [**转换语音**](/1.0.0/convert-speech-to-speech) - 完整音频文件（`POST /v1/speech-to-speech/{voice_id}`）
@@ -151,7 +150,7 @@ Knox API 包含以下主要端点：
 
 ### 人声分离
 
-从混合音频或视频中分离人声。Base URL：`https://api.knoxstudio.ai/v1`。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**人声分离**](/voice-isolator) 指南。
+从混合音频或视频中分离人声。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**人声分离**](/voice-isolator) 指南。
 
 - [**列出人声分离模型**](/1.0.0/list-isolation-models) - 目录（`GET /v1/audio-isolation/models`）
 - [**分离人声**](/1.0.0/isolate-audio) - 完整音频文件（`POST /v1/audio-isolation`）
@@ -160,14 +159,14 @@ Knox API 包含以下主要端点：
 
 ### 音效生成
 
-根据文本生成短免版税片段。Base URL：`https://api.knoxstudio.ai/v1`。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**音效生成**](/sound-effects) 指南。
+根据文本生成短免版税片段。按 **每分钟 `$0.17`** 计费。完整流程请参阅 [**音效生成**](/sound-effects) 指南。
 
 - [**列出音效模型**](/1.0.0/list-sfx-models) - 目录（`GET /v1/sound-generation/models`）
 - [**生成音效**](/1.0.0/convert-sound-effect) - 生成音频（`POST /v1/sound-generation`）
 
 ### 配音
 
-把源音频或视频配成另一种语言。Base URL：`https://api.knoxstudio.ai/v1`。创建项目时预收第一种语言（`dubbing_v2` 每分钟 `$2.25`，`dubbing_v1` 每分钟 `$0.38`）。完整流程请参阅 [**配音**](/dubbing) 指南。
+把源音频或视频配成另一种语言。创建项目时预收第一种语言（`dubbing_v2` 每分钟 `$2.25`，`dubbing_v1` 每分钟 `$0.38`）。完整流程请参阅 [**配音**](/dubbing) 指南。
 
 - [**列出配音模型**](/1.0.0/list-dubbing-models) - 目录（`GET /v1/dubbing/models`）
 - [**创建 / 列出 / 获取 / 删除项目**](/1.0.0/create-dubbing-project) - 项目（`/v1/dubbing/project`）
@@ -177,7 +176,7 @@ Knox API 包含以下主要端点：
 
 ### 强制对齐
 
-将语音与转写对齐。Base URL：`https://api.knoxstudio.ai/v1`。按 **每小时 `$0.27`** 计费。完整流程请参阅 [**强制对齐**](/forced-alignment) 指南。
+将语音与转写对齐。按 **每小时 `$0.27`** 计费。完整流程请参阅 [**强制对齐**](/forced-alignment) 指南。
 
 - [**列出强制对齐模型**](/1.0.0/list-alignment-models) - 目录（`GET /v1/forced-alignment/models`）
 - [**创建强制对齐**](/1.0.0/create-forced-alignment) - 字符级和词级时间戳（`POST /v1/forced-alignment`）

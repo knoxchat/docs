@@ -7,7 +7,7 @@ keywords: [knox, knox api, ai integration, knox-ms, memory system, developer gui
 
 # Knox-MS 1.0 Developer Documentation
 
-> **Base URL:** `https://api.knox.chat`  
+> **Base URL:** `https://api.knox.chat` (KnoxChat) or `https://api.knoxstudio.ai` (KnoxStudio). Both hosts are the same API.  
 > **API Version:** v1
 
 Knox-MS is an SI orchestration engine with a human-brain-inspired memory architecture, autonomous execution and measured recall. Its motto is **bounded context, unbounded memory**: every call fits the routed model's window, while the memory store itself is not capped and is searched on demand.

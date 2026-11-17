@@ -5,10 +5,11 @@ sidebar_label: 语音转换
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # 语音转换
 
-Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语音转换（Voice Changer / speech-to-speech）**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。`https://api.knox.chat/v1` 提供相同路由。
+Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语音转换（Voice Changer / speech-to-speech）**接口。使用 Knox API key 认证（`Authorization: Bearer sk-...` 或 `xi-api-key`）。Knox 负责计费并向上游转发请求。
 
 这不是 [文本转语音](/text-to-speech)，不是 `gpt-realtime-2.1` 的 [实时语音](/realtime)，也不是 [人声分离](/voice-isolator)。语音转换接收**源音频**，用目标 `voice_id` 改写音色，同时保留情绪、节奏与表达。
 
@@ -18,10 +19,7 @@ Knox 在 `https://api.knoxstudio.ai/v1` 上为 [KnoxStudio](https://knoxstudio.a
 2. 从 [音色](/voices) 选择 `voice_id`（`GET /v1/voices` 或 `GET /v2/voices`）
 3. 转换 — [`POST /v1/speech-to-speech/{voice_id}`](/1.0.0/convert-speech-to-speech)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 常用公开音色示例：`21m00Tcm4TlvDq8ikWAM`（Rachel）。
 

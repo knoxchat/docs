@@ -4,10 +4,11 @@ sidebar_position: 16
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Sound Effects
 
-Knox exposes ElevenLabs-compatible **sound effects** endpoints at `https://api.knoxstudio.ai/v1` for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream. The same routes are also served by `https://api.knox.chat/v1`.
+Knox exposes ElevenLabs-compatible **sound effects** endpoints for [KnoxStudio](https://knoxstudio.ai). Authenticate with your Knox API key (`Authorization: Bearer sk-...` or `xi-api-key`). Knox bills the request and relays it upstream.
 
 This is not [Music](/music). Sound effects turn a **text prompt into a short royalty-free clip**.
 
@@ -16,10 +17,7 @@ Typical flow:
 1. List models — [`GET /v1/sound-generation/models`](/1.0.0/list-sfx-models)
 2. Generate — [`POST /v1/sound-generation`](/1.0.0/convert-sound-effect)
 
-```
-https://api.knoxstudio.ai/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 Use the official ElevenLabs SDK against Knox by pointing it at this base URL and using your Knox key as `xi-api-key`.
 

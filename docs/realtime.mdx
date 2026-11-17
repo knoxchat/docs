@@ -4,6 +4,7 @@ sidebar_position: 15
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # Realtime
 
@@ -11,12 +12,9 @@ Knox proxies OpenAI’s [Realtime API](https://developers.openai.com/api/docs/gu
 
 This is a speech-to-speech voice-agent endpoint: audio and text in, audio and text out, with tool use and configurable reasoning. It is **not** [`/v1/chat/completions`](/1.0.0/chat-completion). For full-duplex voice that listens while speaking (`gpt-live-1`), see [GPT-Live](/live). For one-shot audio files in chat, see [Audio Inputs](/audio).
 
-All authenticated requests use the same base URL and API key as the rest of Knox:
+All authenticated requests use the same base URL and API key as the rest of Knox. **KnoxChat** and **KnoxStudio** are the same API:
 
-```
-https://api.knox.chat/v1
-Authorization: Bearer sk-...
-```
+<ApiBaseUrlTabs showAuth />
 
 The same routes are also mounted under `/api/v1`. Query `?model=` is optional; Knox defaults to `gpt-realtime-2.1`.
 
