@@ -20,9 +20,9 @@ Requests with audio files to compatible models are available via the `/v1/chat/c
 
 **Recommended Models:**
 
-- google/gemini-2.5-pro
-- google/gemini-2.5-flash
-- google/gemini-2.5-flash-lite
+- google/gemini-4-hydrogen
+- google/gemini-4-argon
+- google/gemini-4-carbon
 
 ### Sending Audio Files
 
@@ -50,7 +50,7 @@ const response = await fetch("https://api.knox.chat/v1/chat/completions", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    model: "google/gemini-2.5-flash",
+    model: "google/gemini-4-hydrogen",
     messages: [
       {
         role: "user",
@@ -119,7 +119,7 @@ messages = [
 ]
 
 payload = {
-    "model": "google/gemini-2.5-flash",
+    "model": "google/gemini-4-hydrogen",
     "messages": messages
 }
 

@@ -41,7 +41,7 @@ headers = {
 }
 
 payload = {
-    "model": "google/gemini-2.5-flash-image",
+    "model": "gpt-image-2.6-sunburst",
     "messages": [
         {
             "role": "user",
@@ -120,7 +120,7 @@ headers = {
 }
 
 payload = {
-    "model": "google/gemini-2.5-flash-image",
+    "model": "gpt-image-2.6-sunburst",
     "messages": [
         {
             "role": "user",
@@ -247,9 +247,8 @@ Not all models support image generation. To use this feature:
 1. **Check Output Modalities**: Ensure the model has `"image"` in its `output_modalities`
 2. **Set Modalities Parameter**: Include `"modalities": ["image", "text"]` in your request
 3. **Use Compatible Models**: Examples include:
-   * `google/gemini-2.5-flash-image`
-   * `google/gemini-2.5-flash-image-preview`
-   * `google/gemini-3-pro-image-preview`
+   * `gpt-image-2.6-sunburst`
+   * `gpt-image-2.6-flare`
    * Other models with image generation capabilities
 
 ## Best Practices

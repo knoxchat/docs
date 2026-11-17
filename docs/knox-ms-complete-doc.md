@@ -92,7 +92,7 @@ Send a list of messages and receive a model-generated response.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `model` | string | Yes | Model ID. Use `knox/knox-ms` for the Knox-MS engine, or any other available model (e.g., `anthropic/claude-sonnet-4.6`, `openai/gpt-4o`). |
+| `model` | string | Yes | Model ID. Use `knox/knox-ms` for the Knox-MS engine, or any other available model (e.g., `anthropic/claude-sonnet-5.5`, `openai/gpt-6-astra`). |
 | `messages` | array | Yes | List of message objects with `role` and `content`. |
 | `stream` | boolean | No | If `true`, partial message deltas are sent as SSE events. Default `false`. |
 | `max_tokens` | integer | No | Maximum tokens to generate. |
@@ -235,13 +235,13 @@ Responses include an additional `knox_ms_meta` field:
     "tasks_total": 1,
     "tasks_failed": 0,
     "total_model_calls": 2,
-    "models_used": {"anthropic/claude-sonnet-4.6": 1, "anthropic/claude-haiku-4.5": 1},
+    "models_used": {"anthropic/claude-sonnet-5.5": 1, "anthropic/claude-haiku-5.5": 1},
     "memory_tokens_saved": 5000,
     "context_tokens_used": 1200,
     "execution_time_ms": 3200,
     "summary_updated": false,
     "call_id": "0b0e8f7a-2c5e-4d57-9a53-6d1a7e0c9f11",
-    "routed_model": "anthropic/claude-sonnet-4.6",
+    "routed_model": "anthropic/claude-sonnet-5.5",
     "injected_memories": [
       {
         "id": 1042,
@@ -391,7 +391,7 @@ Returns a list of all models currently available to your account.
       "owned_by": "knox"
     },
     {
-      "id": "anthropic/claude-sonnet-4.6",
+      "id": "anthropic/claude-sonnet-5.5",
       "object": "model",
       "created": 1740422400,
       "owned_by": "anthropic"
@@ -491,7 +491,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="anthropic/claude-sonnet-4.6",
+    model="anthropic/claude-sonnet-5.5",
     max_tokens=1024,
     messages=[
         {"role": "user", "content": "Hello, Claude!"}
@@ -846,9 +846,9 @@ Only include the fields you want to change.
 ```json
 {
   "use_custom_models": true,
-  "easy_model": "openai/gpt-4o-mini",
-  "medium_model": "anthropic/claude-sonnet-4.6",
-  "hard_model": "anthropic/claude-opus-4.6",
+  "easy_model": "openai/gpt-6-luna",
+  "medium_model": "anthropic/claude-sonnet-5.5",
+  "hard_model": "anthropic/claude-opus-5.5",
   "max_context_tokens": 200000,
   "auto_summarize": true,
   "default_verbosity": "verbose",
@@ -1095,7 +1095,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="anthropic/claude-sonnet-4.6",
+    model="anthropic/claude-sonnet-5.5",
     max_tokens=4096,
     messages=[
         {"role": "user", "content": "Explain monads in simple terms"}

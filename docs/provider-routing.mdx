@@ -13,7 +13,7 @@ sidebar_position: 3
 └────────────────────────────┬───────────────────────────────────────────────┘
                              │ HTTP Request
                              │ POST /v1/chat/completions
-                             │ { "model": "deepseek-chat", "messages": [...] }
+                             │ { "model": "anthropic/claude-sonnet-5.5", "messages": [...] }
                              ▼
 ┌────────────────────────────────────────────────────────────────────────────┐
 │                      ACTIX-WEB HTTP SERVER                                 │
@@ -77,7 +77,7 @@ sidebar_position: 3
 │  ┌─────────────────────────────────────────────────────────────────────┐  │
 │  │              CANDIDATE PROVIDERS (Example)                          │  │
 │  │                                                                     │  │
-│  │  A: deepseek-chat    │ B: deepseek-chat    │ C: deepseek-chat │     │  │
+│  │  A: anthropic/claude-sonnet-5.5    │ B: anthropic/claude-sonnet-5.5    │ C: anthropic/claude-sonnet-5.5 │     │  │
 │  │  • Price: $2.50/M    │ • Price: $3.00/M    │ • Price: $2.00/M       │  │
 │  │  • Latency: 450ms    │ • Latency: 600ms    │ • Latency: 800ms       │  │
 │  │  • Success: 98%      │ • Success: 97%      │ • Success: 95%         │  │
@@ -117,7 +117,7 @@ sidebar_position: 3
 │                    CIRCUIT BREAKER CHECK                                   │
 │               (backend/src/services/circuit_breaker.rs)                    │
 │                                                                            │
-│     should_allow_request(Provider A, "deepseek-chat", channel_id) ?        │
+│     should_allow_request(Provider A, "anthropic/claude-sonnet-5.5", channel_id) ?        │
 │                                                                            │
 │     Circuit: CLOSED → Allow Request                                        │
 │     Circuit: OPEN   → Try Fallback Provider B                              │
@@ -164,7 +164,7 @@ sidebar_position: 3
 │  Step 1: Memory Buffer (Immediate)                                         │
 │  ┌──────────────────────────────────────────────────────────────────────┐  │
 │  │ METRICS_BUFFER (In-Memory HashMap)                                   │  │
-│  │ Key: (provider_id=5, model_id="deepseek-chat", channel_id=23)        │  │
+│  │ Key: (provider_id=5, model_id="anthropic/claude-sonnet-5.5", channel_id=23)        │  │
 │  │ Value: [ {latency: 450, success: true, tokens: ...}, ... ]           │  │
 │  └──────────────────────────────────────────────────────────────────────┘  │
 │                             │                                              │
@@ -184,7 +184,7 @@ sidebar_position: 3
 │  │   avg_latency_ms = (avg_latency_ms * 0.9 + 450 * 0.1),               │  │
 │  │   quality_score = calculate_provider_quality_score(...),             │  │
 │  │   circuit_state = ...                                                │  │
-│  │ WHERE provider_id=5 AND model_id='deepseek-chat' AND channel_id=23   │  │
+│  │ WHERE provider_id=5 AND model_id='anthropic/claude-sonnet-5.5' AND channel_id=23   │  │
 │  └──────────────────────────────────────────────────────────────────────┘  │
 └────────────────────────────────────────────────────────────────────────────┘
                              │
@@ -195,7 +195,7 @@ sidebar_position: 3
 │  HTTP 200 OK                                                               │
 │  {                                                                         │
 │    "id": "chatcmpl-...",                                                   │
-│    "model": "deepseek-chat",                                               │
+│    "model": "anthropic/claude-sonnet-5.5",                                               │
 │    "choices": [...],                                                       │
 │    "usage": { "prompt_tokens": 1500, "completion_tokens": 300 }            │
 │  }                                                                         │
@@ -385,16 +385,16 @@ Configuration:
 Time  │ Component                │ Action
 ──────┼─────────────────────────┼────────────────────────────────────────────
 0ms   │ Client                  │ POST /v1/chat/completions
-      │                         │ { "model": "deepseek-chat", "messages": [...] }
+      │                         │ { "model": "anthropic/claude-sonnet-5.5", "messages": [...] }
 ──────┼─────────────────────────┼────────────────────────────────────────────
 1ms   │ Relay Handler           │ Validate request, extract model_id
       │                         │ Check authentication & rate limits
 ──────┼─────────────────────────┼────────────────────────────────────────────
-2ms   │ Channel Service         │ Call get_routed_channel("deepseek-chat", user_id)
+2ms   │ Channel Service         │ Call get_routed_channel("anthropic/claude-sonnet-5.5", user_id)
       │                         │ Try provider model routing first
 ──────┼─────────────────────────┼────────────────────────────────────────────
 3ms   │ Model Routing Service   │ Query provider_models table
-      │                         │ SELECT * FROM provider_models WHERE model_id='deepseek-chat'
+      │                         │ SELECT * FROM provider_models WHERE model_id='anthropic/claude-sonnet-5.5'
       │                         │ JOIN provider_model_metrics
       │                         │ Found 3 candidates
 ──────┼─────────────────────────┼────────────────────────────────────────────
@@ -402,7 +402,7 @@ Time  │ Component                │ Action
       │                         │ SELECT * FROM user_routing_preferences WHERE user_id=...
 ──────┼─────────────────────────┼────────────────────────────────────────────
 5ms   │ Model Routing Service   │ Load model routing config
-      │                         │ SELECT * FROM model_routing_config WHERE model_id='deepseek-chat'
+      │                         │ SELECT * FROM model_routing_config WHERE model_id='anthropic/claude-sonnet-5.5'
 ──────┼─────────────────────────┼────────────────────────────────────────────
 6ms   │ Model Routing Service   │ Score 3 candidates using "balanced" strategy
       │                         │ Provider A: 0.880
@@ -417,7 +417,7 @@ Time  │ Component                │ Action
       │                         │ Selected: Provider A (channel_id=23)
       │                         │ Fallbacks: [Provider B, Provider C]
 ──────┼─────────────────────────┼────────────────────────────────────────────
-9ms   │ Circuit Breaker         │ Check should_allow_request(Provider A, "deepseek-chat", 23)
+9ms   │ Circuit Breaker         │ Check should_allow_request(Provider A, "anthropic/claude-sonnet-5.5", 23)
       │                         │ Circuit state: CLOSED
       │                         │ Allow request
 ──────┼─────────────────────────┼────────────────────────────────────────────
@@ -443,12 +443,12 @@ Time  │ Component                │ Action
 466ms │ Relay Handler           │ Parse response
       │                         │ Extract usage: prompt_tokens=1500, completion_tokens=300
 ──────┼─────────────────────────┼────────────────────────────────────────────
-467ms │ Provider Metrics        │ record_request(provider_id=5, model="deepseek-chat", 
+467ms │ Provider Metrics        │ record_request(provider_id=5, model="anthropic/claude-sonnet-5.5", 
       │                         │   channel_id=23, latency=450, success=true,
       │                         │   prompt_tokens=1500, completion_tokens=300)
       │                         │ → Stored in memory buffer (non-blocking)
 ──────┼─────────────────────────┼────────────────────────────────────────────
-468ms │ Circuit Breaker         │ record_success(provider_id=5, model="deepseek-chat", 
+468ms │ Circuit Breaker         │ record_success(provider_id=5, model="anthropic/claude-sonnet-5.5", 
       │                         │   channel_id=23)
       │                         │ → success_count++, failure_count=0
 ──────┼─────────────────────────┼────────────────────────────────────────────

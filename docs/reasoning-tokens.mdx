@@ -164,7 +164,7 @@ headers = {
     "Content-Type": "application/json"
 }
 payload = {
-    "model": "anthropic/claude-sonnet-4.6",
+    "model": "anthropic/claude-sonnet-5.5",
     "messages": [
         {"role": "user", "content": "What's the most efficient algorithm for sorting a large dataset?"}
     ],
@@ -191,7 +191,7 @@ const openai = new OpenAI({
 
 async function getResponseWithReasoning() {
   const response = await openai.chat.completions.create({
-    model: 'anthropic/claude-sonnet-4.6',
+    model: 'anthropic/claude-sonnet-5.5',
     messages: [
       {
         role: 'user',
@@ -230,7 +230,7 @@ headers = {
     "Content-Type": "application/json"
 }
 payload = {
-    "model": "deepseek/deepseek-r1",
+    "model": "openai/gpt-6-luna",
     "messages": [
         {"role": "user", "content": "Explain quantum computing in simple terms."}
     ],
@@ -258,7 +258,7 @@ const openai = new OpenAI({
 
 async function getResponseWithReasoning() {
   const response = await openai.chat.completions.create({
-    model: 'deepseek/deepseek-r1',
+    model: 'openai/gpt-6-luna',
     messages: [
       {
         role: 'user',
@@ -313,16 +313,16 @@ def do_req(model, content, reasoning_config=None):
 
 # Get reasoning from a capable model
 content = f"{question} Please think this through, but don't output an answer"
-reasoning_response = do_req("deepseek/deepseek-r1", content)
+reasoning_response = do_req("openai/gpt-6-luna", content)
 reasoning = reasoning_response.json()['choices'][0]['message']['reasoning']
 
 # Let's test! Here's the naive response:
-simple_response = do_req("openai/gpt-5.2", question)
+simple_response = do_req("openai/gpt-6-luna", question)
 print(simple_response.json()['choices'][0]['message']['content'])
 
 # Here's the response with the reasoning token injected:
 content = f"{question}. Here is some context to help you: {reasoning}"
-smart_response = do_req("openai/gpt-5.2", content)
+smart_response = do_req("openai/gpt-6-luna", content)
 print(smart_response.json()['choices'][0]['message']['content'])
 ```
 
@@ -351,18 +351,18 @@ async function doReq(model, content, reasoningConfig) {
 async function getResponseWithReasoning() {
   const question = 'Which is bigger: 9.11 or 9.9?';
   const reasoningResponse = await doReq(
-    'deepseek/deepseek-r1',
+    'openai/gpt-6-luna',
     `${question} Please think this through, but don't output an answer`,
   );
   const reasoning = reasoningResponse.choices[0].message.reasoning;
 
   // Let's test! Here's the naive response:
-  const simpleResponse = await doReq('openai/gpt-5.2', question);
+  const simpleResponse = await doReq('openai/gpt-6-luna', question);
   console.log(simpleResponse.choices[0].message.content);
 
   // Here's the response with the reasoning token injected:
   const content = `${question}. Here is some context to help you: ${reasoning}`;
-  const smartResponse = await doReq('openai/gpt-5.2', content);
+  const smartResponse = await doReq('openai/gpt-6-luna', content);
   console.log(smartResponse.choices[0].message.content);
 }
 
@@ -376,11 +376,11 @@ getResponseWithReasoning();
 
 ### Inference Token Support for Anthropic Models
 
-The latest Claude models, such as `anthropic/claude-sonnet-4.6`, support the use and return of inference tokens.
+The latest Claude models, such as `anthropic/claude-sonnet-5.5`, support the use and return of inference tokens.
 
 You can enable the inference feature for Anthropic models in two ways:
 
-1. Use the `:thinking` variant suffix (e.g., `anthropic/claude-sonnet-4.6:thinking`). This variant enables high-intensity inference (`"effort": "high"`) by default.
+1. Use the `:thinking` variant suffix (e.g., `anthropic/claude-sonnet-5.5:thinking`). This variant enables high-intensity inference (`"effort": "high"`) by default.
 2. Use the unified `reasoning` parameter, controlled via `effort` (inference intensity ratio) or `max_tokens` (direct allocation of token count).
 
 #### Maximum Token Limits for Anthropic Model Inference
@@ -426,7 +426,7 @@ client = OpenAI(
 
 def chat_completion_with_reasoning(messages):
     response = client.chat.completions.create(
-        model="anthropic/claude-sonnet-4.6",
+        model="anthropic/claude-sonnet-5.5",
         messages=messages,
         max_tokens=10000,
         reasoning={

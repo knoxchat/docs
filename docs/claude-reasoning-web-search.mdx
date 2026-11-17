@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # Claude Models Reasoning and Web Search
 
-Knox has backend adapters for the Claude model IDs `anthropic/claude-sonnet-4.6`, `anthropic/claude-opus-4.6`, and `anthropic/claude-opus-4.8`. These adapters can translate Knox request fields into Anthropic adaptive thinking settings and can also inject the Anthropic web-search tool when the request is routed through an SI gateway-backed channel.
+Knox has backend adapters for the Claude model IDs `anthropic/claude-sonnet-5.5`, `anthropic/claude-opus-5.5`, and `anthropic/claude-opus-5.5`. These adapters can translate Knox request fields into Anthropic adaptive thinking settings and can also inject the Anthropic web-search tool when the request is routed through an SI gateway-backed channel.
 
 Use `/v1/chat/completions` if you want reasoning content and web citations in the response. `/v1/completions` is available for compatibility, but it returns plain text only.
 
@@ -15,9 +15,9 @@ Use `/v1/chat/completions` if you want reasoning content and web citations in th
 
 | Model | Allowed `reasoning_effort` values | Backend default |
 | --- | --- | --- |
-| `anthropic/claude-sonnet-4.6` | `low`, `medium`, `high` | `high` |
-| `anthropic/claude-opus-4.6` | `medium`, `high`, `max` | `high` |
-| `anthropic/claude-opus-4.8` | `high`, `xhigh`, `max` | `xhigh` |
+| `anthropic/claude-sonnet-5.5` | `low`, `medium`, `high` | `high` |
+| `anthropic/claude-opus-5.5` | `medium`, `high`, `max` | `high` |
+| `anthropic/claude-opus-5.5` | `high`, `xhigh`, `max` | `xhigh` |
 
 When you send `reasoning_effort`, Knox translates it into an Anthropic `thinking` block like this:
 
@@ -50,7 +50,7 @@ curl https://api.knox.chat/v1/chat/completions \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "anthropic/claude-sonnet-4.6",
+    "model": "anthropic/claude-sonnet-5.5",
     "messages": [
       {
         "role": "user",
@@ -75,7 +75,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="anthropic/claude-sonnet-4.6",
+    model="anthropic/claude-sonnet-5.5",
     messages=[
         {
             "role": "user",
@@ -105,7 +105,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: 'anthropic/claude-sonnet-4.6',
+  model: 'anthropic/claude-sonnet-5.5',
   messages: [
     {
       role: 'user',
@@ -157,7 +157,7 @@ Use a higher reasoning level for the larger Opus models:
 
 ```json
 {
-  "model": "anthropic/claude-opus-4.8",
+  "model": "anthropic/claude-opus-5.5",
   "messages": [
     {
       "role": "user",
@@ -176,7 +176,7 @@ If you want to control the Anthropic-native payload directly, Knox also accepts 
 
 ```json
 {
-  "model": "anthropic/claude-opus-4.6",
+  "model": "anthropic/claude-opus-5.5",
   "messages": [
     {
       "role": "user",
@@ -202,7 +202,7 @@ curl https://api.knox.chat/v1/completions \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "anthropic/claude-opus-4.6",
+    "model": "anthropic/claude-opus-5.5",
     "prompt": "Find the latest SOC 2 guidance updates and summarize the implementation impact.",
     "reasoning_effort": "max",
     "web_search": true,

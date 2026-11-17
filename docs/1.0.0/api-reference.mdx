@@ -343,7 +343,7 @@ To use this feature, simply include a message with `role: "assistant"` at the en
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'openai/gpt-5.2',
+      model: 'openai/gpt-6-luna',
       messages: [
         { role: 'user', content: 'What is the meaning of life?' },
         { role: 'assistant', content: "I'm not sure, but my best guess is" },
@@ -395,7 +395,7 @@ Some models support native image generation capabilities. To generate images, yo
 
 ```typescript
 {
-  "model": "openai/dall-e-3",
+  "model": "gpt-image-2.6-sunburst",
   "messages": [
     {
       "role": "user",
@@ -589,7 +589,7 @@ Example:
     "completion_tokens": 4,
     "total_tokens": 4
   },
-  "model": "anthropic/claude-sonnet-4.6" // Could also be "anthropic/claude-2.1", etc, depending on the "model" that ends up being used
+  "model": "anthropic/claude-sonnet-5.5" // Could also be "anthropic/claude-2.1", etc, depending on the "model" that ends up being used
 }
 ```
 

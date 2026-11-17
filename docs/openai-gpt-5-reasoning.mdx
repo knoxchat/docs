@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # OpenAI Models Reasoning
 
-Knox has model-aware reasoning support for the exact model IDs `openai/gpt-5.4` and `openai/gpt-5.5`. These models are normalized for chat-completions channels, so you can use one Knox request shape and let the relay produce the gateway-specific `reasoning` object upstream.
+Knox has model-aware reasoning support for the exact model IDs `openai/gpt-6-luna` and `openai/gpt-6-sol`. These models are normalized for chat-completions channels, so you can use one Knox request shape and let the relay produce the gateway-specific `reasoning` object upstream.
 
 Use `/v1/chat/completions` when you want reasoning to be returned in the response. `/v1/completions` is also supported for prompt-style compatibility, but it returns plain text only.
 
@@ -15,10 +15,10 @@ Use `/v1/chat/completions` when you want reasoning to be returned in the respons
 
 | Model | Allowed `reasoning_effort` values | Backend default |
 | --- | --- | --- |
-| `openai/gpt-5.4` | `none`, `low`, `medium`, `high`, `xhigh` | `none` |
-| `openai/gpt-5.5` | `none`, `low`, `medium`, `high`, `xhigh` | `high` |
+| `openai/gpt-6-luna` | `none`, `low`, `medium`, `high`, `xhigh` | `none` |
+| `openai/gpt-6-sol` | `none`, `low`, `medium`, `high`, `xhigh` | `high` |
 
-`openai/gpt-5.4` starts with reasoning disabled unless you opt in. `openai/gpt-5.5` starts at `high` reasoning by default.
+`openai/gpt-6-luna` starts with reasoning disabled unless you opt in. `openai/gpt-6-sol` starts at `high` reasoning by default.
 
 ## Recommended request fields
 
@@ -44,7 +44,7 @@ curl https://api.knox.chat/v1/chat/completions \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "openai/gpt-5.5",
+    "model": "openai/gpt-6-luna",
     "messages": [
       {
         "role": "user",
@@ -71,7 +71,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="openai/gpt-5.5",
+    model="openai/gpt-6-luna",
     messages=[
         {
             "role": "user",
@@ -101,7 +101,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: 'openai/gpt-5.5',
+  model: 'openai/gpt-6-luna',
   messages: [
     {
       role: 'user',
@@ -140,11 +140,11 @@ console.log(response.choices[0].message.content);
 
 ## Explicitly enabling reasoning on GPT-5.4
 
-Because `openai/gpt-5.4` defaults to `none`, pass `reasoning_effort` explicitly when you want reasoning:
+Because `openai/gpt-6-luna` defaults to `none`, pass `reasoning_effort` explicitly when you want reasoning:
 
 ```json
 {
-  "model": "openai/gpt-5.4",
+  "model": "openai/gpt-6-luna",
   "messages": [
     {
       "role": "user",
@@ -167,7 +167,7 @@ curl https://api.knox.chat/v1/completions \
   -H "Authorization: Bearer $KNOXCHAT_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "openai/gpt-5.5",
+    "model": "openai/gpt-6-luna",
     "prompt": "Write a phased migration checklist for a Rails monolith.",
     "max_tokens": 600,
     "reasoning_effort": "high",
@@ -182,6 +182,6 @@ For provider-backed routes, Knox converts the prompt into chat messages internal
 ## Practical guidance
 
 * Use `/v1/chat/completions` if you need reasoning content in the response.
-* Use `reasoning_effort` explicitly when you want predictable behavior across both GPT-5.4 and GPT-5.5.
+* Use `reasoning_effort` explicitly when you want predictable behavior across both GPT-6-Luna and GPT-6-Sol.
 * Use `reasoning.exclude: true` when you want the model to think internally but return only the final answer.
 * Use `/v1/completions` only for compatibility with prompt-based clients; it does not preserve structured reasoning in the response body.

@@ -134,7 +134,7 @@ Complete history of routing decisions
 ```
 User/API Request
      │
-     ├─► Model ID: "deepseek-chat"
+     ├─► Model ID: "anthropic/claude-sonnet-5.5"
      ├─► User ID: 12345
      └─► Optional: RoutingPreferences { strategy: "performance" }
 ```
@@ -145,7 +145,7 @@ SELECT provider_id, channel_id, provider_name, pricing, metrics, quality_score
 FROM provider_models pm
 LEFT JOIN provider_model_metrics pmm ON (...)
 LEFT JOIN channels c ON pm.channel_id = c.id
-WHERE pm.model_id = 'deepseek-chat' AND pm.status = 1
+WHERE pm.model_id = 'anthropic/claude-sonnet-5.5' AND pm.status = 1
 ORDER BY quality_score DESC
 ```
 
@@ -169,7 +169,7 @@ ProviderCandidate {
 **Model Config:**
 ```rust
 RoutingConfig {
-    canonical_model_id: "deepseek-chat",
+    canonical_model_id: "anthropic/claude-sonnet-5.5",
     latency_weight: 0.3,
     success_rate_weight: 0.4,
     price_weight: 0.2,
@@ -276,7 +276,7 @@ After request completion:
 ```rust
 ProviderMetricsService::record_request(
     provider_id: 5,
-    model_id: "deepseek-chat",
+    model_id: "anthropic/claude-sonnet-5.5",
     channel_id: 23,
     latency_ms: 450,
     success: true,
@@ -490,7 +490,7 @@ routing_decision_logs:
 ```rust
 // Automatic routing - just pass model ID
 let channel = ChannelService::get_routed_channel(
-    &pool, "default", "deepseek-chat", user_id, None
+    &pool, "default", "anthropic/claude-sonnet-5.5", user_id, None
 ).await?;
 ```
 
@@ -498,7 +498,7 @@ let channel = ChannelService::get_routed_channel(
 ```http
 POST /api/routing/simulate
 {
-  "model_id": "deepseek-chat",
+  "model_id": "anthropic/claude-sonnet-5.5",
   "preferences": { "strategy": "cost" }
 }
 ```
@@ -576,7 +576,7 @@ Rotation support via provider_api_keys table
 ### Example 1: High-Performance Setup
 ```sql
 INSERT INTO model_routing_config VALUES (
-    'deepseek-chat',
+    'anthropic/claude-sonnet-5.5',
     0.35,  -- latency_weight (high)
     0.45,  -- success_rate_weight (high)
     0.10,  -- price_weight (low)
@@ -588,7 +588,7 @@ INSERT INTO model_routing_config VALUES (
 ### Example 2: Cost-Optimized Setup
 ```sql
 INSERT INTO model_routing_config VALUES (
-    'deepseek-chat-v3.1',
+    'anthropic/claude-sonnet-5.5',
     0.15,  -- latency_weight (low)
     0.35,  -- success_rate_weight (medium)
     0.40,  -- price_weight (high)
