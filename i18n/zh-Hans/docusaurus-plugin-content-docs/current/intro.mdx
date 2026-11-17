@@ -11,9 +11,16 @@ import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 # 快速入门
 
-**Knox** 是一个一站式、兼容 OpenAI API 和 Anthropic Messages API 格式的平台，通过单一端点即可访问数百个模型，并提供智能路由、自动故障转移和透明定价。它还搭配了 **Knox‑MS**——一个面向长时间运行的 Agent 和需要持久上下文的应用的记忆管理系统。
+**Knox** 是一个超级智能（Super Intelligence，SI）平台，由一系列协同工作的产品组成，用于构建、运行和记忆。主要以四款产品为核心：
 
-如果要使用 **KnoxCoder** 桌面编辑器，请打开 <Link to="/knoxcoder">KnoxCoder 指南</Link>（导航栏里博客旁边的标签）。本页是 HTTP API 文档。
+- **<Link to="/knox-ms-complete-doc">Knox‑MS</Link>**：面向长时间运行的 Agent 和需要持久上下文的应用的记忆管理系统。
+- **<Link to="/knoxstudio">KnoxStudio</Link>**：用于生成和处理文本、图像、视频和音频的创作与多模态工作空间。
+- **<Link to="/knoxcoder">KnoxCoder</Link>**：AI 原生的桌面代码编辑器。
+- **<Link to="https://knoxos.com/">KnoxOS</Link>**：用 Rust 构建的 SI 原生操作系统，将超级智能从用户空间移入内核。SI不是外挂，它就是操作系统。（即将推出）。
+
+在这些产品之下，Knox 统一 API 兼容 OpenAI API 和 Anthropic Messages API 格式，通过单一端点即可访问数百个模型，并提供智能路由、自动故障转移和透明定价。同一套 API 为 Knox 各产品提供支持，您也可以在自己的应用中直接使用。
+
+如果要使用 **KnoxCoder** 桌面编辑器，请打开 <Link to="/knoxcoder">KnoxCoder 指南</Link>（导航栏里博客旁边的标签）。本页介绍平台背后的 HTTP API。
 
 ### 核心功能
 
