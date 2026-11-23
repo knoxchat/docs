@@ -14,9 +14,9 @@ Use the returned `voice_id` with [Text to Speech](/text-to-speech) and [Voice Ch
 
 Typical flow:
 
-1. Search — [`GET /v2/voices`](/1.0.0/search-voices)
-2. Or list — [`GET /v1/voices`](/1.0.0/list-voices)
-3. Clone (IVC) — [`POST /v1/voices/add`](/1.0.0/create-ivc-voice)
+1. Search — [`GET /v2/voices`](https://knoxstudio.ai/api-reference)
+2. Or list — [`GET /v1/voices`](https://knoxstudio.ai/api-reference)
+3. Clone (IVC) — [`POST /v1/voices/add`](https://knoxstudio.ai/api-reference)
 4. Use `voice_id` on TTS / Voice Changer
 
 <ApiBaseUrlTabs showAuth />
@@ -56,11 +56,11 @@ print(response.json())
 
 Search filters Knox validates: `sort` (`created_at_unix`, `name`), `sort_direction` (`asc`, `desc`), `voice_type` (`personal`, `community`, `default`, `workspace`, `non-default`, `non-community`, `saved`), `category` (`premade`, `cloned`, `generated`, `professional`), `fine_tuning_state`, plus booleans `include_custom_rates`, `include_live_moderated`, `high_quality`, `include_total_count`.
 
-Shared Voice Library: [`GET /v1/shared-voices`](/1.0.0/list-shared-voices). Add a shared voice with [`POST /v1/voices/add/{public_user_id}/{voice_id}`](/1.0.0/add-shared-voice) (`new_name` required).
+Shared Voice Library: [`GET /v1/shared-voices`](https://knoxstudio.ai/api-reference). Add a shared voice with [`POST /v1/voices/add/{public_user_id}/{voice_id}`](https://knoxstudio.ai/api-reference) (`new_name` required).
 
 ## Instant Voice Clone (IVC)
 
-[`POST /v1/voices/add`](/1.0.0/create-ivc-voice) requires `name` and `files` (audio samples).
+[`POST /v1/voices/add`](https://knoxstudio.ai/api-reference) requires `name` and `files` (audio samples).
 
 ```shell
 curl -X POST https://api.knoxstudio.ai/v1/voices/add \
@@ -70,17 +70,17 @@ curl -X POST https://api.knoxstudio.ai/v1/voices/add \
      -F "files=@sample2.wav"
 ```
 
-Edit metadata with [`POST /v1/voices/{voice_id}/edit`](/1.0.0/edit-voice) (`name` required). Delete with [`DELETE /v1/voices/{voice_id}`](/1.0.0/delete-voice).
+Edit metadata with [`POST /v1/voices/{voice_id}/edit`](https://knoxstudio.ai/api-reference) (`name` required). Delete with [`DELETE /v1/voices/{voice_id}`](https://knoxstudio.ai/api-reference).
 
 ## Voice settings
 
 | Goal | Endpoint |
 | ---- | -------- |
-| Default settings | [`GET /v1/voices/settings/default`](/1.0.0/get-default-voice-settings) |
-| Get settings | [`GET /v1/voices/{voice_id}/settings`](/1.0.0/get-voice-settings) |
-| Edit settings | [`POST /v1/voices/{voice_id}/settings/edit`](/1.0.0/edit-voice-settings) |
-| Accents for a TTS model | [`GET /v1/voices/accents`](/1.0.0/get-voice-accents) |
-| Similar voices | [`POST /v1/similar-voices`](/1.0.0/find-similar-voices) |
+| Default settings | [`GET /v1/voices/settings/default`](https://knoxstudio.ai/api-reference) |
+| Get settings | [`GET /v1/voices/{voice_id}/settings`](https://knoxstudio.ai/api-reference) |
+| Edit settings | [`POST /v1/voices/{voice_id}/settings/edit`](https://knoxstudio.ai/api-reference) |
+| Accents for a TTS model | [`GET /v1/voices/accents`](https://knoxstudio.ai/api-reference) |
+| Similar voices | [`POST /v1/similar-voices`](https://knoxstudio.ai/api-reference) |
 
 Settings fields: `stability`, `similarity_boost`, `style`, `speed`, `use_speaker_boost`. `GET /v1/voices/{voice_id}` accepts `with_settings=true`.
 
@@ -92,16 +92,16 @@ PVC is a multi-step flow: create the voice, upload samples, optionally separate 
 
 | Step | Endpoint |
 | ---- | -------- |
-| Create | [`POST /v1/voices/pvc`](/1.0.0/create-pvc-voice) — `name` and `language` required |
-| Update | [`POST /v1/voices/pvc/{voice_id}`](/1.0.0/update-pvc-voice) |
-| Upload samples | [`POST /v1/voices/pvc/{voice_id}/samples`](/1.0.0/create-pvc-samples) |
-| Train | [`POST /v1/voices/pvc/{voice_id}/train`](/1.0.0/train-pvc-voice) |
-| Verification docs | [`POST /v1/voices/pvc/{voice_id}/verification`](/1.0.0/request-pvc-verification) |
-| Captcha | [`GET`](/1.0.0/get-pvc-captcha) / [`POST /v1/voices/pvc/{voice_id}/captcha`](/1.0.0/verify-pvc-captcha) |
+| Create | [`POST /v1/voices/pvc`](https://knoxstudio.ai/api-reference) — `name` and `language` required |
+| Update | [`POST /v1/voices/pvc/{voice_id}`](https://knoxstudio.ai/api-reference) |
+| Upload samples | [`POST /v1/voices/pvc/{voice_id}/samples`](https://knoxstudio.ai/api-reference) |
+| Train | [`POST /v1/voices/pvc/{voice_id}/train`](https://knoxstudio.ai/api-reference) |
+| Verification docs | [`POST /v1/voices/pvc/{voice_id}/verification`](https://knoxstudio.ai/api-reference) |
+| Captcha | [`GET`](https://knoxstudio.ai/api-reference) / [`POST /v1/voices/pvc/{voice_id}/captcha`](https://knoxstudio.ai/api-reference) |
 
 Sample helpers: audio, waveform, speakers, speaker audio, speaker separation, trim (`trim_start_time` / `trim_end_time`), `remove_background_noise`, `selected_speaker_ids`.
 
-Replicate an IVC or Voice Design voice to another workspace with [`POST /v1/voices/{voice_id}/replicate-to-isolated-environment`](/1.0.0/replicate-voice) (`target_workspace_id` required).
+Replicate an IVC or Voice Design voice to another workspace with [`POST /v1/voices/{voice_id}/replicate-to-isolated-environment`](https://knoxstudio.ai/api-reference) (`target_workspace_id` required).
 
 ## Errors
 

@@ -15,10 +15,10 @@ Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**配
 
 典型流程：
 
-1. 列出模型 — [`GET /v1/dubbing/models`](/1.0.0/list-dubbing-models)
-2. 创建项目 — [`POST /v1/dubbing/project`](/1.0.0/create-dubbing-project)
-3. 轮询 — [`GET /v1/dubbing/project/{project_id}`](/1.0.0/get-dubbing-project)
-4. 获取语种目标 — [`GET /v1/dubbing/project/{project_id}/language/{language_id}`](/1.0.0/get-dubbing-language)
+1. 列出模型 — [`GET /v1/dubbing/models`](https://knoxstudio.ai/api-reference)
+2. 创建项目 — [`POST /v1/dubbing/project`](https://knoxstudio.ai/api-reference)
+3. 轮询 — [`GET /v1/dubbing/project/{project_id}`](https://knoxstudio.ai/api-reference)
+4. 获取语种目标 — [`GET /v1/dubbing/project/{project_id}/language/{language_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -95,13 +95,13 @@ print(response.json()["project_id"])
 
 | 目标 | 端点 |
 | ---- | ---- |
-| 添加语种 | [`POST /v1/dubbing/project/{project_id}/language`](/1.0.0/create-dubbing-language) |
-| 源转写 | [`GET /v1/dubbing/project/{project_id}/transcript`](/1.0.0/get-dubbing-source-transcript) |
-| 添加 / 更新 / 删除源片段 | [`/transcript/segment`](/1.0.0/add-dubbing-source-segment) |
-| 批量更新源片段 | [`PATCH .../transcript/segments`](/1.0.0/batch-update-dubbing-source-segments) |
-| 目标转写 | [`GET .../language/{language_id}/transcript`](/1.0.0/get-dubbing-target-transcript) |
-| 更新目标片段 | [`PATCH .../transcript/segment/{segment_id}`](/1.0.0/update-dubbing-target-segment) |
-| 重新生成配音 | [`POST .../transcript/regenerate`](/1.0.0/regenerate-dubbing-target) |
+| 添加语种 | [`POST /v1/dubbing/project/{project_id}/language`](https://knoxstudio.ai/api-reference) |
+| 源转写 | [`GET /v1/dubbing/project/{project_id}/transcript`](https://knoxstudio.ai/api-reference) |
+| 添加 / 更新 / 删除源片段 | [`/transcript/segment`](https://knoxstudio.ai/api-reference) |
+| 批量更新源片段 | [`PATCH .../transcript/segments`](https://knoxstudio.ai/api-reference) |
+| 目标转写 | [`GET .../language/{language_id}/transcript`](https://knoxstudio.ai/api-reference) |
+| 更新目标片段 | [`PATCH .../transcript/segment/{segment_id}`](https://knoxstudio.ai/api-reference) |
+| 重新生成配音 | [`POST .../transcript/regenerate`](https://knoxstudio.ai/api-reference) |
 
 源片段时长必须为 **0.1–25 秒**。批量更新接受 **1–500** 条。`voice_settings.cloning_strength` 为 0–10。
 

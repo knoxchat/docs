@@ -81,4 +81,4 @@ Knox 使用支持熔断器的多供应商路由系统。当你请求启用网络
 
 ## 实时语音搜索
 
-[`/v1/realtime`](/1.0.0/realtime) 上的语音到语音会话不使用 `:online` 或 Anthropic `web_search`。Knox 会在 `gpt-realtime-2.1` 和 `gpt-realtime-2.1-mini` 的 WebSocket 会话上注册托管的 `web_search` 函数工具，通过 Responses API 完成调用，并按搜索次数与搜索模型 token 计费。在 `session.update` 上传入 `"web_search": false` 即可退出。详见 [实时语音](/realtime#联网搜索)。
+[`/v1/realtime`](https://knoxstudio.ai/api-reference) 上的语音到语音会话不使用 `:online` 或 Anthropic `web_search`。Knox 会在 `gpt-realtime-2.1` 和 `gpt-realtime-2.1-mini` 的 WebSocket 会话上注册托管的 `web_search` 函数工具，通过 Responses API 完成调用，并按搜索次数与搜索模型 token 计费。在 `session.update` 上传入 `"web_search": false` 即可退出。详见 [实时语音](/realtime#联网搜索)。

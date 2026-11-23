@@ -13,10 +13,10 @@ Knox 提供独立的**异步**视频生成 API。与对话补全不同，视频�
 
 典型流程：
 
-1. 列出模型 — [`GET /v1/videos/models`](/1.0.0/list-video-models)
-2. 提交任务 — [`POST /v1/videos`](/1.0.0/create-video)
-3. 轮询状态 — [`GET /v1/videos/{jobId}`](/1.0.0/get-video)
-4. 下载文件 — [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content)
+1. 列出模型 — [`GET /v1/videos/models`](https://knoxstudio.ai/api-reference)
+2. 提交任务 — [`POST /v1/videos`](https://knoxstudio.ai/api-reference)
+3. 轮询状态 — [`GET /v1/videos/{jobId}`](https://knoxstudio.ai/api-reference)
+4. 下载文件 — [`GET /v1/videos/{jobId}/content`](https://knoxstudio.ai/api-reference)
 
 所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
 
@@ -343,7 +343,4 @@ await writeFile('generated.mp4', bytes);
 
 ## API 参考
 
-* [提交视频生成请求](/1.0.0/create-video)
-* [轮询视频生成状态](/1.0.0/get-video)
-* [下载生成的视频内容](/1.0.0/get-video-content)
-* [列出所有视频生成模型](/1.0.0/list-video-models)
+视频提交、轮询、下载和模型目录端点见 [API 参考](https://knoxstudio.ai/api-reference)。

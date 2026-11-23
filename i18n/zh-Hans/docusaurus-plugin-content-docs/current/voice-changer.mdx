@@ -15,9 +15,9 @@ Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语
 
 典型流程：
 
-1. 列出模型 — [`GET /v1/speech-to-speech/models`](/1.0.0/list-sts-models)
+1. 列出模型 — [`GET /v1/speech-to-speech/models`](https://knoxstudio.ai/api-reference)
 2. 从 [音色](/voices) 选择 `voice_id`（`GET /v1/voices` 或 `GET /v2/voices`）
-3. 转换 — [`POST /v1/speech-to-speech/{voice_id}`](/1.0.0/convert-speech-to-speech)
+3. 转换 — [`POST /v1/speech-to-speech/{voice_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -89,8 +89,8 @@ open("changed.mp3", "wb").write(response.content)
 
 | 目标 | 端点 |
 | ---- | ---- |
-| 流式转换 | [`POST /v1/speech-to-speech/{voice_id}/stream`](/1.0.0/stream-speech-to-speech) |
-| 列出 / 搜索音色 | [`GET /v1/voices`](/1.0.0/list-voices)、[`GET /v2/voices`](/1.0.0/search-voices) |
+| 流式转换 | [`POST /v1/speech-to-speech/{voice_id}/stream`](https://knoxstudio.ai/api-reference) |
+| 列出 / 搜索音色 | [`GET /v1/voices`](https://knoxstudio.ai/api-reference)、[`GET /v2/voices`](https://knoxstudio.ai/api-reference) |
 
 ## 错误
 

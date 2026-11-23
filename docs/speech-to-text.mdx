@@ -14,9 +14,9 @@ This is not sending `input_audio` to [chat completions](/audio), and it is not [
 
 Typical flow:
 
-1. List models — [`GET /v1/speech-to-text/models`](/1.0.0/list-stt-models)
-2. Transcribe — [`POST /v1/speech-to-text`](/1.0.0/convert-speech-to-text)
-3. Optionally fetch or delete — [`GET`](/1.0.0/get-transcript) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](/1.0.0/delete-transcript)
+1. List models — [`GET /v1/speech-to-text/models`](https://knoxstudio.ai/api-reference)
+2. Transcribe — [`POST /v1/speech-to-text`](https://knoxstudio.ai/api-reference)
+3. Optionally fetch or delete — [`GET`](https://knoxstudio.ai/api-reference) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -90,7 +90,7 @@ Useful fields: `language_code`, `tag_audio_events`, `num_speakers` (max 32), `di
 
 ## Realtime WebSocket
 
-[`GET` / `POST /v1/speech-to-text/realtime`](/1.0.0/stt-realtime) requires a WebSocket upgrade. Default model is `scribe_v2_realtime`.
+[`GET` / `POST /v1/speech-to-text/realtime`](https://knoxstudio.ai/api-reference) requires a WebSocket upgrade. Default model is `scribe_v2_realtime`.
 
 Send:
 

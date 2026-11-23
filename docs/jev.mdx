@@ -10,16 +10,16 @@ import TabItem from '@theme/TabItem';
 
 **Jev** is TypeSafe's System One model on Knox. Send a `state` plus typed `questions`; get structured `answers` your code can use directly. It is **not** a chat model and does **not** generate prose.
 
-Use Jev when your application needs a judgment: route a ticket, score a rubric, or answer yes/no with a calibrated probability. Use [chat completions](/1.0.0/chat-completion) when you need generated text.
+Use Jev when your application needs a judgment: route a ticket, score a rubric, or answer yes/no with a calibrated probability. Use [chat completions](https://knoxstudio.ai/api-reference) when you need generated text.
 
 | Chat / LLM | Jev (System One) |
 | --- | --- |
 | Prompt in, generated text out | `state` + typed `questions` in, structured `answers` out |
-| [`POST /v1/chat/completions`](/1.0.0/chat-completion) | [`POST /v1/systemone`](/1.0.0/systemone) |
+| [`POST /v1/chat/completions`](https://knoxstudio.ai/api-reference) | [`POST /v1/systemone`](https://knoxstudio.ai/api-reference) |
 | Streaming, tools, images | Single JSON evaluate call. Text in, JSON out. No streaming. |
 | Input and output tokens billed | **Input tokens billed; output tokens free** |
 
-Full HTTP schema: [Evaluate (System One)](/1.0.0/systemone).
+Full HTTP schema: [Evaluate (System One)](https://knoxstudio.ai/api-reference).
 
 ## Quickstart
 
@@ -335,7 +335,7 @@ Install with `pip install typesafe-sdk` (Python ≥ 3.10).
 </TabItem>
 </Tabs>
 
-`systemOne()` / `system_one()` is the path Knox implements. Knox `GET /v1/models` uses the OpenAI `{ object: "list", data: [...] }` envelope, so SDK `models.list()` against Knox will not match TypeSafe's `{ models: [...] }` shape. List Jev IDs with Knox [`GET /v1/models`](/1.0.0/list-available-models) instead.
+`systemOne()` / `system_one()` is the path Knox implements. Knox `GET /v1/models` uses the OpenAI `{ object: "list", data: [...] }` envelope, so SDK `models.list()` against Knox will not match TypeSafe's `{ models: [...] }` shape. List Jev IDs with Knox [`GET /v1/models`](https://knoxstudio.ai/api-reference) instead.
 
 ## Patterns
 
@@ -383,4 +383,4 @@ Do **not** send Jev models to `/v1/chat/completions`, `/v1/completions`, `/v1/me
 - No fine-tuning or LoRA. Shape answers with `state`, `instructions`, and `criteria`.
 - Extra JSON properties on the request are forwarded.
 
-Next: the [Evaluate (System One) API](/1.0.0/systemone).
+Next: the [Evaluate (System One) API](https://knoxstudio.ai/api-reference).

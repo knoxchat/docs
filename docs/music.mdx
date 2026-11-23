@@ -12,10 +12,10 @@ Knox exposes ElevenLabs-compatible **music** endpoints for [KnoxStudio](https://
 
 Typical flow:
 
-1. List models — [`GET /v1/music/models`](/1.0.0/list-music-models)
-2. Optionally plan the song — [`POST /v1/music/plan`](/1.0.0/create-composition-plan)
-3. Compose — [`POST /v1/music`](/1.0.0/compose-music)
-4. Or stream — [`POST /v1/music/stream`](/1.0.0/stream-music)
+1. List models — [`GET /v1/music/models`](https://knoxstudio.ai/api-reference)
+2. Optionally plan the song — [`POST /v1/music/plan`](https://knoxstudio.ai/api-reference)
+3. Compose — [`POST /v1/music`](https://knoxstudio.ai/api-reference)
+4. Or stream — [`POST /v1/music/stream`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -99,7 +99,7 @@ A successful compose returns the **audio bytes**. Song identifiers used for inpa
 
 ## Composition plans
 
-[`POST /v1/music/plan`](/1.0.0/create-composition-plan) turns a prompt into a structured plan (styles, sections, lyrics, durations). It does not generate audio and is not billed. Pass the returned object as `composition_plan` to compose.
+[`POST /v1/music/plan`](https://knoxstudio.ai/api-reference) turns a prompt into a structured plan (styles, sections, lyrics, durations). It does not generate audio and is not billed. Pass the returned object as `composition_plan` to compose.
 
 Section duration must be between **3000ms and 120000ms**. At most **30 lines** per section and **200 characters** per line. Section names are 1–100 characters.
 
@@ -107,13 +107,13 @@ Section duration must be between **3000ms and 120000ms**. At most **30 lines** p
 
 | Goal | Endpoint |
 | ---- | -------- |
-| Stream audio | [`POST /v1/music/stream`](/1.0.0/stream-music) |
-| Audio + metadata | [`POST /v1/music/detailed`](/1.0.0/compose-detailed-music) |
-| SSE audio + metadata | [`POST /v1/music/detailed/stream`](/1.0.0/compose-detailed-stream-music) |
-| Upload for inpainting | [`POST /v1/music/upload`](/1.0.0/upload-music) |
-| Split a mix into stems | [`POST /v1/music/stem-separation`](/1.0.0/separate-stems) |
-| Soundtrack from video | [`POST /v1/music/video-to-music`](/1.0.0/video-to-music) (up to 10 videos, 200MB combined) |
-| Style finetunes | [`/v1/music/finetunes`](/1.0.0/list-music-finetunes) |
+| Stream audio | [`POST /v1/music/stream`](https://knoxstudio.ai/api-reference) |
+| Audio + metadata | [`POST /v1/music/detailed`](https://knoxstudio.ai/api-reference) |
+| SSE audio + metadata | [`POST /v1/music/detailed/stream`](https://knoxstudio.ai/api-reference) |
+| Upload for inpainting | [`POST /v1/music/upload`](https://knoxstudio.ai/api-reference) |
+| Split a mix into stems | [`POST /v1/music/stem-separation`](https://knoxstudio.ai/api-reference) |
+| Soundtrack from video | [`POST /v1/music/video-to-music`](https://knoxstudio.ai/api-reference) (up to 10 videos, 200MB combined) |
+| Style finetunes | [`/v1/music/finetunes`](https://knoxstudio.ai/api-reference) |
 
 Copyright inspection applies to uploads. If copyrighted content is detected, **half** of the request cost is still charged.
 

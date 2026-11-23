@@ -15,8 +15,6 @@
  @type {import('@docusaurus/plugin-content-docs').SidebarsConfig}
  */
 
-import apiSidebar from './docs/1.0.0/sidebar'
-
 const sidebars = {
   'tutorialSidebar': [
     {
@@ -137,7 +135,6 @@ const sidebars = {
       ],
     },
   ],
-  'apiSidebar': apiSidebar
 }
 
 export default sidebars

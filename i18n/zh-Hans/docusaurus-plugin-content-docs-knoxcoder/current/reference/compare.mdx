@@ -15,7 +15,7 @@ import Link from '@docusaurus/Link';
 | **KnoxCoder + Knox Agent** | 带内置 `vscode.knox` 的桌面编辑器 | `~/.knoxcoder` | **本标签**（`/knoxcoder`） |
 | **KnoxStudio** | 原生 macOS SI 工作室（录制、生成、时间线、Voice Director） | `.knoxstudio` + `~/.knoxmedia` | [KnoxStudio](/knoxstudio) 标签 |
 | **市场版 Knox**（`knoxchat.knoxchat`） | 给 **原版 VS Code** 的 VSIX | `~/.knox` | 不在这里。在 KnoxCoder **内被拦截** — 不要在这个应用里安装 |
-| **Knox.Chat API** | `api.knox.chat` 上的 HTTP API | 云端 | Docs / API Reference 标签 |
+| **Knox.Chat API** | `api.knox.chat` 上的 HTTP API | 云端 | 文档标签和 [API 参考](https://knoxstudio.ai/api-reference) |
 | **KnoxCode** | 部分博文里提到的更早/单独 Agent | — | **错误产品。** 不要把那些文章抄进本指南 |
 
 ## 内置 vs 市场 VSIX
@@ -33,7 +33,7 @@ import Link from '@docusaurus/Link';
 
 ## KnoxCoder vs Knox.Chat API
 
-登录后 KnoxCoder 可以把 KnoxStudio / Knox.Chat 当作 **模型供应商** 来 **调用**。这不会让编辑器变成 API。多模态生成、Knox-MS 2.0 **云** 记忆和 OpenAPI 在 **Docs** 下：另一个产品。Knox-MS 的检索是词法的（BM25、ripgrep、图谱、摘要树），不是 embeddings。KnoxCoder 的 Memory Brain 是本机 sqlite，同样从不使用 embeddings。
+登录后 KnoxCoder 可以把 KnoxStudio / Knox.Chat 当作 **模型供应商** 来 **调用**。这不会让编辑器变成 API。多模态生成、Knox-MS 2.0 **云** 记忆和 HTTP 路由在 **文档** 和 [API 参考](https://knoxstudio.ai/api-reference) 下：另一个产品。Knox-MS 的检索是词法的（BM25、ripgrep、图谱、摘要树），不是 embeddings。KnoxCoder 的 Memory Brain 是本机 sqlite，同样从不使用 embeddings。
 
 ## 给扩展作者
 

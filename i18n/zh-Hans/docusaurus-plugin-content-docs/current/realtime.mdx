@@ -11,7 +11,7 @@ import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 Knox 为 [`gpt-realtime-2.1`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1) 和 [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini) 代理 OpenAI 的 [Realtime API](https://developers.openai.com/api/docs/guides/realtime)。客户端使用 Knox API key 连接到 Knox。Knox 完成鉴权、选择上游 OpenAI 通道，并转发实时会话。
 
-这是语音到语音的 Voice Agent 端点：音频与文本输入，音频与文本输出，支持工具调用和可配置推理。它**不是** [`/v1/chat/completions`](/1.0.0/chat-completion)。若需要边说边听的全双工语音（`gpt-live-1`），请参阅 [GPT-Live](/live)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
+这是语音到语音的 Voice Agent 端点：音频与文本输入，音频与文本输出，支持工具调用和可配置推理。它**不是** [`/v1/chat/completions`](https://knoxstudio.ai/api-reference)。若需要边说边听的全双工语音（`gpt-live-1`），请参阅 [GPT-Live](/live)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
 
 所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
 
@@ -29,9 +29,9 @@ Knox 为 [`gpt-realtime-2.1`](https://developers.openai.com/api/docs/models/gpt-
 
 典型流程：
 
-1. 连接 — 通过 WebSocket 访问 [`GET /v1/realtime`](/1.0.0/realtime)（推荐的完整计费路径）
-2. 可选：签发浏览器密钥 — [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)
-3. 可选：交换 SDP — [`POST /v1/realtime/calls`](/1.0.0/realtime-calls)（WebRTC；计费不完整）
+1. 连接 — 通过 WebSocket 访问 [`GET /v1/realtime`](https://knoxstudio.ai/api-reference)（推荐的完整计费路径）
+2. 可选：签发浏览器密钥 — [`POST /v1/realtime/client_secrets`](https://knoxstudio.ai/api-reference)
+3. 可选：交换 SDP — [`POST /v1/realtime/calls`](https://knoxstudio.ai/api-reference)（WebRTC；计费不完整）
 
 您也可以在 Knox 界面中使用 **OpenAI: GPT Realtime 2.1** 或 **OpenAI: GPT Realtime 2.1 Mini**：选择该模型、选择 API key，然后点击麦克风。
 
@@ -340,6 +340,4 @@ curl -i https://api.knox.chat/v1/realtime/client_secrets \
 
 ## API 参考
 
-* [实时语音会话](/1.0.0/realtime)
-* [创建实时客户端密钥](/1.0.0/realtime-client-secrets)
-* [创建实时通话](/1.0.0/realtime-calls)
+实时语音会话、客户端密钥和 WebRTC 通话见 [API 参考](https://knoxstudio.ai/api-reference)。

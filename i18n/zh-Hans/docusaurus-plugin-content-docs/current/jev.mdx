@@ -10,16 +10,16 @@ import TabItem from '@theme/TabItem';
 
 **Jev** 是 Knox 上的 TypeSafe System One 模型。你提交一份 `state` 和一组 typed `questions`，得到代码可直接使用的结构化 `answers`。它**不是**聊天模型，也**不会**生成自然语言。
 
-需要做判断时用 Jev：工单分流、按量表打分、用校准后的概率回答是/否。需要生成文本时，请使用 [聊天补全](/1.0.0/chat-completion)。
+需要做判断时用 Jev：工单分流、按量表打分、用校准后的概率回答是/否。需要生成文本时，请使用 [聊天补全](https://knoxstudio.ai/api-reference)。
 
 | 聊天 / LLM | Jev（System One） |
 | --- | --- |
 | 提示词进，生成文本出 | `state` + typed `questions` 进，结构化 `answers` 出 |
-| [`POST /v1/chat/completions`](/1.0.0/chat-completion) | [`POST /v1/systemone`](/1.0.0/systemone) |
+| [`POST /v1/chat/completions`](https://knoxstudio.ai/api-reference) | [`POST /v1/systemone`](https://knoxstudio.ai/api-reference) |
 | 流式、工具、图片 | 单次 JSON 评估。文本进、JSON 出。无流式。 |
 | 输入和输出 token 都计费 | **按输入 token 计费；输出 token 免费** |
 
-完整 HTTP schema：[评估（System One）](/1.0.0/systemone)。
+完整 HTTP schema：[评估（System One）](https://knoxstudio.ai/api-reference)。
 
 ## 快速开始
 
@@ -337,7 +337,7 @@ print(response.answers["frustration"].score)
 </TabItem>
 </Tabs>
 
-Knox 实现的是 `systemOne()` / `system_one()`。Knox 的 `GET /v1/models` 使用 OpenAI 的 `{ object: "list", data: [...] }` 信封，因此 SDK 的 `models.list()` 在 Knox 上不会匹配 TypeSafe 的 `{ models: [...] }` 形状。请用 Knox 的 [`GET /v1/models`](/1.0.0/list-available-models) 列出 Jev ID。
+Knox 实现的是 `systemOne()` / `system_one()`。Knox 的 `GET /v1/models` 使用 OpenAI 的 `{ object: "list", data: [...] }` 信封，因此 SDK 的 `models.list()` 在 Knox 上不会匹配 TypeSafe 的 `{ models: [...] }` 形状。请用 Knox 的 [`GET /v1/models`](https://knoxstudio.ai/api-reference) 列出 Jev ID。
 
 ## 常见模式
 
@@ -385,4 +385,4 @@ Knox 不会自动重试 `429` / `529`。TypeSafe SDK 默认会重试这些状态
 - 无微调或 LoRA。通过 `state`、`instructions` 和 `criteria` 塑造答案。
 - 请求上的额外 JSON 字段会原样转发。
 
-下一步：[评估（System One）API](/1.0.0/systemone)。
+下一步：[评估（System One）API](https://knoxstudio.ai/api-reference)。

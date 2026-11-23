@@ -66,7 +66,6 @@ const config = {
           remarkPlugins: [remarkMath],
           rehypePlugins: [rehypeKatex],
           sidebarPath: './sidebars.js',
-          docItemComponent: '@theme/ApiItem',
           routeBasePath: '/',
           sidebarCollapsible: true,
           sidebarCollapsed: false
@@ -125,7 +124,7 @@ const config = {
         logo: { alt: 'Access hundreds of AI models with just one API call', src: 'img/logo.svg' },
         items: [
           { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
-          { type: 'docSidebar', sidebarId: 'apiSidebar', position: 'left', label: 'API Reference' },
+          { href: 'https://knoxstudio.ai/api-reference', position: 'left', label: 'API Reference' },
           { to: '/blog', label: 'Blog', position: 'left' },
           {
             type: 'docSidebar',
@@ -183,26 +182,6 @@ const config = {
           'r'
         ]
       },
-      languageTabs: [
-        { highlight: 'python', language: 'python', logoClass: 'python' },
-        { highlight: 'bash', language: 'curl', logoClass: 'curl' },
-        { highlight: 'csharp', language: 'csharp', logoClass: 'csharp' },
-        { highlight: 'go', language: 'go', logoClass: 'go' },
-        { highlight: 'javascript', language: 'nodejs', logoClass: 'nodejs' },
-        { highlight: 'ruby', language: 'ruby', logoClass: 'ruby' },
-        { highlight: 'php', language: 'php', logoClass: 'php' },
-        { highlight: 'java', language: 'java', logoClass: 'java', variant: 'unirest' },
-        { highlight: 'powershell', language: 'powershell', logoClass: 'powershell' },
-        { highlight: 'dart', language: 'dart', logoClass: 'dart' },
-        { highlight: 'javascript', language: 'javascript', logoClass: 'javascript' },
-        { highlight: 'c', language: 'c', logoClass: 'c' },
-        { highlight: 'objective-c', language: 'objective-c', logoClass: 'objective-c' },
-        { highlight: 'ocaml', language: 'ocaml', logoClass: 'ocaml' },
-        { highlight: 'r', language: 'r', logoClass: 'r' },
-        { highlight: 'swift', language: 'swift', logoClass: 'swift' },
-        { highlight: 'kotlin', language: 'kotlin', logoClass: 'kotlin' },
-        { highlight: 'rust', language: 'rust', logoClass: 'rust' }
-      ],
       // Mermaid theme configuration
       mermaid: {
         theme: {
@@ -229,7 +208,6 @@ const config = {
         searchBarShortcutHint: true,
       })
     ],
-    'docusaurus-theme-openapi-docs',
     '@docusaurus/theme-mermaid'
   ],
   plugins: [
@@ -260,6 +238,7 @@ const config = {
       },
     ],
     ['./src/plugins/tailwind-config.js', {}],
+    ['./src/plugins/redirect-legacy-api.js', {}],
     [
       'ideal-image',
       /** @type {import('@docusaurus/plugin-ideal-image').PluginOptions} */

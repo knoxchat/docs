@@ -4,7 +4,8 @@ Docusaurus site for:
 
 | Tab | Plugin | Content |
 |---|---|---|
-| **Docs** / **API Reference** | default `@docusaurus/preset-classic` docs (`docs/docs/`, `/`) | Knox.Chat HTTP API |
+| **Docs** | default `@docusaurus/preset-classic` docs (`docs/docs/`, `/`) | Knox.Chat HTTP API guides |
+| **API Reference** | navbar link to [knoxstudio.ai/api-reference](https://knoxstudio.ai/api-reference) | Interactive API reference |
 | **Blog** | preset blog (`docs/blog/`) | Product posts |
 | **KnoxStudio** | `@docusaurus/plugin-content-docs` id `knoxstudio` (`docs/knoxstudio/`, `/knoxstudio`) | KnoxStudio macOS SI studio user guide |
 | **KnoxCoder** | `@docusaurus/plugin-content-docs` id `knoxcoder` (`docs/knoxcoder/`, `/knoxcoder`) | KnoxCoder editor + native Knox Agent user guide |

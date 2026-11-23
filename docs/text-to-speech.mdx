@@ -14,9 +14,9 @@ This is not [Realtime](/realtime) speech-to-speech, and it is not sending audio 
 
 Typical flow:
 
-1. List models — [`GET /v1/text-to-speech/models`](/1.0.0/list-tts-models)
+1. List models — [`GET /v1/text-to-speech/models`](https://knoxstudio.ai/api-reference)
 2. Pick a `voice_id` from [Voices](/voices) (`GET /v1/voices` or `GET /v2/voices`)
-3. Convert — [`POST /v1/text-to-speech/{voice_id}`](/1.0.0/convert-speech)
+3. Convert — [`POST /v1/text-to-speech/{voice_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -94,12 +94,12 @@ open("speech.mp3", "wb").write(response.content)
 
 | Goal | Endpoint |
 | ---- | -------- |
-| List / search voices | [`GET /v1/voices`](/1.0.0/list-voices), [`GET /v2/voices`](/1.0.0/search-voices) |
-| Stream audio | [`POST /v1/text-to-speech/{voice_id}/stream`](/1.0.0/stream-speech) |
-| Character timestamps | [`POST /v1/text-to-speech/{voice_id}/with-timestamps`](/1.0.0/convert-speech-with-timestamps) |
-| Stream + timestamps | [`POST /v1/text-to-speech/{voice_id}/stream/with-timestamps`](/1.0.0/stream-speech-with-timestamps) |
-| Chunked text over WebSocket | [`/v1/text-to-speech/{voice_id}/stream-input`](/1.0.0/tts-stream-input) |
-| Multiple concurrent contexts | [`/v1/text-to-speech/{voice_id}/multi-stream-input`](/1.0.0/tts-multi-stream-input) |
+| List / search voices | [`GET /v1/voices`](https://knoxstudio.ai/api-reference), [`GET /v2/voices`](https://knoxstudio.ai/api-reference) |
+| Stream audio | [`POST /v1/text-to-speech/{voice_id}/stream`](https://knoxstudio.ai/api-reference) |
+| Character timestamps | [`POST /v1/text-to-speech/{voice_id}/with-timestamps`](https://knoxstudio.ai/api-reference) |
+| Stream + timestamps | [`POST /v1/text-to-speech/{voice_id}/stream/with-timestamps`](https://knoxstudio.ai/api-reference) |
+| Chunked text over WebSocket | [`/v1/text-to-speech/{voice_id}/stream-input`](https://knoxstudio.ai/api-reference) |
+| Multiple concurrent contexts | [`/v1/text-to-speech/{voice_id}/multi-stream-input`](https://knoxstudio.ai/api-reference) |
 
 Use HTTP convert when the full text is available. Use WebSocket when text arrives in chunks (for example an LLM stream). Plain HTTP to a WebSocket path returns `400`.
 

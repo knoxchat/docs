@@ -15,7 +15,7 @@ Four names people mix up. Only the first row is this tab.
 | **KnoxCoder + Knox Agent** | Desktop editor with builtin `vscode.knox` | `~/.knoxcoder` | **This tab** (`/knoxcoder`) |
 | **KnoxStudio** | Native macOS SI studio (record, generate, timeline, Voice Director) | `.knoxstudio` + `~/.knoxmedia` | [KnoxStudio](/knoxstudio) tab |
 | **Marketplace Knox** (`knoxchat.knoxchat`) | VSIX for **vanilla VS Code** | `~/.knox` | Not here. **Blocked** inside KnoxCoder — do not install it in this app |
-| **Knox.Chat API** | HTTP API at `api.knox.chat` | Cloud | Docs / API Reference tabs |
+| **Knox.Chat API** | HTTP API at `api.knox.chat` | Cloud | Docs tab and [API Reference](https://knoxstudio.ai/api-reference) |
 | **KnoxCode** | Older/separate agent mentioned in some blog posts | — | **Wrong product.** Do not copy those posts into this guide |
 
 ## Builtin vs marketplace VSIX
@@ -33,7 +33,7 @@ No automatic copy from `~/.knox` into `~/.knoxcoder`.
 
 ## KnoxCoder vs Knox.Chat API
 
-KnoxCoder can **call** KnoxStudio / Knox.Chat as a **model provider** after you sign in. That does not make the editor the API. Multimodal generation, Knox-MS 2.0 **cloud** memory, and OpenAPI live under **Docs**: a different product. Knox-MS retrieval is lexical (BM25, ripgrep, graph, summary tree), not embeddings. KnoxCoder Memory Brain is local sqlite and also never uses embeddings.
+KnoxCoder can **call** KnoxStudio / Knox.Chat as a **model provider** after you sign in. That does not make the editor the API. Multimodal generation, Knox-MS 2.0 **cloud** memory, and HTTP routes live under **Docs** and the [API Reference](https://knoxstudio.ai/api-reference): a different product. Knox-MS retrieval is lexical (BM25, ripgrep, graph, summary tree), not embeddings. KnoxCoder Memory Brain is local sqlite and also never uses embeddings.
 
 ## For extension authors
 

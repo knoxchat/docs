@@ -31,7 +31,6 @@ SKIP_PREFIXES = (
 
 KNOWN_SITE = {
     "/",
-    "/1.0.0/api-reference",
     "/blog",
     "/music",
     "/knoxstudio",

@@ -15,9 +15,9 @@ Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**音
 
 典型流程：
 
-1. 搜索 — [`GET /v2/voices`](/1.0.0/search-voices)
-2. 或列出 — [`GET /v1/voices`](/1.0.0/list-voices)
-3. 即时克隆（IVC）— [`POST /v1/voices/add`](/1.0.0/create-ivc-voice)
+1. 搜索 — [`GET /v2/voices`](https://knoxstudio.ai/api-reference)
+2. 或列出 — [`GET /v1/voices`](https://knoxstudio.ai/api-reference)
+3. 即时克隆（IVC）— [`POST /v1/voices/add`](https://knoxstudio.ai/api-reference)
 4. 在 TTS / 语音转换中使用 `voice_id`
 
 <ApiBaseUrlTabs showAuth />
@@ -57,11 +57,11 @@ print(response.json())
 
 Knox 校验的搜索筛选：`sort`（`created_at_unix`、`name`）、`sort_direction`（`asc`、`desc`）、`voice_type`（`personal`、`community`、`default`、`workspace`、`non-default`、`non-community`、`saved`）、`category`（`premade`、`cloned`、`generated`、`professional`）、`fine_tuning_state`，以及布尔值 `include_custom_rates`、`include_live_moderated`、`high_quality`、`include_total_count`。
 
-共享音色库：[`GET /v1/shared-voices`](/1.0.0/list-shared-voices)。添加共享音色：[`POST /v1/voices/add/{public_user_id}/{voice_id}`](/1.0.0/add-shared-voice)（必须提供 `new_name`）。
+共享音色库：[`GET /v1/shared-voices`](https://knoxstudio.ai/api-reference)。添加共享音色：[`POST /v1/voices/add/{public_user_id}/{voice_id}`](https://knoxstudio.ai/api-reference)（必须提供 `new_name`）。
 
 ## 即时音色克隆（IVC）
 
-[`POST /v1/voices/add`](/1.0.0/create-ivc-voice) 需要 `name` 和 `files`（音频样本）。
+[`POST /v1/voices/add`](https://knoxstudio.ai/api-reference) 需要 `name` 和 `files`（音频样本）。
 
 ```shell
 curl -X POST https://api.knoxstudio.ai/v1/voices/add \
@@ -71,17 +71,17 @@ curl -X POST https://api.knoxstudio.ai/v1/voices/add \
      -F "files=@sample2.wav"
 ```
 
-用 [`POST /v1/voices/{voice_id}/edit`](/1.0.0/edit-voice) 编辑元数据（必须提供 `name`）。用 [`DELETE /v1/voices/{voice_id}`](/1.0.0/delete-voice) 删除。
+用 [`POST /v1/voices/{voice_id}/edit`](https://knoxstudio.ai/api-reference) 编辑元数据（必须提供 `name`）。用 [`DELETE /v1/voices/{voice_id}`](https://knoxstudio.ai/api-reference) 删除。
 
 ## 音色设置
 
 | 目标 | 端点 |
 | ---- | ---- |
-| 默认设置 | [`GET /v1/voices/settings/default`](/1.0.0/get-default-voice-settings) |
-| 获取设置 | [`GET /v1/voices/{voice_id}/settings`](/1.0.0/get-voice-settings) |
-| 编辑设置 | [`POST /v1/voices/{voice_id}/settings/edit`](/1.0.0/edit-voice-settings) |
-| 某 TTS 模型的口音 | [`GET /v1/voices/accents`](/1.0.0/get-voice-accents) |
-| 相似音色 | [`POST /v1/similar-voices`](/1.0.0/find-similar-voices) |
+| 默认设置 | [`GET /v1/voices/settings/default`](https://knoxstudio.ai/api-reference) |
+| 获取设置 | [`GET /v1/voices/{voice_id}/settings`](https://knoxstudio.ai/api-reference) |
+| 编辑设置 | [`POST /v1/voices/{voice_id}/settings/edit`](https://knoxstudio.ai/api-reference) |
+| 某 TTS 模型的口音 | [`GET /v1/voices/accents`](https://knoxstudio.ai/api-reference) |
+| 相似音色 | [`POST /v1/similar-voices`](https://knoxstudio.ai/api-reference) |
 
 设置字段：`stability`、`similarity_boost`、`style`、`speed`、`use_speaker_boost`。`GET /v1/voices/{voice_id}` 接受 `with_settings=true`。
 
@@ -93,16 +93,16 @@ PVC 是多步流程：创建音色、上传样本、可选分离说话人、训�
 
 | 步骤 | 端点 |
 | ---- | ---- |
-| 创建 | [`POST /v1/voices/pvc`](/1.0.0/create-pvc-voice) — 必须提供 `name` 和 `language` |
-| 更新 | [`POST /v1/voices/pvc/{voice_id}`](/1.0.0/update-pvc-voice) |
-| 上传样本 | [`POST /v1/voices/pvc/{voice_id}/samples`](/1.0.0/create-pvc-samples) |
-| 训练 | [`POST /v1/voices/pvc/{voice_id}/train`](/1.0.0/train-pvc-voice) |
-| 核验材料 | [`POST /v1/voices/pvc/{voice_id}/verification`](/1.0.0/request-pvc-verification) |
-| 验证码 | [`GET`](/1.0.0/get-pvc-captcha) / [`POST /v1/voices/pvc/{voice_id}/captcha`](/1.0.0/verify-pvc-captcha) |
+| 创建 | [`POST /v1/voices/pvc`](https://knoxstudio.ai/api-reference) — 必须提供 `name` 和 `language` |
+| 更新 | [`POST /v1/voices/pvc/{voice_id}`](https://knoxstudio.ai/api-reference) |
+| 上传样本 | [`POST /v1/voices/pvc/{voice_id}/samples`](https://knoxstudio.ai/api-reference) |
+| 训练 | [`POST /v1/voices/pvc/{voice_id}/train`](https://knoxstudio.ai/api-reference) |
+| 核验材料 | [`POST /v1/voices/pvc/{voice_id}/verification`](https://knoxstudio.ai/api-reference) |
+| 验证码 | [`GET`](https://knoxstudio.ai/api-reference) / [`POST /v1/voices/pvc/{voice_id}/captcha`](https://knoxstudio.ai/api-reference) |
 
 样本辅助：音频、波形、说话人、说话人音频、说话人分离、裁剪（`trim_start_time` / `trim_end_time`）、`remove_background_noise`、`selected_speaker_ids`。
 
-用 [`POST /v1/voices/{voice_id}/replicate-to-isolated-environment`](/1.0.0/replicate-voice) 把 IVC 或 Voice Design 音色复制到其他工作区（必须提供 `target_workspace_id`）。
+用 [`POST /v1/voices/{voice_id}/replicate-to-isolated-environment`](https://knoxstudio.ai/api-reference) 把 IVC 或 Voice Design 音色复制到其他工作区（必须提供 `target_workspace_id`）。
 
 ## 错误
 

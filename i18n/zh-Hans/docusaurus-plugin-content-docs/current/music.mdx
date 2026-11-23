@@ -13,10 +13,10 @@ Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**音
 
 典型流程：
 
-1. 列出模型 — [`GET /v1/music/models`](/1.0.0/list-music-models)
-2. 可选：规划歌曲 — [`POST /v1/music/plan`](/1.0.0/create-composition-plan)
-3. 作曲 — [`POST /v1/music`](/1.0.0/compose-music)
-4. 或流式生成 — [`POST /v1/music/stream`](/1.0.0/stream-music)
+1. 列出模型 — [`GET /v1/music/models`](https://knoxstudio.ai/api-reference)
+2. 可选：规划歌曲 — [`POST /v1/music/plan`](https://knoxstudio.ai/api-reference)
+3. 作曲 — [`POST /v1/music`](https://knoxstudio.ai/api-reference)
+4. 或流式生成 — [`POST /v1/music/stream`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -100,7 +100,7 @@ open("song.mp3", "wb").write(response.content)
 
 ## 作曲计划
 
-[`POST /v1/music/plan`](/1.0.0/create-composition-plan) 将提示词转为结构化计划（风格、段落、歌词、时长）。它不生成音频，也不计费。将返回对象作为 `composition_plan` 传给作曲接口。
+[`POST /v1/music/plan`](https://knoxstudio.ai/api-reference) 将提示词转为结构化计划（风格、段落、歌词、时长）。它不生成音频，也不计费。将返回对象作为 `composition_plan` 传给作曲接口。
 
 段落时长必须介于 **3000ms 与 120000ms**。每段最多 **30 行**，每行最多 **200 字符**。段落名称长度为 1–100 字符。
 
@@ -108,13 +108,13 @@ open("song.mp3", "wb").write(response.content)
 
 | 目标 | 端点 |
 | ---- | ---- |
-| 流式音频 | [`POST /v1/music/stream`](/1.0.0/stream-music) |
-| 音频 + 元数据 | [`POST /v1/music/detailed`](/1.0.0/compose-detailed-music) |
-| SSE 音频 + 元数据 | [`POST /v1/music/detailed/stream`](/1.0.0/compose-detailed-stream-music) |
-| 上传供局部重绘 | [`POST /v1/music/upload`](/1.0.0/upload-music) |
-| 将混音拆成音轨 | [`POST /v1/music/stem-separation`](/1.0.0/separate-stems) |
-| 根据视频生成配乐 | [`POST /v1/music/video-to-music`](/1.0.0/video-to-music)（最多 10 个视频，合计 200MB） |
-| 风格微调 | [`/v1/music/finetunes`](/1.0.0/list-music-finetunes) |
+| 流式音频 | [`POST /v1/music/stream`](https://knoxstudio.ai/api-reference) |
+| 音频 + 元数据 | [`POST /v1/music/detailed`](https://knoxstudio.ai/api-reference) |
+| SSE 音频 + 元数据 | [`POST /v1/music/detailed/stream`](https://knoxstudio.ai/api-reference) |
+| 上传供局部重绘 | [`POST /v1/music/upload`](https://knoxstudio.ai/api-reference) |
+| 将混音拆成音轨 | [`POST /v1/music/stem-separation`](https://knoxstudio.ai/api-reference) |
+| 根据视频生成配乐 | [`POST /v1/music/video-to-music`](https://knoxstudio.ai/api-reference)（最多 10 个视频，合计 200MB） |
+| 风格微调 | [`/v1/music/finetunes`](https://knoxstudio.ai/api-reference) |
 
 上传会进行版权检查。若检测到受版权保护的内容，仍会收取**一半**费用。
 

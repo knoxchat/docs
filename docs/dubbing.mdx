@@ -14,10 +14,10 @@ Dubbing takes **source audio or video** and produces a dubbed version in another
 
 Typical flow:
 
-1. List models — [`GET /v1/dubbing/models`](/1.0.0/list-dubbing-models)
-2. Create a project — [`POST /v1/dubbing/project`](/1.0.0/create-dubbing-project)
-3. Poll — [`GET /v1/dubbing/project/{project_id}`](/1.0.0/get-dubbing-project)
-4. Fetch a language target — [`GET /v1/dubbing/project/{project_id}/language/{language_id}`](/1.0.0/get-dubbing-language)
+1. List models — [`GET /v1/dubbing/models`](https://knoxstudio.ai/api-reference)
+2. Create a project — [`POST /v1/dubbing/project`](https://knoxstudio.ai/api-reference)
+3. Poll — [`GET /v1/dubbing/project/{project_id}`](https://knoxstudio.ai/api-reference)
+4. Fetch a language target — [`GET /v1/dubbing/project/{project_id}/language/{language_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -94,13 +94,13 @@ Edit the source transcript, then the target translation, then regenerate:
 
 | Goal | Endpoint |
 | ---- | -------- |
-| Add a language | [`POST /v1/dubbing/project/{project_id}/language`](/1.0.0/create-dubbing-language) |
-| Source transcript | [`GET /v1/dubbing/project/{project_id}/transcript`](/1.0.0/get-dubbing-source-transcript) |
-| Add / update / delete source segments | [`/transcript/segment`](/1.0.0/add-dubbing-source-segment) |
-| Batch source updates | [`PATCH .../transcript/segments`](/1.0.0/batch-update-dubbing-source-segments) |
-| Target transcript | [`GET .../language/{language_id}/transcript`](/1.0.0/get-dubbing-target-transcript) |
-| Update target segments | [`PATCH .../transcript/segment/{segment_id}`](/1.0.0/update-dubbing-target-segment) |
-| Regenerate dubbed audio | [`POST .../transcript/regenerate`](/1.0.0/regenerate-dubbing-target) |
+| Add a language | [`POST /v1/dubbing/project/{project_id}/language`](https://knoxstudio.ai/api-reference) |
+| Source transcript | [`GET /v1/dubbing/project/{project_id}/transcript`](https://knoxstudio.ai/api-reference) |
+| Add / update / delete source segments | [`/transcript/segment`](https://knoxstudio.ai/api-reference) |
+| Batch source updates | [`PATCH .../transcript/segments`](https://knoxstudio.ai/api-reference) |
+| Target transcript | [`GET .../language/{language_id}/transcript`](https://knoxstudio.ai/api-reference) |
+| Update target segments | [`PATCH .../transcript/segment/{segment_id}`](https://knoxstudio.ai/api-reference) |
+| Regenerate dubbed audio | [`POST .../transcript/regenerate`](https://knoxstudio.ai/api-reference) |
 
 Source segments must last **0.1–25 seconds**. Batch updates accept **1–500** segment entries. `voice_settings.cloning_strength` is 0–10.
 

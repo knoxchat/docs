@@ -12,10 +12,10 @@ Knox exposes a dedicated **asynchronous** video generation API. Unlike chat comp
 
 The typical flow is:
 
-1. List models — [`GET /v1/videos/models`](/1.0.0/list-video-models)
-2. Submit a job — [`POST /v1/videos`](/1.0.0/create-video)
-3. Poll status — [`GET /v1/videos/{jobId}`](/1.0.0/get-video)
-4. Download the file — [`GET /v1/videos/{jobId}/content`](/1.0.0/get-video-content)
+1. List models — [`GET /v1/videos/models`](https://knoxstudio.ai/api-reference)
+2. Submit a job — [`POST /v1/videos`](https://knoxstudio.ai/api-reference)
+3. Poll status — [`GET /v1/videos/{jobId}`](https://knoxstudio.ai/api-reference)
+4. Download the file — [`GET /v1/videos/{jobId}/content`](https://knoxstudio.ai/api-reference)
 
 All authenticated requests use the same base URL and API key as the rest of Knox. **KnoxChat** and **KnoxStudio** are the same API:
 
@@ -342,7 +342,4 @@ All video endpoints share this error shape:
 
 ## API Reference
 
-* [Submit a video generation request](/1.0.0/create-video)
-* [Poll video generation status](/1.0.0/get-video)
-* [Download generated video content](/1.0.0/get-video-content)
-* [List all video generation models](/1.0.0/list-video-models)
+See the [API Reference](https://knoxstudio.ai/api-reference) for video submit, poll, download, and model catalog endpoints.

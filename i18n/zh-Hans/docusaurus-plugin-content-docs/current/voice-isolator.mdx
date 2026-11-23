@@ -15,9 +15,9 @@ Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**人
 
 典型流程：
 
-1. 列出模型 — [`GET /v1/audio-isolation/models`](/1.0.0/list-isolation-models)
-2. 分离 — [`POST /v1/audio-isolation`](/1.0.0/isolate-audio)
-3. 或流式分离 — [`POST /v1/audio-isolation/stream`](/1.0.0/stream-isolate-audio)
+1. 列出模型 — [`GET /v1/audio-isolation/models`](https://knoxstudio.ai/api-reference)
+2. 分离 — [`POST /v1/audio-isolation`](https://knoxstudio.ai/api-reference)
+3. 或流式分离 — [`POST /v1/audio-isolation/stream`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -81,9 +81,9 @@ open("vocals.mp3", "wb").write(response.content)
 
 | 目标 | 端点 |
 | ---- | ---- |
-| 流式分离 | [`POST /v1/audio-isolation/stream`](/1.0.0/stream-isolate-audio) |
-| 列出分离历史 | [`GET /v1/audio-isolation/history`](/1.0.0/list-isolation-history) |
-| 删除历史条目 | [`DELETE /v1/audio-isolation/history/{history_item_id}`](/1.0.0/delete-isolation-history) |
+| 流式分离 | [`POST /v1/audio-isolation/stream`](https://knoxstudio.ai/api-reference) |
+| 列出分离历史 | [`GET /v1/audio-isolation/history`](https://knoxstudio.ai/api-reference) |
+| 删除历史条目 | [`DELETE /v1/audio-isolation/history/{history_item_id}`](https://knoxstudio.ai/api-reference) |
 
 历史 `page_size` 为 1–1000（默认 100）。`page` 必须 ≥ 1。
 

@@ -15,9 +15,9 @@ Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**文
 
 典型流程：
 
-1. 列出模型 — [`GET /v1/text-to-speech/models`](/1.0.0/list-tts-models)
+1. 列出模型 — [`GET /v1/text-to-speech/models`](https://knoxstudio.ai/api-reference)
 2. 从 [音色](/voices) 选择 `voice_id`（`GET /v1/voices` 或 `GET /v2/voices`）
-3. 合成 — [`POST /v1/text-to-speech/{voice_id}`](/1.0.0/convert-speech)
+3. 合成 — [`POST /v1/text-to-speech/{voice_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -95,12 +95,12 @@ open("speech.mp3", "wb").write(response.content)
 
 | 目标 | 端点 |
 | ---- | ---- |
-| 列出 / 搜索音色 | [`GET /v1/voices`](/1.0.0/list-voices)、[`GET /v2/voices`](/1.0.0/search-voices) |
-| 流式音频 | [`POST /v1/text-to-speech/{voice_id}/stream`](/1.0.0/stream-speech) |
-| 字符级时间戳 | [`POST /v1/text-to-speech/{voice_id}/with-timestamps`](/1.0.0/convert-speech-with-timestamps) |
-| 流式 + 时间戳 | [`POST /v1/text-to-speech/{voice_id}/stream/with-timestamps`](/1.0.0/stream-speech-with-timestamps) |
-| WebSocket 分块文本 | [`/v1/text-to-speech/{voice_id}/stream-input`](/1.0.0/tts-stream-input) |
-| 多个并发上下文 | [`/v1/text-to-speech/{voice_id}/multi-stream-input`](/1.0.0/tts-multi-stream-input) |
+| 列出 / 搜索音色 | [`GET /v1/voices`](https://knoxstudio.ai/api-reference)、[`GET /v2/voices`](https://knoxstudio.ai/api-reference) |
+| 流式音频 | [`POST /v1/text-to-speech/{voice_id}/stream`](https://knoxstudio.ai/api-reference) |
+| 字符级时间戳 | [`POST /v1/text-to-speech/{voice_id}/with-timestamps`](https://knoxstudio.ai/api-reference) |
+| 流式 + 时间戳 | [`POST /v1/text-to-speech/{voice_id}/stream/with-timestamps`](https://knoxstudio.ai/api-reference) |
+| WebSocket 分块文本 | [`/v1/text-to-speech/{voice_id}/stream-input`](https://knoxstudio.ai/api-reference) |
+| 多个并发上下文 | [`/v1/text-to-speech/{voice_id}/multi-stream-input`](https://knoxstudio.ai/api-reference) |
 
 全文已知时使用 HTTP 合成。文本分块到达时（例如 LLM 流式输出）使用 WebSocket。对 WebSocket 路径发送普通 HTTP 会返回 `400`。
 

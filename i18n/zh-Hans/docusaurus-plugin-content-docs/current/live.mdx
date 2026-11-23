@@ -11,7 +11,7 @@ import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 Knox 为 [`gpt-live-1`](https://developers.openai.com/api/docs/models/gpt-live-1) 代理 OpenAI 的 [GPT-Live API](https://developers.openai.com/api/docs/guides/live)。客户端使用 Knox API key 连接到 Knox。Knox 完成鉴权、选择上游 OpenAI 通道，并转发实时会话。
 
-这是**全双工**语音端点：模型可以一边听一边说。对话由 GPT-Live 负责；推理、工具调用和联网搜索会**委派**给后端（Responses、Decisions 或你自己的 Agent）。它**不是** [`/v1/chat/completions`](/1.0.0/chat-completion)，也**不是** [`/v1/realtime`](/realtime)。若需要会话内工具、按轮次的语音到语音（`gpt-realtime-2.1`），请参阅 [实时语音](/realtime)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
+这是**全双工**语音端点：模型可以一边听一边说。对话由 GPT-Live 负责；推理、工具调用和联网搜索会**委派**给后端（Responses、Decisions 或你自己的 Agent）。它**不是** [`/v1/chat/completions`](https://knoxstudio.ai/api-reference)，也**不是** [`/v1/realtime`](/realtime)。若需要会话内工具、按轮次的语音到语音（`gpt-realtime-2.1`），请参阅 [实时语音](/realtime)。若只需在对话中发送一次性音频文件，请参阅 [音频输入](/audio)。
 
 所有需要认证的请求都使用与 Knox 其余接口相同的 Base URL 和 API key。**KnoxChat** 与 **KnoxStudio** 是同一套 API：
 
@@ -61,12 +61,12 @@ curl -s https://api.knox.chat/v1/models \
 
 典型流程：
 
-1. 通过 WebSocket 连接 [`GET /v1/live/sessions`](/1.0.0/live)（推荐的完整计费路径）。
+1. 通过 WebSocket 连接 [`GET /v1/live/sessions`](https://knoxstudio.ai/api-reference)（推荐的完整计费路径）。
 2. **第一条**消息必须是 `session.start`。等待 `session.started`。
 3. 发送 `session.input_audio.append`，播放 `session.output_audio.delta`。
 4. 发送 `session.close`，等待 `session.closed`，以便结算最终用量。
 
-浏览器场景通常用 [`POST /v1/live/sessions`](/1.0.0/live-create) 交换 WebRTC SDP。Knox 仍会挂 sideband，按时长计费。
+浏览器场景通常用 [`POST /v1/live/sessions`](https://knoxstudio.ai/api-reference) 交换 WebRTC SDP。Knox 仍会挂 sideband，按时长计费。
 
 ## 身份验证
 
@@ -77,7 +77,7 @@ Knox token 使用与其余 `/v1` 接口相同的 `sk-` 前缀。
 | 服务端（Node `ws`、Python、OpenAI SDK） | `Authorization: Bearer sk-…` |
 | Anthropic 风格 HTTP | `x-api-key: sk-…` |
 | 浏览器 WebSocket | 子协议 `openai-insecure-api-key.sk-…` |
-| Knox 签发的临时密钥 | `Authorization: Bearer ek_knox_…`（来自 [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)） |
+| Knox 签发的临时密钥 | `Authorization: Bearer ek_knox_…`（来自 [`POST /v1/realtime/client_secrets`](https://knoxstudio.ai/api-reference)） |
 
 仅在 WebSocket 升级时，若缺少请求头/子协议，也接受 `?api_key=` 或 `?authorization=`。
 
@@ -389,15 +389,15 @@ curl -s https://api.knox.chat/v1/live/sessions \
 
 WebRTC 创建会预收 **15 秒**语音费用，之后从累计时长中抵扣。
 
-见 [`POST /v1/live/sessions`](/1.0.0/live-create) 以及 OpenAI 的 [WebRTC 传输](https://developers.openai.com/api/docs/guides/voice-webrtc)。
+见 [`POST /v1/live/sessions`](https://knoxstudio.ai/api-reference) 以及 OpenAI 的 [WebRTC 传输](https://developers.openai.com/api/docs/guides/voice-webrtc)。
 
 ## Sideband、分叉、录音
 
-**Sideband。** [`GET /v1/live/sessions/{id}/attach`](/1.0.0/live-attach) 在已有会话上打开第二条 WebSocket。音频仍走主连接。关闭 sideband **不会**挂断通话。可从服务器观察转写、处理 client 委派，或发送 `session.close`。
+**Sideband。** [`GET /v1/live/sessions/{id}/attach`](https://knoxstudio.ai/api-reference) 在已有会话上打开第二条 WebSocket。音频仍走主连接。关闭 sideband **不会**挂断通话。可从服务器观察转写、处理 client 委派，或发送 `session.close`。
 
-**分叉。** 创建时带 `"store": true`。之后 [`/v1/live/sessions/{id}/fork`](/1.0.0/live-fork) 会开一个继承已存对话的新会话。分叉可覆盖的字段仅限 `store`、Responses 委派，以及（WebSocket）`audio.format`。只有原会话所有者可以分叉。
+**分叉。** 创建时带 `"store": true`。之后 [`/v1/live/sessions/{id}/fork`](https://knoxstudio.ai/api-reference) 会开一个继承已存对话的新会话。分叉可覆盖的字段仅限 `store`、Responses 委派，以及（WebSocket）`audio.format`。只有原会话所有者可以分叉。
 
-**录音。** 已存储会话保留立体声 WAV（输入在左声道，输出在右声道）**30 天**。从 [`GET /v1/live/sessions/{id}/content`](/1.0.0/live-content) 下载。`store: false` 的会话无法下载。
+**录音。** 已存储会话保留立体声 WAV（输入在左声道，输出在右声道）**30 天**。从 [`GET /v1/live/sessions/{id}/content`](https://knoxstudio.ai/api-reference) 下载。`store: false` 的会话无法下载。
 
 ## SIP
 
@@ -416,7 +416,7 @@ WebRTC 创建会预收 **15 秒**语音费用，之后从累计时长中抵扣�
 
 SIP 创建在初始化后即返回，**不会**等待被叫接听。用 `session.id` 挂 sideband 观察进度。振铃上限 **3 分钟**，接通后上限 **2 小时**（OpenAI 限制）。
 
-来电：[`accept`](/1.0.0/live-sip)、[`reject`](/1.0.0/live-sip)（`status_code` 300-699）、[`hangup`](/1.0.0/live-sip)、[`refer`](/1.0.0/live-sip)（`target_uri`）。接听时 Knox 会把 `session.type` 设为 `"live"`（OpenAI 要求）。详见 OpenAI [Telephony and SIP](https://developers.openai.com/api/docs/guides/voice-sip)。
+来电：[`accept`](https://knoxstudio.ai/api-reference)、[`reject`](https://knoxstudio.ai/api-reference)（`status_code` 300-699）、[`hangup`](https://knoxstudio.ai/api-reference)、[`refer`](https://knoxstudio.ai/api-reference)（`target_uri`）。接听时 Knox 会把 `session.type` 设为 `"live"`（OpenAI 要求）。详见 OpenAI [Telephony and SIP](https://developers.openai.com/api/docs/guides/voice-sip)。
 
 ## 计费
 
@@ -479,11 +479,6 @@ curl -i https://api.knox.chat/v1/live/sessions \
 
 ## API 参考
 
-* [连接 Live 会话](/1.0.0/live)
-* [创建 Live 会话](/1.0.0/live-create)
-* [挂载 sideband](/1.0.0/live-attach)
-* [分叉 Live 会话](/1.0.0/live-fork)
-* [下载录音](/1.0.0/live-content)
-* [SIP 呼叫控制](/1.0.0/live-sip)
+Live 会话、sideband、分叉、录音和 SIP 呼叫端点见 [API 参考](https://knoxstudio.ai/api-reference)。
 
 OpenAI 官方参考：[GPT-Live 概览](https://developers.openai.com/api/docs/guides/live)、[创建会话](https://developers.openai.com/api/reference/resources/live/methods/create)、[WebSockets](https://developers.openai.com/api/docs/guides/voice-websockets)、[管理会话](https://developers.openai.com/api/docs/guides/live-conversations)、[委派](https://developers.openai.com/api/docs/guides/live-delegation)、[从 Realtime 迁移](https://developers.openai.com/api/docs/guides/live-migration)。

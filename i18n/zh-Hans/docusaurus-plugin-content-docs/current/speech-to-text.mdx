@@ -15,9 +15,9 @@ Knox 为 [KnoxStudio](https://knoxstudio.ai) 提供与 ElevenLabs 兼容的**语
 
 典型流程：
 
-1. 列出模型 — [`GET /v1/speech-to-text/models`](/1.0.0/list-stt-models)
-2. 转写 — [`POST /v1/speech-to-text`](/1.0.0/convert-speech-to-text)
-3. 可选：读取或删除 — [`GET`](/1.0.0/get-transcript) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](/1.0.0/delete-transcript)
+1. 列出模型 — [`GET /v1/speech-to-text/models`](https://knoxstudio.ai/api-reference)
+2. 转写 — [`POST /v1/speech-to-text`](https://knoxstudio.ai/api-reference)
+3. 可选：读取或删除 — [`GET`](https://knoxstudio.ai/api-reference) / [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -91,7 +91,7 @@ print(response.json()["text"])
 
 ## 实时 WebSocket
 
-[`GET` / `POST /v1/speech-to-text/realtime`](/1.0.0/stt-realtime) 需要 WebSocket 升级。默认模型为 `scribe_v2_realtime`。
+[`GET` / `POST /v1/speech-to-text/realtime`](https://knoxstudio.ai/api-reference) 需要 WebSocket 升级。默认模型为 `scribe_v2_realtime`。
 
 发送：
 

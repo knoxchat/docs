@@ -10,7 +10,7 @@ import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 Knox proxies OpenAI’s [Realtime API](https://developers.openai.com/api/docs/guides/realtime) for [`gpt-realtime-2.1`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1) and [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini). Clients connect to Knox with a Knox API key. Knox authenticates, picks an upstream OpenAI channel, and relays the live session.
 
-This is a speech-to-speech voice-agent endpoint: audio and text in, audio and text out, with tool use and configurable reasoning. It is **not** [`/v1/chat/completions`](/1.0.0/chat-completion). For full-duplex voice that listens while speaking (`gpt-live-1`), see [GPT-Live](/live). For one-shot audio files in chat, see [Audio Inputs](/audio).
+This is a speech-to-speech voice-agent endpoint: audio and text in, audio and text out, with tool use and configurable reasoning. It is **not** [`/v1/chat/completions`](https://knoxstudio.ai/api-reference). For full-duplex voice that listens while speaking (`gpt-live-1`), see [GPT-Live](/live). For one-shot audio files in chat, see [Audio Inputs](/audio).
 
 All authenticated requests use the same base URL and API key as the rest of Knox. **KnoxChat** and **KnoxStudio** are the same API:
 
@@ -28,9 +28,9 @@ The same routes are also mounted under `/api/v1`. Query `?model=` is optional; K
 
 Typical flow:
 
-1. Connect — [`GET /v1/realtime`](/1.0.0/realtime) over WebSocket (recommended billed path)
-2. Optionally mint a browser key — [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets)
-3. Optionally exchange SDP — [`POST /v1/realtime/calls`](/1.0.0/realtime-calls) (WebRTC; billing is incomplete)
+1. Connect — [`GET /v1/realtime`](https://knoxstudio.ai/api-reference) over WebSocket (recommended billed path)
+2. Optionally mint a browser key — [`POST /v1/realtime/client_secrets`](https://knoxstudio.ai/api-reference)
+3. Optionally exchange SDP — [`POST /v1/realtime/calls`](https://knoxstudio.ai/api-reference) (WebRTC; billing is incomplete)
 
 You can also use **OpenAI: GPT Realtime 2.1** or **OpenAI: GPT Realtime 2.1 Mini** in the Knox.Chat UI or [KnoxStudio](https://knoxstudio.ai): select the model, pick an API key, and click the microphone.
 
@@ -339,6 +339,4 @@ curl -i https://api.knox.chat/v1/realtime/client_secrets \
 
 ## API Reference
 
-* [Realtime session](/1.0.0/realtime)
-* [Create realtime client secret](/1.0.0/realtime-client-secrets)
-* [Create realtime call](/1.0.0/realtime-calls)
+See the [API Reference](https://knoxstudio.ai/api-reference) for Realtime session, client secrets, and WebRTC calls.

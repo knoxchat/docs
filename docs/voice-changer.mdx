@@ -14,9 +14,9 @@ This is not [Text to Speech](/text-to-speech), not [Realtime](/realtime) speech-
 
 Typical flow:
 
-1. List models — [`GET /v1/speech-to-speech/models`](/1.0.0/list-sts-models)
+1. List models — [`GET /v1/speech-to-speech/models`](https://knoxstudio.ai/api-reference)
 2. Pick a `voice_id` from [Voices](/voices) (`GET /v1/voices` or `GET /v2/voices`)
-3. Convert — [`POST /v1/speech-to-speech/{voice_id}`](/1.0.0/convert-speech-to-speech)
+3. Convert — [`POST /v1/speech-to-speech/{voice_id}`](https://knoxstudio.ai/api-reference)
 
 <ApiBaseUrlTabs showAuth />
 
@@ -88,8 +88,8 @@ Useful fields: `file_format` (`pcm_s16le_16` or `other`), `seed` (0–4294967295
 
 | Goal | Endpoint |
 | ---- | -------- |
-| Stream converted audio | [`POST /v1/speech-to-speech/{voice_id}/stream`](/1.0.0/stream-speech-to-speech) |
-| List / search voices | [`GET /v1/voices`](/1.0.0/list-voices), [`GET /v2/voices`](/1.0.0/search-voices) |
+| Stream converted audio | [`POST /v1/speech-to-speech/{voice_id}/stream`](https://knoxstudio.ai/api-reference) |
+| List / search voices | [`GET /v1/voices`](https://knoxstudio.ai/api-reference), [`GET /v2/voices`](https://knoxstudio.ai/api-reference) |
 
 ## Errors
 

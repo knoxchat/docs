@@ -10,7 +10,7 @@ import ApiBaseUrlTabs from '@site/src/components/ApiBaseUrlTabs';
 
 Knox proxies OpenAI’s [GPT-Live API](https://developers.openai.com/api/docs/guides/live) for [`gpt-live-1`](https://developers.openai.com/api/docs/models/gpt-live-1). Clients connect to Knox with a Knox API key. Knox authenticates, picks an upstream OpenAI channel, and relays the live session.
 
-This is a **full-duplex** voice endpoint: the model can listen and speak at the same time. Conversation stays on GPT-Live. Reasoning, tool use, and web search are **delegated** to a backend (Responses, Decisions, or your own agent). It is **not** [`/v1/chat/completions`](/1.0.0/chat-completion) and **not** [`/v1/realtime`](/realtime). For turn-based speech-to-speech with in-session tools (`gpt-realtime-2.1`), see [Realtime](/realtime). For one-shot audio files in chat, see [Audio Inputs](/audio).
+This is a **full-duplex** voice endpoint: the model can listen and speak at the same time. Conversation stays on GPT-Live. Reasoning, tool use, and web search are **delegated** to a backend (Responses, Decisions, or your own agent). It is **not** [`/v1/chat/completions`](https://knoxstudio.ai/api-reference) and **not** [`/v1/realtime`](/realtime). For turn-based speech-to-speech with in-session tools (`gpt-realtime-2.1`), see [Realtime](/realtime). For one-shot audio files in chat, see [Audio Inputs](/audio).
 
 All authenticated requests use the same base URL and API key as the rest of Knox. **KnoxChat** and **KnoxStudio** are the same API:
 
@@ -60,12 +60,12 @@ You should see `gpt-live-1` with input modalities `audio`, `text` and output `au
 
 Typical flow:
 
-1. Connect over WebSocket to [`GET /v1/live/sessions`](/1.0.0/live) (recommended billed path).
+1. Connect over WebSocket to [`GET /v1/live/sessions`](https://knoxstudio.ai/api-reference) (recommended billed path).
 2. Send `session.start` as the **first** message. Wait for `session.started`.
 3. Stream `session.input_audio.append`. Play `session.output_audio.delta`.
 4. Send `session.close` and wait for `session.closed` so final usage is billed.
 
-For browsers, [`POST /v1/live/sessions`](/1.0.0/live-create) with a WebRTC SDP offer is the usual path. Knox still bills voice duration by attaching its own sideband.
+For browsers, [`POST /v1/live/sessions`](https://knoxstudio.ai/api-reference) with a WebRTC SDP offer is the usual path. Knox still bills voice duration by attaching its own sideband.
 
 ## Authentication
 
@@ -76,7 +76,7 @@ Knox tokens use the same `sk-` prefix as the rest of `/v1`.
 | Server (Node `ws`, Python, OpenAI SDK) | `Authorization: Bearer sk-…` |
 | Anthropic-style HTTP | `x-api-key: sk-…` |
 | Browser WebSocket | subprotocol `openai-insecure-api-key.sk-…` |
-| Knox-issued ephemeral | `Authorization: Bearer ek_knox_…` from [`POST /v1/realtime/client_secrets`](/1.0.0/realtime-client-secrets) |
+| Knox-issued ephemeral | `Authorization: Bearer ek_knox_…` from [`POST /v1/realtime/client_secrets`](https://knoxstudio.ai/api-reference) |
 
 On WebSocket upgrades only, `?api_key=` or `?authorization=` is accepted if headers/subprotocol are missing.
 
@@ -388,15 +388,15 @@ Raw SDP (`Content-Type: application/sdp`) is also accepted. Success is `201 Crea
 
 WebRTC create bills **15 seconds** of voice up front; that amount is credited against the running duration.
 
-See [`POST /v1/live/sessions`](/1.0.0/live-create) and OpenAI’s [WebRTC transport](https://developers.openai.com/api/docs/guides/voice-webrtc).
+See [`POST /v1/live/sessions`](https://knoxstudio.ai/api-reference) and OpenAI’s [WebRTC transport](https://developers.openai.com/api/docs/guides/voice-webrtc).
 
 ## Sideband, fork, recordings
 
-**Sideband.** [`GET /v1/live/sessions/{id}/attach`](/1.0.0/live-attach) opens a second WebSocket on an existing session. Audio stays on the primary connection. Closing the sideband does **not** hang up the call. Use this from your server to observe transcripts, handle client delegations, or send `session.close`.
+**Sideband.** [`GET /v1/live/sessions/{id}/attach`](https://knoxstudio.ai/api-reference) opens a second WebSocket on an existing session. Audio stays on the primary connection. Closing the sideband does **not** hang up the call. Use this from your server to observe transcripts, handle client delegations, or send `session.close`.
 
-**Fork.** Create with `"store": true`. Later, [`/v1/live/sessions/{id}/fork`](/1.0.0/live-fork) starts a new session that inherits the stored conversation. Fork overrides are limited to `store`, Responses delegation, and (WebSocket) `audio.format`. Only the owner of the original session can fork it.
+**Fork.** Create with `"store": true`. Later, [`/v1/live/sessions/{id}/fork`](https://knoxstudio.ai/api-reference) starts a new session that inherits the stored conversation. Fork overrides are limited to `store`, Responses delegation, and (WebSocket) `audio.format`. Only the owner of the original session can fork it.
 
-**Recording.** Stored sessions keep a stereo WAV (input left, output right) for **30 days**. Download it from [`GET /v1/live/sessions/{id}/content`](/1.0.0/live-content). Sessions created with `store: false` cannot be downloaded.
+**Recording.** Stored sessions keep a stereo WAV (input left, output right) for **30 days**. Download it from [`GET /v1/live/sessions/{id}/content`](https://knoxstudio.ai/api-reference). Sessions created with `store: false` cannot be downloaded.
 
 ## SIP
 
@@ -415,7 +415,7 @@ Place an outbound call:
 
 SIP create returns after initialization; it does **not** wait for the callee to answer. Attach a sideband with `session.id` to watch progress. Ringing is limited to **3 minutes** and connected calls to **2 hours** (OpenAI limits).
 
-Incoming calls: [`accept`](/1.0.0/live-sip), [`reject`](/1.0.0/live-sip) (`status_code` 300-699), [`hangup`](/1.0.0/live-sip), [`refer`](/1.0.0/live-sip) (`target_uri`). On accept, Knox sets `session.type` to `"live"` as required by OpenAI. See OpenAI [Telephony and SIP](https://developers.openai.com/api/docs/guides/voice-sip).
+Incoming calls: [`accept`](https://knoxstudio.ai/api-reference), [`reject`](https://knoxstudio.ai/api-reference) (`status_code` 300-699), [`hangup`](https://knoxstudio.ai/api-reference), [`refer`](https://knoxstudio.ai/api-reference) (`target_uri`). On accept, Knox sets `session.type` to `"live"` as required by OpenAI. See OpenAI [Telephony and SIP](https://developers.openai.com/api/docs/guides/voice-sip).
 
 ## Billing
 
@@ -478,11 +478,6 @@ curl -i https://api.knox.chat/v1/live/sessions \
 
 ## API Reference
 
-* [Connect Live session](/1.0.0/live)
-* [Create Live session](/1.0.0/live-create)
-* [Attach sideband](/1.0.0/live-attach)
-* [Fork Live session](/1.0.0/live-fork)
-* [Download recording](/1.0.0/live-content)
-* [SIP call controls](/1.0.0/live-sip)
+See the [API Reference](https://knoxstudio.ai/api-reference) for Live session, sideband, fork, recording, and SIP call endpoints.
 
 Official OpenAI references: [GPT-Live overview](https://developers.openai.com/api/docs/guides/live), [Create session](https://developers.openai.com/api/reference/resources/live/methods/create), [WebSockets](https://developers.openai.com/api/docs/guides/voice-websockets), [Managing sessions](https://developers.openai.com/api/docs/guides/live-conversations), [Delegation](https://developers.openai.com/api/docs/guides/live-delegation), [Migrate from Realtime](https://developers.openai.com/api/docs/guides/live-migration).
